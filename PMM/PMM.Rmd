@@ -14,7 +14,7 @@ library(ggplot2)
 library(DT)
 library(shiny)
 library(shinyWidgets)
-library(ggiraph)
+library(plotly)
 ```
 
 ## Topic 1
@@ -123,22 +123,69 @@ values of the incomplete case.
 
 Let's look at an examle
 
-```{r, context = "server"}
-output$plotneighbors <- renderggiraph({
+```{r, context = "server", eval = T}
+output$plotneighbors <- renderPlotly({
   gg <- ggplot(normDF, aes(x = pred, y = x)) +
-    # geom_point(na.rm = T) +
-    geom_point_interactive(aes(tooltip = paste("Neighbor number", nn1)),
-                           na.rm = T) +
     xlab("predicted value of x") +
     ylab('observed value of x') +
-    geom_vline(xintercept = normDF$pred[which(is.na(normDF$x))[1]], lty = 2,
+    geom_vline(xintercept = normDF$pred[which(is.na(normDF$x))[as.numeric(input$whichmis)]],
+               lty = 2,
                color = "firebrick2")
   
-  ggiraph(code = print(gg), zoom_max = 5)
+  print(input$whichmis)
+
+    if(input$highlight) {
+      gg <- gg + geom_point(aes(color = normDF[[paste0("nn", input$whichmis)]] <= input$nn,
+                                shape = normDF[[paste0("nn", input$whichmis)]] <= input$nn,
+                                text = paste("neighbour number",
+                                             get(paste0("nn", input$whichmis))))) +
+        scale_color_manual(name = "",
+                           limits = c("TRUE", "FALSE"), 
+                           values = c("dodgerblue3", "black")) +
+        scale_shape_manual(name = "",
+                           limits = c("TRUE", "FALSE"), 
+                           values = c(17, 16)) +
+        theme(legend.position = 'none')
+    } else {
+      gg <- gg + geom_point(na.rm = T, 
+                            aes(text = paste("neighbour number",
+                                             get(paste0("nn", input$whichmis)))))
+    }
+  
+  ggp <- ggplotly(gg, tooltip = "text")
+  ggp$elementId <- NULL
+  ggp
 })
+
 ```
 
-```{r}
-ggiraphOutput("plotneighbors")
+
+```{r, eval = T}
+wellPanel(
+  fluidRow(
+    column(8, sliderInput(inputId = "nn", 
+               label = "number of candidates",
+               min = 1, max = 50, value = 5),
+           materialSwitch(inputId = "highlight", 
+                             label = "highlight candidates",
+                             status = "primary", right = TRUE)
+           ),
+    column(4, 
+           radioButtons(inputId = "whichmis", label = "Which missing x?",
+                        choices = as.list(
+                          setNames(1:5,
+                                   expression(paste0(hat(x),
+                                                     "[z = ",
+                                          sprintf(normDF$z[which(is.na(normDF$x))[1:5]], fmt = "%.2f"),
+                                          ", x = ",
+                                          sprintf(normDF$pred[which(is.na(normDF$x))[1:5]], fmt = "%.2f"),
+                                          "]")))),
+                        selected = 3
+           )
+    )
+  )
+)
+plotlyOutput("plotneighbors")
 ```
+
 
