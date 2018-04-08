@@ -1,0 +1,144 @@
+---
+title: "Tutorial"
+output: learnr::tutorial
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r, echo = F, message = F}
+library(ggplot2)
+library(DT)
+library(shiny)
+library(shinyWidgets)
+library(ggiraph)
+```
+
+## Topic 1
+
+### Exercise 
+
+
+```{r, data}
+p <- 2
+N <- 100
+set.seed(2018)
+s <- rnorm(p*(p - 1)/2, 0, 0.2)
+S <- diag(rgamma(p, 1, 2))
+S[lower.tri(S)] <- s
+S[upper.tri(S)] <- t(S)[upper.tri(S)]
+S <- Matrix::nearPD(S)$mat
+
+normDF <- data.frame(MASS::mvrnorm(N, rep(0, p), S))
+names(normDF) <- c("z", "x")
+
+# delete 5 values
+normDF$x[order(normDF$z)[seq(from = 2, to = N - 2, length = 5)]] <- NA
+
+lm1 <- lm(x~z, data = normDF)
+normDF$pred <- predict(lm1, newdata = normDF)
+
+dist <- sapply(1:sum(is.na(normDF$x)), function(i) {
+               normDF$pred - normDF$pred[which(is.na(normDF$x))[i]]
+})
+
+dist[which(is.na(normDF$x)), ] <- NA
+
+distorder <- sapply(1:sum(is.na(normDF$x)), function(i) {
+                   order(order(abs(dist[, i])))
+})
+
+colnames(distorder) <- paste0("nn", 1:sum(is.na(normDF$x)))
+
+normDF <- cbind(normDF, distorder)
+```
+
+
+```{r}
+fluidRow(
+  column(8, plotOutput("normDFplot")),
+  column(4, dataTableOutput("normDFtab"),
+         br(),
+         checkboxInput("addloc", "show z-location of missing x values", value = 0)
+  )
+)
+```
+
+```{r, context = "server", warning = F}
+output$normDFplot <- renderPlot({
+  p <- ggplot(normDF, aes(x = z, y = x)) +
+    geom_point(na.rm = TRUE) +
+    theme(axis.text = element_text(size = 10),
+          axis.title = element_text(size = 12, face = 'bold'))
+  if (input$addloc == 1) {
+    p <- p + geom_vline(xintercept = normDF$z[is.na(normDF$x)], lty = 2,
+                        col = 'firebrick2')
+  }
+  if (input$addpred) {
+    p <- p + geom_point(aes(y = pred, col = is.na(x)), size = 1.5) +
+      theme(legend.position = 'none') +
+      scale_color_manual(name = "x missing",
+                         limits = c(F, T),
+                         values = c("chartreuse4", 'firebrick2'))
+  }
+  p
+})
+
+output$normDFtab <- renderDataTable({
+  datatable(normDF[, c("z", "x")], extensions = "Scroller",
+          options = list(dom = 't',
+                         deferRender = TRUE,
+                         scrollY = 200,
+                         scroller = TRUE)) %>%
+  formatRound(1:2, 2)
+})
+```
+
+In predictive mean mathcin, the predicted value for the observed values
+$x_{obs}$ as  well as for the missing values $x_{mis}$ is calculated:
+\begin{eqnarray*}
+\hat x_{obs} = \hat\beta_0 + \hat\beta_1 z_{obs}\\
+\hat x_{mis} = \hat\beta_0 + \hat\beta_1 z_{mis}\\
+\end{eqnarray*}
+
+```{r}
+# checkboxInput("addpred", "show predicted values", value = 0)
+materialSwitch(inputId = "addpred", 
+               label = "show the predicted values in the plot above",
+               status = "primary", right = TRUE)
+```
+
+
+Since we have only included one covariate in our simple example, the predicted 
+values all lie on the regression line.
+
+
+For each of the predicted values of a missing $x$, a pool of candidate values
+to impute from is needed. This pool of candidates is chosen based on the 
+distance of the predicted values of the observed cases from the predicted
+values of the incomplete case.
+
+Let's look at an examle
+
+```{r, context = "server"}
+output$plotneighbors <- renderggiraph({
+  gg <- ggplot(normDF, aes(x = pred, y = x)) +
+    # geom_point(na.rm = T) +
+    geom_point_interactive(aes(tooltip = paste("Neighbor number", nn1)),
+                           na.rm = T) +
+    xlab("predicted value of x") +
+    ylab('observed value of x') +
+    geom_vline(xintercept = normDF$pred[which(is.na(normDF$x))[1]], lty = 2,
+               color = "firebrick2")
+  
+  ggiraph(code = print(gg), zoom_max = 5)
+})
+```
+
+```{r}
+ggiraphOutput("plotneighbors")
+```
+
