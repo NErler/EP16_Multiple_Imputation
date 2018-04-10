@@ -1,0 +1,352 @@
+\section{A closer look at the imputation step}
+\subsection{Bayesian multiple imputation}
+
+\begin{frame}{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+The imputation step consists itself of two (or three) steps:
+\begin{enumerate} \setcounter{enumi}{-1}
+\item Specification of the imputation model,
+\item estimation or sampling of the parameters, and
+\item drawing imputed values from the predictive distribution.
+\end{enumerate}
+
+\bigskip
+
+\pause
+\textbf{Notation:}\\
+Let $\bmath y = (\bmath y_{obs}^T, \bmath y_{mis}^T)^T$
+bet the incomplete covariate to be imputed,
+and $\bmath X$ the design matrix of other (complete or imputed) variables.
+
+$$
+\bmath y = \begin{array}{c}
+\bmath y_{obs}\scalebox{1.4}{\Bigg\{}\\[3ex]
+\bmath y_{mis}\scalebox{1.4}{\Bigg\{}
+\end{array}
+\left[
+\begin{array}{c}
+            y_1\\
+            \vdots\\
+            y_q\\
+            NA\\
+            \vdots\\
+            NA
+            \end{array}
+\right]
+\qquad
+\bmath X = \begin{array}{c}
+\bmath X_{obs}\scalebox{1.4}{\Bigg\{}\\[3ex]
+\bmath X_{mis}\scalebox{1.4}{\Bigg\{}
+\end{array}
+\left[
+\begin{array}{cccc}
+1 & x_{11} & \ldots & x_{1p}\\
+\vdots & \vdots & \ldots & \vdots\\
+1 & x_{q1} & \ldots & x_{qp}\\
+1 & x_{q+1,1} & \ldots & x_{q+1,p}\\
+\vdots & \vdots & \ldots & \vdots\\
+1 & x_{n1} & \ldots & x_{np}\\
+\end{array}
+\right]
+$$
+
+\end{frame}
+
+
+\begin{frame}{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+
+In \blue{Bayesian imputation} (the approach seen on slides
+\ref{BayesianImputationI}/\ref{BayesianImputationII} and \ref{micealgorithm})
+the parameters (regression coefficients
+$\bmath\beta$ and residual variance $\sigma$) are sampled from their respective
+posterior distributions (step 1).
+
+\bigskip
+
+Imputed values are drawn from $p(\bmath y_{mis} \mid \bmath X_{mis}, \bmath{\hat\beta}, \hat\sigma)$.
+
+\bigskip
+
+For a normal imputation model $p()$ is the normal distribution and
+$$\bmath y_{mis} = \bmath X_{mis} \hat{\bmath\beta} + \bmath{\hat{\varepsilon}}$$
+where
+$\bmath{\hat\varepsilon} = (\hat\varepsilon_{n}, \ldots, \hat\varepsilon_{q+1})^T$
+is drawn independently from $N(0, \hat\sigma)$ (step 2).
+\end{frame}
+
+
+\subsection{Bootstrap multiple imputation}
+
+\begin{frame}{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+An alternative approach is to capture the uncertainty with \blue{bootstrap} sampling.
+
+\bigskip
+
+In empirical \blue{Bootstrap}, (many) replications of the data are created by
+repeatedly drawing values from the original data.
+
+\pause
+\tcbset{width=(\linewidth-2mm)/3,before=,after=\hfill,
+colframe=blue!75!black,colback=white, size = title, valign = center,
+halign = center, size = title, height = 2.5cm, width = 2cm}
+
+\vfill
+
+\begin{columns}
+\begin{column}{0.55\linewidth}
+\scalebox{0.6}{
+\setlength{\unitlength}{1cm}
+\begin{picture}(10, 9)
+%
+\put(0, 4.5){
+\begin{tcolorbox}
+  observed data
+\end{tcolorbox}}
+\put(2.2, 6.5){\vector(3,4){1}}
+\put(2.2, 5.5){\vector(1,-1){1}}
+\put(2.2, 4.5){\vector(1,-2){1}}
+%
+\put(3.2, 6.5){
+\begin{tcolorbox}
+  bootstrap sample
+\end{tcolorbox}
+}
+\put(4.2, 5.8){\vdots
+}
+\put(3.2, 3){
+\begin{tcolorbox}
+  bootstrap sample
+\end{tcolorbox}
+}
+\put(3.2, 0){
+\begin{tcolorbox}
+  bootstrap sample
+\end{tcolorbox}
+}
+\put(5.4, 7.2){\vector(1,0){1}}
+\put(5.4, 4.2){\vector(1,0){1}}
+\put(5.4, 1.2){\vector(1,0){1}}
+%
+\put(6.7, 7.1){\large estimate $\boldsymbol{\hat\beta}_{BS}$ and $\hat\sigma_{BS}$}
+\put(6.7, 4.1){estimate $\boldsymbol{\hat\beta}_{BS}$ and $\hat\sigma_{BS}$}
+\put(6.7, 1.1){estimate $\boldsymbol{\hat\beta}_{BS}$ and $\hat\sigma_{BS}$}
+\end{picture}
+}
+\end{column}
+\begin{column}{0.45\linewidth}
+Bootstrap samples can contain some observations multiple times and some
+observations not at all.
+
+\bigskip
+
+The statistic of interest is then calculated on each of the bootstrap samples.
+\end{column}
+\end{columns}
+\end{frame}
+
+
+\begin{frame}{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+In \blue{bootstrap multiple imputation},
+\begin{itemize}
+\item \blue{one bootstrap sample} of the \blue{observed data} is created per imputation,
+\item the \blue{least-squares estimates} of the parameters are calculated from
+      $$\bmath y_{obs} = \bmath X_{obs}
+      \underset{\stackrel{\downarrow}{\bmath{\hat\beta}_{ls}}}{\bmath\beta} +
+      \underset{\stackrel{\downarrow}{\hat\sigma_{ls}}}{\varepsilon_{obs}}\hspace{2cm}(step 1).$$
+\item Imputed values are sampled from
+$p(\bmath y_{mis} \mid \bmath X_{mis}, \bmath{\hat\beta}_{ls}, \hat\sigma_{ls})$ (step 2).
+\end{itemize}
+
+\pause
+Analoge to Bayesian multiple imputation, for a normal imputation model,
+$p()$ is the normal distribution and
+$$\bmath y_{mis} = \bmath X_{mis} \hat\beta_{ls} + \tilde\varepsilon$$
+where $\bmath{\hat\varepsilon}$ is drawn independently from $N(0, \sigma^2_{ls})$.
+\end{frame}
+
+
+\subsection{Semi-parametric imptuation}
+\begin{frame}{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+Both Bayesian and bootstrap multiple imputation sample imputed values from
+a distribution $p()$ in step 2.
+
+\bigskip
+
+Sometimes, the empirical distribution can not
+be adequately approximated by a known probability distribution.
+
+\vfill
+
+<<echo = F, fig.width = 8, fig.height = 3>>=
+N <- 100
+x1 <- runif(N, min = -1.5, max = 2)
+x2 <- rnorm(N, -2, 0.5)
+x3 <- rnorm(N, 3, 1)
+x4 <- rbinom(N/2, size = 6, prob = 0.4)
+x <- c(x1, x2, x3, x4, x4 - 4.23) + 4.5
+par(mar = c(2, 3, 0.5, 0.5), mgp = c(2,0.6,0))
+hist(x, nclass = 50, xlab = "", main = "")
+@
+\end{frame}
+
+
+\begin{frame}{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+\blue{Predictive Mean Matching (PMM)} was developed to provide a semi-parametric
+approach to imputation for settings where the normal distribution is not a
+good choice for the predictive distribution.\cite{Little1988, Rubin1986}
+
+\bigskip
+
+The idea is to find cases in the observed data that are similar to the
+cases with missing values and to fill in the missing value with the observed
+value from one of those cases.
+
+\bigskip
+
+To find similar cases, the predicted values of complete and incomplete cases
+are compared.
+
+\end{frame}
+
+
+
+\begin{frame}[label=pmmalgo]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+
+\begin{enumerate}
+\item Obtain parameter estimates for $\bmath{\hat\beta}$ and $\hat\sigma$ (see later)
+\item Calculate the predicted values for the observed data
+      $$\bmath{\hat y}_{obs} = \bmath{X}_{obs} \bmath{\hat\beta}$$
+\item Calculate the predicted value for the incomplete data
+      $$\bmath{\hat y}_{mis} = \bmath{X}_{mis} \bmath{\hat\beta}$$
+\item For each $\hat y_{mis, i}, \; i = q+1, \ldots,n$, find $d$ donor
+      candidates that fulfill a given criterium (details on the next slide)
+\item randomly select one of the donors
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+Several criteria to select donors have been proposed:
+\begin{enumerate}
+\item The donor is the case with the smallest absolute difference
+      $\left|\hat y_{mis,i} - \hat y_{obs, j}\right|, \; j = 1,\ldots,q$.
+\item Donor candidates are the $d$ cases with the smallest absolute difference
+      $\left|\hat y_{mis,i} - \hat y_{obs, j}\right|, \; j = 1,\ldots,q$.
+      The donor is selected randomly from the candidates.
+\item Donor candidates are those cases for which the absolute difference is smaller
+      than some limit $\eta$:
+      $\left|\hat y_{mis,i} - \hat y_{obs, j}\right|<\eta, \; j = 1,\ldots,q$.
+      The donor is selected randomly from the candidates.
+\item Select candidates like in 2. or 3., but select the donor from the candidates
+with probability that depends on $\left|\hat y_{mis,i} - \hat y_{obs, j}\right|$.\cite{Siddique2008}
+\end{enumerate}
+\end{frame}
+
+
+\begin{frame}{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+For donor selection criteria 2. - 4., the number of candidates $d$ (or maximal
+difference $\eta$) needs to be specified. Common choices for $d$ are 3, 5 or 10.
+
+\bigskip
+
+When the same donor is chosen in many/all imputations, e.g., because only few
+similar observed cases are available, the uncertainty about the missing values
+will be underestimated.
+
+\bigskip
+
+\blue{\ding{225}} PMM may be \blue{problematic} when the \blue{dataset is very small},
+the \blue{proportion of missing values is large} or one/some \blue{predictor
+variables are strongly related to the missingness}.
+
+\bigskip
+
+For the same reason, using $d = 1$ (selection criterion 1.) is not a good idea.
+On the other hand, using too many candidates can lead to bad matches.
+Schenker and Taylor \cite{Schenker1996} proposed an adaptive procedure to select $d$,
+but it is not used much in practice.
+\end{frame}
+
+
+\begin{frame}{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+For the \blue{sampling of the parameters} (step 1 on slide \ref{pmmalgo}),
+different approaches have been introduced in the literature:
+
+\bigskip
+
+\begin{tabular}{lp{11cm}}
+Type-0 & point estimates $\hat\beta$ are used in both prediction models\\[1ex]
+Type-I & $\hat\beta$ to predict $\hat y_{obs}$, a random draw $\tilde\beta$
+         from the posterior distribution of $\beta$ to predict $\hat y_{mis}$\\[1ex]
+Type-II & $\tilde\beta$ to predict $\hat y_{obs}$ as well as $\hat y_{mis}$\\[1ex]
+Type-III & different draws $\tilde\beta^{(1)}$ and $\tilde\beta^{(2)}$ to
+           predict $\hat y_{obs}$ and $\hat y_{mis}$, respectively
+\end{tabular}
+
+\bigskip
+
+The use of point estimates (Type-0 and Type-1 matching) underestimates the
+uncertainty about the regression parameters.
+\end{frame}
+
+\begin{frame}{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+Another point of consideration is the choice of the set of data used to train
+the prediction models.
+
+\bigskip
+
+In the version presented on slide \ref{pmmalgo}, the same set of data (all cases
+with observed $y$) is used to train the model and to produce predicted values
+of $y_{obs}$.
+
+\bigskip
+
+The predictive model will likely fit the observed cases better than the missing cases,
+and, hence, variation will be underestimated.
+
+\bigskip
+
+As an alternative, the model could be trained on the whole data
+(using previously imputed values) or to use a leave-one-out approach on the
+observed data.
+\end{frame}
+
+
+\subsection{What is implemented in software?}
+\begin{frame}{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+\blue{mice (in R):}
+\begin{itemize}
+\item \blue{PMM} via \Rfct{mice.impute.pmm}
+      \begin{itemize}
+      \item specification of number of donors $d$ (same for all variables)
+      \item Type-0, Type-1, Type-II matching
+      \end{itemize}
+\item \blue{PMM} via \Rfct{mice.impute.midastouch}
+      \begin{itemize}
+      \item allows leave-one-out estimation of the parameters
+      \item distance based donor selection
+      \item Type-0, Type-1, Type-II matching
+      \end{itemize}
+\item \blue{bootstrap} linear regression via \Rfct{mice.impute.norm.boot}
+\item \blue{bootstrap} logistic regression via \Rfct{mice.impute.logreg.boot}
+\item \blue{bayesian} linear regression via \Rfct{mice.impute.norm}
+\item \ldots
+\end{itemize}
+%
+% \blue{SPSS}
+% \begin{itemize}
+% \item \blue{PMM} with $d = 1$
+% \item linear regression
+% \end{itemize}
+
+\end{frame}

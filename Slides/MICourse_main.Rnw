@@ -1,0 +1,405 @@
+% \documentclass[ignorenonframetext,red]{beamer}
+% \documentclass[a4paper]{article}
+% \usepackage{beamerarticle}
+
+
+\mode<article>{
+  \usepackage[margin = 1in]{geometry}
+  \usepackage{url}
+}
+
+  \usetheme{Rochester}
+  \useinnertheme{rounded}
+
+  \newif\iffootline
+  \footlinefalse
+  % \footlinetrue
+
+
+  \iffootline
+  % from infolines outer theme
+  \makeatletter
+  \setbeamertemplate{footline}{%
+    \leavevmode%
+    \hbox{%
+      \begin{beamercolorbox}[wd=\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
+    \begin{beamercolorbox}[wd=.25\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
+      \usebeamerfont{author in head/foot}%
+      \insertshortauthor\expandafter\beamer@ifempty\expandafter{\beamer@shortinstitute}{}{~~(\insertshortinstitute)}
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[wd=.5\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+      \usebeamerfont{title in head/foot}\insertshorttitle
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[wd=.25\paperwidth,ht=2.25ex,dp=1ex,center]{date in head/foot}%
+      \usebeamerfont{date in head/foot}\insertshortdate{}%\hspace*{2em}
+      % \insertframenumber{} / \inserttotalframenumber\hspace*{2ex}
+    \end{beamercolorbox}
+    \end{beamercolorbox}}%}%
+    \vskip0pt%
+  }
+  \makeatother
+  % remove navigation
+  \setbeamertemplate{navigation symbols}{}
+
+  \else
+
+  \addtobeamertemplate{navigation symbols}{}{ \hspace{1em}    \usebeamerfont{footline}%
+    \insertframenumber / \inserttotalframenumber }
+
+  \fi
+
+  % settings title page ----------------------------------------------------------
+\setbeamertemplate{title page} {
+% \vspace*{-0.92cm}
+\vspace*{-1.3cm}
+  \begin{center}
+    \hspace*{-1.12cm}
+    \includegraphics[width = 1.196\linewidth]{graphics/Dots.jpg}
+  \end{center}
+  \vbox to 6.85cm {
+  \vfill
+  \begingroup
+    \centering
+    \begin{beamercolorbox}[sep=15pt,center]{title}
+      \usebeamerfont{title}\inserttitle\par%
+      \ifx\insertsubtitle\@empty%
+      \else%
+        \vskip0.25em%
+        {\usebeamerfont{subtitle}\usebeamercolor[fg]{subtitle}\insertsubtitle\par}%
+      \fi%
+    \end{beamercolorbox}%
+    \vskip1em\par
+    \begin{beamercolorbox}[sep=8pt,center]{author}
+      \usebeamerfont{author}\textbf\insertauthor
+    \end{beamercolorbox}
+    \begin{beamercolorbox}[sep=2pt,center]{institute}
+      \usebeamerfont{institute}\insertinstitute
+    \end{beamercolorbox}
+    \vskip3ex
+    \begin{beamercolorbox}[sep=12pt,center]{date}
+      \usebeamerfont{date}\insertdate
+    \end{beamercolorbox}
+    \vskip0.5em
+    {\usebeamercolor[fg]{titlegraphic}\inserttitlegraphic\par}
+  \endgroup
+  \vfill
+
+  \hspace*{-1cm}\includegraphics[width = 4cm]{graphics/Logo1.pdf}
+  \vspace*{-12mm}
+  }
+}
+% end of title page definition -------------------------------------------------
+
+
+% definitions for table of contents --------------------------------------------
+\setbeamertemplate{section in toc}[sections numbered]
+\setbeamertemplate{subsection in toc}{\leavevmode\leftskip=3.2em\rlap{\hskip-2em\inserttocsectionnumber.\inserttocsubsectionnumber}\inserttocsubsection\par}
+
+\setbeamertemplate{part page}{
+        \begin{beamercolorbox}[sep=8pt,center,wd=\textwidth]{part title}
+            \usebeamerfont{part title}
+            Part \insertromanpartnumber\\
+            \insertpart\par
+        \end{beamercolorbox}
+}
+
+\AtBeginPart{\frame{\partpage}}
+% \AtBeginSection[]{
+%   \begin{frame}
+%   \vfill
+%   \centering
+%   \begin{beamercolorbox}[sep=8pt,center]{title}
+%     \usebeamerfont{title}\thesection. \insertsectionhead\par%
+%   \end{beamercolorbox}
+%   \vfill
+%   \end{frame}
+% }
+% end of definitions for table of contents -------------------------------------
+
+\mode<presentation>{
+\setbeamertemplate{frametitle continuation}[from second][(cont.)]
+}
+
+\setbeamertemplate{bibliography item}{\insertbiblabel}
+
+% color definitions for template -----------------------------------------------
+\usepackage{xcolor}
+\definecolor{EMCdark}{RGB}{12, 32, 116}
+\definecolor{EMClight}{RGB}{134, 210, 237}
+\definecolor{darkred}{RGB}{204,0,0}
+
+
+\definecolor{Dark21}{HTML}{1B9E77}
+\definecolor{Dark22}{HTML}{D95f02}
+\definecolor{Dark23}{HTML}{7570B3}
+\definecolor{Dark24}{HTML}{E7298A}
+\definecolor{Dark25}{HTML}{66A61E}
+\definecolor{Dark26}{HTML}{E6AB02}
+\definecolor{Dark27}{HTML}{A6761D}
+\definecolor{Dark28}{HTML}{666666}
+
+
+
+% colors for part from ErasmusAGE presentation
+\definecolor{myred}{RGB}{228,26,28}
+\definecolor{myblue}{RGB}{55,106,184}
+\definecolor{mygreen}{RGB}{77, 135, 74}
+\definecolor{mypurple}{RGB}{152,68,133}
+\definecolor{myorange}{RGB}{217,95, 2}
+% end of colors for part from ErasmusAGE presentation
+
+
+\setbeamercolor{palette primary}{bg = EMCdark}
+\setbeamercolor{block title}{bg = EMCdark}
+\setbeamercolor{block body}{bg = EMCdark!10!white}
+
+\setbeamercolor{title in head/foot}{bg = EMCdark}
+\setbeamercolor{date in head/foot}{bg = EMCdark}
+% end of color definitions for template ----------------------------------------
+
+
+
+% other template definitions ---------------------------------------------------
+\setbeamertemplate{enumerate items}[default]
+\setbeamercolor*{enumerate item}{fg=EMCdark}
+% end of other template definitions --------------------------------------------
+
+
+% packages ---------------------------------------------------------------------
+\usepackage[misc]{ifsym} % for letter symbol
+\usepackage{fontawesome}
+\usepackage{bbding} % for \Envelope
+\usepackage{colortbl} % for highlighting of table
+\usepackage{pifont} % for \ding
+% \usepackage{algorithm2e}
+% \usepackage{algorithmic}
+% \usepackage{algorithm}
+% \usepackage{algpseudocode}
+\usepackage{algorithm,algpseudocode}
+\usepackage{float}
+\usepackage[many]{tcolorbox}
+
+\usepackage{tikz}
+\usetikzlibrary{fadings,shapes.arrows,shadows}
+\usepackage{xparse}
+\tikzset{arrowfill/.style={#1}}
+\tikzset{arrowstyle/.style n args={3}{fill=#3, text=#2, single arrow,minimum height=#1, single arrow,
+single arrow head extend=.3cm,}}
+\NewDocumentCommand{\tikzfancyarrow}{O{2cm} O{white} O{EMCdark} m}{
+\tikz[baseline=-0.5ex]\node [arrowstyle={#1}{#2}{#3}] {#4};
+}
+
+\usepackage{multicol} % for multicols
+% \usepackage{marvosym} %
+\mode<article>{
+\usepackage[hidelinks]{hyperref}
+}
+% \hypersetup{
+%     colorlinks=true,
+%     linkcolor=blue,
+%     filecolor=magenta,
+%     urlcolor=cyan,
+% }
+\usepackage{ulem} % for various types of underlining
+\usepackage{arydshln}
+\usepackage{booktabs}
+% end of packages --------------------------------------------------------------
+
+
+% own definitions --------------------------------------------------------------
+\def\blue#1{\textbf{\color{EMCdark}#1}}
+\newcommand*\myat{{\fontfamily{ptm}\selectfont @}} % used in last slide
+\def\bmath#1{\mathbf{\boldsymbol{#1}}}
+
+\mode<presentation>{
+\resetcounteronoverlays{algorithm} %  to make algorithm overlay aware
+}
+
+
+% R syntax styling (copied from what knitr does) -------------------------------
+\def\Rarg#1{\texttt{\hlkwc{#1}}}
+\def\Rstring#1{\texttt{\hlstr{#1}}}
+\def\Robj#1{\texttt{\hlstd{#1}}}
+\newcommand{\Rfct}[2][]{\texttt{\hlkwd{#2}\hlstd{(#1)}}}
+% end of R syntax styling ------------------------------------------------------
+
+% Title page -------------------------------------------------------------------
+\title[EP16]{Missing Values in Clinical Research (EP16)}
+\subtitle[Multiple Imputation]{Multiple Imputation}
+\author[N. Erler]{Nicole Erler}
+\institute[Erasmus MC]{Department of Biostatistics, Erasmus MC\\ \texttt{n.erler@erasmusmc.nl}}
+\date{14 - 18 May, 2018}
+% end of title page specifications ---------------------------------------------
+
+
+
+% \setlength{\parskip}{\baselineskip}%
+\setlength{\parindent}{0pt}%
+
+
+
+\begin{document}
+
+<<setup, include = FALSE, cache = FALSE>>=
+library(knitr)
+knit_hooks$set(par = function(before, options, envir){
+if (before && options$fig.show != 'none')
+  par(mar = c(4, 4, .1, .1), cex.lab = .95, cex.axis = .9, mgp = c(2, .6, 0),
+      tcl = -.3)
+}, crop = hook_pdfcrop)
+
+# opts_chunk$set(fig.align = "center", size = "footnotesize")
+@
+
+\mode<presentation>{
+<<pressetup, include = F>>=
+opts_chunk$set(fig.align = "center", size = "footnotesize")
+@
+}
+
+\mode<article>{
+<<artsetup, include = F>>=
+opts_chunk$set(fig.align = "center")
+@
+}
+
+
+\maketitle
+
+\begin{frame}[plain]
+\titlepage
+\end{frame}
+
+
+<<Part0, child="Part0.Rnw", eval = F>>=
+@
+
+
+\part{Multiple Imputation}
+<<Part1a, child="01_WhatIsMI.Rnw", eval = T>>=
+@
+<<Part1b, child="01b_ImputationStep.Rnw", eval = T>>=
+@
+
+
+\part{Multiple Imputation Workflow}
+<<Part2, child="02_Workflow.Rnw", eval = F>>=
+@
+
+\part{When MICE may fail}
+<<Part3, child="Part3.Rnw", eval = F>>=
+@
+
+
+\part{Multiple Imputation Strategies}
+\begin{frame}
+\begin{itemize}
+\item number of imputed datasets
+\item More info on other imputation methods that are implemented in mice (with the info
+that just because something is implemented, does not mean it is a good choice.)
+\item what to do with large datasets (hundreds or thousands of variables)? use
+sum scores and summaries, select important predictors, \ldots
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+Including all (other) variables in an imputation model works for small/medium sized
+datasets, i.e., up to 20--30 separate variables (excluding interactions, variables
+derived from others, \ldots).
+In large datasets, i.e., hundreds or thousands of variables, this will likely
+lead to computational problems and multicollinearity. \textcolor{red}{[What to do in these cases? see van Buuren 2012, p. 127ff]}
+\end{frame}
+
+\begin{frame}[allowframebreaks]{Some Notes}
+``Multiple imputation is not a quick automatic fix. Creating good imputations
+requires substantive knowledge about the data paired with some healthy
+statistical judgement.''
+
+Keep the following points in mind:
+\begin{itemize}
+\item Plan time to create the imputed datasets. As a rule of thumb, reserve
+for imputation 5\% of the time needed to collect the data;
+\item Check the modelling choices in Section 5.1. of \cite{Buuren2012}
+Though the software defaults
+are often reasonable, they may not work for the particular data;
+\item Use MAR as a starting point using the strategy outlined in Section 5.2;
+\item Choose the imputation methods and set the predictors using the strategies
+outlined in Section 5.3 of \cite{Buuren2012};
+\item If the data contain derived variables that are not needed for imputation,
+impute the originals and calculate the derived variables afterwards;
+\item Use passive imputation if you need the derived variables during imputation.
+Carefully specify the predictor matrix to avoid feedback loops. See
+Section 5.4 of \cite{Buuren2012};
+\item Monitor convergence of the MICE algorithm for aberrant patterns, especially
+if the rate of missing data is high or if there are dependencies
+in the data. See Sections 4.5.5 and 5.5.2 of \cite{Buuren2012}
+\item Make liberal use of diagnostic graphs to compare the observed and the
+imputed data. Convince yourself that the imputed values could have
+been real data, had they not been missing. See Section 5.6 of \cite{Buuren2012}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\begin{itemize}
+\item How to change a mids object to calculate new variables after imputation etc.
+\item miceadds: datalist2mids
+\item pooling with mitools and BaBooN
+\end{itemize}
+\end{frame}
+
+
+
+
+\part{Other}
+\begin{frame}
+\begin{itemize}
+\item Pro's and con's of MI
+% \item More info on other imputation methods that are implemented in mice (with the info
+% that just because something is implemented, doesn't mean it's a good choice.)
+% \item what to do with large datasets (hundreds or thousands of variables)? use
+% sum scores and summaries, select important predictors, \ldots
+\item other software (mitools, mlmmm (Yucel), ...)
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[allowframebreaks=0.8]{References}
+\nocite{*}\footnotesize
+\bibliographystyle{plain}
+\bibliography{references}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\mode<presentation>{
+\setbeamercolor{background canvas}{bg=EMCdark}
+\begin{frame}[plain]
+  \begin{center}
+    \includegraphics[width = 8cm]{graphics/Logo1DB.pdf}
+
+    \vfill
+
+    \color{white}
+    \begin{tabular}{rl}
+      \textbf{\faEnvelope} & \textbf{n.erler\myat erasmusmc.nl}\\
+      \href{https://twitter.com/N_Erler}{\textbf{\faTwitter}} & \href{https://twitter.com/N_Erler}{\textbf{N\_Erler}}\\
+      \href{https://github.com/nerler}{\textbf{\faGithub}}  & \href{https://github.com/nerler}{\textbf{NErler}}\\[2ex]
+      \textbf{Dep. Biostatistics:}  & \url{www.erasmusmc.nl/biostatistiek}
+    \end{tabular}
+  \end{center}
+\end{frame}
+}
+\mode<article>{
+\vfill
+\hrule
+\begin{center}
+    \begin{tabular}{rl}
+      \textbf{\faEnvelope} & \textbf{n.erler\myat erasmusmc.nl}\\
+      \href{https://twitter.com/N_Erler}{\textbf{\faTwitter}} & \href{https://twitter.com/N_Erler}{\textbf{N\_Erler}}\\
+      \href{https://github.com/nerler}{\textbf{\faGithub}}  & \href{https://github.com/nerler}{\textbf{NErler}}\\[2ex]
+      \textbf{Dep. Biostatistics:}  & \url{www.erasmusmc.nl/biostatistiek}
+    \end{tabular}
+  \end{center}
+}
+
+\end{document}

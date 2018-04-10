@@ -1,0 +1,1197 @@
+\begin{frame}[allowframebreaks=0.8]{Outline of Part II}
+\tableofcontents[part=2]
+\end{frame}
+
+
+\section{Know your data}
+\subsection{Missing data patterns}
+\begin{frame}[fragile]{Visualize the (missing) data}
+\framesubtitle{Missing data pattern}
+There are several packages in \textsf{R} that provide functions to create and
+plot the missing data pattern.\\\bigskip
+
+Examples are:\\
+\textbf{mice}, \textbf{VIM}, \textbf{Amelia}, \textbf{visdat}, \textbf{naniar}, \ldots\\[3ex]
+
+To create the plots on the following slides, we need to load the example data
+<<load NHANES prep, echo = F>>=
+datadir <- file.path(getwd(), "data")
+load(file.path(datadir, "NHANES.RData"))
+@
+
+<<load NHANES, eval = F>>=
+datadir <-     # fill in path to folder containing the data
+load(file.path(datadir, "NHANES.RData"))
+@
+\end{frame}
+
+
+
+\begin{frame}[fragile]{Visualize the (missing) data}
+\framesubtitle{Missing data pattern}
+<<echo = F>>=
+op <- getOption("width")
+options("width" = 120)
+@
+
+<<mice_md.pattern, size = 'scriptsize'>>=
+mdp <- mice::md.pattern(NHANES, plot = F)
+head(mdp[, -c(7:13)]) # omit some columns to fit it on the slide
+tail(mdp[, -c(7:13)])
+@
+<<echo = F>>=
+options('width' = op)
+@
+
+\end{frame}
+
+\begin{frame}[fragile]{Visualize the (missing) data}
+\framesubtitle{Missing data pattern}
+<<JointAI_md_pattern, fig.width = 7, fig.height = 5, out.width = "80%", fig.keep = 'last'>>=
+par(mar = c(5, 0.5, 1, 3), mgp = c(2, 0.6, 0))
+JointAI::md_pattern(NHANES, print = F, yaxis_pars = list(cex.axis = 0.6))
+@
+\end{frame}
+
+\begin{frame}[fragile]{Visualize the (missing) data}
+\framesubtitle{Missing data pattern}
+<<VIM_aggr, fig.width = 10, fig.height = 5, out.width = "95%", cache = T>>=
+par(mar = c(6, 3, 2, 1))
+VIM::aggr(NHANES, prop = T, numbers = F)
+@
+\end{frame}
+
+\begin{frame}[fragile]{Visualize the (missing) data}
+\framesubtitle{Missing data pattern}
+<<visdat_vis_dat, fig.width = 8, fig.height = 5, out.width = "95%", crop = T, cache = T>>=
+visdat::vis_dat(NHANES, sort_type = F)
+@
+\end{frame}
+
+\begin{frame}[fragile]{Visualize the (missing) data}
+\framesubtitle{Missing data pattern}
+<<visdat_vis_miss, fig.width = 8, fig.height = 5, out.width = "90%", crop = T, cache = T>>=
+visdat::vis_miss(NHANES)
+@
+\end{frame}
+
+
+\begin{frame}[fragile]{Visualize the (missing) data}
+\framesubtitle{Proportion of missing values \& complete cases}
+<<NCC_calc>>=
+# number and proportion of complete cases
+Ncc <- cbind(
+  "#" = table(complete.cases(NHANES)),
+  "%" = round(100 * table(complete.cases(NHANES))/nrow(NHANES), 2)
+)
+rownames(Ncc) <- c("incompl.", "complete")
+@
+
+
+<<nmis>>=
+# number and proportion of missing values per variable
+nmis <- cbind("# NA" = sort(colSums(is.na(NHANES))),
+              "% NA" = round(sort(colMeans(is.na(NHANES))) * 100, 2))
+@
+\end{frame}
+
+\begin{frame}[fragile]{Visualize the (missing) data}
+\framesubtitle{Proportion of missing values \& complete cases}
+\mode<presentation>{\vspace*{-1ex}}
+Number and proportion of (in)complete cases
+<<Ncc_print, echo = F>>=
+Ncc
+@
+Number and proportion of missing values per variable
+\mode<presentation>{\vspace*{-3ex}}
+\begin{columns}[t]
+\begin{column}{0.45\linewidth}
+<<nmis_print, echo = F>>=
+nmis[1:ceiling(nrow(nmis)/2), ]
+# nmis[(1 + ceiling(nrow(nmis)/2)):nrow(nmis), ]
+@
+\end{column}
+\begin{column}{0.45\linewidth}
+<<nmis_print2, echo = F>>=
+# nmis[1:ceiling(nrow(nmis)/2), ]
+nmis[(1 + ceiling(nrow(nmis)/2)):nrow(nmis), ]
+@
+\end{column}
+\end{columns}
+\end{frame}
+
+
+\subsection{Data distributions}
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+<<hist, eval = F>>=
+# for continuous variables
+NHANESnum <- NHANES[, sapply(NHANES, is.numeric)]
+par(mfrow = c(3, 4), mar = c(3, 3.2, 0.5, 0.5), mgp = c(2, 0.6, 0))
+for (i in 1:ncol(NHANESnum)) {
+  hist(NHANESnum[, i], nclass = 30, xlab = names(NHANESnum)[i], main = "")
+  legend("topright", bty = "n",
+         legend = paste0(round(mean(is.na(NHANESnum[, i]))*100, 2), "% NA"))
+}
+
+# for factors
+NHANESfac <- NHANES[, sapply(NHANES, is.factor)]
+par(mfrow = c(3, 5), mar = c(3, 3.2, 2.5, 0.5), mgp = c(2, 0.6, 0))
+for (i in 1:ncol(NHANESfac)) {
+  tab <- table(NHANESfac[, i], exclude = NULL)
+  names(tab)[is.na(names(tab))] <- "NA"
+  barplot(tab, main = paste0(names(NHANESfac)[i]," (",
+                             round(mean(is.na(NHANESfac[, i]))*100,
+                                   2), "% NA)"))
+}
+@
+\end{frame}
+
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+<<NHANEShistplot, fig.width = 8, fig.height = 5, out.width = "100%", echo = F>>=
+NHANESnum <- NHANES[, sapply(NHANES, is.numeric)]
+par(mfrow = c(3, 4), mar = c(2, 3.2, 2.5, 0.5), mgp = c(2, 0.6, 0))
+for (i in 1:ncol(NHANESnum)) {
+  hist(NHANESnum[, i], nclass = 30, xlab = "",#names(NHANESnum)[i],
+       main = paste0(names(NHANESnum)[i]," (",
+                     round(mean(is.na(NHANESnum[, i]))*100, 2), "% NA)"))
+  # legend("topright", bty = "n",
+  #        legend = paste0(round(mean(is.na(NHANESnum[, i]))*100, 2), "% NA"))
+}
+@
+\end{frame}
+
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+<<NHANEStabs, fig.width = 8, fig.height = 5, out.width = "100%", echo = F>>=
+NHANESfac <- NHANES[, sapply(NHANES, is.factor)]
+par(mfrow = c(3, 3), mar = c(3, 3.2, 2.5, 0.5), mgp = c(2, 0.6, 0))
+for (i in 1:ncol(NHANESfac)) {
+  tab <- table(NHANESfac[, i], exclude = NULL)
+  names(tab)[is.na(names(tab))] <- "NA"
+  barplot(tab, main = paste0(names(NHANESfac)[i]," (",
+                             round(mean(is.na(NHANESfac[, i]))*100, 2), "% NA)"))
+}
+@
+\end{frame}
+
+
+
+\subsection{Correlations \& patterns}
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+Quick way to check for strong correlations between variables:
+<<corr>>=
+# re-code all variables as numeric and calculate spearman correlation
+Corr <- cor(sapply(NHANES, as.numeric),
+           use = "pairwise.complete.obs", method = "spearman")
+@
+
+<<corrplot syntax, eval = F>>=
+corrplot::corrplot(Corr, method = "square", type = "upper", tl.col = "black")
+@
+Note: We only use the correlation coefficient for binary variables in this
+visualization, not as a statistical result!
+\end{frame}
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+<<corrplotplot, echo = F, out.width = "65%", crop = T, cache = T>>=
+# corrplot::corrplot.mixed(Corr, upper = 'square', lower = 'number',
+#                          lower.col = 'black', tl.cex = 0.6,
+#                          number.cex = 0.5, bg = 'transparent')
+corrplot::corrplot(Corr, method = "square", type = "upper", tl.col = "black")
+@
+\end{frame}
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+<<tab_hyper>>=
+table(hypertension = NHANES$hypten,
+      HyperMed = NHANES$HyperMed, exclude = NULL)
+@
+\end{frame}
+
+\subsection{Why are values missing?}
+\begin{frame}{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+\begin{itemize}
+\item Do missing values in multiple variables always occur together?
+      (e.g. blood measurements)
+\item Are there structural missing values? (e.g. pregnancy status in men)
+\item Are there patterns in the missing values?
+      (e.g. only patients with hypertension have observations of HyperMed)
+\item Are values missing by design?
+\item Is the assumption of ignorable missingness (MAR or MCAR) justifiable?
+\end{itemize}
+\end{frame}
+
+\subsection{Auxiliary variables}
+\begin{frame}{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+Auxiliary variables are variables that are not part of the analysis but can
+help during imputation.\\\bigskip
+
+Good auxiliary variables
+\begin{itemize}
+\item are related to the probability of missingness in a variable, or
+\item are related to the incomplete variable itself,
+\item do not have many missing values themselves and
+\item are (mostly) observed when the incomplete variable of interest is missing.
+\end{itemize}
+\end{frame}
+
+
+\subsection{think about passive imputation, restrictions, post-processing}
+
+
+
+\section{Imputation with \texttt{mice()}}
+\subsection{Main function arguments}
+\begin{frame}{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+The main arguments needed to impute data with \texttt{mice()} are:
+\begin{itemize}
+\item \texttt{\hlstd{data}}: the dataset
+\item \texttt{\hlkwc{m}}: number of imputed datasets (default is 5)
+\item \texttt{\hlkwc{maxit}}: number of iterations (default is 5)
+\item \texttt{\hlkwc{method}}: vector of imputation methods
+\item \texttt{\hlkwc{defaultMethod}}: vector of default imputation methods for
+      numerical, binary, unordered and ordered factors with $>2$ levels\\
+      (default is \texttt{\hlkwd{c}\hlstd{(}\hlstr{"pmm"}\hlstd{,}
+      \hlstr{"logreg"}\hlstd{,} \hlstr{"polyreg"}\hlstd{,} \hlstr{"polr"}\hlstd{)}})
+\item \texttt{\hlkwc{predictorMatrix}}: matrix specifying roles of variables
+\end{itemize}
+\end{frame}
+
+
+\subsection{Imputation methods}
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+\textbf{mice} has implemented many imputation methods, the
+most commonly used ones are:
+\begin{itemize}
+\item \Rstring{pmm}: predictive mean matching (any)
+\item \Rstring{norm}: Bayesian linear regression (numeric)
+\item \Rstring{logreg}: binary logistic regression (binary)
+\item \Rstring{polr}: proportional odds model (ordered factors)
+\item \Rstring{polyreg}: polytomous logistic regression (unordered factors)
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+\textbf{Change the default imputation method:}\\
+To use \texttt{\hlstr{norm}} instead of \texttt{\hlstr{pmm}} for all
+continuous incomplete variables, use:
+
+<<mice example, eval = F>>=
+mice(NHANES, defaultMethod = c("norm", "logreg", "polyreg", "polr"))
+@
+
+
+\textbf{Change imputation method for a single variable:}\\
+To change the imputation method for single variables
+(but also for changes in other arguments) it is convenient to do
+a setup run of \texttt{\hlkwd{mice}\hlstd{()}} without iterations
+(\texttt{\hlkwc{maxit} \hlstd{=} \hlnum{0}})
+and to extract and modify the parameters from there.
+
+\bigskip
+
+\textbf{Exclude variable from imputation:}\\
+When a variable that has missing values should not be imputed, the method needs
+to be set to \Rstring{""}.
+\end{frame}
+
+
+
+
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+<<imp0>>=
+library(mice)
+imp0 <- mice(NHANES, maxit = 0)
+meth <- imp0$method
+meth
+meth["albu"] <- "norm"
+meth["HyperMed"] <- ""
+# imp <- mice(NHANES, method = meth)
+@
+\end{frame}
+
+
+\subsection{Predictor matrix}
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+The \Rarg{predictorMatrix} is a matrix that specifies which variables are used as
+predictors in which imputation model.\\
+Each row represents the model for the variable given in the rowname.
+
+<<predmat>>=
+head(imp0$predictorMatrix)[, 1:11]
+@
+
+Variables not used as predictor are (or have to be set to) zero.\bigskip
+
+By default, all variables (except the variable itself) are used as predictor.\\
+For complete variables all entries are 0.
+
+\end{frame}
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+
+\blue{Important:}\\
+A variable that has missing values needs to be imputed in order to be used as
+predictor for other imputation models!!!
+
+\bigskip
+
+\blue{Note:}\\
+By default, \blue{ALL} variables with missing values are imputed and \blue{ALL}
+variables are used as predictor variables.\\
+\blue{\ding{225}} Make sure to adjust the \Rarg{predictorMatrix} and \Rarg{method}
+to avoid using ID variables or other columns of the data that should not be part
+of the imputation.
+
+\bigskip
+
+\blue{\ding{225}} Make sure all variables are coded correctly, so that the chosen
+imputation models are appropriate (e.g., ordered factors).
+\end{frame}
+
+
+
+
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+<<imp, eval = F>>=
+library(mice)
+imp0 <- mice(NHANES, maxit = 0,
+             defaultMethod = c("norm", "logreg", "polyreg", "polr"))
+meth <- imp0$method
+meth["educ"] <- "polr"
+meth["HyperMed"] <- ""
+
+pred <- imp0$predictorMatrix
+pred[, "HyperMed"] <- 0
+imp <- mice(NHANES, method = meth, predictorMatrix = pred, printFlag = F)
+@
+<<imprun, echo = F, eval = F>>=
+library(mice)
+imp0 <- mice(NHANES, maxit = 0,
+             defaultMethod = c("norm", "logreg", "polyreg", "polr"))
+meth <- imp0$method
+meth["educ"] <- "polr"
+meth["HyperMed"] <- ""
+
+pred <- imp0$predictorMatrix
+pred[, "HyperMed"] <- 0
+imp <- mice(NHANES, method = meth, predictorMatrix = pred, printFlag = F)
+save(imp, file = "workspaces/imp.RData")
+@
+<<impget, echo = F>>=
+library(mice)
+imp0 <- mice(NHANES, maxit = 0,
+             defaultMethod = c("norm", "logreg", "polyreg", "polr"))
+meth <- imp0$method
+meth["educ"] <- "polr"
+meth["HyperMed"] <- ""
+
+pred <- imp0$predictorMatrix
+pred[, "HyperMed"] <- 0
+load("workspaces/imp.RData")
+@
+
+\end{frame}
+
+\subsection{Passive imputation}
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+In some cases, variables are functions of other variables,
+e.g., $$BMI = \frac{weight}{height^2}.$$
+
+If we impute \Rstring{BMI} directly, its values may be inconsistent with the
+(imputed) values of \Rstring{height} and \Rstring{weight}.
+<<demo_passive1>>=
+DF1 <- complete(imp, 1) # select the first imputed dataset
+round(cbind("wgt/hgt^2" = DF1$weight/DF1$height^2,
+            BMI = DF1$BMI)[is.na(NHANES$BMI), ], 2)[1:5, ]
+@
+
+The imputed values of \Rstring{BMI} are impossible given the corresponding
+values of \Rstring{height} and \Rstring{weight}.
+\end{frame}
+
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+Moreover, if some components of a variable are observed we want to use that
+information to reduce uncertainty.
+
+<<demo_passive2>>=
+table(weight_missing = is.na(NHANES$weight),
+      height_missing = is.na(NHANES$height))
+@
+Here we have
+\Sexpr{sum(is.na(NHANES$height) & !is.na(NHANES$weight))} +
+\Sexpr{sum(is.na(NHANES$weight) & !is.na(NHANES$height))} =
+\Sexpr{sum(xor(is.na(NHANES$height), is.na(NHANES$weight)))} cases in which
+either \Rstring{height} or \Rstring{weight} is observed.\\
+We would like to impute \Rstring{height} and \Rstring{weight} separately and
+calculate \Rstring{BMI} from the (imputed) values of the two variables.
+\end{frame}
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+If \Rstring{BMI} is not a relevant predictor in any of the other imputation models,
+we could just exclude BMI from the imputation and re-calculate it afterwards.
+
+\bigskip
+
+To use \Rstring{BMI} as predictor in the imputation, it has to be calculated
+in each iteration of the algorithm.
+In \textbf{mice} this is possible with \textit{passive imputation}.
+
+\bigskip
+
+Instead of using a standard imputation \Rarg{method}, we can specify a formula to
+calculate \Rstring{BMI}:
+<<passive_BMI>>=
+meth["BMI"] <- "~I(weight/height^2)"     # specify formula to impute BMI
+pred[c("weight", "height"), "BMI"] <- 0  # prevent feedback
+@
+To prevent feedback from \Rstring{BMI} in the imputation of \Rstring{height}
+and \Rstring{weight} the \Rarg{predictorMatrix} needs to be modified.
+\end{frame}
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+
+Since \Rstring{BMI} and \Rstring{weight} are highly correlated
+($\rho = $\Sexpr{round(cor(NHANES$weight, NHANES$BMI, use = "pair"), 2)})
+it may be beneficial not to use them simultaneously as predictors in the
+other imputation models.
+
+Which one to use may differ between imputation models.
+
+\bigskip
+
+Passive imputation can also be useful in settings where
+imputation models include an \blue{interaction terms} between incomplete variables
+(see \cite[p. 133]{Buuren2012} for an example) or when
+a number of covariates is used to form a \blue{sum score}. The sum score, instead
+of all single elements, can then be used as predictor in other imputation models.
+\end{frame}
+
+\subsection{Post processing}
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+\Rfct{mice} has an argument \Rarg{post} that can be used to specify functions
+that modify imputed values.
+
+Helpful functions are
+\begin{itemize}
+\item \Rfct{squeeze} to censor variables at given boundaries
+\item \sout{\Rfct{ifdo} for conditional manipulation} (not yet implemented)
+\end{itemize}
+
+\textbf{Example:}\\
+When inspecting the imputed values from \Robj{imp}, we find that some imputed
+values in \Rstring{creat} are negative.
+<<demo_squeeze>>=
+summary(DF1$creat) # DF1 is the first imputed dataset we extracted earlier
+@
+\end{frame}
+
+<<interactiveHistogram, cache = T, echo = F>>=
+library(ggplot2)
+plotDF <- reshape2::melt(cbind(orig = NHANES$creat,
+                     imp = DF1$creat
+                     # imp2 = complete(imp2, 1)$creat
+                     ))
+
+p <- ggplot(plotDF, aes(x = value, fill = Var2, color = Var2)) +
+  geom_histogram(alpha = 0.3, bins = 200, position = "identity") +
+  theme_light() +
+  theme(legend.position = "bottom") +
+  scale_fill_brewer(name = "", palette = "Dark2") +
+  scale_color_brewer(name = "", palette = "Dark2") +
+  xlab("Creatinine level")
+
+library(plotly)
+htmlp <- ggplotly(p, tooltip = "none", dynamicTicks = T)
+htmlwidgets::saveWidget(as_widget(htmlp),
+                        file = file.path(getwd(), "figure", "squeeze_plot1.html"))
+@
+
+<<hist_creat, echo = F, fig.width = 6, fig.height = 4>>=
+p
+@
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+\begin{center}
+\href{run:figure/squeeze_plot1.html}{
+\includegraphics[width = 0.85\linewidth]{figure/hist_creat-1.pdf}}
+\end{center}
+\end{frame}
+
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+With the following syntax all imputed values of \Rstring{creat} that are
+outside the interval \texttt{c(0, 100)} will be set to those limiting values.
+<<imp2, eval = F>>=
+post <- imp$post
+post["creat"] <- "imp[[j]][,i] <- squeeze(imp[[j]][,i], c(0, 100))"
+imp2 <- update(imp, post = post, maxit = 20, seed = 123)
+@
+<<imp2run, echo = F, eval = F>>=
+post <- imp$post
+post["creat"] <- "imp[[j]][,i] <- squeeze(imp[[j]][,i], c(0, 100))"
+imp2 <- update(imp, post = post, maxit = 20, seed = 123)
+save(imp2, file = "workspaces/imp2.RData")
+@
+<<imp2get, echo = F>>=
+post <- imp$post
+post["creat"] <- "imp[[j]][,i] <- squeeze(imp[[j]][,i], c(0, 100))"
+load("workspaces/imp2.Rdata")
+@
+
+\blue{Note:}\\
+When many observations are outside the limits it may be better to change the
+imputation model since the implied assumption of the current model apparently does not
+fit the assumption about the complete data distribution.
+\end{frame}
+
+% \begin{frame}[fragile]{\thesection. \insertsection}
+% \framesubtitle{\thesection.\thesubsection. \insertsubsection}
+% The function \Rfct{ifdo} may, for instance, come in handy when there are
+% logical restrictions in the data.
+%
+% \bigskip
+%
+% In our data, subjects with \Rstring{SBP $\geq 140$} are classified as hypertensive.
+% To use this information in the imputation we can specify:
+<<postprocessing ifdo, cache = T, eval = F>>=
+post["hypten"] <- "ifdo(SBP >= 140, levels(hypten)[2])"
+@
+% \end{frame}
+
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+This post-processing allows for many more data manipulations and is not
+restricted to \Rfct{squeeze} and \Rfct{ifdo}.
+Any strings of \textsf{R} commands provided will be evaluated after the
+corresponding variable is imputed, within each iteration.
+
+\bigskip
+
+This also allows for (some) \blue{MNAR scenarios}, for example, by multiplying or adding
+a constant to the imputed values or to re-impute values, depending on their
+current value.
+\end{frame}
+
+
+\subsection{Visit sequence}
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+When the post-processed or passively imputed values of a variable depend on
+other variables, the sequence in which the variables are imputed may be
+important to obtain consistent values.
+
+\bigskip
+
+\blue{Example:}\\
+If \Rstring{BMI} is passively imputed (calculated) before the new
+imputations for \Rstring{height} and \Rstring{weight} are drawn, the resulting
+values of \Rstring{BMI}, will match \Rstring{height} and \Rstring{weight} from
+the previous iteration, but not the iteration given in the imputed dataset.
+
+\bigskip
+
+In \Rfct{mice} the argument \Rarg{visitSequence} specifies in which order the
+columns of the \Robj{data} are imputed.
+By default \Rfct{mice} imputes in the order of the columns in \Robj{data}.
+\end{frame}
+
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+
+<<visitSeq1>>=
+visitSeq <- imp2$visitSequence
+visitSeq
+@
+
+Currently, \Rarg{hypten} is imputed before \Rstring{SBP}, but the imputed values
+of \Rstring{hypten} are post-processed depending on the current value of
+\Rstring{SBP}.
+To get consistent values of these two variables, we need to change the
+\Rarg{visitSequence}.
+
+\end{frame}
+
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+
+<<visitSeq2>>=
+visitSeq <- c(visitSeq[-which(names(visitSeq) == "hypten")],
+              visitSeq["hypten"])
+visitSeq
+@
+
+The \Rarg{visitSequence} may specify that a column is visited multiple times
+during one iteration. All incomplete variables must be visited at least once.
+
+\bigskip
+
+\Rarg{visitSequence} can also be specified using one of the keywords
+\Rstring{"roman"} (left to right), \Rstring{"arabic"} (right to left),
+\Rstring{"monotone"} (sorted in increasing amount of missingness),
+\Rstring{"revmonotone"} (reverse of monotone)
+\end{frame}
+
+
+\subsection{Good to know}\label{subsec:goodtoknow}
+\begin{frame}[fragile, label = goodtoknow]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+\Rfct{mice} performs some pre-processing and removes
+\begin{itemize}
+\item incomplete variables that are not imputed but are specified as predictor,
+\item constant variables, and
+\item collinear variables.
+\end{itemize}
+
+In each iteration
+\begin{itemize}
+\item linearly dependent variables are removed and
+\item \Rstring{polr} imputation models that do not converge are replaced by
+      \Rstring{polyreg}.
+\end{itemize}
+
+\bigskip
+
+\textbf{Why?}\\
+To avoid problems in the imputation models.
+
+\end{frame}
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+
+As a \blue{consequence}
+\begin{itemize}
+\item imputation models may differ from what the user has specified or assumes is
+      happening, or
+\item variables that should be imputed are not.
+\end{itemize}
+
+\bigskip
+
+\begin{itemize}
+\item[\blue{\ding{225}}] Know your data
+\item[\blue{\ding{225}}] Make sure \Rarg{method} and \Rarg{predictorMatrix} are
+      specified appropriately
+\item[\blue{\ding{225}}] Check the output and log of these automatic actions carefully
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{A note}
+
+\begin{quote}
+``Please realize that these choices are always needed. Imputation software
+needs to make default choices. These choices are intended to be useful across
+a wide range of applications. However, the default choices are not necessarily
+the best for the data at hand. There is simply no magical setting that always
+works, so often some tailoring is needed.'' \cite[p. 124]{Buuren2012}
+\end{quote}
+\end{frame}
+
+
+\section{Convergence \& Diagnostics}
+\subsection{Convergence}
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+
+\mode<presentation>{
+Recall from Slides~\ref{micealgorithm} and \ref{convergence}:
+}
+\mode<article>{
+Recall from Sections~\ref{subsec:micealgorithm} and \ref{subsec:convergence}:
+}
+\textbf{mice} uses an iterative algorithm and imputations from the first few
+iterations may not be samples from the ``correct'' distributions.
+
+\bigskip
+
+Traceplots can be used to visually assess convergence. In \textbf{mice} the
+function \Rfct{plot} produces traceplots of the  mean and std. deviation
+(across subjects) per incomplete variable.
+\end{frame}
+
+\begin{frame}[fragile, allowframebreaks]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+<<convergence, fig.width = 10, fig.height = 5, fig.keep = "first">>=
+plot(imp2, layout = c(6, 3))
+@
+\end{frame}
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+The traceplots show that the imputations for \Rstring{chol} and \Rstring{hypchol}
+have an upward trend.
+
+\bigskip
+
+\blue{Strong trends} and traces that show \blue{correlation} between variables
+indicate problems of feedback.
+This needs to be investigated and resolved in the specification of
+the \Rarg{predictorMatrix}.
+
+\blue{Weak trends} may be artefacts that often disappear when the imputation is
+performed with more iterations.
+\end{frame}
+
+\subsection{Diagnostics}
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+When MCMC chains have converged, the distributions of the imputed and observed
+values can be compared to investigate differences between observed and imputed
+data.
+
+\bigskip
+
+\blue{Note:}\\
+Plots usually show the marginal distributions of observed and imputed values,
+which do not have do be identical under MAR.
+
+\bigskip
+
+\textbf{Recall:} the conditional distributions
+(given all the other variables in the imputation model) of the imputed values
+are assumed to be the same as the conditional distributions of the observed data.
+\end{frame}
+
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+\textbf{mice} provides several functions for visual diagnosis of imputed values:
+\begin{itemize}
+\item \Rfct{densityplot} (for large datasets and variables with many NAs)
+\item \Rfct{stripplot} (for smaller datasets and/or variables with few NAs)
+\item \Rfct{bwplot}
+\item \Rfct{xyplot}
+\end{itemize}
+
+\bigskip
+
+These functions create \href{https://stat.ethz.ch/R-manual/R-devel/library/lattice/html/Lattice.html}{\dotuline{lattice graphics}},
+which can be modified analogous to their parent functions from the \textbf{lattice} package.
+\end{frame}
+
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+<<densityplot1, fig.width = 9, fig.height = 5>>=
+densityplot(imp2)
+@
+\end{frame}
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+The \Rfct{densityplot} shows that the distribution of imputed values of
+\Rstring{creat} is wider than the distribution of the observed values and that
+imputed values of \Rstring{height} are smaller than the observed values.
+\end{frame}
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+In some cases differences in distributions can be explained by strata in the
+data, however, here, \Rstring{gender} does not explain the difference in
+observed and imputed values.
+<<densityplot2, fig.width = 9, fig.height = 5, out.width = "80%">>=
+densityplot(imp2, ~height|gender, plot.points = T)
+@
+\end{frame}
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+As an alternative, we might consider \Rstring{race} to explain the differences
+<<densityplot fail, fig.width = 9, fig.height = 5>>=
+densityplot(imp2, ~height|race)
+@
+However, there are not enough missing values of \Rstring{height} per
+categories of \Rstring{race} to estimate densities.
+<<densityplot fail2>>=
+with(NHANES, table(race = race, "height missing" = is.na(height)))
+@
+\end{frame}
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+In that case, a \Rfct{stripplot} may be better suited. Here we can also split
+the data for \Rstring{gender} and \Rstring{race}.
+<<stripplot1, fig.width = 10, fig.height = 5>>=
+stripplot(imp2, height ~ race|gender, pch = c(1, 20),
+          scales = list(x = list(rot = 45)))
+@
+\end{frame}
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+Alternatively, observed and imputed data can be represented by box-and-whisker plots:
+<<bwplot, fig.width = 10, fig.height = 4.5>>=
+bwplot(imp2, height + weight + bili + chol ~.imp)
+@
+\end{frame}
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+The function \Rfct{xyplot} allows multivariate investigation of the imputed
+versus observed values.
+<<xyplot, fig.width = 10, fig.height = 5>>=
+xyplot(imp2, height ~ chol|gender, pch = c(1,20))
+@
+
+\end{frame}
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+All of the above graphs displayed only continuous imputed variables.
+For categorical variables we can compare the proportion of values in each
+category.
+
+\bigskip
+
+\textbf{mice} does not provide a function to do this, but we can write one
+ourselves, as for instance the function \Rfct{probplot}, for which the syntax
+can be found \href{https://gist.github.com/NErler/0d00375da460dd33839b98faeee2fdab}{\dotuline{here}}.
+
+The function can be loaded into \textsf{R} using:
+<<load gist, message = F>>=
+devtools::source_gist("0d00375da460dd33839b98faeee2fdab",
+                      filename = "probplot.R")
+@
+\end{frame}
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+<<probplot, warning = F, fig.width = 10, fig.height = 5>>=
+probplot(imp2)
+@
+\end{frame}
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+\Rstring{smoke} and \Rstring{educ} have very few missing values
+(\Sexpr{sum(is.na(NHANES$smoke))} and  \Sexpr{sum(is.na(NHANES$educ))},
+respectively), so we do not need to worry about differences between observed
+and imputed data for those variables.
+
+\bigskip
+
+For \Rstring{alc}, missing values are imputed by the lower consumption categories
+more often than we would expect from the observed data,
+\Rstring{hypten} is less frequent and
+\Rstring{hypchol} a bit more frequent, in the imputed data compared to the observed.
+
+\bigskip
+
+If we expect that \Rstring{gender} and \Rstring{race} might explain the differences
+for \Rstring{hypten}, we can include those factors into the plot.
+\end{frame}
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+<<probplot_alc, fig.width = 10, fig.height = 6>>=
+probplot(imp2, formula = alc ~ race + gender)
+@
+\end{frame}
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+Since hypertension is more common in older individuals, we may want to
+investigate if \Rstring{age} can explain the differences in imputed values of
+\Rstring{hypten}.
+<<hypten_age_table>>=
+round(sapply(split(NHANES[, "age"], addNA(NHANES$hypten)), summary), 1)
+@
+The table shows that the \Rstring{age} structure of participants with missing
+\Rstring{hypten} is very similar to the \Rstring{age} structure of participants
+without \Rstring{hypten}.
+\end{frame}
+
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+Plotting the proportions of observed and imputed \Rstring{hypten} separately
+per quartile of \Rstring{age}:
+<<probplot_hypten, fig.width = 10, fig.height = 4.5>>=
+probplot(imp2, formula = hypten ~ cut(age, quantile(age), include.lowest = T))
+@
+\end{frame}
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+For the first three quartiles of \Rstring{age} the distribution of the imputed
+values is similar to the distribution of the observed values of \Rstring{hypten}.
+<<>>=
+with(NHANES, table(age = cut(age, quantile(age), include.lowest = T),
+                   hypten, exclude = NULL))
+@
+Since there are only
+\Sexpr{with(NHANES, sum(is.na(hypten[age > quantile(age, 0.75)])))}
+missing values for the last quartile, differences between observed and imputed
+values are insignificant.
+\end{frame}
+
+\subsection{Logged events}
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+\mode<presentation>{
+The log of the automatic changes (slide~\ref{goodtoknow}) is returned
+as part of the \Robj{mids} object:
+}
+\mode<article>{
+The log of the automatic changes (Section~\ref{subsec:goodtoknow}) is returned
+as part of the \Robj{mids} object:
+}
+\begin{columns}[onlytextwidth]
+\begin{column}{0.45\linewidth}
+<<>>=
+head(imp2$loggedEvents)
+@
+\end{column}
+\hfill
+\begin{column}{0.45\linewidth}
+With columns\\
+
+\begin{tabular}{lp{12em}}
+\Rstring{it} & iteration number\\
+\Rstring{im} & imputation number\\
+\Rstring{co} & column number in the data\\
+\Rstring{dep} & dependent variable\\
+\Rstring{meth} & imputation method used\\
+\Rstring{out} & names of altered or removed predictors
+\end{tabular}
+\end{column}
+\end{columns}
+\end{frame}
+
+
+\section{Analyse \& pool the imputed data}
+\subsection{Fitting models with \texttt{mids} objects}
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+Once we have confirmed that our imputation was successful, we can move on
+to the analysis of the imputed data.
+
+For example, we might be interested in the following logistic regression model:
+<<eval = F>>=
+glm(DM ~ age + gender + hypchol + BMI + smoke + alc,
+    family = "binomial")
+@
+
+To fit the model on each of the imputed datasets, we do not need to extract
+the data from the \Robj{mids} object, but can use \Rfct{with}.
+<<glm>>=
+mod1 <- with(imp2, glm(DM ~ age + gender + hypchol + BMI + smoke + alc,
+                       family = "binomial"))
+@
+\Robj{mod1} is an object of class \Robj{mira} and has elements
+<<>>=
+names(mod1)
+@
+where \Robj{mod1}\texttt{\$}\Robj{analyses} is a list containing the fitted
+model for each imputed dataset.
+\end{frame}
+
+
+
+\subsection{Pooling results (\texttt{mira} $\rightarrow$ \texttt{mipo})}
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+Pooled results can be obtained using \Rfct{pool} and its summary
+<<pooled, size = "scriptsize">>=
+options(width = 90)
+res1 <- summary(pool(mod1))
+round(res1, 3)
+@
+\end{frame}
+
+
+\subsection{Functions for pooled results}
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+\textbf{mice} currently has two functions available for evaluating model
+fit / model comparison
+
+\bigskip
+For \blue{linear} regression models the pooled $R^2$ can be calculated
+using \Rfct{pool.r.squared}
+<<>>=
+mod2 <- with(imp2, lm(SBP ~ DM + age + hypten))
+pool.r.squared(mod2)
+@
+\end{frame}
+
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+The function \Rfct{pool.compare} allows to compare \blue{nested models}
+(i.e., models where one is a special case of the other, with some parameters
+fixed to zero) using a \blue{Wald test}
+
+\bigskip
+
+\textbf{Example:}
+To test if \Rstring{smoke} has a relevant contribution to the model for
+\Rstring{DM} from above we re-fit the model without \Rstring{smoke} and
+compare the two models:
+<<>>=
+mod3 <- with(imp2, glm(DM ~ age + gender + hypchol + BMI + alc,
+                       family = "binomial"))
+# Wald test
+pool.compare(mod1, mod3)$pvalue
+@
+
+\end{frame}
+
+
+\section{Some more functionality from mice}
+\subsection{Exporting imputed data}
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+The function \Rfct{mids2spss} allows the export of imputed data (\Robj{mids} objects)
+to \textsf{SPSS}.
+<<>>=
+mids2spss(imp2,
+          filedat = "datafile.txt", # the file containing the data
+          filesps = "importsyntax.sps" # syntax to convert .txt to .sav
+)
+
+@
+
+Data from \Robj{mids} objects can also be exported to \textsf{MPLUS} using
+\Rfct{mids2mplus}.
+\end{frame}
+
+\subsection{Combining \texttt{mids} objects}
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+To increase the number of imputed datasets without re-doing the initial $m$ imputations,
+a second set of imputations can be done and the two \Robj{mids} objects combined
+using \Rfct{ibind}.
+
+<<ibind, eval = F>>=
+imp2b <- update(imp2, post = post, maxit = 20, seed = 456) # same syntax as before, but different seed
+imp2combi <- ibind(imp2, imp2b)
+imp2combi$m
+@
+<<ibindrun, eval = F, echo = F>>=
+imp2b <- update(imp2, post = post, maxit = 20, seed = 456) # same syntax as before, but different seed
+save(imp2b, file = "workspaces/imp2b.RData")
+@
+<<ibindget, echo = F>>=
+load("workspaces/imp2b.RData")
+imp2combi <- ibind(imp2, imp2b)
+imp2combi$m
+@
+\end{frame}
+
+\subsection{Adding variables to \texttt{mids} objects}
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+
+The function \Rfct{cbind.mids} allows to add columns to a \Robj{mids} object.
+The extra columns can either be a \Robj{data.frame}, \Robj{matrix}, \Robj{vector}
+or \Robj{factor} or another \Robj{mids} object.
+
+
+For examle data columns that should be part of the imputed data for completeness,
+but are not needed in the imputation.
+
+<<>>=
+extravar <- rnorm(nrow(NHANES))
+impextra <- mice:::cbind.mids(x = imp2, extravar = extravar)
+@
+
+\blue{Note:}
+\Rfct{cbind} just adds columns to the data, you need to make sure they are
+sorted correctly so that the rows of the new data are from the same subjects
+as the corresponding rows in the impute data.
+\end{frame}
+
+
+\section{Multiple Imputation in SPSS}
+\subsection{Where to get help}
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+A walk-through how to do multiple imputation in SPSS can be found
+
+\begin{itemize}
+\item for older versions of \textsf{SPSS}
+Help $>$ Case Studies $>$ Missing Values Option $>$
+Multiple Imputation $>$ Using Multiple Imputation to Complete and Analyze a Dataset
+\item for newer versions online\\
+    \url{https://www.ibm.com/support/knowledgecenter/en/SSLVMB_24.0.0/spss/tutorials/mi_table.html}
+\end{itemize}
+
+
+The procedure itself is in the menu\\
+Analyze $>$ Multiple Imputation $>$ Impute Missing Data Values
+\end{frame}
+
+\subsection{Multiple Imputation Features}
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+\begin{columns}
+\begin{column}{0.5\linewidth}
+\only<1>{\includegraphics[width = \linewidth]{spss/MI01.JPG}}
+\only<2>{\includegraphics[width = \linewidth]{spss/MI02.JPG}}
+\only<3>{\includegraphics[width = \linewidth]{spss/MI03.JPG}}
+\only<4>{\includegraphics[width = \linewidth]{spss/MI04.JPG}}
+\end{column}
+\begin{column}{0.5\linewidth}
+\textsf{SPSS} lets you
+\begin{itemize}
+\item<1-> specify number of imputations
+\item<2-> specify number of iterations
+\item<2-> include interactions
+\item<2-> chose between lin. regression and pmm for continuous variables
+\item<3-> restrict variables to certain values
+\item<3-> select which variables to impute
+\item<3-> select which variables are used as predictors
+\item<4> save the iteration history
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+\textsf{SPSS} does not let you
+\begin{itemize}
+\item select between lin. regression and pmm \blue{per} variable, but only
+jointly for all variables
+\item uses logistic regression for any categorical variable
+\item chose per imputation model which variables should be used as predictors
+\item re-calculate variables during the iterations
+\item \ldots
+\end{itemize}
+\end{frame}
