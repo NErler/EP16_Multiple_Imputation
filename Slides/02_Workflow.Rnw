@@ -1,12 +1,26 @@
-\begin{frame}[allowframebreaks=0.8]{Outline of Part II}
-\tableofcontents[part=2]
+\begin{frame}{Outline of Part II}
+\setlength{\parskip}{0pt}
+% \begin{multicols}{2}
+\vspace*{-6ex}
+\begin{columns}
+\begin{column}{0.45\linewidth}
+\tableofcontents[part=2,sections={6-7}]
+\end{column}
+\begin{column}{0.55\linewidth}
+\tableofcontents[part=2,sections={8-11}]
+% \vspace*{20ex}
+\end{column}
+\end{columns}
+\vspace*{-6ex}
+% \end{multicols}
 \end{frame}
+
 
 
 \section{Know your data}
 \subsection{Missing data patterns}
-\begin{frame}[fragile]{Visualize the (missing) data}
-\framesubtitle{Missing data pattern}
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
 There are several packages in \textsf{R} that provide functions to create and
 plot the missing data pattern.\\\bigskip
 
@@ -15,8 +29,10 @@ Examples are:\\
 
 To create the plots on the following slides, we need to load the example data
 <<load NHANES prep, echo = F>>=
-datadir <- file.path(getwd(), "data")
+projdir <- gsub("Slides", "", getwd())
+datadir <- file.path(projdir, "data")
 load(file.path(datadir, "NHANES.RData"))
+NHANES <- subset(NHANES, select = -DBP)
 @
 
 <<load NHANES, eval = F>>=
@@ -27,17 +43,17 @@ load(file.path(datadir, "NHANES.RData"))
 
 
 
-\begin{frame}[fragile]{Visualize the (missing) data}
-\framesubtitle{Missing data pattern}
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
 <<echo = F>>=
 op <- getOption("width")
 options("width" = 120)
 @
 
 <<mice_md.pattern, size = 'scriptsize'>>=
-mdp <- mice::md.pattern(NHANES, plot = F)
-head(mdp[, -c(7:13)]) # omit some columns to fit it on the slide
-tail(mdp[, -c(7:13)])
+mdp <- mice::md.pattern(NHANES)
+head(mdp[, -c(7:14)]) # omit some columns to fit it on the slide
+tail(mdp[, -c(7:14)])
 @
 <<echo = F>>=
 options('width' = op)
@@ -45,39 +61,39 @@ options('width' = op)
 
 \end{frame}
 
-\begin{frame}[fragile]{Visualize the (missing) data}
-\framesubtitle{Missing data pattern}
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
 <<JointAI_md_pattern, fig.width = 7, fig.height = 5, out.width = "80%", fig.keep = 'last'>>=
 par(mar = c(5, 0.5, 1, 3), mgp = c(2, 0.6, 0))
-JointAI::md_pattern(NHANES, print = F, yaxis_pars = list(cex.axis = 0.6))
+JointAI::md_pattern(NHANES, print = F, yaxis_pars = list(cex.axis = 0.5))
 @
 \end{frame}
 
-\begin{frame}[fragile]{Visualize the (missing) data}
-\framesubtitle{Missing data pattern}
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
 <<VIM_aggr, fig.width = 10, fig.height = 5, out.width = "95%", cache = T>>=
 par(mar = c(6, 3, 2, 1))
 VIM::aggr(NHANES, prop = T, numbers = F)
 @
 \end{frame}
 
-\begin{frame}[fragile]{Visualize the (missing) data}
-\framesubtitle{Missing data pattern}
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
 <<visdat_vis_dat, fig.width = 8, fig.height = 5, out.width = "95%", crop = T, cache = T>>=
 visdat::vis_dat(NHANES, sort_type = F)
 @
 \end{frame}
 
-\begin{frame}[fragile]{Visualize the (missing) data}
-\framesubtitle{Missing data pattern}
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
 <<visdat_vis_miss, fig.width = 8, fig.height = 5, out.width = "90%", crop = T, cache = T>>=
 visdat::vis_miss(NHANES)
 @
 \end{frame}
 
 
-\begin{frame}[fragile]{Visualize the (missing) data}
-\framesubtitle{Proportion of missing values \& complete cases}
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
 <<NCC_calc>>=
 # number and proportion of complete cases
 Ncc <- cbind(
@@ -95,8 +111,8 @@ nmis <- cbind("# NA" = sort(colSums(is.na(NHANES))),
 @
 \end{frame}
 
-\begin{frame}[fragile]{Visualize the (missing) data}
-\framesubtitle{Proportion of missing values \& complete cases}
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
 \mode<presentation>{\vspace*{-1ex}}
 Number and proportion of (in)complete cases
 <<Ncc_print, echo = F>>=
@@ -122,32 +138,6 @@ nmis[(1 + ceiling(nrow(nmis)/2)):nrow(nmis), ]
 
 
 \subsection{Data distributions}
-\begin{frame}[fragile]{\thesection. \insertsection}
-\framesubtitle{\thesection.\thesubsection. \insertsubsection}
-<<hist, eval = F>>=
-# for continuous variables
-NHANESnum <- NHANES[, sapply(NHANES, is.numeric)]
-par(mfrow = c(3, 4), mar = c(3, 3.2, 0.5, 0.5), mgp = c(2, 0.6, 0))
-for (i in 1:ncol(NHANESnum)) {
-  hist(NHANESnum[, i], nclass = 30, xlab = names(NHANESnum)[i], main = "")
-  legend("topright", bty = "n",
-         legend = paste0(round(mean(is.na(NHANESnum[, i]))*100, 2), "% NA"))
-}
-
-# for factors
-NHANESfac <- NHANES[, sapply(NHANES, is.factor)]
-par(mfrow = c(3, 5), mar = c(3, 3.2, 2.5, 0.5), mgp = c(2, 0.6, 0))
-for (i in 1:ncol(NHANESfac)) {
-  tab <- table(NHANESfac[, i], exclude = NULL)
-  names(tab)[is.na(names(tab))] <- "NA"
-  barplot(tab, main = paste0(names(NHANESfac)[i]," (",
-                             round(mean(is.na(NHANESfac[, i]))*100,
-                                   2), "% NA)"))
-}
-@
-\end{frame}
-
-
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 <<NHANEShistplot, fig.width = 8, fig.height = 5, out.width = "100%", echo = F>>=
@@ -178,7 +168,30 @@ for (i in 1:ncol(NHANESfac)) {
 @
 \end{frame}
 
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+<<hist, eval = F>>=
+# syntax for continuous variables
+NHANESnum <- NHANES[, sapply(NHANES, is.numeric)]
+par(mfrow = c(3, 4), mar = c(3, 3.2, 0.5, 0.5), mgp = c(2, 0.6, 0))
+for (i in 1:ncol(NHANESnum)) {
+  hist(NHANESnum[, i], nclass = 30, xlab = names(NHANESnum)[i], main = "")
+  legend("topright", bty = "n",
+         legend = paste0(round(mean(is.na(NHANESnum[, i]))*100, 2), "% NA"))
+}
 
+# syntax for factors
+NHANESfac <- NHANES[, sapply(NHANES, is.factor)]
+par(mfrow = c(3, 5), mar = c(3, 3.2, 2.5, 0.5), mgp = c(2, 0.6, 0))
+for (i in 1:ncol(NHANESfac)) {
+  tab <- table(NHANESfac[, i], exclude = NULL)
+  names(tab)[is.na(names(tab))] <- "NA"
+  barplot(tab, main = paste0(names(NHANESfac)[i]," (",
+                             round(mean(is.na(NHANESfac[, i]))*100,
+                                   2), "% NA)"))
+}
+@
+\end{frame}
 
 \subsection{Correlations \& patterns}
 \begin{frame}[fragile]{\thesection. \insertsection}
@@ -209,6 +222,8 @@ corrplot::corrplot(Corr, method = "square", type = "upper", tl.col = "black")
 
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
+
+Check out what the problem is with \Rstring{hypertension} and \Rstring{HyperMed}:
 <<tab_hyper>>=
 table(hypertension = NHANES$hypten,
       HyperMed = NHANES$HyperMed, exclude = NULL)
@@ -218,21 +233,22 @@ table(hypertension = NHANES$hypten,
 \subsection{Why are values missing?}
 \begin{frame}{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
+Knowing your data also means to be able to answer these questions:
 \begin{itemize}
-\item Do missing values in multiple variables always occur together?
+\item Do missing values in multiple variables always \blue{occur together}?\\
       (e.g. blood measurements)
-\item Are there structural missing values? (e.g. pregnancy status in men)
-\item Are there patterns in the missing values?
+\item Are there \blue{structural missing values}? (e.g. pregnancy status in men)
+\item Are there \blue{patterns} in the missing values?\\
       (e.g. only patients with hypertension have observations of HyperMed)
-\item Are values missing by design?
-\item Is the assumption of ignorable missingness (MAR or MCAR) justifiable?
+\item Are values \blue{missing by design}?
+\item Is the \blue{assumption of ignorable missingness} (MAR or MCAR) justifiable?
 \end{itemize}
 \end{frame}
 
 \subsection{Auxiliary variables}
 \begin{frame}{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-Auxiliary variables are variables that are not part of the analysis but can
+\blue{Auxiliary variables} are variables that are not part of the analysis but can
 help during imputation.\\\bigskip
 
 Good auxiliary variables
@@ -243,10 +259,6 @@ Good auxiliary variables
 \item are (mostly) observed when the incomplete variable of interest is missing.
 \end{itemize}
 \end{frame}
-
-
-\subsection{think about passive imputation, restrictions, post-processing}
-
 
 
 \section{Imputation with \texttt{mice()}}
@@ -271,7 +283,7 @@ The main arguments needed to impute data with \texttt{mice()} are:
 \subsection{Imputation methods}
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-\textbf{mice} has implemented many imputation methods, the
+\textbf{mice} has implemented many \blue{imputation methods}, the
 most commonly used ones are:
 \begin{itemize}
 \item \Rstring{pmm}: predictive mean matching (any)
@@ -384,6 +396,7 @@ pred <- imp0$predictorMatrix
 pred[, "HyperMed"] <- 0
 imp <- mice(NHANES, method = meth, predictorMatrix = pred, printFlag = F)
 @
+
 <<imprun, echo = F, eval = F>>=
 library(mice)
 imp0 <- mice(NHANES, maxit = 0,
@@ -395,8 +408,9 @@ meth["HyperMed"] <- ""
 pred <- imp0$predictorMatrix
 pred[, "HyperMed"] <- 0
 imp <- mice(NHANES, method = meth, predictorMatrix = pred, printFlag = F)
-save(imp, file = "workspaces/imp.RData")
+save(imp, file = file.path(projdir, "Slides/workspaces/imp.RData"))
 @
+
 <<impget, echo = F>>=
 library(mice)
 imp0 <- mice(NHANES, maxit = 0,
@@ -407,7 +421,7 @@ meth["HyperMed"] <- ""
 
 pred <- imp0$predictorMatrix
 pred[, "HyperMed"] <- 0
-load("workspaces/imp.RData")
+load(file.path(projdir, "Slides/workspaces/imp.RData"))
 @
 
 \end{frame}
@@ -416,7 +430,7 @@ load("workspaces/imp.RData")
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 In some cases, variables are functions of other variables,
-e.g., $$BMI = \frac{weight}{height^2}.$$
+e.g., $BMI = \frac{weight}{height^2}.$
 
 If we impute \Rstring{BMI} directly, its values may be inconsistent with the
 (imputed) values of \Rstring{height} and \Rstring{weight}.
@@ -425,7 +439,7 @@ DF1 <- complete(imp, 1) # select the first imputed dataset
 round(cbind("wgt/hgt^2" = DF1$weight/DF1$height^2,
             BMI = DF1$BMI)[is.na(NHANES$BMI), ], 2)[1:5, ]
 @
-
+\vspace*{-1ex}
 The imputed values of \Rstring{BMI} are impossible given the corresponding
 values of \Rstring{height} and \Rstring{weight}.
 \end{frame}
@@ -529,7 +543,7 @@ p <- ggplot(plotDF, aes(x = value, fill = Var2, color = Var2)) +
 library(plotly)
 htmlp <- ggplotly(p, tooltip = "none", dynamicTicks = T)
 htmlwidgets::saveWidget(as_widget(htmlp),
-                        file = file.path(getwd(), "figure", "squeeze_plot1.html"))
+                        file = file.path(projdir, "Slides", "figure", "squeeze_plot1.html"))
 @
 
 <<hist_creat, echo = F, fig.width = 6, fig.height = 4>>=
@@ -558,12 +572,12 @@ imp2 <- update(imp, post = post, maxit = 20, seed = 123)
 post <- imp$post
 post["creat"] <- "imp[[j]][,i] <- squeeze(imp[[j]][,i], c(0, 100))"
 imp2 <- update(imp, post = post, maxit = 20, seed = 123)
-save(imp2, file = "workspaces/imp2.RData")
+save(imp2, file = file.path(projdir, "Slides/workspaces/imp2.RData"))
 @
 <<imp2get, echo = F>>=
 post <- imp$post
 post["creat"] <- "imp[[j]][,i] <- squeeze(imp[[j]][,i], c(0, 100))"
-load("workspaces/imp2.Rdata")
+load(file.path(projdir, "Slides/workspaces/imp2.RData"))
 @
 
 \blue{Note:}\\
@@ -571,20 +585,6 @@ When many observations are outside the limits it may be better to change the
 imputation model since the implied assumption of the current model apparently does not
 fit the assumption about the complete data distribution.
 \end{frame}
-
-% \begin{frame}[fragile]{\thesection. \insertsection}
-% \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-% The function \Rfct{ifdo} may, for instance, come in handy when there are
-% logical restrictions in the data.
-%
-% \bigskip
-%
-% In our data, subjects with \Rstring{SBP $\geq 140$} are classified as hypertensive.
-% To use this information in the imputation we can specify:
-<<postprocessing ifdo, cache = T, eval = F>>=
-post["hypten"] <- "ifdo(SBP >= 140, levels(hypten)[2])"
-@
-% \end{frame}
 
 
 \begin{frame}[fragile]{\thesection. \insertsection}
@@ -745,7 +745,7 @@ function \Rfct{plot} produces traceplots of the  mean and std. deviation
 
 \begin{frame}[fragile, allowframebreaks]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-<<convergence, fig.width = 10, fig.height = 5, fig.keep = "first">>=
+<<convergence_imp2, fig.width = 10, fig.height = 5, fig.keep = "first">>=
 plot(imp2, layout = c(6, 3))
 @
 \end{frame}
@@ -882,9 +882,12 @@ ourselves, as for instance the function \Rfct{probplot}, for which the syntax
 can be found \href{https://gist.github.com/NErler/0d00375da460dd33839b98faeee2fdab}{\dotuline{here}}.
 
 The function can be loaded into \textsf{R} using:
-<<load gist, message = F>>=
+<<load gist, message = F, eval = F>>=
 devtools::source_gist("0d00375da460dd33839b98faeee2fdab",
                       filename = "probplot.R")
+@
+<<load probplot, message = F, echo = F>>=
+source(file.path(projdir, "Slides", "Rfcts", "probplot.R"))
 @
 \end{frame}
 
@@ -994,7 +997,7 @@ With columns\\
 
 
 \section{Analyse \& pool the imputed data}
-\subsection{Fitting models with \texttt{mids} objects}
+\subsection{Analyzing imputed data}
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 Once we have confirmed that our imputation was successful, we can move on
@@ -1022,7 +1025,7 @@ model for each imputed dataset.
 
 
 
-\subsection{Pooling results (\texttt{mira} $\rightarrow$ \texttt{mipo})}
+\subsection{Pooling results}
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 Pooled results can be obtained using \Rfct{pool} and its summary
@@ -1071,8 +1074,7 @@ pool.compare(mod1, mod3)$pvalue
 
 \end{frame}
 
-
-\section{Some more functionality from mice}
+\section{Additional functions in \texttt{mice()}}
 \subsection{Exporting imputed data}
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
@@ -1161,10 +1163,10 @@ Analyze $>$ Multiple Imputation $>$ Impute Missing Data Values
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 \begin{columns}
 \begin{column}{0.5\linewidth}
-\only<1>{\includegraphics[width = \linewidth]{spss/MI01.JPG}}
-\only<2>{\includegraphics[width = \linewidth]{spss/MI02.JPG}}
-\only<3>{\includegraphics[width = \linewidth]{spss/MI03.JPG}}
-\only<4>{\includegraphics[width = \linewidth]{spss/MI04.JPG}}
+\only<1>{\includegraphics[width = \linewidth]{graphics/spss/MI01.JPG}}
+\only<2>{\includegraphics[width = \linewidth]{graphics/spss/MI02.JPG}}
+\only<3>{\includegraphics[width = \linewidth]{graphics/spss/MI03.JPG}}
+\only<4>{\includegraphics[width = \linewidth]{graphics/spss/MI04.JPG}}
 \end{column}
 \begin{column}{0.5\linewidth}
 \textsf{SPSS} lets you

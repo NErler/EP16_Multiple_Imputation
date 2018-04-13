@@ -1,0 +1,167 @@
+---
+title: "What Is Multiple Imputation?"
+output: 
+  html_document:
+  learnr::tutorial:
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, results = 'asis')
+```
+
+```{r}
+if (knitr::opts_knit$get("rmarkdown.runtime") == "shiny_prerendered") {
+  library(learnr)
+} else {
+  answer <- function(a, ...) {
+    # paste0("<li>", a, "</li>")
+    
+    paste0(
+      "<div class='checkbox'>
+      <label><input type='checkbox' value=''>", a, "</label>
+    </div>"
+    )
+  }
+  
+  question <- function(x, ..., allow_retry = NULL, random_answer_order = NULL, type = NULL) {
+    res <- paste(
+      "<b>", x, "</b>", "\n",
+      "<form>",
+      paste(...),
+      "</form>",
+      "<br>"
+    )
+    
+    
+    # res <- paste(
+    #   "<b>", x, "</b>", "\n",
+    #   "<ul>",
+    #   paste(...),
+    #   "</ul>",
+    #   "<br>"
+    # )
+    
+    res <- gsub(" *", " <i>", res, fixed = T)
+    res <- gsub("\\*[[:punct:]]* ", "</i> ", res)
+    
+    htmltools::HTML(res)
+  }
+}
+
+```
+
+
+## Sections 1 -- 4
+
+```{r Q1, results = 'asis'}
+question("Why create *multiple* imputations?",
+         answer("To increase precision in the estimation of the parameters."),
+         answer("To take into account the uncertainty about the missing values.",
+                correct = TRUE),
+         answer("To achieve approximate normality, which allows the use of methods 
+                that require data to be normally distributed."),
+         answer("To be able to impute data with multivariate missingness."),
+         allow_retry = TRUE,   random_answer_order = TRUE, type = "multiple")
+```
+
+
+```{r Q2}
+question("How are MI and MICE related?",
+         answer("MICE is an alternative to MI."),
+         answer("MICE is an improvement over the original approach, which is MI."),
+         answer("MICE is the name of the R package that is used to perform MI.",
+                message = "Kind of true, but not what was meant here."),
+         answer("MICE is a specific implementation of MI.",
+                message = "Specifically, MICE is a way to implement the imputation step of MI.",
+                correct = TRUE),
+         allow_retry = TRUE,   random_answer_order = TRUE, type = "multiple")
+```
+
+
+```{r Q3}
+question("What is a *full conditional distribution*?",
+         answer("A probability distribution, that conditions on all other variables.",
+                correct = T),
+         answer("A conditional distribution that does not have any missing values."),
+         answer("A distribution for values that only exist conditional on the value on some other variable."),
+         answer("A multivariate distribution that allows simultaneous sampling of multiple values."),
+         allow_retry = TRUE,   random_answer_order = TRUE, type = "multiple")
+```
+
+
+```{r Q4}
+question("What is/are basic assumption(s) in MI?",
+         answer("Unobserved values are on average the same as observed values."),
+         answer("Unobserved values have the same distribution as observed values."),
+         answer("Unobserved values have the same distribution as observed values,
+                conditional on other covariates.", correct = T),
+         answer("Data is normally distributed."),
+         allow_retry = TRUE,   random_answer_order = TRUE, type = "multiple")
+```
+
+
+```{r Q5}
+question("What are the two main ideas behind MI?",
+         answer("In order to create meaningful imputations, a model is necessary.", correct = TRUE),
+         answer(""),
+         answer(""),
+         answer("A single imputed value can not be correct in general.", correct = TRUE),
+         allow_retry = TRUE,   random_answer_order = TRUE, type = "multiple")
+```
+
+```{r Q6}
+question("Why can we not just use the predicted values (e.g., $y = X \\beta$) as imputations?",
+         answer("Predicting the same missing value multiple times will always result in the same value.", correct = T),
+         answer(""),
+         answer("Predicted values underestimate the uncertainty.", correct = TRUE),
+         answer(""),
+         allow_retry = TRUE,   random_answer_order = TRUE, type = "multiple")
+```
+
+```{r Q7}
+question("How can results from analysis performed on muliply imputed data be combined?",
+         answer("Taking the average of the point estimates.", correct = TRUE),
+         answer("Using Rubin's Rules, i.e., by averaging the coefficients and the 
+                within and between imputation variation."),
+         answer("Using Rubin's Rules, which take into account between and within imputation variability.", correct = TRUE),
+         answer("By averaging the estimates of the regression coefficients and adding up the corresponding standard errors."),
+         allow_retry = TRUE,   random_answer_order = TRUE, type = "multiple")
+```
+
+```{r Q8}
+question("Why is it not correct to average the standard errors from multiple analyses of imputed data to obtain the overall results?",
+         answer("Because the between imputation variation is then not taken into account.", correct = TRUE),
+         answer("Because the standard error is usually not distributed symmetrically."),
+         answer("Because relevant information on the within-imputation variation is lost."),
+         # answer(""),
+         allow_retry = TRUE,   random_answer_order = TRUE, type = "multiple")
+```
+
+
+```{r Q9}
+question("Why are iterations necessary in MICE for non-monotone missing patterns?",
+         answer("To create multiple imputed values, not just one."),
+         answer("The starting values are filled in at random and need to be replaced
+                by better choices.", correct = TRUE),
+         answer("To represent the uncertainty that is associated with the missing values."),
+         # answer("Imputed values directly depend on "),
+         allow_retry = TRUE,   random_answer_order = TRUE, type = "multiple")
+```
+
+
+```{r Q10}
+question("What does it mean when a chain of (MCMC) samples has converged?",
+         answer("The (imputed) values sampled in subsequent iterations are identical."),
+         answer("The values drawn from muliple chains are identical."),
+         answer("The chain has ended and a new chain needs to be started."),
+         answer("The distribution the (imputed) values are sampled from remains stable.", correct = TRUE),
+         allow_retry = TRUE,   random_answer_order = TRUE, type = "multiple")
+```
+
+
+## Section 5
+```{r}
+
+```
+

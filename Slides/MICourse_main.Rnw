@@ -281,87 +281,20 @@ opts_chunk$set(fig.align = "center")
 <<Part1b, child="01b_ImputationStep.Rnw", eval = T>>=
 @
 
-
 \part{Multiple Imputation Workflow}
-<<Part2, child="02_Workflow.Rnw", eval = F>>=
+<<Part2, child="02_Workflow.Rnw", eval = T>>=
 @
 
-\part{When MICE may fail}
-<<Part3, child="Part3.Rnw", eval = F>>=
+\part{When MICE might fail}
+<<Part3, child="03_WhenMICEfails.Rnw", eval = T>>=
 @
 
 
 \part{Multiple Imputation Strategies}
-\begin{frame}
-\begin{itemize}
-\item number of imputed datasets
-\item More info on other imputation methods that are implemented in mice (with the info
-that just because something is implemented, does not mean it is a good choice.)
-\item what to do with large datasets (hundreds or thousands of variables)? use
-sum scores and summaries, select important predictors, \ldots
-\end{itemize}
-\end{frame}
-
-\begin{frame}
-Including all (other) variables in an imputation model works for small/medium sized
-datasets, i.e., up to 20--30 separate variables (excluding interactions, variables
-derived from others, \ldots).
-In large datasets, i.e., hundreds or thousands of variables, this will likely
-lead to computational problems and multicollinearity. \textcolor{red}{[What to do in these cases? see van Buuren 2012, p. 127ff]}
-\end{frame}
-
-\begin{frame}[allowframebreaks]{Some Notes}
-``Multiple imputation is not a quick automatic fix. Creating good imputations
-requires substantive knowledge about the data paired with some healthy
-statistical judgement.''
-
-Keep the following points in mind:
-\begin{itemize}
-\item Plan time to create the imputed datasets. As a rule of thumb, reserve
-for imputation 5\% of the time needed to collect the data;
-\item Check the modelling choices in Section 5.1. of \cite{Buuren2012}
-Though the software defaults
-are often reasonable, they may not work for the particular data;
-\item Use MAR as a starting point using the strategy outlined in Section 5.2;
-\item Choose the imputation methods and set the predictors using the strategies
-outlined in Section 5.3 of \cite{Buuren2012};
-\item If the data contain derived variables that are not needed for imputation,
-impute the originals and calculate the derived variables afterwards;
-\item Use passive imputation if you need the derived variables during imputation.
-Carefully specify the predictor matrix to avoid feedback loops. See
-Section 5.4 of \cite{Buuren2012};
-\item Monitor convergence of the MICE algorithm for aberrant patterns, especially
-if the rate of missing data is high or if there are dependencies
-in the data. See Sections 4.5.5 and 5.5.2 of \cite{Buuren2012}
-\item Make liberal use of diagnostic graphs to compare the observed and the
-imputed data. Convince yourself that the imputed values could have
-been real data, had they not been missing. See Section 5.6 of \cite{Buuren2012}
-\end{itemize}
-\end{frame}
+<<Part4, child="04_MIStrategies.Rnw", eval = F>>=
+@
 
 
-\begin{frame}
-\begin{itemize}
-\item How to change a mids object to calculate new variables after imputation etc.
-\item miceadds: datalist2mids
-\item pooling with mitools and BaBooN
-\end{itemize}
-\end{frame}
-
-
-
-
-\part{Other}
-\begin{frame}
-\begin{itemize}
-\item Pro's and con's of MI
-% \item More info on other imputation methods that are implemented in mice (with the info
-% that just because something is implemented, doesn't mean it's a good choice.)
-% \item what to do with large datasets (hundreds or thousands of variables)? use
-% sum scores and summaries, select important predictors, \ldots
-\item other software (mitools, mlmmm (Yucel), ...)
-\end{itemize}
-\end{frame}
 
 
 \begin{frame}[allowframebreaks=0.8]{References}

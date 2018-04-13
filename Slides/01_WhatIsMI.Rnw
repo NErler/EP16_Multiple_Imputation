@@ -1126,8 +1126,13 @@ $1$ and $\nu$ degrees of freedom, and $Q_0$ is the null hypothesis value
 (typically zero).
 \end{frame}
 
-\section*{Quiz}
-\begin{frame}[allowframebreaks]{Quiz}
+
+\begin{frame}
+\begin{beamercolorbox}[sep=8pt,center,wd=\textwidth]{part title}
+\usebeamerfont{part title}
+Quiz
+\end{beamercolorbox}
+
 \vfill
 
 To recapitulate the content of this above sections, you can take the corresponding
