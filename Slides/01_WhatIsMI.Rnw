@@ -1136,7 +1136,9 @@ Quiz
 \vfill
 
 To recapitulate the content of this above sections, you can take the corresponding
-quiz, which you can find \textcolor{red}{[link to quiz]} or \textcolor{red}{[link to pdf version]}.
+quiz, which you can find \textcolor{red}{[link to quiz]} or
+\url{https://github.com/NErler/MultipleImputationCourse/raw/master/Practicals/Quiz_PartI/Quiz_PartI_static.html}
+\textcolor{red}{[link to pdf version]}.
 
 \vfill
 \end{frame}

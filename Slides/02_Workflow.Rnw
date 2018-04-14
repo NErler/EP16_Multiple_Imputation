@@ -29,7 +29,6 @@ Examples are:\\
 
 To create the plots on the following slides, we need to load the example data
 <<load NHANES prep, echo = F>>=
-projdir <- gsub("Slides", "", getwd())
 datadir <- file.path(projdir, "data")
 load(file.path(datadir, "NHANES.RData"))
 NHANES <- subset(NHANES, select = -DBP)
@@ -1106,10 +1105,10 @@ imp2combi$m
 @
 <<ibindrun, eval = F, echo = F>>=
 imp2b <- update(imp2, post = post, maxit = 20, seed = 456) # same syntax as before, but different seed
-save(imp2b, file = "workspaces/imp2b.RData")
+save(imp2b, file = file.path(projdir, "Slides", "workspaces/imp2b.RData"))
 @
 <<ibindget, echo = F>>=
-load("workspaces/imp2b.RData")
+load(file.path(projdir, "Slides", "workspaces/imp2b.RData"))
 imp2combi <- ibind(imp2, imp2b)
 imp2combi$m
 @

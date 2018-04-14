@@ -1,56 +1,48 @@
-% \documentclass[ignorenonframetext,red]{beamer}
-% \documentclass[a4paper]{article}
-% \usepackage{beamerarticle}
-
 
 \mode<article>{
   \usepackage[margin = 1in]{geometry}
   \usepackage{url}
 }
 
-  \usetheme{Rochester}
-  \useinnertheme{rounded}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% theme settings and definitions                                             %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-  \newif\iffootline
-  \footlinefalse
-  % \footlinetrue
+\usetheme{Rochester}
+\useinnertheme{rounded}
+
+% settings for navigation symbols and frame number
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}[frame number]
+
+\mode<presentation>{
+  \setbeamertemplate{frametitle continuation}[from second][(cont.)]
+}
+
+\setbeamertemplate{bibliography item}{\insertbiblabel}
 
 
-  \iffootline
-  % from infolines outer theme
-  \makeatletter
-  \setbeamertemplate{footline}{%
-    \leavevmode%
-    \hbox{%
-      \begin{beamercolorbox}[wd=\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
-    \begin{beamercolorbox}[wd=.25\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
-      \usebeamerfont{author in head/foot}%
-      \insertshortauthor\expandafter\beamer@ifempty\expandafter{\beamer@shortinstitute}{}{~~(\insertshortinstitute)}
-    \end{beamercolorbox}%
-    \begin{beamercolorbox}[wd=.5\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
-      \usebeamerfont{title in head/foot}\insertshorttitle
-    \end{beamercolorbox}%
-    \begin{beamercolorbox}[wd=.25\paperwidth,ht=2.25ex,dp=1ex,center]{date in head/foot}%
-      \usebeamerfont{date in head/foot}\insertshortdate{}%\hspace*{2em}
-      % \insertframenumber{} / \inserttotalframenumber\hspace*{2ex}
-    \end{beamercolorbox}
-    \end{beamercolorbox}}%}%
-    \vskip0pt%
-  }
-  \makeatother
-  % remove navigation
-  \setbeamertemplate{navigation symbols}{}
+% color definitions for template  ----------------------------------------------
+\setbeamercolor{palette primary}{bg = EMCdark}
+\setbeamercolor{block title}{bg = EMCdark}
+\setbeamercolor{block body}{bg = EMCdark!10!white}
 
-  \else
+\setbeamercolor{title in head/foot}{bg = EMCdark}
+\setbeamercolor{date in head/foot}{bg = EMCdark}
+% end of color definitions for template ----------------------------------------
 
-  \addtobeamertemplate{navigation symbols}{}{ \hspace{1em}    \usebeamerfont{footline}%
-    \insertframenumber / \inserttotalframenumber }
 
-  \fi
 
-  % settings title page ----------------------------------------------------------
+% other template definitions ---------------------------------------------------
+\setbeamertemplate{enumerate items}[default]
+\setbeamercolor*{enumerate item}{fg=EMCdark}
+% end of other template definitions --------------------------------------------
+
+
+
+
+% settings title page ----------------------------------------------------------
 \setbeamertemplate{title page} {
-% \vspace*{-0.92cm}
 \vspace*{-1.3cm}
   \begin{center}
     \hspace*{-1.12cm}
@@ -93,8 +85,14 @@
 
 % definitions for table of contents --------------------------------------------
 \setbeamertemplate{section in toc}[sections numbered]
-\setbeamertemplate{subsection in toc}{\leavevmode\leftskip=3.2em\rlap{\hskip-2em\inserttocsectionnumber.\inserttocsubsectionnumber}\inserttocsubsection\par}
+\setbeamertemplate{subsection in toc}{%
+  \leavevmode\leftskip=3.2em\rlap{%
+    \hskip-2em\inserttocsectionnumber.\inserttocsubsectionnumber
+  }\inserttocsubsection\par
+}
+% end defi table of contents ---------------------------------------------------
 
+% settings for start of new part -----------------------------------------------
 \setbeamertemplate{part page}{
         \begin{beamercolorbox}[sep=8pt,center,wd=\textwidth]{part title}
             \usebeamerfont{part title}
@@ -104,23 +102,52 @@
 }
 
 \AtBeginPart{\frame{\partpage}}
-% \AtBeginSection[]{
-%   \begin{frame}
-%   \vfill
-%   \centering
-%   \begin{beamercolorbox}[sep=8pt,center]{title}
-%     \usebeamerfont{title}\thesection. \insertsectionhead\par%
-%   \end{beamercolorbox}
-%   \vfill
-%   \end{frame}
-% }
-% end of definitions for table of contents -------------------------------------
+% end settings for start of new part -------------------------------------------
 
-\mode<presentation>{
-\setbeamertemplate{frametitle continuation}[from second][(cont.)]
-}
 
-\setbeamertemplate{bibliography item}{\insertbiblabel}
+
+
+  % \newif\iffootline
+  % \footlinefalse
+  % % \footlinetrue
+  %
+  %
+  % \iffootline
+  % % from infolines outer theme
+  % \makeatletter
+  % \setbeamertemplate{footline}{%
+  %   \leavevmode%
+  %   \hbox{%
+  %     \begin{beamercolorbox}[wd=\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
+  %   \begin{beamercolorbox}[wd=.25\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
+  %     \usebeamerfont{author in head/foot}%
+  %     \insertshortauthor\expandafter\beamer@ifempty\expandafter{\beamer@shortinstitute}{}{~~(\insertshortinstitute)}
+  %   \end{beamercolorbox}%
+  %   \begin{beamercolorbox}[wd=.5\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+  %     \usebeamerfont{title in head/foot}\insertshorttitle
+  %   \end{beamercolorbox}%
+  %   \begin{beamercolorbox}[wd=.25\paperwidth,ht=2.25ex,dp=1ex,center]{date in head/foot}%
+  %     \usebeamerfont{date in head/foot}\insertshortdate{}%\hspace*{2em}
+  %     % \insertframenumber{} / \inserttotalframenumber\hspace*{2ex}
+  %   \end{beamercolorbox}
+  %   \end{beamercolorbox}}%}%
+  %   \vskip0pt%
+  % }
+  % \makeatother
+  % % remove navigation
+  % \setbeamertemplate{navigation symbols}{}
+  %
+  % \else
+  %
+  % \setbeamertemplate{navigation symbols}{%
+  % \hspace{1em}\usebeamerfont{footline}%
+  %   \insertframenumber / \inserttotalframenumber
+  % }
+  %
+  % \fi
+
+
+
 
 % color definitions for template -----------------------------------------------
 \usepackage{xcolor}
@@ -141,28 +168,14 @@
 
 
 % colors for part from ErasmusAGE presentation
-\definecolor{myred}{RGB}{228,26,28}
-\definecolor{myblue}{RGB}{55,106,184}
-\definecolor{mygreen}{RGB}{77, 135, 74}
-\definecolor{mypurple}{RGB}{152,68,133}
-\definecolor{myorange}{RGB}{217,95, 2}
+% \definecolor{myred}{RGB}{228,26,28}
+% \definecolor{myblue}{RGB}{55,106,184}
+% \definecolor{mygreen}{RGB}{77, 135, 74}
+% \definecolor{mypurple}{RGB}{152,68,133}
+% \definecolor{myorange}{RGB}{217,95, 2}
 % end of colors for part from ErasmusAGE presentation
 
 
-\setbeamercolor{palette primary}{bg = EMCdark}
-\setbeamercolor{block title}{bg = EMCdark}
-\setbeamercolor{block body}{bg = EMCdark!10!white}
-
-\setbeamercolor{title in head/foot}{bg = EMCdark}
-\setbeamercolor{date in head/foot}{bg = EMCdark}
-% end of color definitions for template ----------------------------------------
-
-
-
-% other template definitions ---------------------------------------------------
-\setbeamertemplate{enumerate items}[default]
-\setbeamercolor*{enumerate item}{fg=EMCdark}
-% end of other template definitions --------------------------------------------
 
 
 % packages ---------------------------------------------------------------------
@@ -171,10 +184,6 @@
 \usepackage{bbding} % for \Envelope
 \usepackage{colortbl} % for highlighting of table
 \usepackage{pifont} % for \ding
-% \usepackage{algorithm2e}
-% \usepackage{algorithmic}
-% \usepackage{algorithm}
-% \usepackage{algpseudocode}
 \usepackage{algorithm,algpseudocode}
 \usepackage{float}
 \usepackage[many]{tcolorbox}
@@ -190,16 +199,11 @@ single arrow head extend=.3cm,}}
 }
 
 \usepackage{multicol} % for multicols
-% \usepackage{marvosym} %
+
 \mode<article>{
 \usepackage[hidelinks]{hyperref}
 }
-% \hypersetup{
-%     colorlinks=true,
-%     linkcolor=blue,
-%     filecolor=magenta,
-%     urlcolor=cyan,
-% }
+
 \usepackage{ulem} % for various types of underlining
 \usepackage{arydshln}
 \usepackage{booktabs}
@@ -222,6 +226,9 @@ single arrow head extend=.3cm,}}
 \def\Robj#1{\texttt{\hlstd{#1}}}
 \newcommand{\Rfct}[2][]{\texttt{\hlkwd{#2}\hlstd{(#1)}}}
 % end of R syntax styling ------------------------------------------------------
+
+
+
 
 % Title page -------------------------------------------------------------------
 \title[EP16]{Missing Values in Clinical Research (EP16)}
@@ -260,13 +267,14 @@ opts_chunk$set(fig.align = "center", size = "footnotesize")
 \mode<article>{
 <<artsetup, include = F>>=
 opts_chunk$set(fig.align = "center")
+projdir <- gsub("Slides", "", getwd())
 @
 }
 
 
 \maketitle
 
-\begin{frame}[plain]
+\begin{frame}[plain,noframenumbering]
 \titlepage
 \end{frame}
 
@@ -278,7 +286,7 @@ opts_chunk$set(fig.align = "center")
 \part{Multiple Imputation}
 <<Part1a, child="01_WhatIsMI.Rnw", eval = T>>=
 @
-<<Part1b, child="01b_ImputationStep.Rnw", eval = T>>=
+<<Part1b, child="01b_ImputationStep.Rnw", eval = F>>=
 @
 
 \part{Multiple Imputation Workflow}
@@ -297,7 +305,7 @@ opts_chunk$set(fig.align = "center")
 
 
 
-\begin{frame}[allowframebreaks=0.8]{References}
+\begin{frame}[allowframebreaks=0.9]{References}
 \nocite{*}\footnotesize
 \bibliographystyle{plain}
 \bibliography{references}
@@ -306,7 +314,7 @@ opts_chunk$set(fig.align = "center")
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \mode<presentation>{
 \setbeamercolor{background canvas}{bg=EMCdark}
-\begin{frame}[plain]
+\begin{frame}[plain,noframenumbering]
   \begin{center}
     \includegraphics[width = 8cm]{graphics/Logo1DB.pdf}
 
