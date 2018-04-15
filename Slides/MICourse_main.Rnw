@@ -155,7 +155,7 @@
 \definecolor{EMClight}{RGB}{134, 210, 237}
 \definecolor{darkred}{RGB}{204,0,0}
 
-
+% color for other use ----------------------------------------------------------
 \definecolor{Dark21}{HTML}{1B9E77}
 \definecolor{Dark22}{HTML}{D95f02}
 \definecolor{Dark23}{HTML}{7570B3}
@@ -284,13 +284,13 @@ projdir <- gsub("Slides", "", getwd())
 
 
 \part{Multiple Imputation}
-<<Part1a, child="01_WhatIsMI.Rnw", eval = T>>=
+<<Part1a, child="01_WhatIsMI.Rnw", eval = F>>=
 @
 <<Part1b, child="01b_ImputationStep.Rnw", eval = F>>=
 @
 
 \part{Multiple Imputation Workflow}
-<<Part2, child="02_Workflow.Rnw", eval = T>>=
+<<Part2, child="02_Workflow.Rnw", eval = F>>=
 @
 
 \part{When MICE might fail}

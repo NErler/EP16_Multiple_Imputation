@@ -814,7 +814,7 @@ phi <- 1.6458 # shape for the Weibull baseline hazard
 mean.Cens <- 12 # mean of the exponential distribution for the censoring mechanism
 
 ################################################
-gammas <- c("(Intercept)" = -5.7296, "Group" = 2.4092, x = 1) # coefficients for baseline covariates
+gammas <- c("(Intercept)" = -5.7296, "Group" = 2.4092, x = -2) # coefficients for baseline covariates
 
 group <- rep(0:1, each = n/2) # group indicator, i.e., '0' placebo, '1' active treatment
 x <- rnorm(n)
@@ -876,20 +876,17 @@ survdat <- survdat_orig
 N = n
 survdat$x[sample(1:N, N*0.3)] <- NA
 survdat$group[sample(1:N, N*0.3)] <- NA
+survdat$group <- factor(survdat$group)
+survdat_orig$group <- factor(survdat_orig$group + 1)
 
-survdat$na <- nelsonaalen(survdat, "Time", "event")
-# survdat$event <- factor(survdat$event)
 
 imp00 <- mice(survdat, maxit = 0)
-pred0 <- pred1 <- pred2 <- imp00$predictorMatrix
 
-pred0[, c('Time', 'event', 'na')] <- 0
-pred1[, c('na')] <- 0
-# pred2[, c('Time')] <- 0
+meth01 <- imp00$method
+meth01[c("x")] <- "norm"
 
+impsurv_01 <- mice(survdat, maxit = 10, method = meth01)
 
-imp0 <- mice(survdat, maxit = 10, predictorMatrix = pred0)
-imp1 <- mice(survdat, maxit = 10, predictorMatrix = pred1)
 # smc <- smcfcs(survdat, smtype = 'coxph',
               # smformula = "Surv(Time, event) ~ group + x",
               # method = c(Time = "", event = "", group = "logreg",
@@ -903,59 +900,85 @@ imp1 <- mice(survdat, maxit = 10, predictorMatrix = pred1)
 # imp3 <- mice(survdat, maxit = 10)
 
 cox <- with(survdat_orig, coxph(Surv(Time, as.numeric(event)) ~ x + group))
-cox0 <- with(imp0, coxph(Surv(Time, as.numeric(event)) ~ x + group))
-cox1 <- with(imp1, coxph(Surv(Time, as.numeric(event)) ~ x + group))
+cox01 <- with(impsurv_01, coxph(Surv(Time, as.numeric(event)) ~ x + group))
 # coxsmc <- with(impsmc, coxph(Surv(Time, as.numeric(event)) ~ x + group))
 
 # cox2 <- with(imp2, coxph(Surv(Time, as.numeric(event)) ~ x + group))
 # cox3 <- with(imp3, coxph(Surv(Time, as.numeric(event)) ~ x + group))
 
-rescox0 <- as.data.frame(summary(pool(cox0))[, c("est", "lo 95", "hi 95")])
-rescox1 <- as.data.frame(summary(pool(cox1))[, c("est", "lo 95", "hi 95")])
-# rescox2 <- as.data.frame(summary(pool(cox2))[, c("est", "lo 95", "hi 95")])
-# rescox3 <- as.data.frame(summary(pool(cox3))[, c("est", "lo 95", "hi 95")])
+rescox01 <- as.data.frame(summary(pool(cox01))[, c("est", "lo 95", "hi 95")])
 rescox <- as.data.frame(cbind(cox$coef, confint(cox)))
 # ressmc <- as.data.frame(summary(pool(coxsmc))[, c("est", "lo 95", "hi 95")])
 
-rescox0$meth <- 0
-rescox1$meth <- 1
+rescox01$meth <- "norm"
 # rescox2$meth <- 2
 # rescox3$meth <- 3
 rescox$meth <- "orig"
 # ressmc$meth <- 'smc'
 
 rescox$var = rownames(rescox)
-rescox0$var = rownames(rescox)
-rescox1$var = rownames(rescox)
-# ressmc$var = rownames(rescox)
-# rescox2$var = rownames(rescox)
-# rescox3$var = rownames(rescox)
+rescox01$var = rownames(rescox)
 
-names(rescox) <- names(rescox0)
-plotcox <- rbind(rescox, rescox0, rescox1)#, ressmc)#, rescox2, rescox3)
+names(rescox) <- names(rescox01)
+plotcox <- rbind(rescox, rescox01)
 
 
 @
 
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-\textcolor{red}{[In survival analysis, the outcome is usually represented by the event (or censoring)
-time $T$ and the event indicator $D$.]}
+In survival analysis, the aim is to estimate the effect of covariates on
+the \blue{time until an event} of interest happens.
 
-$$h(t\mid x,z) = h_0(t)\exp(\beta_x x + \beta_z z)$$
+\bigskip
 
+In the commonly used \blue{Cox proportional hazards model}, the hazard $h(t)$
+(i.e., the instantaneous risk of an event at time $t$, given that the event has not
+occurred until time $t$) is modeled as
+$$h(t) = h_0(t)\exp(\beta_x X + \beta_z Z),$$
+where $h_0(t)$ is denotes the \textcolor{red}{[usually]} unknown baseline hazard, and we use \blue{$X$}
+and \blue{$Z$} to distinguish between \blue{incomplete} and \blue{complete}
+covariates, respectively.
+
+\bigskip
+
+Survival outcomes are usually represented by the observed event time $T$ and the
+event indicator $D$ ($D = 1$: event, $D = 0$: censored).
+\end{frame}
+
+\begin{frame}[fragile, label=survivalmice]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+Naive use of MICE/FCS treats the columns in the data set containing $T$ and $D$
+just like any other variable, and the resulting imputation model for $X$ would have the form
+$$p(X \mid T, D, Z) = \theta_0 + \theta_1 T + \theta_2 D + \theta_3 z + \ldots.$$
+
+\bigskip
+
+The correct conditional distribution of $X$ given the other variables is, however,
+\begin{multline}
+\log p(X\mid T, D, Z) = \log p(X\mid Z) + D(\beta_x X + \beta_z Z) - \\
+H_0(T)\exp(\beta_x X+\beta_z Z) + const.,\nonumber
+\end{multline}
+where $H_0(T)$ is the cumulative baseline hazard.\cite{White2009}
 \end{frame}
 
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-<<plot surv example, echo = F, fig.width = 6, fig.height = 4>>=
+This difference in naively assumed and correct imputation model can lead to severe
+bias:
+
+<<plot surv example, echo = F, fig.width = 6, fig.height = 3, out.width = "80%">>=
 library(ggplot2)
 ggplot(plotcox, aes(x = meth, y = est)) +
   geom_point() +
   geom_errorbar(aes(min = `lo 95`, max = `hi 95`)) +
-  facet_wrap("var", scales = 'free')
-
+  facet_wrap("var", scales = 'free') +
+  scale_x_discrete(limits = c("orig", "norm"),
+                   labels = c("original", "imputed")) +
+  xlab("") +
+  ylab("estimate & 95% confidence interval")
 @
+(Results from MICE imputation with an incomplete normal and an incomplete binary covariate.)
 \end{frame}
 
 
@@ -1064,8 +1087,8 @@ but distributional assumptions or the specified form of associations are incorre
 
 
 
-\section{Alternative imputation approaches}
-\subsection{Joint model (multiple) imputation}
+\section{Alternatives to MICE}
+\subsection{Joint model imputation}
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 To avoid incompatible and uncongenial imputation models, we need to
@@ -1262,10 +1285,11 @@ $$p(y,x_1,\ldots,x_p, X_c) = \only<2>{p(y\mid x_1,\ldots,x_p, X_c)}
                              \only<3->{\underset{\text{analysis model}}{
                              \underbrace{p(y\mid x_1,\ldots,x_p, X_c)}}}\;
 p(x_1\mid x_2,\ldots,x_p, X_c)\;
-\ldots\; p(x_p\mid X_c)$$
-}
+\ldots\; p(x_p\mid X_c)$$%
+
 where $x_1, \ldots, x_p$ denote incomplete covariates and $X_c$ contains all
 completely observed covariates.
+}
 \end{frame}
 
 \begin{frame}[fragile]{\thesection. \insertsection}
@@ -2309,22 +2333,87 @@ ggplot(plot_long, aes(x = L1, y = coef)) +
 \end{frame}
 
 \section{Survival data}
+\subsection{Results from literature}
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-White et al. \cite{White2009} have investigated imputation of survival data.
-They considered a range of combinations and transformation of survival time
-and event indicator, to include in the imputation.
+On Slide~\ref{survivalmice} we have seen the rather complex formula for imputation of
+an incomplete covariate in survival data.
 
 \bigskip
 
-Their advice is to use the event indicator together with the Nelson-Aalen estimate.
+White et al. \cite{White2009} derived versions of this model for different
+settings (binary or continuous incomplete covariate $X$, and no,
+binary, or categorical complete covariate $Z$) and investigated how to best
+approximate it.
+
+\bigskip
+
+When \blue{covariate effects and cumulative incidences are rather small},
+using \blue{$Z$, $D$ and $H_0(T)$}, and possibly an interaction term, as
+predictor variables in the imputation for $X$ in MICE may work satisfactorily.
+
+\bigskip
+
+However, in practice $H_0(T)$ is usually not known.
 \end{frame}
 
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+Two main ideas:
+\begin{itemize}
+\item if covariate effects $\beta_x$ and $\beta_z$ are small, $H_0(t)\approx H(t)$,
+      which can be approximated by the Nelson-Aalen estimator
+\item estimate $H_0(T)$ in an additional step inside the MICE procedure by fitting
+      a Cox model on the imputed data
+\end{itemize}
+Note that neither of these approaches takes into account uncertainty about $H_0(t)$
+(but impact is likely to be small)
+
+\bigskip
+
+Based on results from their simulation study, White et al. conclude that using
+$Z$, $D$ and the Nelson-Aalen estimator $\hat H(T)$ as predictors for the
+imputation of $X$ worked best.
+
+\bigskip
+
+However, some bias towards the null should be expected when covariates have large
+effects.
+\end{frame}
+
+
+\subsection{R package mice}
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 In \textbf{mice}, the function \Rfct{nelsonaalen} can be used to calculate the
 Nelson-Aalen estimator. This variable can then be added as a column to the
 dataset and used as predictor in the imputation models.
+
+<<>>=
+survdat$H0 <- nelsonaalen(survdat, timevar = Time, statusvar = event)
+survimp <- mice(survdat, maxit = 10)
+cox_mice <- with(survimp, coxph(Surv(Time, as.numeric(event)) ~ x + group))
+@
+\end{frame}
+
+\subsection{R package smcfcs}
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+<<>>=
+smcfcs_surv <- smcfcs(originaldata = survdat, smtype = "coxph",
+                      smformula = "Surv(Time, event) ~ x + group",
+                      method = c("", "", "logreg", "norm"),
+                      numit = 20)
+
+# check convergence, analogue to example with non-linear effect
+
+impobj_smcfcs_surv <- mitools::imputationList(smcfcs_surv$impDatasets)
+models_smcfcs_surv <- with(impobj_smcfcs_surv, coxph(Surv(Time, event)) ~ x + group)
+res_smcfcs_surv <- summary(mitools::MIcombine(models_smcfcs_surv))
+
+@
+
+
 \end{frame}
 
 
