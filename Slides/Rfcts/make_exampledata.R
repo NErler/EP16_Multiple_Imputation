@@ -72,42 +72,42 @@ subDFexlongwide <- DFexlongwide[DFexlongwide$id %in% subIDs, ]
 # * DFexlong2 ------------------------------------------------------------------
 # sim data2 longitudinal --------------------------------------------------------
 set.seed(2241)
-N <- 50
+N <- 150
 id <- 1:N
 t1 <- runif(N, 0, 10)
 nj <- sample(5:10, N, replace = T)
-age <- lapply(1:N, function(x) sort(runif(nj[x], min = t1[x], max = t1[x] + nj[x])))
+time <- lapply(1:N, function(x) sort(runif(nj[x], min = t1[x], max = t1[x] + nj[x])))
 
 
-x1 <- rnorm(N, 28, 2.5) # maternal age
-x2 <- factor(sample(c("boy", "girl"), N, replace = T)) # gender
-x3 <- factor(sample(c("low", "mid", "high"), N, replace = T)) # income/educ
-x4 <- runif(length(unlist(age)), min = 37, max = 42)
+x1 <- rnorm(N, 28, 2.5) # maternal time
+x2 <- factor(sample(c(0, 1), N, replace = T)) # gender
+x3 <- factor(sample(c(1:3), N, replace = T)) # income/educ
+x4 <- rnorm(N, 35, 4)
 
-DFexlong2_orig <- data.frame(id = rep(1:N, sapply(age, length)),
-                             age = unlist(age),
+DFexlong2_orig <- data.frame(id = rep(1:N, sapply(time, length)),
+                             time = unlist(time),
                              ti = unlist(lapply(nj, seq, from = 1, by = 1)),
-                             x1 = rep(x1, sapply(age, length)),
-                             x2 = rep(x2, sapply(age, length)),
-                             x3 = rep(x3, sapply(age, length)),
-                             x4 = x4
+                             x1 = rep(x1, sapply(time, length)),
+                             x2 = rep(x2, sapply(time, length)),
+                             x3 = rep(x3, sapply(time, length)),
+                             x4 = rep(x4, sapply(time, length))
 )
 
 D <- matrix(nrow = 2, ncol = 2,
             data = c(0.2, -0.005, -0.005, 0.001))
 
 b <- MASS::mvrnorm(N, c(0,0), D)
-Z <- model.matrix(~1 + age, DFexlong2_orig)
+Z <- model.matrix(~1 + time, DFexlong2_orig)
 
 betas <- c(Intercept = 15,
-           age1 = -0.7, age2 = 0.3, age3 = 0.8,
+           time1 = -0.7, time2 = 0.3, time3 = 0.8,
            matage = 0.3,
            gender = -0.9,
            educ2 = -0.4, educ3 = -0.9,
            gestbir = 0.01)
 
 
-fmla <- ~ ns(age, df = 3) + x1 + x2 + x3 + x4
+fmla <- ~ ns(time, df = 3) + x1 + x2 + x3 + x4
 X <- model.matrix(fmla, model.frame(fmla, DFexlong2_orig, na.action = "na.pass"))
 
 
@@ -121,9 +121,10 @@ DFexlong2 <- DFexlong2_orig
 # create missing values
 DFexlong2$x2[DFexlong2$id %in% c(sample.int(N, size = 0.3 * N))] <- NA
 DFexlong2$x3[DFexlong2$id %in% c(sample.int(N, size = 0.3 * N))] <- NA
+DFexlong2$x4[DFexlong2$id %in% c(sample.int(N, size = 0.3 * N))] <- NA
 
-DFexlong2_sub <- DFexlong2[DFexlong2$id %in% c(1, 2, 6, 12, 15, 16), ]
-# ggplot(DFexlong2_sub, aes(x = age, y = y, color = factor(id))) +
+DFexlong2_sub <- DFexlong2[DFexlong2$id %in% c(1, 2, 6, 15, 16), ]
+# ggplot(DFexlong2_sub, aes(x = time, y = y, color = factor(id))) +
 #   geom_line() +
 #   theme(legend.position = 'none')
 

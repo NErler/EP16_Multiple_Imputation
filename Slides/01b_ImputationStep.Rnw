@@ -6,16 +6,15 @@
 The imputation step consists itself of two (or three) steps:
 \begin{enumerate} \setcounter{enumi}{-1}
 \item Specification of the imputation model,
-\item estimation or sampling of the parameters, and
-\item drawing imputed values from the predictive distribution.
+\item \blue{estimation} or sampling \blue{of the parameters}, and
+\item \blue{drawing imputed values} from the predictive distribution.
 \end{enumerate}
 
 \bigskip
 
 \pause
 \textbf{Notation:}\\
-Let $\bmath y = (\bmath y_{obs}^T, \bmath y_{mis}^T)^T$
-bet the incomplete covariate to be imputed,
+Let $\bmath y$ be the incomplete covariate to be imputed,
 and $\bmath X$ the design matrix of other (complete or imputed) variables.
 
 $$
@@ -96,7 +95,7 @@ halign = center, size = title, height = 2.5cm, width = 2cm}
 
 \begin{columns}
 \begin{column}{0.55\linewidth}
-\scalebox{0.6}{
+\scalebox{0.68}{
 \setlength{\unitlength}{1cm}
 \begin{picture}(10, 9)
 %
@@ -129,15 +128,15 @@ halign = center, size = title, height = 2.5cm, width = 2cm}
 \put(5.4, 4.2){\vector(1,0){1}}
 \put(5.4, 1.2){\vector(1,0){1}}
 %
-\put(6.7, 7.1){\large estimate $\boldsymbol{\hat\beta}_{BS}$ and $\hat\sigma_{BS}$}
-\put(6.7, 4.1){estimate $\boldsymbol{\hat\beta}_{BS}$ and $\hat\sigma_{BS}$}
-\put(6.7, 1.1){estimate $\boldsymbol{\hat\beta}_{BS}$ and $\hat\sigma_{BS}$}
+\put(6.7, 7.1){\large estimate $\boldsymbol{\hat\beta}$ and $\hat\sigma$}
+\put(6.7, 4.1){estimate $\boldsymbol{\hat\beta}$ and $\hat\sigma$}
+\put(6.7, 1.1){estimate $\boldsymbol{\hat\beta}$ and $\hat\sigma$}
 \end{picture}
 }
 \end{column}
 \begin{column}{0.45\linewidth}
-Bootstrap samples can contain some observations multiple times and some
-observations not at all.
+Bootstrap samples can contain some \blue{observations multiple times} and some
+\blue{observations not at all}.
 
 \bigskip
 
@@ -154,21 +153,21 @@ In \blue{bootstrap multiple imputation},
 \item \blue{one bootstrap sample} of the \blue{observed data} is created per imputation,
 \item the \blue{least-squares estimates} of the parameters are calculated from
       $$\bmath y_{obs} = \bmath X_{obs}
-      \underset{\stackrel{\downarrow}{\bmath{\hat\beta}_{ls}}}{\bmath\beta} +
-      \underset{\stackrel{\downarrow}{\hat\sigma_{ls}}}{\varepsilon_{obs}}\hspace{2cm}(step 1).$$
+      \underset{\stackrel{\downarrow}{\bmath{\hat\beta}}}{\bmath\beta} +
+      \underset{\stackrel{\downarrow}{\hat\sigma}}{\varepsilon_{obs}}\hspace{2cm}\text{(step 1)}.$$
 \item Imputed values are sampled from
-$p(\bmath y_{mis} \mid \bmath X_{mis}, \bmath{\hat\beta}_{ls}, \hat\sigma_{ls})$ (step 2).
+$p(\bmath y_{mis} \mid \bmath X_{mis}, \bmath{\hat\beta}, \hat\sigma)$ (step 2).
 \end{itemize}
 
 \pause
-Analoge to Bayesian multiple imputation, for a normal imputation model,
+Analogous to Bayesian multiple imputation, for a normal imputation model,
 $p()$ is the normal distribution and
-$$\bmath y_{mis} = \bmath X_{mis} \hat\beta_{ls} + \tilde\varepsilon$$
-where $\bmath{\hat\varepsilon}$ is drawn independently from $N(0, \sigma^2_{ls})$.
+$$\bmath y_{mis} = \bmath X_{mis} \hat\beta + \tilde\varepsilon$$
+where $\bmath{\hat\varepsilon}$ is drawn independently from $N(0, \sigma^2)$.
 \end{frame}
 
 
-\subsection{Semi-parametric imptuation}
+\subsection{Semi-parametric imputation}
 \begin{frame}{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 Both Bayesian and bootstrap multiple imputation sample imputed values from
@@ -202,8 +201,8 @@ good choice for the predictive distribution.\cite{Little1988, Rubin1986}
 
 \bigskip
 
-The idea is to find cases in the observed data that are similar to the
-cases with missing values and to fill in the missing value with the observed
+The idea is to \blue{find cases in the observed data that are similar to the
+cases with missing values} and to fill in the missing value with the observed
 value from one of those cases.
 
 \bigskip
@@ -217,61 +216,60 @@ are compared.
 
 \begin{frame}[label=pmmalgo]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-
+\blue{The steps in PMM:}
 \begin{enumerate}
 \item Obtain parameter estimates for $\bmath{\hat\beta}$ and $\hat\sigma$ (see later)
 \item Calculate the predicted values for the observed data
       $$\bmath{\hat y}_{obs} = \bmath{X}_{obs} \bmath{\hat\beta}$$
 \item Calculate the predicted value for the incomplete data
       $$\bmath{\hat y}_{mis} = \bmath{X}_{mis} \bmath{\hat\beta}$$
-\item For each $\hat y_{mis, i}, \; i = q+1, \ldots,n$, find $d$ donor
-      candidates that fulfill a given criterium (details on the next slide)
-\item randomly select one of the donors
+\item For each missing value, find $d$ donor candidates that fulfill a given
+      criterium (details on the next slide).
+\item Randomly select one of the donors.
 \end{enumerate}
 \end{frame}
 
 \begin{frame}{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-Several criteria to select donors have been proposed:
-\begin{enumerate}
-\item The donor is the case with the smallest absolute difference
+Several \blue{criteria to select donors} have been proposed:
+\begin{enumerate}\itemsep2mm
+\item The donor is the \blue{(one) case with the smallest absolute difference}
       $\left|\hat y_{mis,i} - \hat y_{obs, j}\right|, \; j = 1,\ldots,q$.
-\item Donor candidates are the $d$ cases with the smallest absolute difference
+\item Donor candidates are the \blue{$d$ cases with the smallest absolute difference}
       $\left|\hat y_{mis,i} - \hat y_{obs, j}\right|, \; j = 1,\ldots,q$.
       The donor is selected randomly from the candidates.
-\item Donor candidates are those cases for which the absolute difference is smaller
-      than some limit $\eta$:
+\item Donor candidates are those cases for which the \blue{absolute difference
+      is smaller than some limit $\eta$}:
       $\left|\hat y_{mis,i} - \hat y_{obs, j}\right|<\eta, \; j = 1,\ldots,q$.
       The donor is selected randomly from the candidates.
 \item Select candidates like in 2. or 3., but select the donor from the candidates
-with probability that depends on $\left|\hat y_{mis,i} - \hat y_{obs, j}\right|$.\cite{Siddique2008}
+      with probability that depends on $\left|\hat y_{mis,i} - \hat y_{obs, j}\right|$.\cite{Siddique2008}
 \end{enumerate}
 \end{frame}
 
 
 \begin{frame}{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-For donor selection criteria 2. - 4., the number of candidates $d$ (or maximal
-difference $\eta$) needs to be specified. Common choices for $d$ are 3, 5 or 10.
-
-\bigskip
-
-When the same donor is chosen in many/all imputations, e.g., because only few
-similar observed cases are available, the uncertainty about the missing values
-will be underestimated.
-
-\bigskip
-
-\blue{\ding{225}} PMM may be \blue{problematic} when the \blue{dataset is very small},
-the \blue{proportion of missing values is large} or one/some \blue{predictor
-variables are strongly related to the missingness}.
-
-\bigskip
-
-For the same reason, using $d = 1$ (selection criterion 1.) is not a good idea.
-On the other hand, using too many candidates can lead to bad matches.
-Schenker and Taylor \cite{Schenker1996} proposed an adaptive procedure to select $d$,
-but it is not used much in practice.
+\blue{Potential issues with donor selection}
+\begin{itemize}\itemsep2mm
+\item<1-> Selection criteria 2. - 4., require the number of candidates $d$ (or maximal
+difference $\eta$) to be specified. Common choices for $d$ are 3, 5 or 10.
+\item<2-> If the same donor is chosen in many/all imputations (e.g., because
+          only a few similar observed cases are available), the
+          \blue{uncertainty about the missing values will be underestimated}.\\[2ex]
+\onslide<3->{\blue{\ding{225}} PMM may be \blue{problematic} when
+          \begin{itemize}
+          \item the \blue{dataset is very small},
+          \item the \blue{proportion of missing values is large}, or
+          \item one/some \blue{predictor variable(s) are strongly related
+                to the missingness}.
+          \end{itemize}
+}
+\item<4-> Therefore, using $d = 1$ (selection criterion 1.) is not a
+          good idea. On the other hand, using too many candidates can lead to bad matches.
+\item<5-> Schenker and Taylor \cite{Schenker1996} proposed an adaptive procedure
+          to select $d$, but it is not used much in practice.
+\end{itemize}
 \end{frame}
 
 
@@ -283,24 +281,26 @@ different approaches have been introduced in the literature:
 \bigskip
 
 \begin{tabular}{lp{11cm}}
-Type-0 & point estimates $\hat\beta$ are used in both prediction models\\[1ex]
-Type-I & $\hat\beta$ to predict $\hat y_{obs}$, a random draw $\tilde\beta$
-         from the posterior distribution of $\beta$ to predict $\hat y_{mis}$\\[1ex]
-Type-II & $\tilde\beta$ to predict $\hat y_{obs}$ as well as $\hat y_{mis}$\\[1ex]
+Type-0 & point estimates $\hat\beta$ are used in both prediction models
+         (least squares or maximum likelihood)\\[2ex]
+Type-I & $\hat\beta$ to predict $\hat y_{obs}$; $\tilde\beta$ to predict $\hat y_{mis}$
+         is sampled from the posterior distribution of $\beta$ (Bayesian) or
+         bootstraped\\[2ex]
+Type-II & $\tilde\beta$ to predict $\hat y_{obs}$ as well as $\hat y_{mis}$\\[2ex]
 Type-III & different draws $\tilde\beta^{(1)}$ and $\tilde\beta^{(2)}$ to
            predict $\hat y_{obs}$ and $\hat y_{mis}$, respectively
 \end{tabular}
 
 \bigskip
 
-The use of point estimates (Type-0 and Type-1 matching) underestimates the
-uncertainty about the regression parameters.
+The use of point estimates (Type-0 and Type-I matching) \blue{underestimates the
+uncertainty} about the regression parameters.
 \end{frame}
 
 \begin{frame}{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-Another point of consideration is the choice of the set of data used to train
-the prediction models.
+Another point of consideration is the \blue{choice of the set of data used to train
+the prediction models}.
 
 \bigskip
 
@@ -311,12 +311,12 @@ of $y_{obs}$.
 \bigskip
 
 The predictive model will likely fit the observed cases better than the missing cases,
-and, hence, variation will be underestimated.
+and, hence, \blue{variation will be underestimated}.
 
 \bigskip
 
-As an alternative, the model could be trained on the whole data
-(using previously imputed values) or to use a leave-one-out approach on the
+As an alternative, the \blue{model could be trained on the whole data}
+(using previously imputed values) or to use a \blue{leave-one-out approach} on the
 observed data.
 \end{frame}
 
@@ -329,17 +329,17 @@ observed data.
 \item \blue{PMM} via \Rfct{mice.impute.pmm}
       \begin{itemize}
       \item specification of number of donors $d$ (same for all variables)
-      \item Type-0, Type-1, Type-II matching
+      \item Type-0, Type-I, Type-II matching
       \end{itemize}
 \item \blue{PMM} via \Rfct{mice.impute.midastouch}
       \begin{itemize}
       \item allows leave-one-out estimation of the parameters
       \item distance based donor selection
-      \item Type-0, Type-1, Type-II matching
+      \item Type-0, Type-I, Type-II matching
       \end{itemize}
 \item \blue{bootstrap} linear regression via \Rfct{mice.impute.norm.boot}
 \item \blue{bootstrap} logistic regression via \Rfct{mice.impute.logreg.boot}
-\item \blue{bayesian} linear regression via \Rfct{mice.impute.norm}
+\item \blue{Bayesian} linear regression via \Rfct{mice.impute.norm}
 \item \ldots
 \end{itemize}
 %
@@ -349,4 +349,84 @@ observed data.
 % \item linear regression
 % \end{itemize}
 
+\end{frame}
+
+
+\mode<article>{
+\section*{Summary of Part I}
+}
+\begin{frame}[allowframebreaks]{Summary of Part I}
+\blue{1. What is Multiple Imputation?}\\
+\begin{itemize}
+\item Rubin's two ideas:
+      \begin{itemize}
+      \item Missing values need to be represented by multiple imputed values.
+      \item A model is necessary to obain good imputations.
+      \end{itemize}
+\item Imputed values are obtained from the predictive distribution of the missing data,
+given the observed data.
+\item Multiple completed datasets are created from the muliple imputed values.
+\item Multiple imputation has three steps: Imputation, analysis, pooling
+\end{itemize}
+
+\framebreak
+
+\blue{2. Imputation step}
+\begin{itemize}
+\item Two sources of variation need to be taken into account
+      \begin{itemize}
+      \item parameter uncertainty
+      \item random variation
+      \end{itemize}
+\item For two main approaches to MI for imputation of non-monotone multivariate missing data
+      \begin{itemize}
+      \item MICE/FCS
+      \item Joint model imputation
+      \end{itemize}
+\item The MICE algorithm re-uses univariate imputation models by iterating
+      through all incomplete variables, multiple times (iterations)
+\item Multiple runs through the algorithm are necessary to create multiple
+      imputed dataset
+\item The convergence of the chains needs to be checked.
+\end{itemize}
+
+\framebreak
+
+\blue{3. Analysis step}
+\begin{itemize}
+\item Analyse each imputed dataset the way you would analyse a complete dataset
+\end{itemize}
+
+
+\blue{4. Pooling}
+\begin{itemize}
+\item Results from analyses of multiple imputed datasets can be summarized
+      by taking the average of the regression coefficients
+\item For the total variance, two sources of variation need to be considered:
+      \begin{itemize}
+      \item within imputation variance
+      \item between imputation variance
+      \end{itemize}
+\end{itemize}
+
+\framebreak
+
+\blue{5. A closer look at the imputation step}
+\begin{itemize}
+\item Two parametric approaches for imputation:
+      \begin{itemize}
+      \item Bayesian (sample from posterior distribution of parameters)
+      \item Bootstrap (uses bootstrap samples of the data to estimate parameters)
+      \end{itemize}
+\item Predictive mean matching is a semi-parametric alternative\\
+      (it matches observed and missing cases based on their predicted values).
+\item In PMM we need to consider
+      \begin{itemize}
+      \item donor selection
+      \item matching type (how parameters are sampled/estimated),
+      \item the set of data used to calculate/estmate the parameters.
+      \end{itemize}
+\item Bayesian and bootstrap imputation take into account the variation, while
+      many choices in PMM lead to underestimation of the variation.
+\end{itemize}
 \end{frame}
