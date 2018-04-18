@@ -1611,7 +1611,7 @@ Q - qt(alpha/2, df = nu) * T^{1/2}
 
 @
 
-\begin{frame}{\thesection. \insertsection}
+\begin{frame}[label=poolingdf]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 \blue{Confidence intervals} for pooled estimates can be obtained using the
 \blue{pooled standard error} $\sqrt{T}$ and a \blue{reference $t$ distribution}
