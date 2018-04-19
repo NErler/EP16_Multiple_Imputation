@@ -71,13 +71,12 @@ subDFexlongwide <- DFexlongwide[DFexlongwide$id %in% subIDs, ]
 
 # * DFexlong2 ------------------------------------------------------------------
 # sim data2 longitudinal --------------------------------------------------------
-set.seed(2241)
+set.seed(1234)
 N <- 150
 id <- 1:N
 t1 <- runif(N, 0, 10)
 nj <- sample(5:10, N, replace = T)
 time <- lapply(1:N, function(x) sort(runif(nj[x], min = t1[x], max = t1[x] + nj[x])))
-
 
 x1 <- rnorm(N, 28, 2.5) # maternal time
 x2 <- factor(sample(c(0, 1), N, replace = T)) # gender
@@ -92,6 +91,7 @@ DFexlong2_orig <- data.frame(id = rep(1:N, sapply(time, length)),
                              x3 = rep(x3, sapply(time, length)),
                              x4 = rep(x4, sapply(time, length))
 )
+DFexlong2_orig$time <- DFexlong2_orig$time - mean(DFexlong2_orig$time)
 
 D <- matrix(nrow = 2, ncol = 2,
             data = c(0.2, -0.005, -0.005, 0.001))

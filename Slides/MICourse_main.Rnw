@@ -288,13 +288,13 @@ projdir <- gsub("Slides", "", getwd())
 
 
 \part{Multiple Imputation}
-<<Part1a, child="01_WhatIsMI.Rnw", eval = T>>=
+<<Part1a, child="01_WhatIsMI.Rnw", eval = F>>=
 @
-<<Part1b, child="01b_ImputationStep.Rnw", eval = T>>=
+<<Part1b, child="01b_ImputationStep.Rnw", eval = F>>=
 @
 
 \part{Multiple Imputation Workflow}
-<<Part2, child="02_Workflow.Rnw", eval = T>>=
+<<Part2, child="02_Workflow.Rnw", eval = F>>=
 @
 
 \part{When MICE might fail}

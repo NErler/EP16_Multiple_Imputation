@@ -105,7 +105,7 @@ pexqdr1 + geom_point(data = DFexqdr[is.na(DFexqdr$xmis), ],
                      aes(x = ximp, y = y, shape = 'shapeimp', color = 'colimp')) +
   scale_color_manual(name = "",
                      limits = c(F, T, 'colimp'),
-                     values = c("black", "black", "black"),
+                     values = c("black", "darkgrey", "black"),
                      labels = c("observed", "missing", "imputed")) +
   scale_shape_manual(name = "",
                      limits = c(F, T, 'shapeimp'),
@@ -236,7 +236,7 @@ lm_imp2 <- lm(y ~ ximp2*z, DFexint)
 
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-Another example occurs with an analysis model (again, assumed to be true)
+Another example occurs when the analysis model (again, assumed to be true)
 is
 $$y = \beta_0 + \beta_x x + \beta_z z + {\color{darkred}\bmath{\beta_{xz} xz}} + \ldots,$$
 i.e., $y$ has a \blue{non-linear relationship} with $x$ due to the
@@ -281,7 +281,7 @@ ggplot(plotexint[plotexint$variable == "x", ], aes(x = value, y = y,
 \end{center}
 \end{column}
 \begin{column}{0.4\linewidth}
-The orignal data shows a ``$<$'' shaped pattern.
+The original data shows a ``$<$'' shaped pattern.
 \end{column}
 \end{columns}
 \end{frame}
@@ -394,7 +394,7 @@ ggplot(plotexint[plotexint$variable == "x" | is.na(plotexint$xmis), ],
   scale_linetype_manual(name = "",
                         limits = c("x", "ximp"),
                         values = c(1, 2),
-                        labels = c("true",  "imputed")) +
+                        labels = c(" true",  " imputed")) +
   expand_limits(y = -2, x = -1.8) +
   xlab("x")
 @
@@ -424,7 +424,7 @@ restab_interact %>%
 
 
 
-\subsection{Example: longitudinal outcome}
+\subsection{Example: Longitudinal outcome}
 <<simlong data, echo = F, fig.with = 6, fig.height = 4>>=
 IDs <- c(5, 6, 7, 8, 18)
 subIDs <- IDs[IDs != 7]
@@ -520,7 +520,7 @@ impDFexlong <- complete(impexlong, 3)
 
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-Would we use MICE in the data in this (long) format,
+If we use MICE in the data in this (long) format,
 each row would be regarded as independent,
 which may cause bias and \blue{inconsistent imputations}.
 
@@ -668,22 +668,16 @@ subDFexlongwide[c("id",
             paste0("time.", c(1,3,5,7,9)))] %>%
   round(2) %>%
   rbind(., rep("\\vdots", 11)) %>%
-  cbind(., '\\ldots' = rep("\\ldots", 5)) %>%
+  cbind(., '\\ldots' = c(rep("\\ldots", 4), "$\\ddots$")) %>%
   kable(format = 'latex', row.names = F, booktabs = T, escape = F)
 @
+
 \bigskip
 
-In this wide format data frame, missing values in outcome and measurement times
+In this \blue{wide format data} frame, missing values in outcome and measurement times
 need to be imputed (to be able to use them as predictors to impute covariates),
 even though we would not need to impute them for the analysis
 (mixed model valid when outcome measurements are M(C)AR).
-
-\bigskip
-
-When the data is very \blue{unbalanced}, i.e., there are no clear cut-offs in time or
-transformation to wide format leads to variables with high proportions of missing
-data, this is inefficient.
-
 \end{frame}
 
 \begin{frame}[fragile]{\thesection. \insertsection}
@@ -749,6 +743,8 @@ coefDFexlong22 <- as.data.frame(t(sapply(lapply(split(DFexlong2, DFexlong2$id),
 
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
+
+
 \begin{columns}
 \begin{column}{0.7\linewidth}
 <<echo = F, fig.width = 6, fig.height = 4>>=
@@ -769,8 +765,15 @@ plong2_1
 @
 \end{column}
 \begin{column}{0.3\linewidth}
-When the measurement time-points do not follow a regular pattern, transformation
-to wide format is not possible.
+When the data is very \blue{unbalanced}, i.e., there are no clear cut-offs in
+time, transformation to wide format is not possible.
+
+\bigskip
+
+(Or at least transformation to wide format leads to variables with high proportions
+of missing values.)
+% When the measurement time-points do not follow a regular pattern, transformation
+% to wide format is not possible.
 \end{column}
 \end{columns}
 \end{frame}
@@ -809,6 +812,9 @@ Naive approaches that are sometimes used are to
 \item \blue{ignore the outcome} in the imputation\onslide<2->{, or to}
 \item<2-> use only the \blue{first/baseline outcome}
 \end{itemize}
+
+\bigskip
+
 \onslide<3>{However, \blue{important information may be lost},
 resulting in invalid imputations and biased results.}
 
@@ -926,22 +932,27 @@ plotcox <- rbind(rescox, rescox01)
 
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-In survival analysis, the aim is to estimate the effect of covariates on
+In \blue{survival analysis}, the aim is to estimate the effect of covariates on
 the \blue{time until an event} of interest happens.
 
 \bigskip
 
-In the commonly used \blue{Cox proportional hazards model}, the hazard $h(t)$
-(i.e., the instantaneous risk of an event at time $t$, given that the event has not
-occurred until time $t$) is modeled as
-$$h(t) = h_0(t)\exp(\beta_x X + \beta_z Z),$$
-where $h_0(t)$ is denotes the \textcolor{red}{[usually]} unknown baseline hazard,
-and here we use \blue{$X$}
-and \blue{$Z$} to distinguish between \blue{incomplete} and \blue{complete}
-covariates, respectively.
+\pause
+In the commonly used method: \blue{Cox proportional hazards model}
+
+$$h(t) = h_0(t) \exp(x \beta_x + z\beta_z),$$
+
+\begin{itemize}
+\item $h(t)$: hazard = the instantaneous risk of an event at time $t$,
+      given that the event has not occurred until time $t$
+\item $h_0(t)$: unspecified baseline hazard
+\item \blue{$x$} and \blue{$z$}: \blue{incomplete} and \blue{complete}
+covariates, respectively
+\end{itemize}
 
 \bigskip
 
+\pause
 \blue{Survival outcomes} are usually represented by the \blue{observed event
 time $T$} and the \blue{event indicator $D$} ($D = 1$: event, $D = 0$: censored).
 \end{frame}
@@ -950,15 +961,15 @@ time $T$} and the \blue{event indicator $D$} ($D = 1$: event, $D = 0$: censored)
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 \blue{Naive use of MICE} treats the columns in the data set containing $T$ and $D$
 just like any other variable, and the resulting imputation model for $X$ would have the form
-$$p(X \mid T, D, Z) = \theta_0 + \theta_1 T + \theta_2 D + \theta_3 z + \ldots.$$
+$$p(x \mid T, D, \mathbf z) = \theta_0 + \theta_1 T + \theta_2 D + \theta_3 z + \ldots.$$
 
 \bigskip
 
 \pause
-The correct conditional distribution of $X$ given the other variables is, however,
+The correct conditional distribution of $x$ given the other variables is, however,
 \begin{multline}
-\log p(X\mid T, D, Z) = \log p(X\mid Z) + D(\beta_x X + \beta_z Z) - \\
-H_0(T)\exp(\beta_x X+\beta_z Z) + const.,\nonumber
+\log p(x\mid T, D, z) = \log p(x\mid z) + D(\beta_x x + \beta_z z) - \\
+H_0(T)\exp(\beta_x x+\beta_z z) + const.,\nonumber
 \end{multline}
 where $H_0(T)$ is the cumulative baseline hazard.\cite{White2009}
 \end{frame}
@@ -981,7 +992,7 @@ ggplot(plotcox, aes(x = meth, y = est)) +
   xlab("") +
   ylab("estimate & 95% confidence interval")
 @
-(Results from MICE imputation with an incomplete normal and an incomplete binary covariate.)
+(Results from MICE imputation with two incomplete normal and one incomplete binary covariate.)
 \end{frame}
 
 
@@ -994,7 +1005,7 @@ ggplot(plotcox, aes(x = meth, y = est)) +
 
 \bigskip
 
-Gibbs sampling exploits that a joint distribution is fully determined
+Gibbs sampling exploits the fact that a joint distribution is fully determined
 by its full conditional distributions.
 
 \begin{center}
@@ -1012,8 +1023,8 @@ by its full conditional distributions.
 }
 \end{center}
 
-\onslide<2>{In MICE, the full conditionals are not derived from the joint distribution
-but we directly specify the full conditionals and hope a joint distribution exists.}
+\onslide<2>{In MICE, the full conditionals are not derived from the joint distribution:\\
+we directly specify the full conditionals and hope a joint distribution exists.}
 \end{frame}
 
 
@@ -1063,8 +1074,9 @@ The imputation model is compatible with the analysis model.
 \item Compatibility
 \item Congeniality
 \item MAR or MCAR (in the standard implementations)
-\item \blue{all relevant variables} need to be included (that includes the outcome!!!)\\
-      (omission might result in MNAR)
+\item \blue{all relevant variables} need to be included (omission might result in MNAR)
+\item \textbf{\textcolor{red}{The outcome needs to be included}} as predictor variable\\
+      (but we usually do not impute missing outcome values)
 \item the imputation models (and analysis model) need to be \blue{correctly specified}
       (which is a requirement in any standard analysis)
 \end{itemize}
@@ -1075,7 +1087,7 @@ The imputation model is compatible with the analysis model.
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 
-\blue{What went wrong in our above examples?}
+\blue{What went wrong in our previous examples?}
 
 \bigskip
 
@@ -1107,7 +1119,7 @@ To \blue{avoid incompatible and uncongenial imputation models}, we need to
 \item specify the joint distribution
 \item and derive full conditionals / imputation models from this joint distribution
 \end{itemize}
-instead of specifying the directly.
+instead of specifying them directly.
 
 \bigskip
 
@@ -1188,7 +1200,7 @@ $$ p(\bmath y, \bmath x_1,\ldots, \bmath x_p \mid \mathbf X_c, \bmath\theta,
 \textbf{How do we get that multivariate normal distribution?}
 \begin{enumerate}
 \item Assume \blue{all} incomplete variables and the outcome are \blue{(latent) normal}.
-\item specify linear (mixed) \blue{models based on observed covariates}.
+\item Specify linear (mixed) \blue{models based on observed covariates}.
 \item \blue{Connect} using multivariate normal for \blue{random effects \& error terms}.
 \end{enumerate}
 }
@@ -1218,40 +1230,39 @@ lines(seq(-4, 4, 0.1), dnorm(seq(-4, 4, 0.1)))
 text(x = -1, y = 0.05, label = bquote(x[k] == 0))
 text(x = 1, y = 0.05, label = bquote(x[k] == 1))
 @
-\textcolor{red}{[examples for categorical data???]}
 \end{frame}
 
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 \only<1>{\textbf{2. Specify models:}\\}
 \only<2>{\textbf{2. Specify models / 3. Connect random effects \& error terms:}\\}
-\begin{picture}(200, 100)
+\begin{picture}(200, 120)
 \onslide<1->{
 \put(0, 60){
-    $\addtolength\arraycolsep{-.8ex}
+    $\addtolength\arraycolsep{-.8ex}\def\arraystretch{1.5}
     \begin{array}{rclclcl}
-    \bmath y   &=& \bmath X_c \bmath{\tilde\beta}_y     &+& \bmath{\tilde Z_y} \;\bmath{\tilde b_y} &+& \bmath{\tilde \varepsilon_y}\\
-    \textcolor{black!50}{\bmath w} &=& \textcolor{black!50}{\bmath X_c \bmath{\tilde\beta}_w}
-                                   &+& \textcolor{black!50}{\bmath{\tilde Z_w} \,\bmath{\tilde b_w}}
-                                   &+& \textcolor{black!50}{\bmath{\tilde \varepsilon_w}}\\
-    \bmath{\hat x}_1 &=& \bmath X_c \bmath{\tilde\beta}_{x_1} &+& \phantom{\bmath Z_w\,} \bmath{\tilde \varepsilon_{x_1}}      &&\\[-1ex]
+    \bmath y   &=& \bmath X_c \bmath{\beta}_y     &+& \bmath{ Z_y} \;\bmath{ b_y} &+& \bmath{ \varepsilon_y}\\
+    \textcolor{black!50}{\bmath w} &=& \textcolor{black!50}{\bmath X_c \bmath{\beta}_w}
+                                   &+& \textcolor{black!50}{\bmath{ Z_w} \,\bmath{ b_w}}
+                                   &+& \textcolor{black!50}{\bmath{ \varepsilon_w}}\\
+    \bmath{\hat x}_1 &=& \bmath X_c \bmath{\beta}_{x_1} &+& \phantom{\bmath Z_w\,} \bmath{ \varepsilon_{x_1}}      &&\\[-1ex]
                & \vdots&                                & & \phantom{\bmath Z_w\;} \vdots                                &&\\[-1ex]
-    \bmath{\hat x}_p &=& \bmath X_c \bmath{\tilde\beta}_{x_p} &+& \phantom{\bmath Z_w\,} \bmath{\tilde \varepsilon_{x_p}}      &&
+    \bmath{\hat x}_p &=& \bmath X_c \bmath{\beta}_{x_p} &+& \phantom{\bmath Z_w\,} \bmath{ \varepsilon_{x_p}}      &&
     \end{array}
     $
     }
 }
 \thicklines
 \onslide<2>{
-\put(124, 80){\color{red} \oval(15, 32.5)}
-\put(96, 62.5){\color{red} \oval(18, 72.5)}
-\put(97, 25){\line(0,-1){15}}
-\put(97, 10){\vector(1, 0){10}}
-\put(110, 7.5){multivariate normal}
+\put(124, 87){\color{red} \oval(15, 35)}
+\put(96, 62.5){\color{red} \oval(18, 93)}
+\put(97, 15){\line(0,-1){12}}
+\put(97, 3){\vector(1, 0){10}}
+\put(110, 0.5){multivariate normal}
 %
-\put(125, 62.5){\line(0,-1){15}}
-\put(125, 47.5){\vector(1, 0){10}}
-\put(137.5, 45){multivariate normal (optional, but suggested)}
+\put(125, 67){\line(0,-1){17}}
+\put(125, 50){\vector(1, 0){10}}
+\put(137.5, 47.5){multivariate normal (optional, but suggested)}
 }
 \end{picture}
 \end{frame}
@@ -1266,7 +1277,7 @@ text(x = 1, y = 0.05, label = bquote(x[k] == 1))
 \item Easy to specify
 \item Relatively easy to implement
 \item Relatively easy to sample from
-\item works for longitudinal outcomes
+\item Works for longitudinal outcomes
 \end{itemize}
 \end{column}
 \begin{column}{0.5\linewidth}
@@ -1287,8 +1298,8 @@ possible with \blue{extensions} of the multivariate normal approach.
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 \onslide<1->{
-The \blue{joint distribution} of two variables $y$ and $x$ can be \blue{factorized} into
-a conditional and a marginal distribution:
+The \blue{joint distribution} of two variables $y$ and $x$ can be written
+as the product of a conditional and a marginal distribution:
 $$p(y,x) = p(y\mid x)\;p(x)$$
 (or alternatively $p(y,x) = p(x\mid y)\;p(y)$)
 }
@@ -1297,9 +1308,8 @@ $$p(y,x) = p(y\mid x)\;p(x)$$
 
 \onslide<2->{
 This can easily be \blue{extended for more variables}:
-$$p(y,x_1,\ldots,x_p, X_c) = \only<2>{p(y\mid x_1,\ldots,x_p, X_c)}
-                             \only<3->{\underset{\text{analysis model}}{
-                             \underbrace{p(y\mid x_1,\ldots,x_p, X_c)}}}\;
+$$p(y,x_1,\ldots,x_p, X_c) = \underset{\text{analysis model}}{
+                             \underbrace{p(y\mid x_1,\ldots,x_p, X_c)}}\;
 p(x_1\mid x_2,\ldots,x_p, X_c)\;
 \ldots\; p(x_p\mid X_c)$$%
 
@@ -1317,13 +1327,13 @@ several advantages:
 \item The outcome does not appear in any of the predictors of the imputation
       models:
       \begin{itemize}
-      \item no need to approximate complex outcomes,
-      \item no need to summarize complex outcomes.
+      \item \blue{no need to approximate} complex outcomes,
+      \item \blue{no need to summarize} complex outcomes.
       \end{itemize}
 \item The parameters of interest are obtained directly\\
       \blue{\ding{225}}
       imputation and analysis in one step
-\item Non-linear associations or interactions involving incomplete covariates
+\item \blue{Non-linear associations} or interactions involving incomplete covariates
       are specified in the analysis model and thereby
       \blue{automatically taken into account}
 \end{itemize}
@@ -1342,7 +1352,7 @@ is used to estimate parameters and sample imputed values.
 \begin{column}{0.55\linewidth}
 \blue{Advantages:}
 \begin{itemize}
-\item Flexible with regards to outcome type
+\item flexible with regards to outcome type
 \item univariate conditional distributions of incomplete covariates can be chosen
 according to type of variable
 \item non-linear associations and interactions can be taken into account
@@ -1361,12 +1371,12 @@ and consideration
 \end{frame}
 
 
+\section{Imputation with non-linear functional forms}
 \begin{frame}[fragile]{\thesection. \insertsection}
-\framesubtitle{\thesection.\thesubsection. \insertsubsection}
 
 In the following we will not only consider the \textsf{R} package \blue{mice},
 but also three additional packages, \blue{JointAI}, \blue{smcfcs} and \blue{jomo},
-that are some of the available packages that provide alternatives to \textbf{mice}.
+that provide alternatives to \textbf{mice}.
 
 \vfill
 
@@ -1376,8 +1386,8 @@ datasets are obtained, standard complete data methods can be used.
 \bigskip
 
 \blue{jomo} and \blue{smcfcs} perform multiple imputation and create imputed
-datasets that can then be analyzed the same way data imputed by \textbf{mice}
-would be analyzed.
+datasets that can then be analysed the same way data imputed by \textbf{mice}
+would be analysed.
 
 \bigskip
 
@@ -1387,7 +1397,6 @@ obtained directly.
 \end{frame}
 
 
-\section[Imputation with non-linear//functional forms]{Imputation with non-linear functional forms}
 \subsection{R package mice}
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
@@ -1420,12 +1429,12 @@ method.\cite[pp. 139--141]{Buuren2012}, \cite{Vink2013}.
 
 \bigskip
 
-This is to ensures the imputed values for $x$ and $x^2$ are consistent,
+This is to ensure the imputed values for $x$ and $x^2$ are consistent,
 and to reduce bias in the subsequent analysis that uses $x$ and $x^2$.
 
 \bigskip
 
-In my own experience, using \Rstring{quadratic} often has numerical problems.
+In my experience, using \Rstring{quadratic} can lead to numerical problems.
 \end{frame}
 
 
@@ -1626,12 +1635,12 @@ package, and a vignette with an in-depth example analysis will be available soon
 
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-The syntax analyze and impute the current example using \blue{JointAI} is
+The syntax we use to analyse and impute the current example using \blue{JointAI} is
 similar to the specification of a standard linear model using \Rfct{lm}.
 
 <<JointAI_nonlin, eval = F>>=
 library(JointAI)
-JointAI_nonlin <- lm_imp(y ~ x*z + I(x^2), data = DF, n.iter = 2500)
+JointAI_nonlin <- lm_imp(y ~ x*z + I(x^2), data = DF_nonlin, n.iter = 2500)
 @
 
 Convergence of the Gibbs sampler can be checked using a traceplot.
@@ -1677,6 +1686,7 @@ approach between FCS and sequential factorization}.\cite{Bartlett2015}
 \item Cox proportional hazard models, and
 \item competing risk survival models,
 \end{itemize}
+
 while ensuring compatibility between analysis model and imputation models.
 
 \bigskip
@@ -1839,7 +1849,7 @@ impobj_jomo_nonlin <- datalist2mids(split(jomo_nonlin,
 @
 
 With the resulting \Robj{mids} object, analysis of the imputed data and
-pooling the results works as in the above examples.
+pooling of the results works as in the above examples.
 <<eval = F>>=
 models_jomo_nonlin <- with(impobj_jomo_nonlin, lm(y ~ x*z + I(x^2)))
 res_jomo_nonlin <- summary(pool(models_jomo_nonlin))
@@ -1891,34 +1901,34 @@ ggplot(plot_nonlin, aes(x = L1, y = coef)) +
 \end{frame}
 
 
-\begin{frame}[fragile]{\thesection. \insertsection}
-\framesubtitle{\thesection.\thesubsection. \insertsubsection}
-
-For the current example data, the \blue{mice} package was clearly outperformed
-by the three alternative packages \blue{JointAI}, \blue{smcfcs} and \blue{jomo}.
-
-\bigskip
-
-To make a more general statement, a simulation study would be needed.
-
-\bigskip
-
-Note also that we used a large proportion of missing values (50\%) and that not
-a lot of additional covariate information was used\\
-\blue{\ding{225}} In practice, \blue{mice} may perform better than what we saw here.
-
-\bigskip
-
-\begin{block}{The message:}
-When \blue{incomplete variables} are involved in \blue{interactions} or
-have \blue{non-linear association} with the outcome, standard MICE approaches
-may not provide valid imputations.
-
-\bigskip
-
-Alternative methods are available and should be considered.
-\end{block}
-\end{frame}
+% \begin{frame}[fragile]{\thesection. \insertsection}
+% \framesubtitle{\thesection.\thesubsection. \insertsubsection}
+%
+% For the current example data, the \blue{mice} package was clearly outperformed
+% by the three alternative packages \blue{JointAI}, \blue{smcfcs} and \blue{jomo}.
+%
+% \bigskip
+%
+% To make a more general statement, a simulation study would be needed.
+%
+% \bigskip
+%
+% Note also that we used a large proportion of missing values (50\%) and that not
+% a lot of additional covariate information was used\\
+% \blue{\ding{225}} In practice, \blue{mice} may perform better than what we saw here.
+%
+% \bigskip
+%
+% \begin{block}{The message:}
+% When \blue{incomplete variables} are involved in \blue{interactions} or
+% have \blue{non-linear association} with the outcome, standard MICE approaches
+% may not provide valid imputations.
+%
+% \bigskip
+%
+% Alternative methods are available and should be considered.
+% \end{block}
+% \end{frame}
 
 
 \section{Imputation of longitudinal data}
@@ -1929,7 +1939,7 @@ Alternative methods are available and should be considered.
 \textbf{mice} has functions to allow imputation of longitudinal (2-level) data.
 \begin{itemize}
 \item \blue{Level 1:}\\
-repeated measurements (within subjects) or subjecs (within classes)
+repeated measurements (within subjects) or subjects (within classes)
 \item \blue{Level 2:}\\
 subjects (that have repeated measurements) or classes/groups (containing several
 subjects)
@@ -1939,7 +1949,7 @@ subjects)
 
 \begin{columns}[onlytextwidth]
 \begin{column}{0.5\textwidth}
-Impuation methods for \blue{level-1} variables:
+Imputation methods for \blue{level-1} variables:
 \begin{itemize}
 \item \Rstring{2l.pan}
 \item \Rstring{2l.norm}
@@ -1947,7 +1957,7 @@ Impuation methods for \blue{level-1} variables:
 \end{itemize}
 \end{column}
 \begin{column}{0.5\textwidth}
-Impuation methods for \blue{level-2} variables:
+Imputation methods for \blue{level-2} variables:
 \begin{itemize}
 \item \Rstring{2lonly.norm}
 \item \Rstring{2lonly.pmm}
@@ -1965,12 +1975,12 @@ It needs the package \textbf{pan} to be installed.
 
 \bigskip
 
-\Rstring{2l.pan} allows different roles of predictor variables, that
+\Rstring{2l.pan} allows for different roles of predictor variables, that
 can be specified as different values in the \Rarg{predictorMatrix}:
 \begin{itemize}
 \item grouping/ID variable: -2
 \item random effects (also included as fixed effects): 2
-\item fixed effets of group means: 3
+\item fixed effects of group means: 3
 \item fixed effects of group means \& random effects: 4
 \end{itemize}
 
@@ -1992,7 +2002,7 @@ pred["y","x"] <- 4
 
 In the current implementation all predictors should be specified as random
 effects (set to 2 in the \Rarg{predictorMatrix}, because the algorithm does not
-handle predictors that are specified as fixed effects.)
+handle predictors that are specified as fixed effects).
 
 \bigskip
 
@@ -2011,7 +2021,7 @@ level-1 variables).
 
 \bigskip
 
-In any case, the group identifier ("id" variable") needs to be set to -2 in.
+In all case, the group identifier ("id" variable") needs to be set to -2 in
 the \Rarg{predictorMatrix}.
 \end{frame}
 
@@ -2091,7 +2101,7 @@ pred[, "id"] <- -2  # identify id variable
 pred[, "ti"] <- 0 # don't use time-point indicator
 @
 
-We can then proceed to perform the imputation.
+We can then perform the imputation.
 <<miceimp_DFexlong2_03>>=
 imp <- mice(DFexlong2, maxit = 10, meth = meth, pred = pred, printFlag = F)
 @
@@ -2125,7 +2135,7 @@ mice_longimp_naive <- summary(pool(models2))
 Currently, there is only limited documentation and examples available that show how to
 use these functions in \textbf{mice}.
 
-Technical details can be obtained from the methodologic references given in the
+Technical details can be obtained from the methodological references given in the
 help files of the R functions.
 
 \bigskip
@@ -2133,7 +2143,7 @@ help files of the R functions.
 A
 \href{https://gerkovink.github.io/miceVignettes/Multi_level/Multi_level_data.html}{\dotuline{vignette}}
 on multi-level imputation with \textbf{mice} is available.
-It gives a more elaborate example of how to analyze such data.
+It gives a more elaborate example of how to analyse such data.
 %\textcolor{red}{[which did not run when I tried on march 29, 2018]}
 \end{frame}
 
@@ -2143,7 +2153,7 @@ It gives a more elaborate example of how to analyze such data.
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 Linear mixed models with incomplete covariates can also be
-analyzed using the package \textbf{JointAI}.
+analysed using the package \textbf{JointAI}.
 
 \bigskip
 
@@ -2154,8 +2164,6 @@ library(JointAI)
 JointAI_long <- lme_imp(y ~ x1 + x3 + x2 + x4 + time + I(time^2),
                         random = ~time|id, data = DFexlong2,
                         n.iter = 5000)
-traceplot(JointAI_long)
-res_JointAI_long <- summary(JointAI_long, start = 2000)
 @
 
 Again, convergence of the Gibbs sampler should be checked using a traceplot,
@@ -2164,7 +2172,7 @@ traceplot(JointAI_long)
 @
 before obtaining the results:
 <<JointAI_long_03, eval = F>>=
-res_JointAI_long <- summary(JointAI_long, start = 2000)
+res_JointAI_long <- summary(JointAI_long)
 @
 
 
@@ -2180,7 +2188,7 @@ save(JointAI_long, file = "Slides/workspaces/JointAI_long.RData")
 
 <<JointAI_long_get, echo = F, fig.width = 8, fig.height = 4, message = F>>=
 load("workspaces/JointAI_long.RData")
-res_JointAI_long <- summary(JointAI_long, start = 2000)
+res_JointAI_long <- summary(JointAI_long)
 @
 %
 % Currently, imputation is only possible for cross-sectional covariates, but
@@ -2194,13 +2202,6 @@ Contrary to the two-level imputation of \textbf{mice}, non-linear associations
 are appropriately handled.
 \end{frame}
 
-\begin{frame}[fragile]{\thesection. \insertsection}
-\framesubtitle{\thesection.\thesubsection. \insertsubsection}
-<<echo = F, fig.width = 8, fig.height = 5, message = F>>=
-library(JointAI)
-traceplot(JointAI_long)
-@
-\end{frame}
 
 
 \subsection{R package jomo}
@@ -2212,7 +2213,8 @@ can be used to impute longitudinal data with normal or non-normal outcomes.
 \bigskip
 
 In the multi-level setting, the level of each variable needs to be specified
-(1: repeated measurements, 2: baseline covariates)
+(1: repeated measurements, 2: baseline covariates), and ordered the same way
+the variables occur in the data frame.
 <<jomo_long, eval = F>>=
 library(jomo)
 # specify the level of each variable
@@ -2230,19 +2232,17 @@ source(file.path(projdir, "Slides", "Rfcts/myjomo.R"))
 
 lvl <- c("id" = 1, y = 1, x1 = 2, x2 = 2, x3 = 2, x4 = 2, time = 1)
 
-jomo_long <- myjomo.lmer(formula = y ~ x1 + x2 + x3 + x4 + time + I(time^2) + (time|id),
-                       data = DFexlong2[, names(lvl)],
-                       level = lvl)
-
-subDF <- DFexlong2[, c("id", "y", paste0("x", 1:4), "time")]
+jomo_long <- myjomo.lmer(formula = y ~ x1 + x2 + x3 + x4 +
+                         time + I(time^2) + (time|id),
+                       data = DFexlong2[, names(lvl)], level = lvl, nburn = 500, nbetween = 100, nimp = 5)
 
 jomo_longMCMC <- myjomo.lmer.MCMCchain(formula = y ~ x1 + x2 + x3 + x4 + time + I(time^2) + (time|id),
                                        data = DFexlong2[, names(lvl)],
                                        level = lvl)
 
-# plot(jomo_longMCMC$collectbeta[1, 1, ], type = 'l')
-# plot(jomo_longMCMC$collectomega[1, 1, ], type = 'l')
-# matplot(t(jomo_longMCMC$collectu[3, , ]), type = 'l')
+plot(jomo_longMCMC$collectbeta[1, 1, ], type = 'l')
+plot(jomo_longMCMC$collectomega[1, 1, ], type = 'l')
+matplot(t(jomo_longMCMC$collectu[3, , ]), type = 'l')
 
 save(jomo_long, jomo_longMCMC, file = 'Slides/workspaces/jomo_long.RData')
 @
@@ -2251,7 +2251,7 @@ save(jomo_long, jomo_longMCMC, file = 'Slides/workspaces/jomo_long.RData')
 load('workspaces/jomo_long.RData')
 @
 
-Analogously to the example with non-linear effects, convergence of the imputation
+Like in the example with non-linear effects, convergence of the imputation
 needs to be checked.
 \end{frame}
 
@@ -2271,6 +2271,9 @@ models_jomo_long <- with(impobj_jomo_long,
 
 res_jomo_long <- summary(pool(models_jomo_long))
 @
+(Note: \Rfct{jomo.lmer} re-names the grouping variable to \Rstring{clus}).
+
+\bigskip
 
 As in the examples for non-linear functional forms, congeniality of imputation
 models is maintained.
@@ -2353,8 +2356,8 @@ an incomplete covariate in survival data.
 \bigskip
 
 White et al. \cite{White2009} derived versions of this model for different
-settings (binary or continuous incomplete covariate $X$, and no,
-binary, or categorical complete covariate $Z$) and investigated how to best
+settings (binary or continuous incomplete covariate $X$, and
+continuous, categorical or no complete covariate $Z$) and investigated how to best
 approximate it.
 
 \bigskip
@@ -2365,7 +2368,7 @@ predictor variables in the imputation for $X$ in MICE may work satisfactorily.
 
 \bigskip
 
-However, in practice $H_0(T)$ is \textcolor{red}{[usually]} not known.
+However, in practice $H_0(T)$ is unspecified.
 \end{frame}
 
 \begin{frame}[fragile]{\thesection. \insertsection}
@@ -2406,7 +2409,7 @@ imputation.
 survdat$H0 <- nelsonaalen(survdat, timevar = Time, statusvar = event)
 @
 
-Then, we can prepare the imputation the same steps as in previous examples:
+Then, we can prepare the imputation using the same steps as in previous examples:
 <<mice_surv02>>=
 # setup run
 imp0 <- mice(survdat, maxit = 0)
@@ -2448,7 +2451,7 @@ we saw in part I (slide \ref{poolingdf}) are calculated and can be ignored.
 \subsection{R package smcfcs}
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-Jusing the package \blue{smcfcs}, the same data can be imputed with the following
+Using the package \blue{smcfcs}, the same data can be imputed with the following
 syntax:
 
 <<smcfcs_surv, eval = F>>=
@@ -2458,13 +2461,13 @@ smcfcs_surv <- smcfcs(originaldata = survdat, smtype = "coxph",
                       method = c("", "", "logreg", "norm", "norm", ""),
                       numit = 20, rjlimit = 1500)
 @
-Convergence of the procedure should be checked, analogous to the previous
+Convergence of the procedure should be checked, analogously to the previous
 example (see slide~\ref{smcfcsnonlin}).
 
 \bigskip
 
 After the resulting object is converted to a \Robj{mids} object, fitting the
-model and pooling the results is analogous to what was done with the data imputed
+model and pooling the results is identical to what was done with the data imputed
 by \textbf{mice}.
 
 <<smcfcs_surv02, eval = F>>=
@@ -2526,11 +2529,11 @@ models_jomo_surv <- with(impobj_jomo_surv, coxph(Surv(Time, event) ~ x1 + x2 + x
 res_jomo_surv <- summary(pool(models_jomo_surv))
 @
 Note that the convergence of the procedure should be checked using
-\Rfct{jomo.coxph.MCMCchain} (analogous to the previous examples using \textbf{jomo}).
+\Rfct{jomo.coxph.MCMCchain} (see the previous examples using \textbf{jomo}).
 
 \bigskip
 
-To analyze \& pool the imputed data the steps are analogous to the other examples:
+To analyse \& pool the imputed data the steps are identical to the other examples:
 <<eval = F>>=
 impobj_jomo_surv <- datalist2mids(split(jomo_surv, jomo_surv$Imputation)[-1])
 models_jomo_surv <- with(impobj_jomo_surv,
@@ -2584,20 +2587,62 @@ ggplot(plot_surv, aes(x = L1, y = coef)) +
 @
 
 The naive mice approach, and mice using the Nelson-Aalen estimator give very
-biased results for the effects of $x1$ and $x2$, but performed acceptable
+biased results for the effects of $x1$ and $x2$, but performed acceptably well
 for $x3$.
 
 \bigskip
 
-Note that the true effects (log HR) of $x1$ and $x2$ are very large
+Note that the \blue{true effects} (log HR) of $x1$ and $x2$ are \blue{very large}
 (-2 and 2.5, respectively),
 and represent the setting where the approximation by the Nelson-Aalen estimate
-is expected to be biased.
+is \blue{expected to be biased}.
 \end{frame}
 
-\section{Some general notes}
-\begin{frame}
-The packags are young and research is ongoing. There may be problems, errors, etc.
 
+\mode<article>{
+\section*{Summary \& Conclusion of Part III}
+}
+\begin{frame}[allowframebreaks]{Summary \& Conclusion of Part III}
+\begin{itemize}
+\item MICE requires congenial \& compatible imputation models to work well.
+\item When this is not the case, (naive) use of MICE can lead to biased results.
+\item Common settings that require special attention are
+      \begin{itemize}
+      \item non-linear functional forms \& interaction terms
+      \item longitudinal data
+      \item survival data
+      \end{itemize}
+\item When using the package \textbf{mice}, there are choices that can reduce bias
+      \begin{itemize}
+      \item \Rarg{pmm} tends to be less biased than \Rarg{norm} for interactions or non-linear associations
+      \item JAV approach reduces bias in settings with interactions or non-linear associations
+      \item special 2-level imputation methods are available for longitudinal data
+      \item The Nelson-Aalen estimator can be used instead of the time variable
+            for imputing survival data when effects are not too large.
+      \end{itemize}
+\framebreak
+\item Generally, problems are more severe when
+      \begin{itemize}
+      \item proportions of missing values are large,
+      \item effect sizes are large,
+      \item little other covariate information is available.
+      \end{itemize}
+      (Note that in the examples we had all of the above.)
+\item In settings where MICE may not provide valid imputations,
+      alternative approaches are available and should be considered.
+\item R packages that provide such alternative approaches are for example:
+      \begin{itemize}
+      \item JointAI (non-linear \& longitudinal)
+      \item smcfcs (non-linear \& survival)
+      \item jomo (non-linear, longitudinal \& survival)
+      \end{itemize}
+\item These packages are very young.
+      \begin{itemize}
+      \item Hence, they may still have some problems.\\
+            \blue{\ding{225}} Use them carefully! (and email the maintainer about problems)
+      \item They are under active development, so resolutions of bugs and
+      features are frequently added.
+      \end{itemize}
+\end{itemize}
 \end{frame}
 

@@ -55,24 +55,92 @@ $$
 \begin{frame}{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 
-In \blue{Bayesian imputation} (the approach seen on slides
-\ref{BayesianImputationI}/\ref{BayesianImputationII} and \ref{micealgorithm})
-the parameters (regression coefficients
-$\bmath\beta$ and residual variance $\sigma$) are sampled from their respective
-posterior distributions (step 1).
+In the \blue{Bayesian framework}, \blue{everything unknown} or unobserved is considered as
+a \blue{random variable}.
+Here, this includes for example regression coefficients $\bmath\beta$, residual variance
+$\sigma^2$ and missing values $\bmath y_{mis}$ and $\bmath X_{mis}$.
 
 \bigskip
 
-Imputed values are drawn from $p(\bmath y_{mis} \mid \bmath X_{mis}, \bmath{\hat\beta}, \hat\sigma)$.
+Random variables have a \blue{probability distribution}. The \blue{expectation}
+of that distribution quantifies where which \blue{values} of the random
+variable are \blue{most likely}, the \blue{variance} is a measure of the
+\blue{uncertainty} about the values.
 
 \bigskip
 
-For a normal imputation model $p()$ is the normal distribution and
-$$\bmath y_{mis} = \bmath X_{mis} \hat{\bmath\beta} + \bmath{\hat{\varepsilon}}$$
-where
-$\bmath{\hat\varepsilon} = (\hat\varepsilon_{n}, \ldots, \hat\varepsilon_{q+1})^T$
-is drawn independently from $N(0, \hat\sigma)$ (step 2).
+In \blue{Bayesian imputation}, the \blue{information obtained from the observed data}
+is used to \blue{estimate the probability distributions} for the missing values and unknown
+parameters, and values are \blue{imputed by draws} from that posterior (= after having seen the data)
+distribution.
 \end{frame}
+
+
+\begin{frame}{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+To determine the \blue{expectation} of the posterior distribution of the missing values,
+usually a \blue{regression model} is used, that depends on the unknown coefficients $\bmath \beta$.
+$$\mathbb E(\bmath y_{mis}\mid \bmath X, \bmath \beta) = f(\bmath X_{mis}\bmath \beta)$$
+
+\bigskip
+
+The posterior distributions of $\bmath \beta$ and $\sigma$ ($p(\bmath\beta)$ and $p(\sigma)$)
+are estimated from the corresponding regression model on the observed data.
+
+\bigskip
+
+To \blue{impute} missing values, while \blue{taking into account the uncertainty about
+$\bmath\beta$ and $\sigma$}, the estimated posterior distributions of the missing
+values and parameters are multiplied
+$$p(\bmath y_{mis}\mid \bmath y_{obs},\bmath X, \bmath \beta, \bmath \sigma) p(\bmath \beta) p(\sigma)$$
+
+In practice, this can be implemented by first making a draw from the posterior
+distributions of $\bmath \beta$ and $\sigma$, and plugging the values into the
+distribution of $\bmath y_{obs}$.
+\end{frame}
+
+
+\begin{frame}{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+\blue{Example:} We assume that $\bmath y$ given $\bmath X$ is approximately normal.
+
+\bigskip
+
+Then $p(\bmath y_{mis}\mid \bmath y_{obs},\bmath X, \bmath \beta, \bmath \sigma)$
+is a normal distribution and we can
+\begin{itemize}
+\item draw $\bmath{\tilde \beta}$ from $p(\bmath\beta)$
+\item draw $\tilde\sigma$ from $p(\sigma)$
+\item draw $\bmath y_{mis}$ from a normal distribution with mean (= expectation)
+      $\bmath X \bmath{\tilde\beta}$ and variance $\tilde\sigma^2$
+\end{itemize}
+
+\bigskip
+
+This is actually the approach we have seen previously on
+Slides~\ref{BayesianImputationI}/\ref{BayesianImputationII} and \ref{micealgorithm}.
+\end{frame}
+
+
+% \begin{frame}{\thesection. \insertsection}
+% \framesubtitle{\thesection.\thesubsection. \insertsubsection}In \blue{Bayesian imputation} (the approach seen on slides
+% \ref{BayesianImputationI}/\ref{BayesianImputationII} and \ref{micealgorithm})
+% the parameters (regression coefficients
+% $\bmath\beta$ and residual variance $\sigma$) are sampled from their respective
+% posterior distributions (step 1).
+%
+% \bigskip
+%
+% Imputed values are drawn from $p(\bmath y_{mis} \mid \bmath X_{mis}, \bmath{\hat\beta}, \hat\sigma)$.
+%
+% \bigskip
+%
+% For a normal imputation model $p()$ is the normal distribution and
+% $$\bmath y_{mis} = \bmath X_{mis} \hat{\bmath\beta} + \bmath{\hat{\varepsilon}}$$
+% where
+% $\bmath{\hat\varepsilon} = (\hat\varepsilon_{n}, \ldots, \hat\varepsilon_{q+1})^T$
+% is drawn independently from $N(0, \hat\sigma)$ (step 2).
+% \end{frame}
 
 
 \subsection{Bootstrap multiple imputation}

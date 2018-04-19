@@ -737,10 +737,10 @@ impute $x_2$ given $x_1$, $x_4$ and $x_3$
 \scalebox{0.8}{
   \begin{tabular}{ccccc}
   $X_1$ & $X_2$ & $X_3$ & $X_4$\\\hline
-  \checkmark & NA         & \checkmark & \checkmark\\
-  \checkmark & \checkmark & NA         & \checkmark\\
-  \checkmark & NA         & \checkmark & NA\\
-  \vdots     & \vdots     & \vdots     & \vdots
+  \checkmark & NA     & \checkmark & \checkmark\\
+  \checkmark & NA     & NA         & \checkmark\\
+  \checkmark & NA     & NA         & NA\\
+  \vdots     & \vdots & \vdots     & \vdots
  \end{tabular}
 }
 \end{column}
@@ -1200,7 +1200,7 @@ for the same missing value.
 \end{frame}
 
 
-\begin{frame}[label = convergence]{\thesection. \insertsection}
+\begin{frame}[label = convergence2]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 In imputation we have
 \begin{itemize}
@@ -1242,7 +1242,7 @@ library(plyr)
 meandat <- ddply(dat, c("x", "imp", "it"), summarize, mean = mean(y))
 @
 
-\begin{frame}[label = convergence]{\thesection. \insertsection}
+\begin{frame}[label = convergence_multiple]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 \only<1>{
 <<echo = F, fig.width = 7, fig.height = 4.5>>=
@@ -1631,7 +1631,7 @@ degrees of freedom.
 
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-<<echo = F, fig.width = 6, fig.height = 1.5>>=
+<<cis_final, echo = F, fig.width = 6, fig.height = 1.5>>=
 CIDF <- data.frame(
   x = rep(unlist(t(pooled[, 2:3])), each = 2),
   y = rep(c(0.5, 3.5)[c(1,2,2,1)], nrow(pooled)),
@@ -1680,9 +1680,12 @@ Quiz
 \vfill
 
 To reiterate the content of the above sections, you can take the corresponding
-quiz, which you can find \textcolor{red}{[link to quiz]} or
-\url{https://github.com/NErler/MultipleImputationCourse/raw/master/Practicals/Quiz_PartI/Quiz_PartI_static.html}
-\textcolor{red}{[link to pdf version]}.
+quiz. An interactive version can be found at
+\begin{block}{}
+\centering\url{https://emcbiostatistics.shinyapps.io/Quiz_PartI}
+\end{block}
+or you can download an html version from Canvas (Practicals/Quiz\_PartI\_static.html).
+\textcolor{red}{[update links]}.
 
 \vfill
 \end{frame}
