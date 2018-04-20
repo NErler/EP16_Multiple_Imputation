@@ -2175,8 +2175,6 @@ before obtaining the results:
 res_JointAI_long <- summary(JointAI_long)
 @
 
-
-
 <<JointAI_long_run, eval = F, echo = F>>=
 library(JointAI)
 JointAI_long <- lme_imp(y ~ x1 + x3 + x2 + x4 + time + I(time^2),
@@ -2234,9 +2232,10 @@ lvl <- c("id" = 1, y = 1, x1 = 2, x2 = 2, x3 = 2, x4 = 2, time = 1)
 
 jomo_long <- myjomo.lmer(formula = y ~ x1 + x2 + x3 + x4 +
                          time + I(time^2) + (time|id),
-                       data = DFexlong2[, names(lvl)], level = lvl, nburn = 500, nbetween = 100, nimp = 5)
+                       data = DFexlong2[, names(lvl)], level = lvl)
 
-jomo_longMCMC <- myjomo.lmer.MCMCchain(formula = y ~ x1 + x2 + x3 + x4 + time + I(time^2) + (time|id),
+jomo_longMCMC <- myjomo.lmer.MCMCchain(formula = y ~ x1 + x2 + x3 + x4 +
+                                         time + I(time^2) + (time|id),
                                        data = DFexlong2[, names(lvl)],
                                        level = lvl)
 
