@@ -1,0 +1,463 @@
+---
+title: "Multiple Imputation with the mice package"
+output: 
+  html_notebook:
+    code_folding: hide
+    df_print: kable
+    toc: true
+    toc_float:
+      collapsed: false
+    number_sections: false
+    theme: spacelab
+    highlight: tango
+editor_options:
+  chunk_output_type: console
+#   learnr::tutorial:
+#     progressive: true
+#     allow_skip: true
+# runtime: shiny_prerendered
+---
+  
+```{r, eval = F, include = F}
+rmarkdown::render("Practicals/MICE/MICE.Rmd", 
+                  output_format = "html_notebook",
+                  output_file = "Practical_MICE.nb.html")
+
+file.show("Practicals/MICE/Practical_MICE.nb.html")
+```
+
+
+```{r, include = F}
+if (names(rmarkdown::metadata$output) == "learnr::tutorial") {
+  library(learnr)
+  learnr::initialize_tutorial()
+}
+
+if (names(rmarkdown::metadata$output) == "html_notebook") {
+  knitr::opts_hooks$set(eval = function(opt) {
+    if (any(opt$exercise, opt$eval == FALSE))
+      opt$eval <- opt$include <- FALSE
+    
+    opt
+  })
+}
+```
+
+
+```{r packages, include = F}
+library(plyr)
+library(VIM)
+library(mice)
+library(JointAI)
+library(visdat)
+library(miceadds)
+```
+
+
+```{r load_data, context="data", include=FALSE}
+load("www/NHANES.RData")
+
+set.seed(2018)
+sub <- sample(nrow(NHANES), 1000, prob = c(2/3, 1/3)[as.numeric(complete.cases(NHANES)) + 1])
+NHANES <- NHANES[sub, ]
+
+
+micemeths <- read.csv2(file = "www/micefunctions.csv")
+names(micemeths) <- gsub("vartype", "variable type", names(micemeths))
+```
+
+## Getting to know the data
+
+### Explore the dataset 
+The first steps are to load the package `mice` and the data we want to impute.
+For this example, we will use the **NHANES** dataset. In the interactive version
+of this practical, the data is already loaded. 
+
+To open the help file for any function, type a `?` followed by the name of the
+function in one of the code fields and click on "Run Code".
+
+<p style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+**Note:**
+If you want do this practical on your own computer, you need to load the data.
+This can be done with the command `file.choose()` which opens the explorer and
+allows you to navigate to the location of the file `NHANES.RData`. If you
+know the path to the file, you can also use `load("<path>/NHANES.RData")`.
+</p>
+  
+The **mice** package needs to be loaded with the command `library()`.
+
+Let's take a first look at the data. Useful functions are
+`dim()`, `head()`, `str()` and `summary()`.
+
+```{r load-mice, exercise = TRUE}
+
+```
+
+```{r load-mice-solution}
+library(mice)
+dim(NHANES)
+head(NHANES)
+str(NHANES)
+summary(NHANES)
+```
+
+
+### Variable coding
+It is important to check that all variables are coded correctly, i.e., have
+the correct variable `class` specified. When importing data from other
+software it can happen that factors become continuous variables or that 
+ordered factors lose their ordering.
+
+In the NHANES data, `smoke` and `alc` are correctly specified as ordinal
+variables, but `educ` is an unordered factor.
+Using `levels(NHANES$educ)` we can get the levels of the variable:
+
+```{r levels-educ, exercise = TRUE}
+
+```
+
+```{r levels-educ-solution}
+levels(NHANES$educ)
+```
+
+
+There is an order to the categories of education, so we need to convert the
+unordered factor to an ordered factor, for example using `as.ordered()`.
+Afterwards, check if the conversion was successfull.
+```{r ordered_educ, exercise = TRUE}
+
+```
+
+```{r ordered_educ-solution}
+NHANES$educ <- as.ordered(NHANES$educ)
+```
+
+```{r educrecode, echo = F}
+NHANES$educ <- as.ordered(NHANES$educ)
+```
+
+### Missing data pattern
+In the `summary()` we could already see that there are missing values in several
+variables. The function `md.pattern()` allows us to further investigate the 
+missing data pattern.
+```{r md-pattern, exercise = TRUE, exercise.setup = "educrecode"}
+
+```
+
+```{r md-pattern-solution}
+mdp <- md.pattern(NHANES)
+mdp
+```
+
+
+###
+`md.pattern()` gives us a matrix where each row represents one missing data
+pattern (1 = observed, 0 = missing).
+The rownames shows how many rows of the data have the given
+missing data pattern. The last column gives the number of missing values in the
+pattern, the last row the number of missing values per variable.
+
+Now visualize and inspect the missing data pattern using one or more of the
+examples shown in the course slides.
+
+```{r vis-mdpattern, exercise = TRUE, fig.width = 8, fig.height = 6}
+
+```
+
+<div id = "vis-mdpattern-hint">
+  **Hint:** 
+  Some functions you can try are
+`JointAI::md_pattern()`,
+`VIM::aggr()`,
+`visdat::vis_dat()`,
+`visdat::vis_miss()`.
+
+For `JointAI::md_pattern()` you can customize the y-axis by using the
+argument `yaxis_pars`, which is a list of arguments.
+To hide the counts use `yaxis_pars = list(yaxt = 'n')` and `printN = FALSE`.
+To prevent the printed output use `print = FALSE`.
+
+For more options check out the help pages of the functions.
+</div>
+  
+Now get an overview of how much missingness there is in each variable and the
+proportion of (in)complete cases.
+```{r misprop, exercise = TRUE}
+
+```
+
+```{r misprop-hint-1}
+# The function complete.cases() will give you a vector that is TRUE if the
+# the case is complete and FALSE if there are missing values.
+
+# is.na() returns TRUE if the value is missing, FALSE if the value is observed
+# colSums() calculates the sum of values in each column of a data.frame or matrix
+# colMeans() calculates the mean of values in each column of a data.frame or matrix
+```
+
+```{r misprop-hint-2}
+# number and proportion of complete cases
+Ncc <- cbind(
+  "#" = table(complete.cases(NHANES)),
+  "%" = round(100 * table(complete.cases(NHANES))/nrow(NHANES), 2)
+)
+rownames(Ncc) <- c("incompl.", "complete")
+
+
+# number and proportion of missing values per variable
+nmis <- cbind("# NA" = sort(colSums(is.na(NHANES))),
+              "% NA" = round(sort(colMeans(is.na(NHANES))) * 100, 2))
+
+```
+
+
+Our data contains `height`, `weight` and `BMI`. Let's check the missing data
+pattern specifically for those three variables:
+
+```{r heightweight, exercise = TRUE}
+
+```
+
+
+```{r heightweight-solution}
+# Three solutions to choose from:
+md.pattern(NHANES[, c("height", "weight", "BMI")])
+
+with(NHANES, table(is.na(height), is.na(weight), is.na(BMI)))
+
+library(plyr)
+ddply(NHANES, c(height = "ifelse(is.na(height), 'missing', 'observed')",
+                weight = "ifelse(is.na(weight), 'missing', 'observed')",
+                BMI = "ifelse(is.na(BMI), 'missing', 'observed')"),
+      summarize,
+      N = length(height)
+)
+```
+
+As we have already seen in the lecture, there is quite a number of cases where
+only either `height` or `weight` is missing. `bmi` is only observed when both
+components are observed. Therefore it might be worth imputing `hight` and `weight`
+separately, and calculate `BMI` from the imputed values.
+
+
+Because we might expect that hypertensive medication is only prescribed
+for patients with hypertension, we will also look into the variables `HyperMed` 
+and `hypten`. Make a table of the two variables to confirm our expectation.
+Make sure that missing values are also displayed in that table!
+```{r hyptentab, exercise = TRUE}
+
+```
+
+```{r hyptentab-solution}
+with(NHANES, table(HyperMed, hypten, exclude = NULL))
+```
+
+
+
+### Distribution of the data
+Before imputing the missing data it is important to take a look at how the 
+incomplete variables are distributed so that we can choose appropriate
+imputation models.
+```{r distr, exercise = TRUE, fig.width = 9, fig.height = 8, exercise.setup = "educrecode"}
+
+```
+<div id = "distr-hint">
+**Hint:** You may want to use the functions `hist()`, `table()` and `barplot()`.
+  
+Of course, you could also use the **ggplot2** package.
+</div>
+  
+### 
+Here some syntax that allows you to quickly get an overview of all variables,
+categorical and continuous:
+```{r plot-distributions-extra, fig.width = 9, fig.height = 8, echo = T}
+nc <- max(5, ceiling(sqrt(ncol(NHANES))))
+nr <- ceiling(ncol(NHANES) / nc)
+par(mfrow = c(nr, nc), mgp = c(2, 0.6, 0), mar = c(2, 3, 3, 0.5))
+for (i in 1:ncol(NHANES)) {
+  if (is.numeric(NHANES[, i])) {
+    hist(NHANES[, i], nclass = 50, xlab = "",
+         main = paste0(names(NHANES[i]), " (",
+                       round(mean(is.na(NHANES[, i])) * 100, 2), "% NA)")
+    )
+  } else {
+    barplot(table(NHANES[, i]), ylab = "Frequency",
+            main = paste0(names(NHANES[i]), " (",
+                          round(mean(is.na(NHANES[, i])) * 100, 2), "% NA)"))
+  }
+}
+```
+
+Pay attention to
+
+* whether continuous distributions deviate considerably from the normal distribution,
+* if variables have values close to the limits of the range they are defined in,
+* whether categorical variables are very unbalanced (i.e., some category very small).
+
+
+## Imputation
+Now that we know how our data and the missing values are distributed, we are 
+ready to impute!
+
+### Set-up run
+First, we do a set-up run of `mice`, without any iterations (`maxit = 0`).
+This is to get all the objects that we may need to adjust in order to customize
+the imputation to our data.
+
+If you need help to figure out what you need to specify take a look at the
+help page `?mice`.
+
+```{r imp0, exercise = TRUE, exercise.setup = "educrecode"}
+imp0 <- 
+```
+
+```{r imp0-solution}
+imp0 <- mice(NHANES, maxit = 0)
+```
+
+
+### Imputation method
+There are many imputation methods available in `mice`. You can find the list in
+the help page of the `mice()` function. We will focus here on the following
+ones:
+
+```{r, echo = F}
+knitr::kable(micemeths[micemeths$type == "basic", -4], row.names = F)
+```
+
+The default imputation methods that `mice()` selects can be specified in the
+argument `defaultMethod`. 
+
+If unspecified, `mice` will use 
+
+* `pmm` for numerical columns,
+* `logreg` for factor columns with two categories, 
+* `polyreg` for columns with unordered and 
+* `polr` for columns with ordered factors with more than two categories.
+
+
+When a normal imputation model seems to be appropriate for most of the 
+continuous covariates, you may want to specify `norm` as
+the default method in the setup run. Let's do that:
+
+```{r imp0v2, exercise = TRUE, exercise.setup = "educrecode"}
+imp0 <- ...(..., defaultMethod = ...)
+```
+
+```{r imp0v2-hint-1}
+# the order for the types of variables is:
+# continuous, binary, factor, ordered factor
+```
+
+
+```{r imp0v2-hint-2}
+imp0 <- mice(NHANES, maxit = 0, 
+             defaultMethod = c("norm", 'logreg', 'polyreg', 'polr'))
+```
+
+
+Looking at the histograms we made for the continuous variables, we can see
+that the variable `creat` has a skewed distribution, so using a normal imputation
+model may not work well. 
+
+Let's change the imputation method for `creat` so that it is imputed with predictive mean matching:
+
+```{r changeimpmod-setup, exercise.setup = "educrecode"}
+imp0 <- mice(NHANES, maxit = 0, 
+             defaultMethod = c("norm", 'logreg', 'polyreg', 'polr'))
+```
+
+```{r changeimpmod, exercise = TRUE}
+meth <- ...
+
+```
+
+```{r changeimpmod-solution}
+meth <- imp0$meth
+meth["creat"] <- "pmm"
+```
+
+
+### Predictor matrix
+We can now check out if we need to make any changes to the `predictorMatrix` 
+argument. 
+```{r predmat-setup, exercise.setup = "changeimpmod-setup"}
+# imp0 <- mice(NHANES, maxit = 0, 
+#              defaultMethod = c("norm", 'logreg', 'polyreg', 'polr'))
+meth <- imp0$meth
+meth["creat"] <- "pmm"
+```
+
+```{r predmat, exercise = TRUE}
+pred <-
+pred
+```
+
+
+```{r predmat-solution}
+pred <- imp0$predictorMatrix
+pred
+```
+
+Remember that we wanted to impute `height` and `weight` separately? But let's
+use `BMI` to impute the other variables. 
+And since `HyperMed` does not give us a lot more information than `hypten`, but
+has a lot more missing values, we do not want to use it as predictor variable.
+
+Go ahead and apply the necessary changes to  `pred` and `meth`:
+```{r changepred-setup}
+imp0 <- mice(NHANES, maxit = 0, 
+             defaultMethod = c("norm", 'logreg', 'polyreg', 'polr'))
+meth <- imp0$meth
+meth["creat"] <- "pmm"
+
+pred <- imp0$pred
+```
+
+```{r changepred, exercise = TRUE}
+
+```
+
+```{r changepred-hint-1}
+# for passive imputation, you need to specify the formula used to calculate
+# BMI in meth using "~I(...)"
+```
+
+```{r changepred-solution}
+pred[c("height", "weight"), "BMI"] <- 0
+pred[, c("height", "weight")] <- 0
+pred[, "HyperMed"] <- 0
+
+meth["BMI"] <- "~I(weight/height^2)"
+```
+
+### Run the imputation
+```{r runimp-setup}
+imp0 <- mice(NHANES, maxit = 0, 
+             defaultMethod = c("norm", 'logreg', 'polyreg', 'polr'))
+meth <- imp0$meth
+meth["creat"] <- "pmm"
+
+pred <- imp0$pred
+
+pred[c("height", "weight"), "BMI"] <- 0
+pred[, c("height", "weight")] <- 0
+pred[, "HyperMed"] <- 0
+
+meth["BMI"] <- "~I(weight/height^2)"
+```
+
+
+With the changes that we have made to the `predictorMatrix` and `method`, we
+can now perform the imputation. You can hide the lengthy output by specifying
+`printFlag = FALSE`.
+
+```{r runimp, exercise = TRUE, exercise.timelimit = 100}
+imp <- 
+```
+
+```{r runimp-hint-1}
+# imp <- mice(NHANES, method = meth, predictorMatrix = pred, maxit = 10, m = 5,
+#             seed = 2018)
+```
+

@@ -1515,7 +1515,7 @@ predqdr <- impJAV$pred
 predqdr[, "xx"] <- 0
 
 impqdr <- mice(DF2, meth = methqdr, pred = predqdr,
-               printFlag = F, maxit = 1)
+               printFlag = F, maxit = 10)
 @
 Note: there were warning messages about numerical issues for this approach.
 \end{frame}
@@ -1941,8 +1941,7 @@ ggplot(plot_nonlin, aes(x = L1, y = coef)) +
 \item \blue{Level 1:}\\
 repeated measurements (within subjects) or subjects (within classes)
 \item \blue{Level 2:}\\
-subjects (that have repeated measurements) or classes/groups (containing several
-subjects)
+time-constant/baseline covariates, between subjects effects, variables on the group level
 \end{itemize}
 
 \bigskip
