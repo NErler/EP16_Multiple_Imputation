@@ -1,27 +1,33 @@
 ---
 title: "Multiple Imputation with the mice package"
 output: 
-  html_notebook:
+  html_document:
     code_folding: hide
-    df_print: kable
+    df_print: paged
     toc: true
     toc_float:
       collapsed: false
     number_sections: false
     theme: spacelab
     highlight: tango
+    pandoc_args: [
+      "--output=Practical_MICE.html"
+    ]
+    css: mycss.css
 editor_options:
-  chunk_output_type: console
+  chunk_output_type: inline
 #   learnr::tutorial:
 #     progressive: true
 #     allow_skip: true
 # runtime: shiny_prerendered
 ---
   
+<script src="js/hideOutput.js"></script>
+
 ```{r, eval = F, include = F}
 rmarkdown::render("Practicals/MICE/MICE.Rmd", 
-                  output_format = "html_notebook",
-                  output_file = "Practical_MICE.nb.html")
+                  output_format = "html_document",
+                  output_file = "Practical_MICE.html")
 
 file.show("Practicals/MICE/Practical_MICE.nb.html")
 ```
@@ -31,15 +37,28 @@ file.show("Practicals/MICE/Practical_MICE.nb.html")
 if (names(rmarkdown::metadata$output) == "learnr::tutorial") {
   library(learnr)
   learnr::initialize_tutorial()
+  static <- FALSE
 }
 
-if (names(rmarkdown::metadata$output) == "html_notebook") {
+if (names(rmarkdown::metadata$output) == "html_document") {
   knitr::opts_hooks$set(eval = function(opt) {
     if (any(opt$exercise, opt$eval == FALSE))
       opt$eval <- opt$include <- FALSE
     
     opt
   })
+  
+  knitr::knit_hooks$set(solution = function(before, options, envir) {
+    if (before) {
+      '<div class="fold o">'
+    } else {
+      '</div>'
+    }
+  })
+  
+  static <- TRUE
+  # options(width = 100)
+ library(htmltools)
 }
 ```
 
@@ -70,20 +89,30 @@ names(micemeths) <- gsub("vartype", "variable type", names(micemeths))
 
 ### Explore the dataset 
 The first steps are to load the package `mice` and the data we want to impute.
-For this example, we will use the **NHANES** dataset. In the interactive version
-of this practical, the data is already loaded. 
+For this example, we will use the **NHANES** dataset.
+```{r, eval = !static, echo = FALSE, results = 'asis'}
+cat("In the interactive version
+of this practical, the data is already loaded. ")
+```
 
-To open the help file for any function, type a `?` followed by the name of the
-function in one of the code fields and click on "Run Code".
+```{r, eval = static, echo = FALSE, results = 'asis'}
+cat(
+# <p style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+# **Note:**
+'To load this dataset, you can use the command `file.choose()` which opens the
+explorer and allows you to navigate to the location of the file `NHANES.RData`. If you
+know the path to the file, you can also use `load("<path>/NHANES.RData")`.'
+# </p>
+)
+```
+
 
 <p style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
-**Note:**
-If you want do this practical on your own computer, you need to load the data.
-This can be done with the command `file.choose()` which opens the explorer and
-allows you to navigate to the location of the file `NHANES.RData`. If you
-know the path to the file, you can also use `load("<path>/NHANES.RData")`.
+**Note:**<br>
+To open the help file for any function, type a `?` followed by the name of the
+function in one of the code fields and click on "Run Code".
 </p>
-  
+
 The **mice** package needs to be loaded with the command `library()`.
 
 Let's take a first look at the data. Useful functions are
@@ -93,7 +122,7 @@ Let's take a first look at the data. Useful functions are
 
 ```
 
-```{r load-mice-solution}
+```{r load-mice-solution, solution = TRUE}
 library(mice)
 dim(NHANES)
 head(NHANES)
@@ -110,13 +139,13 @@ ordered factors lose their ordering.
 
 In the NHANES data, `smoke` and `alc` are correctly specified as ordinal
 variables, but `educ` is an unordered factor.
-Using `levels(NHANES$educ)` we can get the levels of the variable:
+Using `levels(NHANES$educ)` we can print the names of the categories of `educ`:
 
-```{r levels-educ, exercise = TRUE}
+```{r educlevels, exercise = TRUE}
 
 ```
 
-```{r levels-educ-solution}
+```{r educlevels-solution, solution = TRUE}
 levels(NHANES$educ)
 ```
 
@@ -128,8 +157,9 @@ Afterwards, check if the conversion was successfull.
 
 ```
 
-```{r ordered_educ-solution}
+```{r ordered_educ-solution, solution = TRUE}
 NHANES$educ <- as.ordered(NHANES$educ)
+str(NHANES$educ)
 ```
 
 ```{r educrecode, echo = F}
@@ -144,11 +174,11 @@ missing data pattern.
 
 ```
 
-```{r md-pattern-solution}
+
+```{r md-pattern-solution, solution = TRUE}
 mdp <- md.pattern(NHANES)
 mdp
 ```
-
 
 ###
 `md.pattern()` gives us a matrix where each row represents one missing data
@@ -157,16 +187,25 @@ The rownames shows how many rows of the data have the given
 missing data pattern. The last column gives the number of missing values in the
 pattern, the last row the number of missing values per variable.
 
-Now visualize and inspect the missing data pattern using one or more of the
+Visualize and inspect the missing data pattern using one or more of the
 examples shown in the course slides.
 
 ```{r vis-mdpattern, exercise = TRUE, fig.width = 8, fig.height = 6}
 
 ```
 
-<div id = "vis-mdpattern-hint">
-  **Hint:** 
-  Some functions you can try are
+```{r, echo = F, results = 'asis'}
+if (static) {
+  cat('<button type="button" class="btn btn-info btn-sm" data-toggle="collapse" data-target="#demo">Hint</button>
+<div id = "demo" class="collapse" style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+')
+} else {
+  cat('<div id = "section-vis-mdpattern-hint">')
+}
+```
+
+**Hint:**
+Some functions you can try are
 `JointAI::md_pattern()`,
 `VIM::aggr()`,
 `visdat::vis_dat()`,
@@ -174,11 +213,14 @@ examples shown in the course slides.
 
 For `JointAI::md_pattern()` you can customize the y-axis by using the
 argument `yaxis_pars`, which is a list of arguments.
-To hide the counts use `yaxis_pars = list(yaxt = 'n')` and `printN = FALSE`.
+To hide the counts use `yaxis_pars = list(yaxt = "n")` and `printN = FALSE`.
 To prevent the printed output use `print = FALSE`.
 
 For more options check out the help pages of the functions.
 </div>
+
+<br>
+
   
 Now get an overview of how much missingness there is in each variable and the
 proportion of (in)complete cases.
@@ -195,19 +237,18 @@ proportion of (in)complete cases.
 # colMeans() calculates the mean of values in each column of a data.frame or matrix
 ```
 
-```{r misprop-hint-2}
+```{r misprop-hint-2, solution = TRUE}
 # number and proportion of complete cases
 Ncc <- cbind(
   "#" = table(complete.cases(NHANES)),
   "%" = round(100 * table(complete.cases(NHANES))/nrow(NHANES), 2)
 )
 rownames(Ncc) <- c("incompl.", "complete")
-
+Ncc
 
 # number and proportion of missing values per variable
-nmis <- cbind("# NA" = sort(colSums(is.na(NHANES))),
-              "% NA" = round(sort(colMeans(is.na(NHANES))) * 100, 2))
-
+cbind("# NA" = sort(colSums(is.na(NHANES))),
+      "% NA" = round(sort(colMeans(is.na(NHANES))) * 100, 2))
 ```
 
 
@@ -219,7 +260,7 @@ pattern specifically for those three variables:
 ```
 
 
-```{r heightweight-solution}
+```{r heightweight-solution, solution = TRUE}
 # Three solutions to choose from:
 md.pattern(NHANES[, c("height", "weight", "BMI")])
 
@@ -261,7 +302,17 @@ imputation models.
 ```{r distr, exercise = TRUE, fig.width = 9, fig.height = 8, exercise.setup = "educrecode"}
 
 ```
-<div id = "distr-hint">
+
+```{r, echo = F, results = 'asis'}
+if (static) {
+  cat('<button type="button" class="btn btn-info btn-sm" data-toggle="collapse" data-target="#distrhint">Hint</button>
+<div id = "distrhint" class="collapse" style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+')
+} else {
+  cat('<div id = "section-distr-hint">')
+}
+```
+
 **Hint:** You may want to use the functions `hist()`, `table()` and `barplot()`.
   
 Of course, you could also use the **ggplot2** package.
@@ -295,6 +346,7 @@ Pay attention to
 * whether categorical variables are very unbalanced (i.e., some category very small).
 
 
+
 ## Imputation
 Now that we know how our data and the missing values are distributed, we are 
 ready to impute!
@@ -311,7 +363,7 @@ help page `?mice`.
 imp0 <- 
 ```
 
-```{r imp0-solution}
+```{r imp0-solution, solution = TRUE}
 imp0 <- mice(NHANES, maxit = 0)
 ```
 
@@ -362,7 +414,7 @@ model may not work well.
 
 Let's change the imputation method for `creat` so that it is imputed with predictive mean matching:
 
-```{r changeimpmod-setup, exercise.setup = "educrecode"}
+```{r changeimpmod-setup, exercise.setup = "educrecode", eval = !static}
 imp0 <- mice(NHANES, maxit = 0, 
              defaultMethod = c("norm", 'logreg', 'polyreg', 'polr'))
 ```
@@ -372,7 +424,7 @@ meth <- ...
 
 ```
 
-```{r changeimpmod-solution}
+```{r changeimpmod-solution, solution = TRUE}
 meth <- imp0$meth
 meth["creat"] <- "pmm"
 ```
@@ -381,7 +433,7 @@ meth["creat"] <- "pmm"
 ### Predictor matrix
 We can now check out if we need to make any changes to the `predictorMatrix` 
 argument. 
-```{r predmat-setup, exercise.setup = "changeimpmod-setup"}
+```{r predmat-setup, exercise.setup = "changeimpmod-setup", eval = !static}
 # imp0 <- mice(NHANES, maxit = 0, 
 #              defaultMethod = c("norm", 'logreg', 'polyreg', 'polr'))
 meth <- imp0$meth
@@ -394,7 +446,7 @@ pred
 ```
 
 
-```{r predmat-solution}
+```{r predmat-solution, solution = TRUE}
 pred <- imp0$predictorMatrix
 pred
 ```
@@ -405,7 +457,7 @@ And since `HyperMed` does not give us a lot more information than `hypten`, but
 has a lot more missing values, we do not want to use it as predictor variable.
 
 Go ahead and apply the necessary changes to  `pred` and `meth`:
-```{r changepred-setup}
+```{r changepred-setup, include = FALSE}
 imp0 <- mice(NHANES, maxit = 0, 
              defaultMethod = c("norm", 'logreg', 'polyreg', 'polr'))
 meth <- imp0$meth
@@ -423,7 +475,7 @@ pred <- imp0$pred
 # BMI in meth using "~I(...)"
 ```
 
-```{r changepred-solution}
+```{r changepred-solution, solution = TRUE}
 pred[c("height", "weight"), "BMI"] <- 0
 pred[, c("height", "weight")] <- 0
 pred[, "HyperMed"] <- 0
