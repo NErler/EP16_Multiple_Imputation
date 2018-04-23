@@ -70,6 +70,9 @@ library(mice)
 library(JointAI)
 library(visdat)
 library(miceadds)
+library(knitr)
+library(magrittr)
+library(kableExtra)
 ```
 
 
@@ -79,15 +82,22 @@ load("www/NHANES.RData")
 set.seed(2018)
 sub <- sample(nrow(NHANES), 1000, prob = c(2/3, 1/3)[as.numeric(complete.cases(NHANES)) + 1])
 NHANES <- NHANES[sub, ]
+NHANES$cohort <- "2011"
+NHANES <- NHANES[, sample(ncol(NHANES))]
 
 
 micemeths <- read.csv2(file = "www/micefunctions.csv")
 names(micemeths) <- gsub("vartype", "variable type", names(micemeths))
+
+
+load("www/imps.RData")
+
+devtools::source_gist("0d00375da460dd33839b98faeee2fdab",
+                      filename = "probplot.R")
 ```
 
 ## Getting to know the data
 
-### Explore the dataset 
 The first steps are to load the package `mice` and the data we want to impute.
 For this example, we will use the **NHANES** dataset.
 ```{r, eval = !static, echo = FALSE, results = 'asis'}
@@ -113,14 +123,18 @@ To open the help file for any function, type a `?` followed by the name of the
 function in one of the code fields and click on "Run Code".
 </p>
 
+### {.tabset .tabset-fade .tabset-pills}
+
 The **mice** package needs to be loaded with the command `library()`.
 
 Let's take a first look at the data. Useful functions are
 `dim()`, `head()`, `str()` and `summary()`.
 
+
 ```{r load-mice, exercise = TRUE}
 
 ```
+
 
 ```{r load-mice-solution, solution = TRUE}
 library(mice)
@@ -133,32 +147,26 @@ summary(NHANES)
 
 ### Variable coding
 It is important to check that all variables are coded correctly, i.e., have
-the correct variable `class` specified. When importing data from other
+the correct variable `class` specified, because `mice()` automatically selects
+imputation methods based on this.
+When importing data from other
 software it can happen that factors become continuous variables or that 
 ordered factors lose their ordering.
 
-In the NHANES data, `smoke` and `alc` are correctly specified as ordinal
-variables, but `educ` is an unordered factor.
-Using `levels(NHANES$educ)` we can print the names of the categories of `educ`:
-
-```{r educlevels, exercise = TRUE}
-
-```
-
-```{r educlevels-solution, solution = TRUE}
-levels(NHANES$educ)
-```
-
-
-There is an order to the categories of education, so we need to convert the
-unordered factor to an ordered factor, for example using `as.ordered()`.
+`str()` showed that in the NHANES data `smoke` and `alc` are correctly specified
+as ordinal variables, but `educ` is an unordered factor.
+Using `levels(NHANES$educ)` we can print the names of the categories of `educ`.
+Convert the unordered factor to an ordered factor, for example using `as.ordered()`.
 Afterwards, check if the conversion was successfull.
 ```{r ordered_educ, exercise = TRUE}
 
 ```
 
-```{r ordered_educ-solution, solution = TRUE}
+```{r ordered_educ-solution, solution = TRUE, collapse = TRUE}
+levels(NHANES$educ)
+
 NHANES$educ <- as.ordered(NHANES$educ)
+
 str(NHANES$educ)
 ```
 
@@ -196,11 +204,11 @@ examples shown in the course slides.
 
 ```{r, echo = F, results = 'asis'}
 if (static) {
-  cat('<button type="button" class="btn btn-info btn-sm" data-toggle="collapse" data-target="#demo">Hint</button>
-<div id = "demo" class="collapse" style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+  cat('<button type="button" class="btn btn-info btn-sm" data-toggle="collapse" data-target="#vismdpat">Hint</button>
+<div id = "vismdpat" class="collapse" style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
 ')
 } else {
-  cat('<div id = "section-vis-mdpattern-hint">')
+  cat('<div id = "vis-mdpattern-hint">')
 }
 ```
 
@@ -228,7 +236,7 @@ proportion of (in)complete cases.
 
 ```
 
-```{r misprop-hint-1}
+```{r misprop-hint-1, eval = !static}
 # The function complete.cases() will give you a vector that is TRUE if the
 # the case is complete and FALSE if there are missing values.
 
@@ -237,7 +245,23 @@ proportion of (in)complete cases.
 # colMeans() calculates the mean of values in each column of a data.frame or matrix
 ```
 
-```{r misprop-hint-2, solution = TRUE}
+```{r mispropr_hint, eval = static, results = 'asis'}
+cat('<button type="button" class="btn btn-info btn-sm" data-toggle="collapse" data-target="#misprop">Hint</button>
+<div id = "misprop" class="collapse" style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+The function `complete.cases()` will give you a vector that is TRUE if the
+the case is complete and FALSE if there are missing values.
+
+`is.na()` returns `TRUE` if the value is missing, `FALSE` if the value is observed
+
+`colSums()` calculates the sum of values in each column of a data.frame or matrix
+
+`colMeans()` calculates the mean of values in each column of a data.frame or matrix
+</div>')
+```
+
+
+
+```{r misprop-hint-2, solution = TRUE, collapse = TRUE}
 # number and proportion of complete cases
 Ncc <- cbind(
   "#" = table(complete.cases(NHANES)),
@@ -249,6 +273,7 @@ Ncc
 # number and proportion of missing values per variable
 cbind("# NA" = sort(colSums(is.na(NHANES))),
       "% NA" = round(sort(colMeans(is.na(NHANES))) * 100, 2))
+
 ```
 
 
@@ -276,9 +301,9 @@ ddply(NHANES, c(height = "ifelse(is.na(height), 'missing', 'observed')",
 ```
 
 As we have already seen in the lecture, there is quite a number of cases where
-only either `height` or `weight` is missing. `bmi` is only observed when both
-components are observed. Therefore it might be worth imputing `hight` and `weight`
-separately, and calculate `BMI` from the imputed values.
+only either `height` or `weight` is missing. `BMI` is only observed when both
+components are observed. To use all available information, we want to 
+impute `hight` and `weight` separately and calculate `BMI` from the imputed values.
 
 
 Because we might expect that hypertensive medication is only prescribed
@@ -289,10 +314,26 @@ Make sure that missing values are also displayed in that table!
 
 ```
 
-```{r hyptentab-solution}
+```{r hyptentab-solution, solution = TRUE}
 with(NHANES, table(HyperMed, hypten, exclude = NULL))
 ```
 
+Furthermore, we can expect a systematic relationship between `hypchol` and
+`chol`. Find out how these two variables are related.
+
+```{r hypchol, exercise = TRUE}
+
+```
+
+```{r hypchol-solution, solution = TRUE, collapse = TRUE}
+with(NHANES, plot(chol ~ hypchol))
+
+with(NHANES, summary(chol[hypchol == "no"]))
+with(NHANES, summary(chol[hypchol == "yes"]))
+```
+### 
+It seems that `hypchol` is defined as having `chol > 6.2`, which makes `hypchol`
+dependent on `chol`. 
 
 
 ### Distribution of the data
@@ -309,7 +350,7 @@ if (static) {
 <div id = "distrhint" class="collapse" style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
 ')
 } else {
-  cat('<div id = "section-distr-hint">')
+  cat('<div id = "distr-hint">')
 }
 ```
 
@@ -318,7 +359,9 @@ if (static) {
 Of course, you could also use the **ggplot2** package.
 </div>
   
+
 ### 
+
 Here some syntax that allows you to quickly get an overview of all variables,
 categorical and continuous:
 ```{r plot-distributions-extra, fig.width = 9, fig.height = 8, echo = T}
@@ -396,13 +439,20 @@ the default method in the setup run. Let's do that:
 imp0 <- ...(..., defaultMethod = ...)
 ```
 
-```{r imp0v2-hint-1}
-# the order for the types of variables is:
+```{r imp0v2-hint-1, eval = !static}
+# The order for the types of variables is:
 # continuous, binary, factor, ordered factor
 ```
 
+```{r imp0v2_hint, eval = static, results = 'asis'}
+cat('<button type="button" class="btn btn-info btn-sm" data-toggle="collapse" data-target="#imp0v2">Hint</button>
+<div id = "imp0v2" class="collapse" style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+The order of the types of variable is: continuous, binary, factor, ordered factor.
+</div>')
+```
 
-```{r imp0v2-hint-2}
+
+```{r imp0v2-hint-2, solution = TRUE}
 imp0 <- mice(NHANES, maxit = 0, 
              defaultMethod = c("norm", 'logreg', 'polyreg', 'polr'))
 ```
@@ -433,7 +483,7 @@ meth["creat"] <- "pmm"
 ### Predictor matrix
 We can now check out if we need to make any changes to the `predictorMatrix` 
 argument. 
-```{r predmat-setup, exercise.setup = "changeimpmod-setup", eval = !static}
+```{r predmat-setup, exercise.setup = "changeimpmod", eval = !static}
 # imp0 <- mice(NHANES, maxit = 0, 
 #              defaultMethod = c("norm", 'logreg', 'polyreg', 'polr'))
 meth <- imp0$meth
@@ -458,6 +508,7 @@ has a lot more missing values, we do not want to use it as predictor variable.
 
 Go ahead and apply the necessary changes to  `pred` and `meth`:
 ```{r changepred-setup, include = FALSE}
+NHANES$educ <- as.ordered(NHANES$educ)
 imp0 <- mice(NHANES, maxit = 0, 
              defaultMethod = c("norm", 'logreg', 'polyreg', 'polr'))
 meth <- imp0$meth
@@ -470,46 +521,495 @@ pred <- imp0$pred
 
 ```
 
-```{r changepred-hint-1}
-# for passive imputation, you need to specify the formula used to calculate
-# BMI in meth using "~I(...)"
+```{r changepred-hint-1, eval = !static}
+# For passive imputation, you need to specify the formula used to calculate
+# BMI in meth using "~I(...)".
 ```
+
+```{r changepred_hint1, eval = static, results = 'asis'}
+cat('<button type="button" class="btn btn-info btn-sm" data-toggle="collapse" data-target="#changepred">Hint</button>
+<div id = "changepred" class="collapse" style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+For passive imputation, you need to specify the formula used to calculate BMI in meth using `"~I(...)"`.
+</div>')
+```
+
 
 ```{r changepred-solution, solution = TRUE}
 pred[c("height", "weight"), "BMI"] <- 0
 pred[, c("height", "weight")] <- 0
+pred["height", "weight"] <- 1
+pred["weight", "height"] <- 1
+
 pred[, "HyperMed"] <- 0
 
+pred["chol", "hypchol"] <- 0
+
+
 meth["BMI"] <- "~I(weight/height^2)"
+meth["HyperMed"] <- ""
 ```
 
+### Visit sequence
+To make sure that the imputed values of `BMI` match the imputed values of
+`height` and `weight`,`BMI` needs to be imputed after `heigt` and `weight`.
+Get the `visitSequence` from `imp0` (using `imp0$visitSequence`) and change it
+if necessary.
+
+```{r changevisseq, exercise = TRUE, exercise.setup = "changepred"}
+visSeq <- ...
+...
+```
+
+```{r changevisseq-solution, solution = TRUE, exercise.setup = "changepred"}
+visSeq <- imp0$visitSequence
+# the lazy version
+visSeq <- c(visSeq[-2], visSeq[2])
+# to make sure you still do the correct thing if the order of the columns in 
+# NHANES would change
+which_BMI <- match("BMI", names(visSeq))
+visSeq <- c(visSeq[-which_BMI], visSeq[which_BMI])
+```
+
+
 ### Run the imputation
-```{r runimp-setup}
+```{r allprep, include = FALSE}
+NHANES$educ <- as.ordered(NHANES$educ)
 imp0 <- mice(NHANES, maxit = 0, 
              defaultMethod = c("norm", 'logreg', 'polyreg', 'polr'))
 meth <- imp0$meth
 meth["creat"] <- "pmm"
+meth["HyperMed"] <- ""
 
 pred <- imp0$pred
 
 pred[c("height", "weight"), "BMI"] <- 0
 pred[, c("height", "weight")] <- 0
+pred["height", "weight"] <- 1
+pred["weight", "height"] <- 1
+
 pred[, "HyperMed"] <- 0
 
+pred["chol", "hypchol"] <- 0
+
 meth["BMI"] <- "~I(weight/height^2)"
+meth["HyperMed"] <- ""
+
+visSeq <- imp0$visitSequence
+which_BMI <- match("BMI", names(visSeq))
+visSeq <- c(visSeq[-which_BMI], visSeq[which_BMI])
 ```
 
 
 With the changes that we have made to the `predictorMatrix` and `method`, we
-can now perform the imputation. You can hide the lengthy output by specifying
-`printFlag = FALSE`.
+can now perform the imputation. 
 
-```{r runimp, exercise = TRUE, exercise.timelimit = 100}
+```{r runimp, exercise = TRUE, exercise.timelimit = 100, exercise.setup = "allprep"}
 imp <- 
 ```
 
-```{r runimp-hint-1}
-# imp <- mice(NHANES, method = meth, predictorMatrix = pred, maxit = 10, m = 5,
-#             seed = 2018)
+```{r runimp-solution, solution = TRUE, cache = TRUE}
+imp <- mice(NHANES, method = meth, predictorMatrix = pred, maxit = 10, m = 5,
+            seed = 2018)
 ```
+
+```{r saveimp, include = FALSE, eval = static, cache = TRUE}
+savedimps_imp <- mice(NHANES, method = meth, predictorMatrix = pred,
+                      maxit = 10, m = 5,
+                      seed = 2018)
+savedimps_impnaive <- mice(NHANES, maxit = 10, m = 5, seed = 2018)
+
+save(savedimps_imp,
+     savedimps_impnaive, file = "www/imps.RData")
+```
+
+The `mice()` function prints the name of the variable being imputed for each
+iteration and imputation. If you run `mice()` on your own computer the output
+will show up continuously. You may notice that imputation is slowest for 
+categorical variables, especially when they have many categories.
+
+You can hide the lengthy output by specifying
+`printFlag = FALSE`.
+
+
+## Investigating the `mids` object
+Find out the class of the object returned by `mice()` function using the 
+function `class()`, and take a look at the help file for this class:
+
+```{r, findclass-setup, ref.label = "allprep", include = FALSE}
+imp <- savedimps_imp
+```
+
+```{r findclass, exercise = TRUE}
+
+```
+
+
+```{r findclass-solution, solution = TRUE, collapse = TRUE}
+class(imp)
+?mids
+```
+
+
+###
+We see that `imp` is an object of class `mids`.
+
+The help file tells us that a `mids` object is a list with has several elements/slots:
+
+```{r, include = FALSE}
+midsdf <- rbind(
+  c("`call`:", "The call that created the object."),
+  c("`data`:", "A copy of the incomplete data set."),
+  c("`where`:", "The missingness indicator matrix."),
+  c("`m`:",
+    "The number of imputations."),
+  c("`nmis`:",
+    "An array containing the number of missing observations per column."),
+  c("`imp`:",
+    paste0("The imputed values: A list of `ncol(data)` components,",
+           "each list element is a `nmis[j]` by `m` matrix of imputed values for variable `j`.")),
+  c("`method`:",
+    "The imputation method."),
+  c("`predictorMatrix`:",
+    "The predictor matrix."),
+  c("`visitSequence`:", 
+    "The sequence in which columns are visited."),
+  c("`post`:",
+    "A vector of strings of length `ncol(data)` with commands for post-processing."),
+  c("`seed`:",
+    "The seed value of the solution."),
+  c("`iteration`:", 
+    "The number of iterations."),
+  c("`lastSeedValue`:",
+    "The most recent seed value."),
+  c("`chainMean:`", 
+    paste0("Mean of imputed values per variable and iteration: ",
+           "A list of `m` components: Each component is a matrix with `maxit`",
+           "columns and `length(visitSequence)` rows.")),
+  c("`chainVar`:",
+    paste0("Variances of imputed values per variable and iteration" ,
+           "(same structure as `chainMean`)")),
+  c("`loggedEvents`:",
+    paste0("A matrix with the record of automatic removal actions (details below);",
+           "(`NULL` if no action was made.)")),
+  c("pad:",
+    paste0("A list containing the internally used version of the `data`,",
+           "`method`, `predictorMatrix`, `visitSequence`, `post` and dummy coding.")
+  )
+) %>% as.data.frame
+
+names(midsdf) <- c(" ", " ")
+
+midsdf %>% kable(format = 'html') %>%
+  kable_styling()
+  # row_spec(c(4:10, 12:16), background = "#f2f2f2")
+```
+
+
+**Details of the `loggedEvents`:**
+
+`mice()` does some pre-processing of the data:
+
+  * variables containing missing values, that are not imputed but used as
+    predictor are removed
+  * constant variables are removed
+  * collinear variables are removed
+  
+  
+Furthermore, during each iteration
+
+  * variables that are linearly dependent are removed
+  * `polr` imputation that does not converge and is replaced by `polyreg`. 
+  
+The matrix has the following columns:
+```{r, echo = FALSE}
+rbind(
+  c("`it`", "iteration number"), 
+  c("`im`", "imputation number"),
+  c("`co`", "column number in the data"),
+  c("`dep`", "name of the name of the variable being imputed"),
+  c("`meth`", "imputation method used"),
+  c("`out`", "character vector with names of altered/removed predictors")
+) %>%
+  kable(format = "html") %>%
+  kable_styling()
+
+```
+
+After imputation, make sure that `mice()` has not done any processing of the
+data that you are not aware of and did not want to happen.
+This means not only to check the 
+`loggedEvents`, but also to make sure the `method`, `predictorMatrix` 
+and `visitSequence` used are OK.
+
+
+
+```{r checkmids-setup, ref.label = "allprep", include = FALSE}
+imp <- savedimps_imp
+```
+
+```{r checkmids, exercise = TRUE}
+
+```
+
+```{r checkmids-solution, solution = TRUE}
+imp$method
+imp$predictorMatrix
+imp$visitSequence
+imp$loggedEvents
+```
+
+Checking the `loggedEvents` we see that for `alc`, `educ` and `smoke` the method
+`multinom` was used. That is a bit confusing: we specified `polr` in our
+imputation method and `imp$method` is indeed `polr` for the three ordinal variables.
+
+The `mice` help file told us that in case `polr` does not converge `polyreg` will
+be used. Maybe there is more information in the help of those two functions?
+
+```{r checkpolr-setup, ref.label = "allprep", include = FALSE}
+imp <- savedimps_imp
+```
+
+```{r checkpolr, exercise = TRUE}
+
+```
+
+```{r checkpolr-hint-1}
+# Using "polr" and "polyreg" when specifying the "method" argument in mice
+# actually calls the functions "mice.impute.polr" and "mice.impute.polyreg"
+# when running the imputation.
+```
+
+```{r, echo = F, results = 'asis'}
+if (static) {
+  cat('<button type="button" class="btn btn-info btn-sm" data-toggle="collapse" data-target="#checkpolrhint">Hint</button>
+<div id = "checkpolrhint" class="collapse" style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+')
+} else {
+  cat('<div id = "checkpolr-hint">')
+}
+```
+
+Using `polr` and `polyreg` when specifying the `method` argument in `mice`
+actually calls the functions `mice.impute.polr` and  `mice.impute.polyreg`
+when running the imputation.
+
+</div>
+
+###
+
+The help for `mice.impute.polr()` tells us:
+
+> The call to `polr` might fail, usually because the data are very sparse. 
+> In that case, `multinom` is tried as a fallback, and a record is written to 
+> the `loggedEvents` component of the mids object.
+
+and the help for `mice.impute.polyreg()` says:
+
+> The algorithm of `mice.impute.polyreg` uses the function `multinom()`  from 
+> the **nnet** package.
+
+So that explains it, everything seems to be in order, but unfortunately the
+ordinal models for `alc`, `educ` and `smoke` did not converge and multinomial models
+had to be used instead.
+
+
+Let's see what else would have come up if we hadn't prepared the
+`predictorMatrix`, `method` and `visitSequence` before imputation.
+The object `impnaive` contains the result of 
+```{r, eval = F}
+impnaive <- mice(NHANES, m = 5, maxit = 10)
+```
+
+Take a look at the `loggedEvents` of `impnaive`: 
+```{r allimp, echo = FALSE}
+NHANES$educ <- as.ordered(NHANES$educ)
+imp0 <- mice(NHANES, maxit = 0, 
+             defaultMethod = c("norm", 'logreg', 'polyreg', 'polr'))
+meth <- imp0$meth
+meth["creat"] <- "pmm"
+meth["HyperMed"] <- ""
+
+pred <- imp0$pred
+
+pred[c("height", "weight"), "BMI"] <- 0
+pred[, c("height", "weight")] <- 0
+pred["height", "weight"] <- 1
+pred["weight", "height"] <- 1
+
+pred[, "HyperMed"] <- 0
+
+pred["chol", "hypchol"] <- 0
+
+meth["BMI"] <- "~I(weight/height^2)"
+meth["HyperMed"] <- ""
+
+visSeq <- imp0$visitSequence
+which_BMI <- match("BMI", names(visSeq))
+visSeq <- c(visSeq[-which_BMI], visSeq[which_BMI])
+
+impnaive <- savedimps_impnaive
+imp <- savedimps_imp
+```
+
+
+```{r impnaiveloggedEvents, exercise = TRUE, exercise.setup = "allimp"}
+
+```
+
+```{r impnaiveloggedEvents-solution, solution = TRUE}
+impnaive$loggedEvents
+```
+
+
+###
+The `loggedEvents` of the "naive" imputation show that the constant variable
+`cohort` was excluded before the imputation (as it should be).
+
+Furthermore, in the imputation model for `HyperMed`, the variable `hypten.1`
+was excluded. `hypten.1` is the first dummy variable belonging to `hypten`.
+We can check this by looking at `impnaive$pad$categories`:
+```{r, include = FALSE}
+impnaive <- savedimps_impnaive
+impnaive$pad$categories
+```
+
+```{r, eval = FALSE}
+impnaive$pad$categories
+```
+There we see in row number `match("hypten", rownames(impnaive$pad$categories))`
+that `hypten` has 1 dummary variable and that `hypten.1` (row number `match("hypten.1", rownames(impnaive$pad$categories))`) is a dummy variable, belonging to column
+`impnaive$pad$categories$father[match("hypten.1", rownames(impnaive$pad$categories))]`
+in the dataset.
+Hence, `hypten` was not used in the imputation of `HyperMed`.
+
+<br>
+
+
+We also did not change the `visistSequence` in `impnaive`. Find out what
+the effects of that are:
+
+```{r impnaiveVisSeq, exercise = TRUE, exercise.setup = "allimp"}
+
+```
+
+```{r impnaiveVisSeq-hint-1}
+# You can get an imputed datasets from a mids object using the function complete()
+# and specifying which dataset you want, e.g. complete(impnaive, 1) will give
+# you the first imputed dataset from impnaive.
+```
+
+```{r, impnaiveVisSeq-solution, solution = TRUE}
+naiveDF1 <- complete(impnaive, 1)
+naivecalcBMI <- with(naiveDF1, weight/height^2)
+
+impDF1 <- complete(imp, 1)
+impcalcBMI <- with(impDF1, weight/height^2)
+
+cbind(naiveBMI = naiveDF1$BMI, naivecalcBMI,
+      impBMI = impDF1$BMI, impcalcBMI)[which(is.na(NHANES$BMI)), ]
+
+```
+
+When we compare the imputed and calculated values of `BMI` from `impnaive` we
+can see that the imputed `height` and `weight` give a different `BMI` than is
+imputed. This is because `BMI` is imputed before `weight`, which means that the
+most recent imputed value of `weight` is from the previous iteration.
+
+Changing the `visitSequence` in `imp` prevented this inconsistency.
+
+
+## Investigate imputed values
+### Convergence
+The mean and variance of the imputed values per iteration and variable is
+stored in the slots `chainMean` and `chainVar`.
+Let's plot them to see if our imputation `imp` has converged:
+```{r convergence, exercise = TRUE, exercise.setup = "allimp", fig.width = 9, fig.height = 7}
+
+```
+
+```{r convergence-solution, solution = TRUE, fig.width = 9, fig.height = 7}
+
+# implemented plotting function (use layout to change the number of rows and columns)
+plot(imp, layout = c(6, 6))
+
+# plot for a single variable
+matplot(imp$chainMean["weight", , ], type = "l", ylab = "imputed value",
+        xlab = "iteration", main = "weight")
+
+# or the ggplot version
+library(ggplot2)
+library(reshape2)
+ggplot(melt(imp$chainMean), aes(x = Var2, y = value, color = Var3)) +
+  geom_line() +
+  facet_wrap("Var1", scales = 'free') +
+  theme(legend.position = 'none') +
+  xlab("iteration") +
+  ylab("imputed value")
+
+```
+
+###
+The chains seem to have converged, but in practice, more iterations should be
+done to confirm this.
+
+In comparison, `impnaive` had some convergence problems:
+```{r, fig.width = 9, fig.height = 7}
+plot(impnaive, layout = c(6, 6))
+```
+
+`height`, and `BMI` show a clear trend and the chains don't mix well, i.e., there
+is more variation between the chains than within each chain (the same is the 
+case for `weight`). Moreover, `hyperchol` shows some undesired behaviour, where
+four chains moe upwards and the 5th chain separates from them after half of the
+iterations. These are clear signs that there are correlation or identification
+problems between these variables and some other variables (which is why we made
+adjustments to the `predictorMatrix` for `imp`.)
+
+### Imputed values
+Now that we know that `imp` has converged, we can compare the distribution of
+the imptued values against the distribution of the observed values.
+Plot the distributions (continuous and categorical), and make sure the imputations
+values meaningful values (e.g., height of 2.50m or weight of 10kg for adults).
+If there are differences in distribution of observed and imputed values see if
+those differences can be explained by other variables.
+
+```{r distrplot, exercise = TRUE, exercise.setup = "allimp", fig.width = 9, fig.height = 7}
+
+```
+
+```{r distrplot-hint-1}
+# You can use densityplot and probplot to get plots for all continuous and
+# categorical variables.
+# 
+# To check all imputed values you can either get a summary of the "imp" element
+# of the mids object or create a complete dataset containing all imputations
+# using the function "complete()" and get the summary of that.
+```
+
+```{r distrplot-solution, solution = TRUE, fig.width = 7, fig.height = 9, collapse = TRUE}
+densityplot(imp)
+
+# create a long dataset with all imputed data sets stacked onto each other
+longDF <- complete(imp, "long")
+summary(longDF)
+
+# get the summary of the "raw" imputed values
+lapply(imp$imp, function(x) 
+  summary(unlist(x))
+)
+
+densityplot(imp, ~SBP|hypten)
+densityplot(imp, ~height|gender)
+
+
+probplot(imp)
+
+probplot(imp, smoke ~ gender + alc)
+probplot(imp, alc ~ gender)
+probplot(imp, educ ~ gender)
+probplot(imp, hypchol ~ gender + I(age > 50))
+```
+
+###
+We have negative bilirubin values and the imputed values for height may be a little off.
 

@@ -20,6 +20,10 @@ $(document).ready(function() {
       $('pre.plot', this).prepend("<div class=\"showopt\">Show Plot</div><br style=\"line-height:22px;\"/>");
       $('pre.plot', this).children('img').addClass('folded');
 
+      // add button to table
+     // $(this).find('pagedtable-wrapper').wrap('<pre class=\"mytable\"></pre>');
+      //$('pre.mytable', this).prepend("<div class=\"showopt\">Show Table</div><br style=\"line-height:22px;\"/>");
+      //$('pre.mytable', this).children('.pagedtable-wrapper').addClass('folded');
     }
   });
 
