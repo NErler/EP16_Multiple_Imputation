@@ -82,9 +82,7 @@ names(micemeths) <- gsub("vartype", "variable type", names(micemeths))
 
 
 load("www/imps.RData")
-
-devtools::source_gist("0d00375da460dd33839b98faeee2fdab",
-                      filename = "probplot.R")
+source("www/probplot.R")
 ```
 
 ## Getting to know the data
@@ -300,10 +298,10 @@ ddply(NHANES, c(height = "ifelse(is.na(height), 'missing', 'observed')",
 )
 ```
 
-As we have already seen in the lecture, there is quite a number of cases where
+As we have already seen in the lecture, there are quite a number of cases where
 only either `height` or `weight` is missing. `BMI` is only observed when both
 components are observed. To use all available information, we want to 
-impute `hight` and `weight` separately and calculate `BMI` from the imputed values.
+impute `height` and `weight` separately and calculate `BMI` from the imputed values.
 
 
 Because we might expect that hypertensive medication is only prescribed
@@ -403,12 +401,14 @@ Now that we know how our data and the missing values are distributed, we are
 ready to impute!
 
 ### Set-up run {.tabset .tabset-fade .tabset-pills}
-First, we do a set-up run of `mice`, without any iterations (`maxit = 0`).
+First, we do a set-up run of `mice()`, without any iterations (`maxit = 0`).
 This is to get all the objects that we may need to adjust in order to customize
 the imputation to our data.
 
 If you need help to figure out what you need to specify take a look at the
-help page `?mice`.
+help page [`?mice`](https://www.rdocumentation.org/packages/mice/versions/2.46.0/topics/mice).
+
+Note: This command will not produce any output.
 
 ```{r imp0, exercise = TRUE, exercise.setup = "educrecode"}
 imp0 <- 
@@ -420,7 +420,7 @@ imp0 <- mice(NHANES, maxit = 0)
 
 
 ### Imputation method {.tabset .tabset-fade .tabset-pills}
-There are many imputation methods available in `mice`. You can find the list in
+There are many imputation methods available in **mice**. You can find the list in
 the help page of the `mice()` function. We will focus here on the following
 ones:
 
@@ -512,7 +512,7 @@ pred
 Remember that we wanted to impute `height` and `weight` separately? But let's
 use `BMI` to impute the other variables. 
 And since `HyperMed` does not give us a lot more information than `hypten`, but
-has a lot more missing values, we do not want to use it as predictor variable.
+has a lot more missing values, we do not want to use it as a predictor variable.
 
 Go ahead and apply the necessary changes to  `pred` and `meth`:
 ```{r changepred-setup, include = FALSE}
@@ -559,7 +559,7 @@ meth["HyperMed"] <- ""
 
 ### Visit sequence {.tabset .tabset-fade .tabset-pills}
 To make sure that the imputed values of `BMI` match the imputed values of
-`height` and `weight`,`BMI` needs to be imputed after `heigt` and `weight`.
+`height` and `weight`,`BMI` needs to be imputed after `height` and `weight`.
 Get the `visitSequence` from `imp0` (using `imp0$visitSequence`) and change it
 if necessary.
 
@@ -668,9 +668,9 @@ You can hide the lengthy output by specifying
 asis_output("#### Task\\n")
 ```
 
-`mice` does not return a `data.frame`. 
+`mice()` does not return a `data.frame`. 
 Find out the class of the object returned by `mice()` function using the 
-function `class()`, and take a look at the help file for this class:
+function `class()`, and take a look at the [help file](https://www.rdocumentation.org/packages/mice/versions/2.46.0/topics/mids-class) for this class:
 
 ```{r allimp, echo = FALSE}
 NHANES$educ <- as.ordered(NHANES$educ)
@@ -720,7 +720,7 @@ class(imp)
 ### Elements of the `mids` object {.tabset .tabset-fade .tabset-pills}
 We see that `imp` is an object of class `mids`.
 
-The help file tells us that a `mids` object is a list with several elements:
+The [help file](https://www.rdocumentation.org/packages/mice/versions/2.46.0/topics/mids-class) tells us that a `mids` object is a list with several elements:
 
 ```{r, echo = FALSE}
 midsdf <- rbind(
@@ -785,7 +785,7 @@ midsdf %>% kable(format = 'html') %>%
 Furthermore, during each iteration
 
   * variables that are linearly dependent are removed
-  * `polr` imputation that does not converge and is replaced by `polyreg`. 
+  * `polr` imputation that does not converge is replaced by `polyreg`. 
   
 The matrix in `loggedEvents` has the following columns:
 ```{r, echo = FALSE}
@@ -810,9 +810,8 @@ asis_output("#### Task\\n")
 
 It is good practice to make sure that `mice()` has not done 
 any processing of the data that was not planned or that you are not aware of.
-This means not only to check the `loggedEvents`, but also to make sure the
-`method`, `predictorMatrix` and `visitSequence` that were used are what they
-were supposed to be.
+This means checking the `loggedEvents`, but also ensuring that the correct
+`method`, `predictorMatrix` and `visitSequence` were used.
 
 Do these checks for `imp`.
 
@@ -836,11 +835,13 @@ Checking the `loggedEvents` we see that for `alc`, `educ` and `smoke` the method
 `multinom` was used. That is a bit confusing: we specified `polr` in our
 imputation method and `imp$method` is indeed `polr` for the three ordinal variables.
 
-The `mice` help file told us that in case `polr` does not converge `polyreg` will
+The `mice` help page told us that in case `polr` does not converge `polyreg` will
 be used. 
 
-Find out if there is more information in the help of those two functions.
-
+Find out if there is more information in the
+[help](https://www.rdocumentation.org/packages/mice/versions/2.46.0/topics/mice.impute.polr)
+[pages](https://www.rdocumentation.org/packages/mice/versions/2.46.0/topics/mice.impute.polyreg)
+for those two functions.
 
 ```{r checkpolr, exercise = TRUE, exercise.setup = "allimp"}
 
@@ -1056,7 +1057,7 @@ asis_output("#### Task\\n")
 
 Plot the distributions of the imputed variables (continuous and categorical),
 and make sure the imputed values are realistic (e.g., no height of 2.50m or weight of 10kg for adults).
-If there are differences in distribution of observed and imputed values see if
+If there are differences in the distributions of observed and imputed values see if
 those differences can be explained by other variables.
 
 ```{r distrplot, exercise = TRUE, exercise.setup = "allimp", fig.width = 9, fig.height = 7}
@@ -1122,8 +1123,8 @@ when providing a summary of the imputed data in a publication.
 In the present example we can see that the observed values have a slightly
 right-skewed distribution, compared to the imputed values. Re-doing the
 imputation with `pmm` instead of `norm` for `bili` should fix this.
-(Hoever, since the imputations seem fine overall, and there is little knowledge
-gain in re-doing the previous steps, we will skip this repitition 
+(However, since the imputations seem fine overall, and there is little knowledge
+gain in re-doing the previous steps, we will skip this repetition 
 in this practical.)
 
 The distributions of the imputed values for `height` and `SBP` differ a bit
@@ -1144,7 +1145,7 @@ group of smoking.
 
 ## Analysis
 ### Fitting models on `mids` objects {.tabset .tabset-fade .tabset-pills}
-When we are confident that the imputation was sucessfull, the imputed data can
+When we are confident that the imputation was successfull, the imputed data can
 be analysed with any complete data method. 
 
 Choose any analysis model of interest and fit it on the imputed data. 
@@ -1187,7 +1188,7 @@ summary(models1$analyses[[1]])
 ```
 
 ### Structure of `mira` objects {.tabset .tabset-fade .tabset-pills}
-Analyses performed on on `mids` objects will result in a `mira` object
+Analyses performed on `mids` objects will result in a `mira` object
 (multiply imputed repeated analyses).
 
 
@@ -1209,7 +1210,7 @@ miradf %>% kable(format = 'html') %>%
   kable_styling()
 ```
 
-The components of `imp$analyses` will each have the `class` depending on the
+The class of each of the components of `imp$analyses` will depend on the
 type of model that was fitted.
 
 ## Pooling
@@ -1333,3 +1334,13 @@ pooled1 <- pool(models1)
 summary(pooled1)
 ```
 
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Solution\\n")
+```
+
+<div style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+<center>
+**You have reached the end of this practical. Well done!**
+</center>
+</div>
