@@ -107,11 +107,20 @@ know the path to the file, you can also use `load("<path>/NHANES.RData")`.'
 ```
 
 
-<p style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+<div style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
 **Note:**<br>
-To open the help file for any function, type a `?` followed by the name of the
+To display the help file for any function, type a `?` followed by the name of the
 function in one of the code fields and click on "Run Code".
-</p>
+
+```{r, eval = !static, results = 'asis', echo = FALSE}
+cat("The files might look a bit funny when they are displayed as R output.")
+```
+
+Alternatively, you can look up the help pages online at 
+[https://www.rdocumentation.org/](https://www.rdocumentation.org/)
+or find the whole manual for a package at
+[https://cran.r-project.org/web/packages/available_packages_by_name.html](https://cran.r-project.org/web/packages/available_packages_by_name.html)
+</div>
 
 ### Dataset {.tabset .tabset-fade .tabset-pills}
 ```{r, eval = static, echo = FALSE}

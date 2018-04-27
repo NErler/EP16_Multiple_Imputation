@@ -88,14 +88,14 @@ pbcdat$chol <- as.numeric(pbcdat$chol)
 
 ```
 
-```{r savemodels, echo = FALSE, eval = FALSE}
-
+```{r savemodels interact, echo = FALSE, eval = FALSE}
 set.seed(2018)
+t0 <- Sys.time()
 JointAIlog <- glm_imp(hypten ~ age + BMI + gender * (smoke + alc_bin),
            family = binomial(link = 'logit'), data = NHANES, n.iter = 500,
            auxvars = c("height", "weight"),
            inits = NULL)
-
+t1 <- Sys.time()
 
 NHANES$hypten_num <- as.numeric(NHANES$hypten) - 1
 pred <- matrix(nrow = ncol(NHANES), ncol = ncol(NHANES), data = 1,
@@ -122,21 +122,23 @@ for (i in 1:dim(smclog$smCoefIter)[2]) {
 
 
 set.seed(2018)
-jomolog <- jomo.glm(hypten ~ age + BMI + gender + smoke + alc_bin,
-                    data = NHANES[, c("hypten", "age", "BMI", "gender", "smoke", "alc_bin")], 
-                    family = "binomial", nburn = 1000, 
-                    nbetween = 50, nimp = 5)
-
-jomologMCMC <- jomo.glm.MCMCchain(hypten ~ age + BMI + gender + smoke + alc_bin,
+jomolog <- jomo.glm(hypten ~ age + BMI + (smoke + alc_bin) * gender,
                     data = NHANES, 
+                    family = "binomial", nburn = 1000, 
+                    nbetween = 200, nimp = 5)
+
+t0 <- Sys.time()
+jomologMCMC <- jomo.glm.MCMCchain(hypten ~ age + BMI + (smoke + alc_bin) * gender,
+                    data = NHANES,
                     family = "binomial", nburn = 1000)
+t1 <- Sys.time()
 
 par(mfrow = c(2,4), mar = c(3,3,1,1), mgp = c(2, 0.6, 0))
 for (i in 1:dim(jomologMCMC$collectbeta)[2]) {
   plot(jomologMCMC$collectbeta[1, i, ], type = 'l')
 }
 
-par(mfrow = c(2,4), mar = c(3,3,1,1), mgp = c(2, 0.6, 0))
+par(mfrow = c(3,4), mar = c(3,3,1,1), mgp = c(2, 0.6, 0))
 for (i in 1:dim(jomologMCMC$collectbetaY)[2]) {
   plot(jomologMCMC$collectbetaY[1, i, ], type = 'l')
 }
@@ -145,30 +147,77 @@ for (i in 1:dim(jomologMCMC$collectbetaY)[2]) {
 par(mfrow = c(6, 6), mar = c(3,3,1,1), mgp = c(2, 0.6, 0))
 for (i in 1:dim(jomologMCMC$collectomega)[2]) {
   for (j in 1:i) {
-    plot(jomologMCMC$collectomega[i, j , ], type = 'l')
+    plot(jomologMCMC0$collectomega[i, j , ], type = 'l')
   }
 }
 
 matplot(t(jomologMCMC$collectbeta[1, , ]), type = 'l')
 
-save(JointAIlog, smclog, jomolog, 
+save(JointAIlog, smclog, jomolog, jomologMCMC, 
      file = "Practicals/MICEadvanced/www/logimps.RData")
+```
+
+```{r savemodels surv, echo = FALSE, eval = FALSE}
+pbcdat$event <- pbcdat$status == 'dead'
+
+
+set.seed(2018)
+jomosurvMCMC <- jomo.coxph.MCMCchain(formula = Surv(time, event) ~ platelet + 
+                                       age + sex + chol + stage,
+                                     data = pbcdat, nburn = 2000)
+
+
+par(mfrow = c(3,3), mar = c(3,3,1,1), mgp = c(2, 0.6, 0))
+for (i in 1:dim(jomosurvMCMC$collectbeta)[2]) {
+  plot(jomosurvMCMC$collectbeta[1, i, ], type = 'l')
+}
+
+par(mfrow = c(2,4), mar = c(3,3,1,1), mgp = c(2, 0.6, 0))
+for (i in 1:dim(jomosurvMCMC$collectbetaY)[2]) {
+  plot(jomosurvMCMC$collectbetaY[1, i, ], type = 'l')
+}
+
+
+par(mfrow = c(6, 8), mar = c(3,3,1,1), mgp = c(2, 0.6, 0))
+for (i in 1:dim(jomosurvMCMC$collectomega)[2]) {
+  for (j in 1:i) {
+    plot(jomosurvMCMC$collectomega[i, j , ], type = 'l')
+  }
+}
+
+matplot(t(jomosurvMCMC$collectbeta[1, , ]), type = 'l')
+
+set.seed(2018)
+jomosurv <- jomo.coxph(formula = Surv(time = time, event) ~ platelet + 
+                         age + sex + chol + stage,
+                       data = pbcdat, nburn = 2000,
+                       nbetween = 500, nimp = 5)
 
 
 
 
-pbcdat$event <- as.numeric(pbcdat$status == 'dead')
+pbcdat$event <- pbcdat$status == 'dead'
+
 set.seed(2018)
 smcsurv <- smcfcs(originaldata = pbcdat,
                   smtype = "coxph", 
                   smformula = "Surv(time = time, event) ~ platelet + 
                                age + sex + chol + stage",
-                  method = c("", "", "norm", "", "", "norm", "podds", ""),
-                  rjlimit = 1500, numit = 20)
+                  method = c(time = "", status = "", 
+                             platelet = "norm", age = "", sex = "", 
+                             chol = "norm", stage = "podds", event = ""),
+                  numit = 20, rjlimit = 1500)
 
-save(smcsurv, file = "Practicals/MICEadvanced/www/survimps.RData")
 
+par(mfrow = c(2, 4), mar = c(3.5, 3.5, 1,1), mgp = c(2, 0.6, 0))
+for (i in 1:dim(smcsurv$smCoefIter)[2]) {
+  matplot(t(smcsurv$smCoefIter[, i, ]), type = 'l', ylab = "coefficient", 
+          xlab = "iteration")
+}
+
+save(jomosurvMCMC, jomosurv, smcsurv, file = "Practicals/MICEadvanced/www/survimps.RData")
 ```
+
 
 ```{r loadmodels, echo = FALSE, context = "data"}
 load("www/survimps.RData")
@@ -176,10 +225,10 @@ load("www/logimps.RData")
 ```
 
 ## Non-linear functional forms
+### Data & Model of interest
 To practice imputation when non-linear functional forms or interaction terms
 are involved, we use a subset of the **NHANES** data.
 
-### NHANES data
 The variables in this subset have the following distribution:
 ```{r distrNHANES, echo = FALSE, fig.width = 9, fig.height = 4.5}
 nc <- 4
@@ -279,6 +328,11 @@ These iterations are not included in the final result.
 The number of iterations `n.iter` that is required depends on the specific
 data and how complex the model is, hence, no default value is given.
 
+Columns of the dataset that are not used in the model formula, and are not specified
+as auxiliary variables are ignored. In the current version of **JointAI**,
+passive imputation (calculating variables based on other variables) is not yet
+available.
+
 
 ```{r, eval = !static, echo = FALSE}
 asis_output("###\\n")
@@ -338,11 +392,6 @@ JointAIlog <- glm_imp(hypten ~ age + BMI + (smoke + alc_bin) * gender,
 traceplot(JointAIlog)
 
 summary(JointAIlog)
-```
-
-
-```{r, eval = !static, echo = FALSE}
-asis_output("###\\n")
 ```
 
 
@@ -411,12 +460,18 @@ under the complex target distribution.
 The argument `rjlimit` specifies how many attepts are made to draw a value from
 the proposal that is not rejected.
 
-Impute the NHANES data with `smcfcs()` and take the following into account
-* `smcfcs` requires the outcome to be coded as numeric (with values 0 and 1),
-  => you will have to create a new variable `hypten_num`
-* The original outcoma variable `hypten` should not be used as predictor variable,
-  => you need to create `predictorMatrix` to exclude it
-* `BMI` should not be used to impute `height` and `weight`
+
+```{r, eval = !static, echo = FALSE}
+asis_output("###\\n")
+```
+
+Impute the NHANES data with `smcfcs()` and take the following into account:
+
+* `smcfcs` requires the outcome to be coded as numeric (with values 0 and 1)<br>
+  => you will have to create a new variable `hypten_num`<br>
+  (The original outcoma variable `hypten` should not be used as predictor variable.)
+* `BMI` should not be used to impute `height` and `weight`<br>
+  => you need to specify the `predictorMatrix` to specify this
 
 ```{r runsmclog, exercise = TRUE, timelimit.exercise = 200}
 # create the numeric version of hypten
@@ -482,8 +537,9 @@ smclog <- smcfcs(NHANES,
 ```
 
 
+
 Find out the `class` of the object returned by `smcfcs()` and its elements.
-The section **Value** in the [help file](https://www.rdocumentation.org/packages/smcfcs/versions/1.3.0/topics/smcfcs)
+The section **Value** in the [help page](https://www.rdocumentation.org/packages/smcfcs/versions/1.3.0/topics/smcfcs)
 can help with this.
 Then plot the chains of the estimated model parameters to evaluate if the
 algorithm has converged.
@@ -529,131 +585,25 @@ asis_output("###\\n")
 ```
 
 
-The imputed datasets are returned as a list, where each element of the list is
-one imputed dataset.
+The imputed datasets are returned as a `list`, where each element of the `list`
+is one imputed dataset.
 
-To get from a list of datasets to pooled results there are several options, as
+To get from a `list` of datasets to pooled results there are several options, as
 displayed in the following flow chart:
 
-<img src="www/flow.jpg" style="width:100%">
+<img src="www/Flowdiagram.svg" style="width:100%">
 
-```{r flowchart, echo = FALSE, eval = FALSE}
-library(diagram)
-height <- 23
-width <- 15
-
-boxwidth <- 1.5
-title_height <- 0.7
-box_height <- 1.5
-
-pos_left <- 1.5
-pos_mid <- 7.5
-pos_right <- 13.5
-
-title_skip <- -3
-ypos_left <- -0
-ypos_mid <- -3
-ypos_right <- -5
-yskip <- 6
-
-cex_flow <- 1
-
-titel_LTxMain <- as.list(c("mids", "mira", "mipo"))
-titel_rPSC <- as.list(c("data.frame (long)", "list"))
-titel_LTxrPSC <- as.list(c("imputationList", "list", "MIresult"))
-
-par(mar = rep(0.5, 4))
-openplotmat(xlim = c(0, width),
-            ylim = c(0, height - 3), main = "")
-for (i in 1:length(titel_LTxMain)) {
-  textrect(mid = c(pos_left,
-                   height - i*yskip + ypos_left + title_skip),
-           radx = boxwidth,
-           rady = box_height,
-           lab = titel_LTxMain[i],
-           cex = cex_flow)
-  
-  straightarrow(from = c(pos_left,
-                         height - i*yskip + ypos_left + title_skip + 4.5),
-                to = c(pos_left,
-                       height - i*yskip + ypos_left + title_skip - 0.5),
-                endhead = T, arr.type = "triangle", arr.length = 0.3)
-}
-
-for (i in 1:length(titel_rPSC)) {
-  textrect(mid = c(pos_mid,
-                   height - i*yskip*0.6 + ypos_mid),
-           radx = boxwidth,
-           rady = box_height,
-           lab = titel_rPSC[i],
-           cex = cex_flow)
-  # straightarrow(from  = c(pos_right - 0.5, 
-  #                         height - i*yskip + ypos_left + title_skip),
-  #               to = c(pos_left - boxwidth,
-  #                      height - i*yskip + ypos_left + title_skip),
-  #               endhead = T, arr.type = "triangle", arr.length = 0.3)
-}
-
-straightarrow(from = c(pos_right, 
-                        height - i*yskip + ypos_left + title_skip),
-              to = c(-7,
-                     height - i*yskip + ypos_left + title_skip),
-              endhead = T, arr.type = "triangle", arr.length = 0.3)
-
-straightarrow(from = c(pos_mid - boxwidth, 
-                        height - 0.1*yskip + ypos_mid + title_skip),
-              to = c(pos_left - 1,
-                     height - 0.8 * yskip + ypos_mid + title_skip),
-              endhead = T, arr.type = "triangle", arr.length = 0.3)
-
-straightarrow(from = c(pos_mid + boxwidth, 
-                        height - 0.7*yskip + ypos_mid + title_skip),
-              to = c(pos_right + 1,
-                     height - 0.8 * yskip + ypos_left + title_skip),
-              endhead = T, arr.type = "triangle", arr.length = 0.3)
-
-straightarrow(from = c(pos_mid - boxwidth, 
-                        height - 0.7*yskip + ypos_mid + title_skip),
-              to = c(pos_left - 1,
-                     height - 0.8 * yskip + ypos_left + title_skip),
-              endhead = T, arr.type = "triangle", arr.length = 0.3)
-
-
-for (i in 1:length(titel_LTxrPSC)) {
-  textrect(mid = c(pos_right,
-                   height - i*yskip + ypos_left + title_skip),
-           radx = boxwidth,
-           rady = box_height,
-           lab = titel_LTxrPSC[i],
-           cex = cex_flow)
-}
-
-for (i in 2:3) {
-  straightarrow(from = c(pos_right,
-                         height - i*yskip + ypos_left + title_skip + 4.5),
-                to = c(pos_right,
-                       height - i*yskip + ypos_left + title_skip - 0.5),
-                endhead = T, arr.type = "triangle", arr.length = 0.3)
-}
-
-# abline(v = 1:7)
-# abline(h = 15)
-text(4.5, 16, "as.mids")
-text(4.5, 14, "datalist2mids")
-```
-
-
-To use `miceadds::datalist2mids` the ordered factors need to be converted to
+To use `datalist2mids()` from the package **miceadds**, ordered factors need to be converted to
 unordered factors. To use `as.mids()` we would have to turn the list into
 a long format dataset (where the original data and all imputed datasets are
 stacked on top of each other) and add
 a column that identifies the imputation numer and one that identifies subjects.
 
-Instead:
+Instead do the following:
 
 1. convert `smclog` to an `imputationList` object
 2. fit the models on this `imputationList` object
-3. use `MICombine()` to obtain an `MIresult` object
+3. use `MIcombine()` to obtain an `MIresult` object
 4. use `as.mira()` to convert the `list` of models from 2. to a `mira` object
 5. use `pool()` on the `mira` object
 6. compare the `summary()` of the `mira` object and the `summary()` of the `MIresult` object
@@ -767,12 +717,19 @@ summary(logpool_mice)
 
 ### jomo
 
-The last approach we will use to impute the NHANES data is the joint model 
-imputation as implemented in the package **jomo**.
+In this part of the practical we will use **jomo** to impute the NHANES data 
+with the joint model approach to multiple imputation. 
 
-(help page)[https://www.rdocumentation.org/packages/jomo/versions/2.6-1/topics/jomo.glm]
+For our logistic regression of `hypten`, this can be  done using the function `jomo.glm()`.
+Check the [help page](https://www.rdocumentation.org/packages/jomo/versions/2.6-1/topics/jomo.glm)
+to find out which arguments need to be specified in `jomo.glm()`.
 
-Main arguments
+```{r, eval = !static, echo = FALSE}
+asis_output("###\\n")
+```
+
+
+The main arguments of `jomo.glm()` are:
 ```{r jomoargs, echo = FALSE}
 jomoargs <- rbind(
   c("`formula`", "model formula"),
@@ -789,31 +746,82 @@ names(jomoargs) <- c("", "")
 
 jomoargs %>% kable(format = 'html') %>%
   kable_styling()
-
 ```
 
+<b>Additional details:</b>
+<br>
 
-In **jomo** convergence of the MCMC sampler can not be checked on the same 
+**jomo** only produces a single chain of MCMC samples. The first `nburn` iterations
+are discarded as burnin. The next iteration forms the first imputed dataset.
+The MCMC chain is then continued and after `nbetween` additional iterations 
+the next imputed dataset is created. This step is repeated until `nimp` sets 
+of imputed values are obtained.
+
+Convergence of the MCMC sampler can not be checked on the same 
 object that was used to create the imputed values. Instead, a separate function
 has to be used: `jomo.glm.MCMCchain()`. It takes the same arguments as 
-`jomo.glm()`, except for `nbetween` and `nimp` (since it only does one imputation).
+`jomo.glm()`, except for `nbetween` and `nimp`, and records all burnin iterations,
+but does not create multiple imputed datasets.
 
+**jomo** will use all columns that are in the dataset but not used in the
+model formula as auxiliary variables. As in **JointAI**, specification of
+passive imputation is currently not available.
+
+```{r, eval = !static, echo = FALSE}
+asis_output("###\\n")
+```
 
 Run `jomo.glm.MCMCchain()` for our logistic regression of `hypten` and 
-investigate the resulting object.
-Make plots to evaluate convergence.
+investigate the resulting object.<br>
+**Note:** `jomo.glm()` and `jomo.glm.MCMCchain()` are very slow. In the interest
+of time, use no more than `nburn = 200`.
 
-```{r runjomolog, exercise = TRUE, fig.width = 9, fig.height = 6, timelimit.exercise = 200}
+```{r runjomolog, exercise = TRUE, fig.width = 9, fig.height = 6, timelimit.exercise = 500}
 
 ```
+
+```{r runjomolog-hint-1}
+# you need to specify
+# * the model formula
+# * the dataset
+# * the distribution family of the outcome
+# * the number of burnin iterations
+```
+
+```{r runjomolog-hint-2}
+jomologMCMC <- jomo.glm.MCMCchain(hypten ~ age + BMI + gender * (smoke + alc_bin),
+                    data = NHANES, 
+                    family = "binomial", nburn = 500)
+
+
+class(jomologMCMC)
+names(jomologMCMC)
+lapply(jomologMCMC, class)
+
+```
+
+
+```{r, eval = !static, echo = FALSE}
+asis_output("###\\n")
+```
+
+
+`jomolog` is a `list` with four elements.
+`finimp` is the imputed dataset that was generated at the end of the burnin periode.
+`collectbeta` and `collectomega` contain the MCMC samples of the burnin periode
+for the coefficients of the analysis model and the  variance-covariance matrix
+of the multivariate normal distribution.
+
+Make plots to evaluate convergence.
+```{r}
+
+```
+
 
 ```{r runjomolog-solution, fig.width = 9, fig.height = 6}
 jomologMCMC <- jomo.glm.MCMCchain(hypten ~ age + BMI + gender *(smoke + alc_bin),
                     data = NHANES, 
                     family = "binomial", nburn = 1000)
-
-
-
 
 par(mfrow = c(2,4), mar = c(3,3,1,1), mgp = c(2, 0.6, 0))
 for (i in 1:dim(jomologMCMC$collectbeta)[2]) {
@@ -871,6 +879,24 @@ matplot(t(jomologMCMC$collectbeta[1, , ]), type = 'l')
 ```
 
 
+Investigate the resulting object
+```{r jomolog-pool-solution}
+jomolog$hypten <- factor(jomolog$hypten)
+
+jomolog_mids <- as.mids(jomolog, 
+                        .imp = which(names(jomolog) == "Imputation"),
+                        .id = which(names(jomolog) == "id")
+)
+
+jomolog_mira <- with(jomolog_mids,
+                     glm(hypten ~ age + BMI + (smoke + alc_bin) * gender,
+                         family = "binomial"))
+
+summary(pool(jomolog_mira))
+
+```
+
+
 ## Longitudinal data
 ### Data & Model of interest
 ### JointAI
@@ -879,10 +905,10 @@ matplot(t(jomologMCMC$collectbeta[1, , ]), type = 'l')
 
 ## Survival data
 ### Data & Model of interest
-We will work with a subset of the **pbc** data, which contains data from 
+We will work with a subset of the **pbc** dataset, which was obtained from 
 a trial on primary biliary cirrhosis (PBC) of the liver.
 
-The variables we use in this example are:
+The variables used in this practical are:
 ```{r, echo = FALSE}
 pbctab <- rbind(
   c("time", "number of days between inclusion and death, transplantion, or 
@@ -902,7 +928,7 @@ pbctab %>% kable(format = 'html') %>%
 ```
 
 
-The observed data have the following distributions:
+The variables in the pbc dataset have the following distributions:
 ```{r, echo = FALSE, fig.width = 9, fig.height = 4.5}
 nc <- 4
 nr <- 2
@@ -925,104 +951,107 @@ for (i in 1:ncol(pbcdat)) {
 }
 ```
 
-#### Missing data pattern
 The missing data pattern is
 ```{r, echo = FALSE}
 par(mar = c(4, 1, 1, 3), mgp = c(2, 0.6, 0))
 md_pattern(pbcdat, yaxis_pars = list(yaxt = 'n'))
 ```
 
-#### Model of interest
-We are interested to fit the following model:
+
+
+We are interested to determine predictor variables for patient survival, using
+the following Cox proportional hazards model:
 ```{r, eval = FALSE}
 coxph(Surv(time, status == 'dead') ~ platelet + age + sex + chol + stage)
 ```
 
+
 ### Imputation with smcfcs
-We will now imput the data using the R package **smcfcs**.
-**smcfcs** has one function for imputation: `smcfcs()`.
+First, we impute the data using the R package **smcfcs**. 
 
-#### Parameters
-Take a look at the help file for `smcfcs()` and find out which parameters need 
-to be specified in this function.
-```{r smcfcshelp, exercise = TRUE}
-
-```
-
-```{r, eval = !static, echo = FALSE}
-asis_output("###\\n")
-```
-
-`smcfcs` takes the following arguments as input:
-
-```{r, echo = FALSE}
-smctab <- rbind(
-  c("`originaldata`", "original, incomplete data frame"),
-  c("`smtype`", paste0("type of substantive (analysis) model: `lm`, `logistic`, ",
-                       "`poisson`, `coxph` or `compet`")),
-  c("`smformula`", "formula of analysis model"),
-  c("`method`", paste0("vector of imputation methods for each variable: ",
-                       "`norm` (lin. regression), `logreg` (logistic regression), ",
-                       "`poisson` (Poisson regression),",
-                       "`podds` (prop. odds regression for ordered factors,",
-                       "`mlogit` (multinomial logistic regression for unordered factors) ",
-                       "`''` if variable is complete, or a custom expression ",
-                       "to impute passively imputed variables, e.g. `'x^2'` or `x1*x2`")),
-  c("`predictorMatrix`", paste0("predictor matrix to define which variables ",
-                                "are used as predictors in which imputation ",
-                                "model (optional). **The outcome must not be included**[^1]")),
-  c("`m`", "number of imputed datasets (default is 5)"),
-  c("`numit`", "number of iterations before obtaining imputed dataset"),
-  c("`rjlimit`", "maximum number of attempts in the rejection sampling (MCMC)"),
-  c("`noisy`", "if `TRUE`: output is printed, if `FALSE`: less output is printed")
-) 
-
-names(smctab) <- c("", "")
-
-smctab %>% kable(format = 'html') %>%
-  kable_styling()
-```
+If you are uncertain which parameters need to be specified, check the
+[help page]{https://www.rdocumentation.org/packages/smcfcs/versions/1.3.0/topics/smcfcs}
+for the function `smcfcs()` or go back to the first part of this practical
+(on imputation with non-linear functional forms) where some of the details
+about the specification were described.
 
 
-#### Imputation model
-Specify the imputation model
-```{r smcimp, exercise = TRUE, exercise.timelimit = 100}
+Impute the pbc data with `smcfcs()` and the model formula specified above
+and confirm that the algorithm has converged. If `smcfcs()` does have probems
+with the event specification used above (`status == 'dead'`) you need to 
+create a new variable instead.
+```{r smcimp, exercise = TRUE, exercise.timelimit = 100, fig.width = 9, fig.height = 4.5}
 smcsurv <- ...
 ```
 
-```{r smcimp-solution}
+```{r smcimp-hint-1}
+# To create the event variable:
+pbcdat$event <- as.numeric(pbcdat$status == 'dead')
+```
+
+```{r smcimp-hint-2}
+# To create the event variable:
 pbcdat$event <- as.numeric(pbcdat$status == 'dead')
 
+# specify imputation method (in order of variables in dataset)
+meth_smcsurv <- c(time = "", status = "", platelet = "norm",
+                  age = "", sex = "", chol = "norm", stage = "podds",
+                  event = "")
+```
 
+```{r smcimp-hint-3}
+# To create the event variable:
+pbcdat$event <- as.numeric(pbcdat$status == 'dead')
+
+# specify imputation method (in order of variables in dataset)
+meth_smcsurv <- c(time = "", status = "", platelet = "norm",
+                  age = "", sex = "", chol = "norm", stage = "podds",
+                  event = "")
+
+# impute the data
 smcsurv <- smcfcs(originaldata = pbcdat,
                   smtype = "coxph", 
                   smformula = "Surv(time = time, event) ~ platelet + 
                                age + sex + chol + stage",
-                  method = c("", "", "norm", "", "", "norm", "podds", ""))
+                  method = meth_smcsurv, numit = 20)
 
-```
 
-Investigate the structure of the resulting object.
-Use the help file for `smcfcs` to get information about the elements of the output.
-```{r smcout, exercise = TRUE, fig.width = 9, fig.height = 4.5}
-
-```
-
-```{r smcout-solution, fig.width = 9, fig.height = 4.5}
-names(smcsurv)
-
-sapply(smcsurv, class)
-
-length(smcsurv$impDatasets)
-
-dim(smcsurv$smCoefIter)
-
+# plots to check convergence
 par(mfrow = c(2, 4), mar = c(3.5, 3.5, 1,1), mgp = c(2, 0.6, 0))
 for (i in 1:dim(smcsurv$smCoefIter)[2]) {
   matplot(t(smcsurv$smCoefIter[, i, ]), type = 'l', ylab = "coefficient", 
           xlab = "iteration")
 }
+
 ```
+
+
+```{r smcimp-solution}
+# To create the event variable:
+pbcdat$event <- as.numeric(pbcdat$status == 'dead')
+
+# specify imputation method (in order of variables in dataset)
+meth_smcsurv <- c(time = "", status = "", platelet = "norm",
+                  age = "", sex = "", chol = "norm", stage = "podds",
+                  event = "")
+
+# impute the data
+smcsurv <- smcfcs(originaldata = pbcdat,
+                  smtype = "coxph", 
+                  smformula = "Surv(time = time, event) ~ platelet + 
+                               age + sex + chol + stage",
+                  method = meth_smcsurv, numit = 20)
+
+
+# plots to check convergence
+par(mfrow = c(2, 4), mar = c(3.5, 3.5, 1,1), mgp = c(2, 0.6, 0))
+for (i in 1:dim(smcsurv$smCoefIter)[2]) {
+  matplot(t(smcsurv$smCoefIter[, i, ]), type = 'l', ylab = "coefficient", 
+          xlab = "iteration")
+}
+
+```
+
 
 #### Fit model on imputed data
 ```{r makemids, eval = FALSE}
@@ -1052,3 +1081,61 @@ summary(pool(as.mira(res2)))
 
 ```
 
+### Imputation with **jomo**
+
+To impute the pbc data with the package **jomo** we use the function `jomo.coxph()`,
+which works analogously to the other `jomo....()` functions we have seen.
+
+As in the previous examples, we first check the convergence of the algorithm
+using `jomo.coxph.MCMCchain()`.
+
+```{r jomosurv, exercise = TRUE, exercise.timelimit = 100, fig.width = 9, fig.height = 9}
+
+```
+
+```{r jomosurv-hint-1}
+
+```
+
+
+```{r jomosurv-solution}
+# create the event indicator
+pbcdat$event <- pbcdat$status == 'dead'
+
+# run "jomo.coxph.MCMCchain" to check convergence
+set.seed(2018)
+jomosurvMCMC <- jomo.coxph.MCMCchain(formula = Surv(time, event) ~ platelet + 
+                                       age + sex + chol + stage,
+                                     data = pbcdat, nburn = 2000)
+
+# plot the resulting samples
+par(mfrow = c(3,3), mar = c(3,3,1,1), mgp = c(2, 0.6, 0))
+for (i in 1:dim(jomosurvMCMC$collectbeta)[2]) {
+  plot(jomosurvMCMC$collectbeta[1, i, ], type = 'l')
+}
+
+par(mfrow = c(2,4), mar = c(3,3,1,1), mgp = c(2, 0.6, 0))
+for (i in 1:dim(jomosurvMCMC$collectbetaY)[2]) {
+  plot(jomosurvMCMC$collectbetaY[1, i, ], type = 'l')
+}
+
+
+par(mfrow = c(6, 8), mar = c(3,3,1,1), mgp = c(2, 0.6, 0))
+for (i in 1:dim(jomosurvMCMC$collectomega)[2]) {
+  for (j in 1:i) {
+    plot(jomosurvMCMC$collectomega[i, j , ], type = 'l')
+  }
+}
+
+matplot(t(jomosurvMCMC$collectbeta[1, , ]), type = 'l')
+
+
+# run the imputation
+set.seed(2018)
+jomosurv <- jomo.coxph(formula = Surv(time = time, event) ~ platelet + 
+                         age + sex + chol + stage,
+                       data = pbcdat, nburn = 2000, nimp = 5)
+
+```
+
+To pool the 

@@ -58,6 +58,7 @@ been real data, had they not been missing. See Section 5.6 of \cite{Buuren2012}
 \item pooling with mitools and BaBooN
 \item what can be pooled depends on what is implemented. SPSS has  a restricted list.
 In R we usually need a variance covariance matrix
+\item set seeds to make results reproducible
 \end{itemize}
 \end{frame}
 
