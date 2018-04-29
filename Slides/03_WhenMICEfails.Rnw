@@ -162,7 +162,7 @@ pexqdr1 +
                         labels = c("fit on complete", "fit on imputed")) +
   theme(legend.key.width = unit(1.5,"cm"),
         legend.title = element_blank(),
-        legend.position = c(0.17, 0.17),
+        legend.position = c(0.17, 0.20),
         legend.spacing.y = unit(-0.3, "lines")
   ) +
   expand_limits(y = -2)
@@ -256,7 +256,7 @@ ggplot(plotexint[plotexint$variable == "x", ], aes(x = value, y = y,
                                                    shape = combi)) +
   geom_point(size = 2) +
   theme_light() +
-  theme(legend.position = c(0.13, 0.15),
+  theme(legend.position = c(0.15, 0.16),
         legend.background = element_rect(fill = 'transparent'),
         panel.grid = element_blank(),
         axis.ticks = element_blank(),
@@ -274,7 +274,7 @@ ggplot(plotexint[plotexint$variable == "x", ], aes(x = value, y = y,
                                 "observed (z = 0)", "observed (z = 1)")) +
   scale_color_manual(name = "",
                      limits = c("x_mis0", "x_mis1", "x_obs0", "x_obs1"),
-                     values = c("blue", "darkgreen", "blue", "darkgreen"),
+                     values = c("blue", "chartreuse4", "blue", "chartreuse4"),
                      labels = c("missing (z = 0)", "missing (z = 1)",
                                 "observed (z = 0)", "observed (z = 1)"))
 @
@@ -302,7 +302,7 @@ ggplot(plotexint[plotexint$variable == "x" | is.na(plotexint$xmis), ],
            shape = combi)) +
   geom_point(size = 2) +
   theme_light() +
-  theme(legend.position = c(0.13, 0.18),
+  theme(legend.position = c(0.15, 0.20),
         legend.background = element_rect(fill = 'transparent'),
         panel.grid = element_blank(),
         axis.text = element_blank(),
@@ -324,7 +324,7 @@ ggplot(plotexint[plotexint$variable == "x" | is.na(plotexint$xmis), ],
                      limits = c("x_mis0", "x_mis1",
                                 "x_obs0", "x_obs1",
                                 "ximp_mis0", "ximp_mis1"),
-                     values = rep(c("blue", "darkgreen"), 3),
+                     values = rep(c("blue", "chartreuse4"), 3),
                      labels = c("missing (z = 0)", "missing (z = 1)",
                                 "observed (z = 0)", "observed (z = 1)",
                                 "imputed (z = 0)", "imputed (z = 1)")) +
@@ -361,9 +361,9 @@ ggplot(plotexint[plotexint$variable == "x" | is.na(plotexint$xmis), ],
                   group = variable), color = 'blue') +
   geom_smooth(data = plotexint[plotexint$z == "1", ], method = "lm", se = F,
               aes(x = value, y = y, linetype = variable,
-                  group = variable), color = 'darkgreen') +
+                  group = variable), color = 'chartreuse4') +
   theme_light() +
-  theme(legend.position = c(0.23, 0.18),
+  theme(legend.position = c(0.25, 0.20),
         legend.background = element_rect(fill = 'transparent'),
         panel.grid = element_blank(),
         axis.ticks = element_blank(),
@@ -387,7 +387,7 @@ ggplot(plotexint[plotexint$variable == "x" | is.na(plotexint$xmis), ],
                      limits = c("x_mis0", "x_mis1",
                                 "x_obs0", "x_obs1",
                                 "ximp_mis0", "ximp_mis1"),
-                     values = rep(c("blue", "darkgreen"), 3),
+                     values = rep(c("blue", "chartreuse4"), 3),
                      labels = c("missing (z = 0)", "missing (z = 1)",
                                 "observed (z = 0)", "observed (z = 1)",
                                 "imputed (z = 0)", "imputed (z = 1)")) +
@@ -1551,7 +1551,7 @@ polyDF_nonlin <- data.frame(x = rep(c(0, 5, 5, 0), 5),
 
 ggplot(resqdr, aes(x = meth, y = est)) +
   geom_polygon(data = polyDF_nonlin,
-               aes(x = x, y = y), fill = 'blue', alpha = 0.5) +
+               aes(x = x, y = y), fill = 'blue', alpha = 0.3) +
   geom_point() +
   geom_errorbar(aes(ymin = `lo 95`, ymax = `hi 95`)) +
   facet_wrap("var", scales = 'free') +
@@ -1888,7 +1888,7 @@ ggplot(plot_nonlin, aes(x = L1, y = coef)) +
   geom_point() +
   geom_errorbar(aes(ymin = lo, ymax = up), width = 0.3) +
   facet_wrap("var", scales = 'free') +
-  geom_polygon(data = polyDF, aes(x = x, y = y), fill = 'blue', alpha = 0.5) +
+  geom_polygon(data = polyDF, aes(x = x, y = y), fill = 'blue', alpha = 0.3) +
   geom_hline(data = data.frame(betas = coef(mod_nonlin),
                                var = names(coef(mod_nonlin))),
              aes(yintercept = betas), lty = 2) +
@@ -2314,7 +2314,7 @@ ggplot(plot_long[plot_long$L1 != "mice_naive", ], aes(x = L1, y = coef)) +
   geom_point(na.rm = T) +
   geom_errorbar(aes(ymin = lo, ymax = up), width = 0.3, na.rm = T) +
   facet_wrap("var", scales = 'free', ncol = 4) +
-  geom_polygon(data = polyDF, aes(x = pmin(x, 3.5), y = y), fill = 'blue', alpha = 0.5) +
+  geom_polygon(data = polyDF, aes(x = pmin(x, 3.5), y = y), fill = 'blue', alpha = 0.3) +
   geom_hline(data = data.frame(betas = fixef(mod_long2),
                                var = names(fixef(mod_long2))),
              aes(yintercept = betas), lty = 2) +
@@ -2331,7 +2331,7 @@ ggplot(plot_long, aes(x = L1, y = coef)) +
   geom_point(na.rm = T) +
   geom_errorbar(aes(ymin = lo, ymax = up), width = 0.3, na.rm = T) +
   facet_wrap("var", scales = 'free', ncol = 4) +
-  geom_polygon(data = polyDF, aes(x = x, y = y), fill = 'blue', alpha = 0.5) +
+  geom_polygon(data = polyDF, aes(x = x, y = y), fill = 'blue', alpha = 0.3) +
   geom_hline(data = data.frame(betas = fixef(mod_long2),
                                var = names(fixef(mod_long2))),
              aes(yintercept = betas), lty = 2) +
@@ -2573,7 +2573,7 @@ ggplot(plot_surv, aes(x = L1, y = coef)) +
   geom_point(na.rm = T) +
   geom_errorbar(aes(ymin = lo, ymax = up), width = 0.3, na.rm = T) +
   facet_wrap("var", scales = 'free') +
-  geom_polygon(data = polyDF, aes(x = x, y = y), fill = 'blue', alpha = 0.5) +
+  geom_polygon(data = polyDF, aes(x = x, y = y), fill = 'blue', alpha = 0.3) +
   geom_hline(data = data.frame(betas = coef(mod_surv),
                                var = names(coef(mod_surv))),
              aes(yintercept = betas), lty = 2) +
