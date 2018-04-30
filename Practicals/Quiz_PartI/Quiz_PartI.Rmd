@@ -1,8 +1,10 @@
 ---
 title: "What Is Multiple Imputation?"
 output: 
-  html_document:
+  # html_document:
   learnr::tutorial:
+    progressive: true
+    allow_skip: true
 runtime: shiny_prerendered
 ---
 
@@ -102,26 +104,16 @@ question("What is/are basic assumption(s) in MI?",
 
 
 ```{r Q5}
-question("What are the two main ideas behind MI?",
-         answer("In order to create meaningful imputations, a model is necessary.", correct = TRUE),
-         answer(""),
-         answer(""),
-         answer("A single imputed value can not be correct in general.", correct = TRUE),
+question("Why can we not just use the predicted values (e.g., $y_{mis} = X_{mis} \\beta$) as imputations?",
+         answer("Predicting the same missing value multiple times will always result in the same value.", correct = TRUE),
+         answer("Using $X_{mis}\\beta$ does not take into account the uncertainty about $\\beta$.", correct = TRUE),
+         answer("Predicted values underestimate the uncertainty.", correct = TRUE),
+         answer("Predicted values are not correct in general, there is always random variation.", correct = TRUE),
          allow_retry = TRUE,   random_answer_order = TRUE, type = "multiple")
 ```
 
 ```{r Q6}
-question("Why can we not just use the predicted values (e.g., $y = X \\beta$) as imputations?",
-         answer("Predicting the same missing value multiple times will always result in the same value.", correct = T),
-         answer(""),
-         answer("Predicted values underestimate the uncertainty.", correct = TRUE),
-         answer(""),
-         allow_retry = TRUE,   random_answer_order = TRUE, type = "multiple")
-```
-
-```{r Q7}
-question("How can results from analysis performed on muliply imputed data be combined?",
-         answer("Taking the average of the point estimates.", correct = TRUE),
+question("How can results from analysis performed on multiply imputed data be combined?",
          answer("Using Rubin's Rules, i.e., by averaging the coefficients and the 
                 within and between imputation variation."),
          answer("Using Rubin's Rules, which take into account between and within imputation variability.", correct = TRUE),
@@ -129,7 +121,7 @@ question("How can results from analysis performed on muliply imputed data be com
          allow_retry = TRUE,   random_answer_order = TRUE, type = "multiple")
 ```
 
-```{r Q8}
+```{r Q7}
 question("Why is it not correct to average the standard errors from multiple analyses of imputed data to obtain the overall results?",
          answer("Because the between imputation variation is then not taken into account.", correct = TRUE),
          answer("Because the standard error is usually not distributed symmetrically."),
@@ -139,9 +131,9 @@ question("Why is it not correct to average the standard errors from multiple ana
 ```
 
 
-```{r Q9}
+```{r Q8}
 question("Why are iterations necessary in MICE for non-monotone missing patterns?",
-         answer("To create multiple imputed values, not just one."),
+         answer("To create *multiple* imputed values, and not just one."),
          answer("The starting values are filled in at random and need to be replaced
                 by better choices.", correct = TRUE),
          answer("To represent the uncertainty that is associated with the missing values."),
@@ -150,10 +142,10 @@ question("Why are iterations necessary in MICE for non-monotone missing patterns
 ```
 
 
-```{r Q10}
+```{r Q9}
 question("What does it mean when a chain of (MCMC) samples has converged?",
          answer("The (imputed) values sampled in subsequent iterations are identical."),
-         answer("The values drawn from muliple chains are identical."),
+         answer("The values drawn from multiple chains are identical."),
          answer("The chain has ended and a new chain needs to be started."),
          answer("The distribution the (imputed) values are sampled from remains stable.", correct = TRUE),
          allow_retry = TRUE,   random_answer_order = TRUE, type = "multiple")
@@ -161,7 +153,42 @@ question("What does it mean when a chain of (MCMC) samples has converged?",
 
 
 ## Section 5
-```{r}
+```{r Q5-1}
+question("Good methods to draw imputations should take into account",
+         answer("parameter uncertainty and predition error", correct = TRUE),
+         answer(""),
+         answer(""),
+         answer(""),
+         allow_retry = TRUE, random_answer_order = TRUE, type = "multiple")
+```
 
+
+```{r Q5-2}
+question("Bootstrap multiple imputation",
+         answer("samples imputed values randomly from the observed data"),
+         answer("is a semi-parametric imputation approach"),
+         answer("creates replica of the original, incomplete data select imputed values"),
+         answer("creates replica of the original, incomplete data to estimate parameter uncertainty", correct = TRUE),
+         allow_retry = TRUE, random_answer_order = TRUE, type = "multiple")
+```
+
+```{r Q5-3}
+question("Predictive mean matching requires several choices",
+         answer("donor selection, matching type, prediction set", correct = TRUE),
+         answer(""),
+         answer(""),
+         answer(""),
+         allow_retry = TRUE, random_answer_order = TRUE, type = "multiple")
+```
+
+```{r Q5-4}
+question("Predictive mean matching",
+         answer("works well in small datasets"),
+         answer("does not require the data to be from a known distribution", correct = TRUE),
+         answer("works better when more donors are selected"),
+         answer("can have problems in skewed data", correct = TRUE),
+         answer("should use Type-III matching rather than Type-I matching", correct = TRUE),
+         answer("can not impute values outside the range of the observed data", correct = TRUE),
+         allow_retry = TRUE, random_answer_order = TRUE, type = "multiple")
 ```
 

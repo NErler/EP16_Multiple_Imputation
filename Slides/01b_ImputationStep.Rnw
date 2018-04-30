@@ -62,6 +62,7 @@ $\sigma^2$ and missing values $\bmath y_{mis}$ and $\bmath X_{mis}$.
 
 \bigskip
 
+\pause
 Random variables have a \blue{probability distribution}. The \blue{expectation}
 of that distribution quantifies where which \blue{values} of the random
 variable are \blue{most likely}, the \blue{variance} is a measure of the
@@ -69,6 +70,7 @@ variable are \blue{most likely}, the \blue{variance} is a measure of the
 
 \bigskip
 
+\pause
 In \blue{Bayesian imputation}, the \blue{information obtained from the observed data}
 is used to \blue{estimate the probability distributions} for the missing values and unknown
 parameters, and values are \blue{imputed by draws} from that posterior (= after having seen the data)
@@ -84,15 +86,18 @@ $$\mathbb E(\bmath y_{mis}\mid \bmath X, \bmath \beta) = f(\bmath X_{mis}\bmath 
 
 \bigskip
 
-The posterior distributions of $\bmath \beta$ and $\sigma$ ($p(\bmath\beta)$ and $p(\sigma)$)
-are estimated from the corresponding regression model on the observed data.
+The posterior distribution of $\bmath \beta$ and $\sigma$,
+$p(\bmath\beta, \sigma\mid \bmath y_{obs}\mid \bmath y_{obs}, \bmath X_{obs})$,
+is estimated from the corresponding regression model on the observed data.
 
 \bigskip
 
+\pause
 To \blue{impute} missing values, while \blue{taking into account the uncertainty about
 $\bmath\beta$ and $\sigma$}, the estimated posterior distributions of the missing
 values and parameters are multiplied
-$$p(\bmath y_{mis}\mid \bmath y_{obs},\bmath X, \bmath \beta, \bmath \sigma) p(\bmath \beta) p(\sigma)$$
+$$p(\bmath y_{mis}\mid \bmath X_{mis}, \bmath \beta, \bmath \sigma)
+p(\bmath \beta, \sigma \mid \bmath y_{obs}, \bmath X_{obs})$$
 
 In practice, this can be implemented by first making a draw from the posterior
 distributions of $\bmath \beta$ and $\sigma$, and plugging the values into the
@@ -106,13 +111,13 @@ distribution of $\bmath y_{obs}$.
 
 \bigskip
 
-Then $p(\bmath y_{mis}\mid \bmath y_{obs},\bmath X, \bmath \beta, \bmath \sigma)$
+Then $p(\bmath y_{mis}\mid \bmath X_{mis}, \bmath \beta, \bmath \sigma)$
 is a normal distribution and we can
 \begin{itemize}
-\item draw $\bmath{\tilde \beta}$ from $p(\bmath\beta)$
-\item draw $\tilde\sigma$ from $p(\sigma)$
-\item draw $\bmath y_{mis}$ from a normal distribution with mean (= expectation)
-      $\bmath X \bmath{\tilde\beta}$ and variance $\tilde\sigma^2$
+\item draw $\bmath{\tilde \beta}$ from $p(\bmath\beta \mid \bmath y_{obs}, \bmath X_{obs})$,
+\item draw $\tilde\sigma$ from $p(\sigma \mid \bmath y_{obs}, \bmath X_{obs})$,
+\item draw $\bmath {\tilde y}_{mis}$ from a normal distribution with mean (= expectation)
+      $\bmath X \bmath{\tilde\beta}$ and variance $\tilde\sigma^2$.
 \end{itemize}
 
 \bigskip
@@ -230,8 +235,8 @@ $p(\bmath y_{mis} \mid \bmath X_{mis}, \bmath{\hat\beta}, \hat\sigma)$ (step 2).
 \pause
 Analogous to Bayesian multiple imputation, for a normal imputation model,
 $p()$ is the normal distribution and
-$$\bmath y_{mis} = \bmath X_{mis} \hat\beta + \tilde\varepsilon$$
-where $\bmath{\hat\varepsilon}$ is drawn independently from $N(0, \sigma^2)$.
+$$\bmath{\tilde y}_{mis} = \bmath X_{mis} \bmath{\hat\beta} + \tilde\varepsilon$$
+where $\bmath{\tilde\varepsilon}$ is drawn independently from $N(0, \hat\sigma^2)$.
 \end{frame}
 
 
@@ -300,7 +305,7 @@ are compared.
 \begin{frame}{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 Several \blue{criteria to select donors} have been proposed:
-\begin{enumerate}\itemsep2mm
+\begin{enumerate}\itemsep3mm
 \item The donor is the \blue{(one) case with the smallest absolute difference}
       $\left|\hat y_{mis,i} - \hat y_{obs, j}\right|, \; j = 1,\ldots,q$.
 \item Donor candidates are the \blue{$d$ cases with the smallest absolute difference}
@@ -320,7 +325,7 @@ Several \blue{criteria to select donors} have been proposed:
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 \blue{Potential issues with donor selection}
 \begin{itemize}\itemsep2mm
-\item<1-> Selection criteria 2. - 4., require the number of candidates $d$ (or maximal
+\item<1-> Selection criteria 2. - 4., \blue{require the number of candidates} $d$ (or maximal
 difference $\eta$) to be specified. Common choices for $d$ are 3, 5 or 10.
 \item<2-> If the same donor is chosen in many/all imputations (e.g., because
           only a few similar observed cases are available), the

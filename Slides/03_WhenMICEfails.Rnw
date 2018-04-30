@@ -299,7 +299,8 @@ i.e., a linear relation between $x$ and $y$ is assumed.
 ggplot(plotexint[plotexint$variable == "x" | is.na(plotexint$xmis), ],
        aes(x = value, y = y,
            color = combi,
-           shape = combi)) +
+           shape = combi,
+           alpha = combi)) +
   geom_point(size = 2) +
   theme_light() +
   theme(legend.position = c(0.15, 0.20),
@@ -316,7 +317,7 @@ ggplot(plotexint[plotexint$variable == "x" | is.na(plotexint$xmis), ],
                      limits = c("x_mis0", "x_mis1",
                                 "x_obs0", "x_obs1",
                                 "ximp_mis0", "ximp_mis1"),
-                     values = c(1, 1, 19, 19, 8, 8),
+                     values = c(1, 1, 19, 19, 2, 2),
                      labels = c("missing (z = 0)", "missing (z = 1)",
                                 "observed (z = 0)", "observed (z = 1)",
                                 "imputed (z = 0)", "imputed (z = 1)")) +
@@ -325,6 +326,14 @@ ggplot(plotexint[plotexint$variable == "x" | is.na(plotexint$xmis), ],
                                 "x_obs0", "x_obs1",
                                 "ximp_mis0", "ximp_mis1"),
                      values = rep(c("blue", "chartreuse4"), 3),
+                     labels = c("missing (z = 0)", "missing (z = 1)",
+                                "observed (z = 0)", "observed (z = 1)",
+                                "imputed (z = 0)", "imputed (z = 1)")) +
+  scale_alpha_manual(name = "",
+                     limits = c("x_mis0", "x_mis1",
+                                "x_obs0", "x_obs1",
+                                "ximp_mis0", "ximp_mis1"),
+                     values = c(0.5, 0.5, 1, 1, 1, 1),
                      labels = c("missing (z = 0)", "missing (z = 1)",
                                 "observed (z = 0)", "observed (z = 1)",
                                 "imputed (z = 0)", "imputed (z = 1)")) +
