@@ -1,0 +1,36 @@
+\begin{frame}[allowframebreaks]{Outline}
+\tcbset{colback=red!5!white,colframe=EMCdark, colback = colback=EMCdark!5!white}
+\begin{tcolorbox}[title=Part I: Multiple Imputation]
+\begin{itemize}
+\item How does multiple imputation work?
+\item How does MICE/FCS work?\\
+      \blue{\ding{225}} A look into the black box
+\item Understanding sources of uncertainty
+\item The 3 steps of multiple imputation
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[title=Part II: Multiple Imputation Workflow, raster multirow=2]
+How to perform MI with the \textbf{mice} package in R, from getting to know the
+data to the final results.
+\tcblower
+\blue{Practical:} imputation with \textbf{mice}
+\end{tcolorbox}
+
+\framebreak
+
+\begin{tcolorbox}[title=Part III: When MICE might fail,  raster multirow=2]
+Introduction to
+\begin{itemize}\setlength{\leftmargini}{-1em}
+\item settings where standard use of \textbf{mice} is problematic
+\item alternative imputation approaches
+\item alternative \textsf{R} packages
+\end{itemize}
+\tcblower
+\blue{Practical:} imputation in complex settings
+\end{tcolorbox}
+
+\begin{tcolorbox}[title=Part IV: Multiple Imputation Strategies]
+Some tips \& tricks
+\end{tcolorbox}
+\end{frame}

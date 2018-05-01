@@ -1035,6 +1035,18 @@ round(res1, 3)
 @
 \end{frame}
 
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+Pooling with \Rfct{mice::pool} is available only for some types of model.
+Generally, it should work for models for which the functions \Rfct{coef} and
+\Rfct{vcov} can extract the (fixed effects) coefficients and variance-covariance
+matrix of these coefficients.
+
+\bigskip
+
+An alternative is offered by the package \textbf{mitools} and the function
+\Rfct{MIcombine}.
+\end{frame}
 
 \subsection{Functions for pooled results}
 \begin{frame}[fragile]{\thesection. \insertsection}
@@ -1047,8 +1059,12 @@ For \blue{linear} regression models the pooled $R^2$ can be calculated
 using \Rfct{pool.r.squared}
 <<>>=
 mod2 <- with(imp2, lm(SBP ~ DM + age + hypten))
-pool.r.squared(mod2)
+pool.r.squared(mod2, adjusted = TRUE)
 @
+
+The argument \Rarg{adjusted} specifies whether the adjusted $R^2$ or the
+standard $R^2$ is returned.
+
 \end{frame}
 
 
@@ -1056,7 +1072,7 @@ pool.r.squared(mod2)
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 The function \Rfct{pool.compare} allows to compare \blue{nested models}
 (i.e., models where one is a special case of the other, with some parameters
-fixed to zero) using a \blue{Wald test}
+fixed to zero) using a \blue{Wald test}.
 
 \bigskip
 
@@ -1070,11 +1086,60 @@ mod3 <- with(imp2, glm(DM ~ age + gender + hypchol + BMI + alc,
 # Wald test
 pool.compare(mod1, mod3)$pvalue
 @
+\end{frame}
 
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+The package \textbf{miceadds} extends \textbf{mice}, for example with the
+following functionality:
+
+\bigskip
+
+\blue{Combine $\chi^2$ or F statistics from multiply imputed data:}
+<<eval = FALSE>>=
+miceadds::micombine.chisquare(dk, df, display = TRUE, version = 1)
+miceadds::micombine.F(values, df1, display = TRUE, version = 1)
+@
+
+These functions take vectors of statistics computed on each imputed dataset
+and pool them.
+
+\bigskip
+
+\blue{Calculate correlation or covariance of imputed data:}
+<<eval = FALSE>>=
+miceadds::micombine.cor(mi.res, variables = NULL, conf.level = 0.95,
+                        method = "pearson", nested = FALSE, partial = NULL)
+miceadds::micombine.cov(mi.res, variables = NULL, conf.level = 0.95,
+                        nested = FALSE)
+@
+These functions take \Robj{mids} objects as input.
 \end{frame}
 
 \section{Additional functions in \texttt{mice()}}
-\subsection{Exporting imputed data}
+\subsection{Extracting and exporting imputed data}
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+The function \Rfct{complete} allows extraction of the imputed data from a \Robj{mids} object:
+<<eval = FALSE>>=
+mice::complete(x, action = 1, include = FALSE)
+@
+
+\begin{itemize}
+\item \Robj{x}: the \Robj{mids} object
+\item \Rarg{action}:
+      \begin{itemize}
+      \item \Rval{1}, \ldots, \Rval{m} (single imputed dataset)
+      \item \Rstring{"long"}: long format (imputed data stacked vertically)
+      \item \Rstring{"broad"}: wide format (imputed data combined horizontally; ordered by imputation)
+      \item \Rstring{"repeated"}: (like \Rstring{"broad"}, but ordered by variable)
+      \end{itemize}
+\item \Rarg{include}: include the orginal data?\\
+      (if \Rarg{action} is \Rstring{"long"}, \Rstring{"broad"} or \Rstring{"repeated"})
+\end{itemize}
+\end{frame}
+
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 The function \Rfct{mids2spss} allows the export of imputed data (\Robj{mids} objects)
@@ -1099,17 +1164,21 @@ a second set of imputations can be done and the two \Robj{mids} objects combined
 using \Rfct{ibind}.
 
 <<ibind, eval = F>>=
-imp2b <- update(imp2, post = post, maxit = 20, seed = 456) # same syntax as before, but different seed
+# same syntax as before, but different seed
+imp2b <- update(imp2, post = post, maxit = 20, seed = 456)
 imp2combi <- ibind(imp2, imp2b)
 imp2combi$m
 @
 <<ibindrun, eval = F, echo = F>>=
-imp2b <- update(imp2, post = post, maxit = 20, seed = 456) # same syntax as before, but different seed
+# same syntax as before, but different seed:
+imp2b <- update(imp2, post = post, maxit = 20, seed = 456)
 save(imp2b, file = file.path(projdir, "Slides", "workspaces/imp2b.RData"))
 @
 <<ibindget, echo = F>>=
 load(file.path(projdir, "Slides", "workspaces/imp2b.RData"))
 imp2combi <- ibind(imp2, imp2b)
+
+# check the new number of impute datasets:
 imp2combi$m
 @
 \end{frame}
@@ -1145,16 +1214,27 @@ as the corresponding rows in the impute data.
 A walk-through how to do multiple imputation in SPSS can be found
 
 \begin{itemize}
-\item for older versions of \textsf{SPSS}
-Help $>$ Case Studies $>$ Missing Values Option $>$
-Multiple Imputation $>$ Using Multiple Imputation to Complete and Analyze a Dataset
-\item for newer versions online\\
+\item \blue{for older versions of \textsf{SPSS}}\\
+\blue{$>$} \parbox[t]{0.9\textwidth}{Help\\
+  \blue{$>$} \parbox[t]{0.85\textwidth}{Case Studies\\
+    \blue{$>$} \parbox[t]{0.85\textwidth}{Missing Values Option\\
+      \blue{$>$} \parbox[t]{0.85\textwidth}{Multiple Imputation\\
+        \blue{$>$} \parbox[t]{0.85\textwidth}{Using Multiple Imputation to Complete and Analyze a Dataset}
+      }
+    }
+  }
+}
+\item \blue{for newer versions online}\\
     \url{https://www.ibm.com/support/knowledgecenter/en/SSLVMB_24.0.0/spss/tutorials/mi_table.html}
 \end{itemize}
 
 
-The procedure itself is in the menu\\
-Analyze $>$ Multiple Imputation $>$ Impute Missing Data Values
+The procedure itself is located in the menu\\
+\blue{$>$} \parbox[t]{0.9\textwidth}{Analyze\\
+  \blue{$>$} \parbox[t]{0.85\textwidth}{Multiple Imputation\\
+    \blue{$>$} \parbox[t]{0.85\textwidth}{Impute Missing Data Values}
+  }
+}
 \end{frame}
 
 \subsection{Multiple Imputation Features}
@@ -1188,11 +1268,32 @@ Analyze $>$ Multiple Imputation $>$ Impute Missing Data Values
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 \textsf{SPSS} does not let you
 \begin{itemize}
-\item select between lin. regression and pmm \blue{per} variable, but only
-jointly for all variables
+\item select between linear regression imputation and pmm \blue{per} variable\\
+      (only jointly for all variables)
+\item uses \blue{only one donor} in predictive mean matching
 \item uses logistic regression for any categorical variable
 \item chose per imputation model which variables should be used as predictors
 \item re-calculate variables during the iterations
 \item \ldots
 \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+In SPSS the list of models that can be pooled is available in the help
+under
+% Help $>$ Missing Values Option $>$ Multiple Imputation $>$Analyzign Multiple Imputation Data
+
+\blue{$>$} \parbox[t]{0.9\textwidth}{Help\\
+  \blue{$>$} \parbox[t]{0.85\textwidth}{Missing Values Option\\
+    \blue{$>$} \parbox[t]{0.85\textwidth}{Multiple Imputation\\
+      \blue{$>$} \parbox[t]{0.85\textwidth}{Analyzing Multiple Imputation Data
+      }
+    }
+  }
+}
+
+\bigskip
+
+\url{https://www.ibm.com/support/knowledgecenter/en/SSLVMB_24.0.0/spss/mva/mi_analysis.html}
 \end{frame}

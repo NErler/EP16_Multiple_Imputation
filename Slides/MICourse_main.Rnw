@@ -227,6 +227,7 @@ single arrow head extend=.3cm,}}
 \def\Rarg#1{\texttt{\hlkwc{#1}}}
 \def\Rstring#1{\texttt{\hlstr{#1}}}
 \def\Robj#1{\texttt{\hlstd{#1}}}
+\def\Rval#1{\texttt{\hlnum{#1}}}
 \newcommand{\Rfct}[2][]{\texttt{\hlkwd{#2}\hlstd{(#1)}}}
 % end of R syntax styling ------------------------------------------------------
 
@@ -283,14 +284,14 @@ projdir <- gsub("Slides", "", getwd())
 \end{frame}
 
 
-<<Part0, child="Part0.Rnw", eval = F>>=
+<<Part0, child="00_Intro.Rnw", eval = T>>=
 @
 
 
 \part{Multiple Imputation}
-<<Part1a, child="01_WhatIsMI.Rnw", eval = T>>=
+<<Part1a, child="01_WhatIsMI.Rnw", eval = F>>=
 @
-<<Part1b, child="01b_ImputationStep.Rnw", eval = T>>=
+<<Part1b, child="01b_ImputationStep.Rnw", eval = F>>=
 @
 
 \part{Multiple Imputation Workflow}
@@ -298,12 +299,12 @@ projdir <- gsub("Slides", "", getwd())
 @
 
 \part{When MICE might fail}
-<<Part3, child="03_WhenMICEfails.Rnw", eval = T>>=
+<<Part3, child="03_WhenMICEfails.Rnw", eval = F>>=
 @
 
 
 \part{Multiple Imputation Strategies}
-<<Part4, child="04_MIStrategies.Rnw", eval = F>>=
+<<Part4, child="04_MIStrategies.Rnw", eval = T>>=
 @
 
 

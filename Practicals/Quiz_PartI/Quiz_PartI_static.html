@@ -124,6 +124,8 @@ $(document).ready(function () {
 
 <div id="sections-1-4" class="section level2">
 <h2>Sections 1 – 4</h2>
+<div id="mark-all-correct-answers-multiple-answers-may-be-correct" class="section level4">
+<h4>Mark all correct answers (multiple answers may be correct)</h4>
 <b> Why create <i>multiple</i> imputations? </b> 
  <form> <div class='checkbox'>
       <label><input type='checkbox' value=''>To increase precision in the estimation of the parameters.</label>
@@ -166,30 +168,20 @@ $(document).ready(function () {
     </div> <div class='checkbox'>
       <label><input type='checkbox' value=''>Data is normally distributed.</label>
     </div> </form> <br>
-<b> What are the two main ideas behind MI? </b> 
+<b> Why can we not just use the predicted values 
+         (e.g., $y_{mis} = X_{mis}\beta$) as imputations? </b> 
  <form> <div class='checkbox'>
-      <label><input type='checkbox' value=''>In order to create meaningful imputations, a model is necessary.</label>
+      <label><input type='checkbox' value=''>Predicting the same missing value multiple times will always
+                result in the same value.</label>
     </div> <div class='checkbox'>
-      <label><input type='checkbox' value=''></label>
-    </div> <div class='checkbox'>
-      <label><input type='checkbox' value=''></label>
-    </div> <div class='checkbox'>
-      <label><input type='checkbox' value=''>A single imputed value can not be correct in general.</label>
-    </div> </form> <br>
-<b> Why can we not just use the predicted values (e.g., $y = X eta$) as imputations? </b> 
- <form> <div class='checkbox'>
-      <label><input type='checkbox' value=''>Predicting the same missing value multiple times will always result in the same value.</label>
-    </div> <div class='checkbox'>
-      <label><input type='checkbox' value=''></label>
+      <label><input type='checkbox' value=''>Using $X_{mis}\beta$ does not take into account the uncertainty about $\beta$.</label>
     </div> <div class='checkbox'>
       <label><input type='checkbox' value=''>Predicted values underestimate the uncertainty.</label>
     </div> <div class='checkbox'>
-      <label><input type='checkbox' value=''></label>
+      <label><input type='checkbox' value=''>Predicted values are not correct in general, there is always random variation.</label>
     </div> </form> <br>
-<b> How can results from analysis performed on muliply imputed data be combined? </b> 
+<b> How can results from analyses performed on multiply imputed data be combined? </b> 
  <form> <div class='checkbox'>
-      <label><input type='checkbox' value=''>Taking the average of the point estimates.</label>
-    </div> <div class='checkbox'>
       <label><input type='checkbox' value=''>Using Rubin's Rules, i.e., by averaging the coefficients and the 
                 within and between imputation variation.</label>
     </div> <div class='checkbox'>
@@ -207,7 +199,7 @@ $(document).ready(function () {
     </div> </form> <br>
 <b> Why are iterations necessary in MICE for non-monotone missing patterns? </b> 
  <form> <div class='checkbox'>
-      <label><input type='checkbox' value=''>To create multiple imputed values, not just one.</label>
+      <label><input type='checkbox' value=''>To create <i>multiple</i> imputed values, and not just one.</label>
     </div> <div class='checkbox'>
       <label><input type='checkbox' value=''>The starting values are filled in at random and need to be replaced
                 by better choices.</label>
@@ -218,15 +210,65 @@ $(document).ready(function () {
  <form> <div class='checkbox'>
       <label><input type='checkbox' value=''>The (imputed) values sampled in subsequent iterations are identical.</label>
     </div> <div class='checkbox'>
-      <label><input type='checkbox' value=''>The values drawn from muliple chains are identical.</label>
+      <label><input type='checkbox' value=''>The values drawn from multiple chains are identical.</label>
     </div> <div class='checkbox'>
       <label><input type='checkbox' value=''>The chain has ended and a new chain needs to be started.</label>
     </div> <div class='checkbox'>
       <label><input type='checkbox' value=''>The distribution the (imputed) values are sampled from remains stable.</label>
     </div> </form> <br>
 </div>
+</div>
 <div id="section-5" class="section level2">
 <h2>Section 5</h2>
+<div id="mark-all-correct-answers-multiple-answers-may-be-correct-1" class="section level4">
+<h4>Mark all correct answers (multiple answers may be correct)</h4>
+<b> Good methods to draw imputations: </b> 
+ <form> <div class='checkbox'>
+      <label><input type='checkbox' value=''>take into account uncertainty about the regression parameters.</label>
+    </div> <div class='checkbox'>
+      <label><input type='checkbox' value=''>take into account random variation or residual error.</label>
+    </div> <div class='checkbox'>
+      <label><input type='checkbox' value=''>take into account parameter uncertainty, but no random variation.</label>
+    </div> <div class='checkbox'>
+      <label><input type='checkbox' value=''>ensure that imputed values do not fall outside the range of the observed values.</label>
+    </div> </form> <br>
+<b> Bootstrap multiple imputation </b> 
+ <form> <div class='checkbox'>
+      <label><input type='checkbox' value=''>samples imputed values randomly from the observed data.</label>
+    </div> <div class='checkbox'>
+      <label><input type='checkbox' value=''>is a semi-parametric imputation approach.</label>
+    </div> <div class='checkbox'>
+      <label><input type='checkbox' value=''>creates replica of the original, incomplete data to select imputed values from.</label>
+    </div> <div class='checkbox'>
+      <label><input type='checkbox' value=''>creates replica of the original, incomplete data to estimate parameter uncertainty.</label>
+    </div> </form> <br>
+<b> In predictive mean matching: </b> 
+ <form> <div class='checkbox'>
+      <label><input type='checkbox' value=''>different matching types refer to the way parameters are 
+                sampled or estimated for the observed and missing values</label>
+    </div> <div class='checkbox'>
+      <label><input type='checkbox' value=''>different matching types refer to the way donors are selected to fill in missing values</label>
+    </div> <div class='checkbox'>
+      <label><input type='checkbox' value=''>donors can be selected based on their distance to the unobserved value</label>
+    </div> <div class='checkbox'>
+      <label><input type='checkbox' value=''>donors can be selected based on the distance between their
+                predicted value and the predicted value of the missing case</label>
+    </div> </form> <br>
+<b> Predictive mean matching </b> 
+ <form> <div class='checkbox'>
+      <label><input type='checkbox' value=''>works well in small datasets</label>
+    </div> <div class='checkbox'>
+      <label><input type='checkbox' value=''>does not require the data to be from a known distribution</label>
+    </div> <div class='checkbox'>
+      <label><input type='checkbox' value=''>works better when more donors are selected</label>
+    </div> <div class='checkbox'>
+      <label><input type='checkbox' value=''>can have problems in skewed data</label>
+    </div> <div class='checkbox'>
+      <label><input type='checkbox' value=''>should use Type-III matching rather than Type-I matching</label>
+    </div> <div class='checkbox'>
+      <label><input type='checkbox' value=''>can not impute values outside the range of the observed data</label>
+    </div> </form> <br>
+</div>
 </div>
 
 
