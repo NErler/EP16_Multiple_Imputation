@@ -1,5 +1,5 @@
 \begin{frame}[allowframebreaks]{Outline}
-\tcbset{colback=red!5!white,colframe=EMCdark, colback = colback=EMCdark!5!white}
+\tcbset{colframe=EMCdark, colback=EMCdark!5!white}
 \begin{tcolorbox}[title=Part I: Multiple Imputation]
 \begin{itemize}
 \item How does multiple imputation work?

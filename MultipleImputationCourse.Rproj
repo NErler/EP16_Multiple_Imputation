@@ -11,7 +11,7 @@ Encoding: UTF-8
 
 RnwWeave: knitr
 LaTeX: pdfLaTeX
-RootDocument: Slides/MICourse_beamer.Rnw
+RootDocument: Slides/MICourse_Slides.Rnw
 
 AutoAppendNewline: Yes
 StripTrailingWhitespace: Yes
