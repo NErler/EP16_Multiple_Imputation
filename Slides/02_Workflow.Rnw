@@ -44,7 +44,7 @@ load(file.path(datadir, "NHANES.RData"))
 
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-<<echo = F>>=
+<<setwidth120, echo = F>>=
 op <- getOption("width")
 options("width" = 120)
 @
@@ -54,7 +54,7 @@ mdp <- mice::md.pattern(NHANES)
 head(mdp[, -c(7:14)]) # omit some columns to fit it on the slide
 tail(mdp[, -c(7:14)])
 @
-<<echo = F>>=
+<<resetwidth120, echo = F>>=
 options('width' = op)
 @
 
@@ -951,7 +951,7 @@ probplot(imp2, formula = hypten ~ cut(age, quantile(age), include.lowest = T))
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 For the first three quartiles of \Rstring{age} the distribution of the imputed
 values is similar to the distribution of the observed values of \Rstring{hypten}.
-<<>>=
+<<hyptenagetab>>=
 with(NHANES, table(age = cut(age, quantile(age), include.lowest = T),
                    hypten, exclude = NULL))
 @
@@ -974,7 +974,7 @@ as part of the \Robj{mids} object:
 }
 \begin{columns}[onlytextwidth]
 \begin{column}{0.45\linewidth}
-<<>>=
+<<headloggedEvents>>=
 head(imp2$loggedEvents)
 @
 \end{column}
@@ -1003,7 +1003,7 @@ Once we have confirmed that our imputation was successful, we can move on
 to the analysis of the imputed data.
 
 For example, we might be interested in the following logistic regression model:
-<<eval = F>>=
+<<fitglm, eval = F>>=
 glm(DM ~ age + gender + hypchol + BMI + smoke + alc,
     family = "binomial")
 @
@@ -1015,7 +1015,7 @@ mod1 <- with(imp2, glm(DM ~ age + gender + hypchol + BMI + smoke + alc,
                        family = "binomial"))
 @
 \Robj{mod1} is an object of class \Robj{mira} and has elements
-<<>>=
+<<namesofmod1>>=
 names(mod1)
 @
 where \Robj{mod1}\texttt{\$}\Robj{analyses} is a list containing the fitted
@@ -1057,7 +1057,7 @@ fit / model comparison
 \bigskip
 For \blue{linear} regression models the pooled $R^2$ can be calculated
 using \Rfct{pool.r.squared}
-<<>>=
+<<poolrsquared>>=
 mod2 <- with(imp2, lm(SBP ~ DM + age + hypten))
 pool.r.squared(mod2, adjusted = TRUE)
 @
@@ -1080,7 +1080,7 @@ fixed to zero) using a \blue{Wald test}.
 To test if \Rstring{smoke} has a relevant contribution to the model for
 \Rstring{DM} from above we re-fit the model without \Rstring{smoke} and
 compare the two models:
-<<>>=
+<<poolcompare>>=
 mod3 <- with(imp2, glm(DM ~ age + gender + hypchol + BMI + alc,
                        family = "binomial"))
 # Wald test
@@ -1097,7 +1097,7 @@ following functionality:
 \bigskip
 
 \blue{Combine $\chi^2$ or F statistics from multiply imputed data:}
-<<eval = FALSE>>=
+<<miceaddsfcts, eval = FALSE>>=
 miceadds::micombine.chisquare(dk, df, display = TRUE, version = 1)
 miceadds::micombine.F(values, df1, display = TRUE, version = 1)
 @
@@ -1108,7 +1108,7 @@ and pool them.
 \bigskip
 
 \blue{Calculate correlation or covariance of imputed data:}
-<<eval = FALSE>>=
+<<miceaddsfcts2, eval = FALSE>>=
 miceadds::micombine.cor(mi.res, variables = NULL, conf.level = 0.95,
                         method = "pearson", nested = FALSE, partial = NULL)
 miceadds::micombine.cov(mi.res, variables = NULL, conf.level = 0.95,
@@ -1122,7 +1122,7 @@ These functions take \Robj{mids} objects as input.
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 The function \Rfct{complete} allows extraction of the imputed data from a \Robj{mids} object:
-<<eval = FALSE>>=
+<<completedata, eval = FALSE>>=
 mice::complete(x, action = 1, include = FALSE)
 @
 
@@ -1144,7 +1144,7 @@ mice::complete(x, action = 1, include = FALSE)
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 The function \Rfct{mids2spss} allows the export of imputed data (\Robj{mids} objects)
 to \textsf{SPSS}.
-<<>>=
+<<exporttospss>>=
 mids2spss(imp2,
           filedat = "datafile.txt", # the file containing the data
           filesps = "importsyntax.sps" # syntax to convert .txt to .sav
@@ -1195,7 +1195,7 @@ or \Robj{factor} or another \Robj{mids} object.
 For examle data columns that should be part of the imputed data for completeness,
 but are not needed in the imputation.
 
-<<>>=
+<<cibindmids>>=
 extravar <- rnorm(nrow(NHANES))
 impextra <- mice:::cbind.mids(x = imp2, extravar = extravar)
 @

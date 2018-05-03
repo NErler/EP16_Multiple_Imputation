@@ -1,12 +1,11 @@
 \begin{frame}[allowframebreaks]{Outline}
 \tcbset{colframe=EMCdark, colback=EMCdark!5!white}
 \begin{tcolorbox}[title=Part I: Multiple Imputation]
+How does multiple imputation work?
 \begin{itemize}
-\item How does multiple imputation work?
-\item How does MICE/FCS work?\\
-      \blue{\ding{225}} A look into the black box
+\item The ideas behind MI
 \item Understanding sources of uncertainty
-\item The 3 steps of multiple imputation
+\item Implementation of MI and MICE
 \end{itemize}
 \end{tcolorbox}
 
@@ -14,7 +13,7 @@
 How to perform MI with the \textbf{mice} package in R, from getting to know the
 data to the final results.
 \tcblower
-\blue{Practical:} imputation with \textbf{mice}
+\blue{Practical:} Imputation with \textbf{mice}
 \end{tcolorbox}
 
 \framebreak
@@ -27,7 +26,7 @@ Introduction to
 \item alternative \textsf{R} packages
 \end{itemize}
 \tcblower
-\blue{Practical:} imputation in complex settings
+\blue{Practical:} Imputation in complex settings
 \end{tcolorbox}
 
 \begin{tcolorbox}[title=Part IV: Multiple Imputation Strategies]

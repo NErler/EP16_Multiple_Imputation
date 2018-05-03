@@ -1,0 +1,81 @@
+\documentclass[a4paper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\hypersetup{
+    colorlinks,
+    linkcolor={blue}
+}
+
+\parindent0cm
+\renewcommand{\arraystretch}{1.5}
+
+\begin{document}
+\begin{center}
+{\huge%
+  \textbf{Assignment for\\[1ex]EP16: Missing Values in Clinical Research}
+}
+
+\vspace*{1cm}
+
+{\LARGE \textbf{Multiple Imputation}}
+
+\vspace*{1cm}
+
+\textbf{\large 14 -- 18 May, 2018}
+\end{center}
+
+
+\vspace*{0.5cm}
+
+\section*{Data}
+The \textbf{MIdat33} data comprise 1950 observations of 542 mothers measured repeatedly
+before and during pregnancy. All women were scheduled to have their weight measured
+once each trimester and were asked for their pre-pregnancy weight and BMI.
+
+\bigskip
+
+The dataset contains the following variables:
+\begin{table}[!ht]
+\centering
+\begin{tabular}{lp{13cm}}\toprule
+variable & explanation\\\midrule
+\texttt{id} & subject identifier\\
+\texttt{gage} & gestational age at measurement (\texttt{gage = 0} refers to a measurement before pregnancy)\\
+\texttt{weight} & maternal weight\\
+\texttt{preterm} & was the baby born before 37 weeks of gestation (preterm) or later?\\
+\texttt{gender} & child gender\\
+\texttt{visit\_center} & was intake performed at the study center? (0: no, 1: yes)\\
+\texttt{parity} & number of pregnancies of more than 20 weeks the mother had (nulliparity: this was
+                  the first pregnancy, >=1 child: mother had previous pregnancies)\\
+\texttt{alc} & alcohol consumption behaviour of the mother during pregnancy\\
+\texttt{educ} & educational level of the mother\\
+\texttt{income} & household income\\
+\texttt{gestbir} & gestational age at birth\\
+\texttt{kcal} & average daily kcal intake (calculated from food frequency questionnaire)\\
+\texttt{stress} & self reported stress score (0 -- 5)\\
+\texttt{inclusion} & date of inclusion in the study\\
+\texttt{BMI} & self reported maternal BMI before pregnancy\\
+\texttt{bd\_mom} & birth date of the mother\\
+\texttt{trimester} & trimester of measurement\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\section*{Analysis model of interest}
+The analysis model of interest is a linear mixed model for \texttt{weight} with
+random intercept and slope for \texttt{gage}.
+Covariates are \texttt{smoke}, \texttt{kcal}, \texttt{stress},
+\texttt{parity}, \texttt{educ} and \texttt{income}.
+
+\texttt{weight} is assumed to have a non-linear (quadratic) slope over time.
+
+<<echo = FALSE, eval = FALSE>>=
+knit2pdf("Assignment/MIdat33_documentation.Rnw",
+         output = "Assignment/instructions/MIdat33_documentation.tex")
+file.remove("Assignment/instructions/MIdat33_documentation.tex")
+@
+\end{document}

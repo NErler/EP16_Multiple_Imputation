@@ -147,6 +147,8 @@ miceintJAV <- mice(NHANES, method = meth_miceint, predictorMatrix = pred_miceint
 miceintPAS <- mice(NHANES, method = meth_miceintPAS, predictorMatrix = pred_miceint,
                 maxit = 10, m = 5)
 
+NHANES <- subset(NHANES, select = -c(agechol, ageHDL))
+# JointAI ----------------------------------------------------------------------
 set.seed(2018)
 t0 <- Sys.time()
 JointAIint <- lm_imp(weight ~ gender + bili + age * (chol + HDL) + height,
@@ -156,6 +158,8 @@ t1 <- Sys.time()
 
 traceplot(JointAIint)
 
+
+# smcfcs -----------------------------------------------------------------------
 pred <- matrix(nrow = ncol(NHANES), ncol = ncol(NHANES), data = 1,
                dimnames = list(names(NHANES), names(NHANES)))
 diag(pred) <- 0
@@ -167,7 +171,7 @@ smcint <- smcfcs(NHANES,
                  method = c(weight = "", gender = "", bili = "norm", age = "",
                             chol = "norm", HDL = "norm", educ = "", DBP = 'norm',
                             height = 'norm'), 
-                 predictorMatrix = pred, rjlimit = 3000,
+                 predictorMatrix = pred, rjlimit = 5000,
                  numit = 20)
 
 par(mfrow = c(3, 4), mar = c(3.5, 3.5, 1,1), mgp = c(2, 0.6, 0))
@@ -177,13 +181,14 @@ for (i in 1:dim(smcint$smCoefIter)[2]) {
 }
 
 
+# jomo -------------------------------------------------------------------------
 set.seed(2018)
 jomoint <- jomo.lm(weight ~ gender + bili + age * (chol + HDL) + height,
                    data = NHANES, nburn = 1000, 
                     nbetween = 200, nimp = 5, output = 0)
 t0 <- Sys.time()
 jomointMCMC <- jomo.lm.MCMCchain(weight ~ gender + bili + age * (chol + HDL) + height,
-                    data = NHANES, nburn = 10000, output = 0)
+                    data = NHANES, nburn = 1000, output = 0)
 t1 <- Sys.time()
 
 par(mfrow = c(3,4), mar = c(3,3,1,1), mgp = c(2, 0.6, 0))
@@ -206,7 +211,7 @@ for (i in 1:dim(jomointMCMC$collectomega)[2]) {
 
 
 save(miceintJAV, miceintPAS, JointAIint, smcint, jomoint, jomointMCMC, 
-     file = "Practicals/MICEadvanced/www/intimps.RData")
+     file = "Practicals/MIadvanced/www/intimps.RData")
 ```
 
 ```{r savemodels surv, echo = FALSE, eval = FALSE}
@@ -637,6 +642,10 @@ JointAIargs <- rbind(
   c("`formula`", "model formula"),
   c("`data`", "original, incomplete dataset"),
   c("`family`", "for glm's: the distribution family of the outcome"),
+  c("`meth`", paste0("vector of imputation methods. Implemented are `norm` ",
+                     "(normal model), `logit` (logistic model), `lognorm` ",
+                     "(linear with log-transformed outcome), `multilogit` ",
+                     "(multinomial logit model), `cumlogit` (cumulative logit model)")),
   c("`n.chains`", "number of MCMC chains"),
   c("`n.adapt`", "number of iterations used in the adaptive phase (details see below)"),
   c("`n.iter`", "number of iterations per MCMC chain in the sampling phase"),
@@ -703,8 +712,8 @@ of the `summary()` for `JointAI` objects.
 
 <div style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
 **Note:**<br>
-Due to a bug in the current version of **JointAI** you need to specify
-`inits = NULL`. This bug will be resolved in the next version of the package.
+Due to a bug in version 0.1.0 of **JointAI** you need to specify
+`inits = NULL`. This bug is resolved in the development version on GitHub.
 </div>
 
 ```{r fitJointAIint, exercise = TRUE, timelimit.exercise = 200, fig.width = 9, fig.height = 4.5}

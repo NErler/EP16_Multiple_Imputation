@@ -3,7 +3,7 @@
 \end{frame}
 
 
-<<echo = FALSE>>=
+<<setup04, echo = FALSE>>=
 library(knitr)
 library(kableExtra)
 library(magrittr)
@@ -12,7 +12,7 @@ options(knitr.kable.NA = '')
 @
 
 
-\section{Some final comments on MICE}
+\section{Strategies for using MICE}
 \subsection{Imputation methods}
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
@@ -25,7 +25,7 @@ but there are many more methods implemented.
 \bigskip
 
 Imputation methods implemented in the \textbf{mice} package:
-<<echo = FALSE, warning = FALSE, results = 'asis'>>=
+<<getmicemeths, echo = FALSE, warning = FALSE, results = 'asis'>>=
 used <- paste0("mice.impute.",
                 c("norm", "pmm", "midastouch", "logreg", "polyreg", "polr",
                   "2lonly.norm", "2lonly.pmm", "quadratic")
@@ -49,13 +49,14 @@ methtab1 %>%
   kable(format = "latex", booktabs = TRUE, linesep = "", escape = F) %>%
   kable_styling(position = "center")
 @
-Note: Just because a method is implemented does not mean you need to / should use it.
+\blue{Note:} \parbox[t]{0.8\linewidth}{Just because a method is implemented does
+                                    not mean you need to / should use it.}
 \end{frame}
 
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 Imputation methods implemented in the \textbf{miceadds} package:
-<<echo = FALSE, warning = FALSE>>=
+<<getmiceaddsmeths, echo = FALSE, warning = FALSE>>=
 miceaddsmeth <- sort(grep("mice.impute", getNamespaceExports("miceadds"), value = TRUE))
 methtab2 <- matrix(data = c(miceaddsmeth, rep(NA, length(miceaddsmeth) %% 2)),
                    ncol = 2)
@@ -165,15 +166,59 @@ For large datasets a possible strategy is to
 \subsection{How much missing is too much?}
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
+There is \blue{no clear cut-off} for the proportion of missing values that can
+be handled adequately using MICE (or any other imputation method).
 
+\bigskip
 
+The amount of missingness that can be handeled \blue{depens on the information that
+is available} to impute it.
+
+\begin{itemize}
+\item Are there \blue{strong predictor variabels} available \& observed?
+\item Are there \blue{sufficient observed cases} to get reliable estimates for the
+      predictive distribution?
+\end{itemize}
+
+\vfill
+
+\pause
+\textbf{Example:}
+\begin{itemize}
+\item In a set of $N = 50$ cases, 50\% missing values leave 25 cases to
+      estimate the parameters of the predictive distribution.
+\item In a large set of $N = 5000$ subjects, 50\% missing cases leave 2500
+      observed cases to estimate parameters.
+\end{itemize}
 \end{frame}
 
 \subsection{Imputation of outcomes}
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
+Usually, \blue{missing outcome values are not imputed}.
 
+\bigskip
 
+\textbf{Why?}\\
+When there are no auxiliary variables, imputation and analysis model are equal.
+\begin{itemize}
+\item Parameters of the imputation model are estimated on observed cases of the outcome.
+\item Imputed values will fit the assumed model perfectly.
+\item Including imputed cases in the analysis does not add any information.
+\end{itemize}
+
+\bigskip
+
+\textbf{Exception:}
+\begin{itemize}
+\item When very strong auxiliary variables are available.
+\item Outcomes may be imputed when one imputation is performed for
+      several analysis models, because not imputing the outcome(s) would mean
+      \begin{itemize}
+      \item excluding cases with missing outcome(s) from the imputation, or
+      \item excluding the outcome variable(s) as predictor(s).
+      \end{itemize}
+\end{itemize}
 \end{frame}
 
 
@@ -225,8 +270,7 @@ Moreover
 \subsection{Other R packages that do imputation}
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-<<echo = FALSE>>=
-
+<<getallpkgs, echo = FALSE>>=
  getPackagesWithTitle <- function() {
    chooseCRANmirror(graphics = FALSE, ind = 1)
      contrib.url(getOption("repos")["CRAN"], "source")
@@ -314,8 +358,12 @@ package \textbf{jomo}).
 
 \bigskip
 
-Furthermore, \blue{direct likelihood methods}, \blue{fully Bayesian methods}
-(as implemented in \textbf{JointAI}) or \blue{weighted estimating equations}
+Furthermore,
+\begin{itemize}
+\item \blue{direct likelihood methods},
+\item \blue{fully Bayesian methods}(as implemented in \textbf{JointAI}), or
+\item \blue{weighted estimating equations}
+\end{itemize}
 are valid alternative approaches when data are incomplete.
 
 \end{frame}

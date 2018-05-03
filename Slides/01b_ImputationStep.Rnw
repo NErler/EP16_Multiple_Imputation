@@ -253,7 +253,7 @@ be adequately approximated by a known probability distribution.
 
 \vfill
 
-<<echo = F, fig.width = 8, fig.height = 3>>=
+<<skylineplot, echo = F, fig.width = 8, fig.height = 3>>=
 N <- 100
 x1 <- runif(N, min = -1.5, max = 2)
 x2 <- rnorm(N, -2, 0.5)
@@ -415,13 +415,6 @@ observed data.
 \item \blue{Bayesian} linear regression via \Rfct{mice.impute.norm}
 \item \ldots
 \end{itemize}
-%
-% \blue{SPSS}
-% \begin{itemize}
-% \item \blue{PMM} with $d = 1$
-% \item linear regression
-% \end{itemize}
-
 \end{frame}
 
 

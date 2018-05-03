@@ -1,0 +1,82 @@
+\documentclass[a4paper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\hypersetup{
+    colorlinks,
+    linkcolor={blue}
+}
+
+\parindent0cm
+\renewcommand{\arraystretch}{1.5}
+
+\begin{document}
+\begin{center}
+{\huge%
+  \textbf{Assignment for\\[1ex]EP16: Missing Values in Clinical Research}
+}
+
+\vspace*{1cm}
+
+{\LARGE \textbf{Multiple Imputation}}
+
+\vspace*{1cm}
+
+\textbf{\large 14 -- 18 May, 2018}
+\end{center}
+
+
+\vspace*{1cm}
+
+\section*{Data}
+The \textbf{MIdat13} data comprise data of 792 children and their mothers on
+vitamin D exposure of the mother during pregnancy and child bone health,
+measured by \href{https://en.wikipedia.org/wiki/Dual-energy_X-ray_absorptiometry}{DXA scan}, at 6 years
+of age. Maternal serum samples were taken in the third trimester of pregnancy.
+
+\bigskip
+
+The dataset contains the following variables:
+\begin{table}[!ht]
+\centering
+\begin{tabular}{lp{13cm}}\toprule
+variable & explanation\\\midrule
+\texttt{ID} & subject identifier\\
+\texttt{gender} & child's gender\\
+\texttt{birth} & date of birth\\
+\texttt{weight} & child's total weight in kg at DXA scan\\
+\texttt{sports} & does the child play do sports regularily?\\
+\texttt{BMC} & bone mineral content of the child in grams, determined by DXA scan\\
+\texttt{sun\_birth} & average sun light duration in the month before birth in hours/day\\
+\texttt{season} & season of blood sampling\\
+\texttt{vitD} & mother's serum vitamin D concentrations in 10 nmol/L\\
+\texttt{sun} & average sun light duration in hours/day in the month before blood sampling\\
+\texttt{ethn} & child's ethnicity\\
+\texttt{length} & child's length in cm at time of DXA scan\\
+\texttt{parity} & number of pregnancies of more than 20 weeks the mother had
+         (nulliparity: this was the first pregnancy,
+          multiparity: mother had previous pregnancies)\\
+\texttt{birthwgt} & birthweight (standard deviation score)\\
+\texttt{leanfrac} & proportion of lean mass (lean mass/total mass; lean mass = total mass - fat mass)\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\section*{Analysis model of interest}
+The analysis model of interest is a linear regression with outcome \texttt{BMC}
+and covariates \texttt{vitD}, \texttt{ethn}, \texttt{gender}, \texttt{leanfrac},
+\texttt{sports}, \texttt{sun}, \texttt{season}, \texttt{length} and \texttt{weight}.
+
+\bigskip
+
+We assume that \texttt{vitD} has a non-linear (quadratic) effect.
+
+<<echo = FALSE, eval = FALSE>>=
+knit2pdf("Assignment/MIdat13_documentation.Rnw",
+         output = "Assignment/instructions/MIdat13_documentation.tex")
+file.remove("Assignment/instructions/MIdat13_documentation.tex")
+@
+\end{document}

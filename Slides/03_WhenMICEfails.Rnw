@@ -541,7 +541,7 @@ Imputed values of baseline covariates are imputed with different values,
 creating data that could not have been observed.
 \end{column}
 \begin{column}{0.45\linewidth}
-<<echo = F, size = 'scriptsize'>>=
+<<imptablong, echo = F, size = 'scriptsize'>>=
 imptablong <- rbind(impDFexlong[impDFexlong$id %in% subIDs, names(ltDFexlong)],
                     rep(NA, ncol(ltDFexlong)))
 imptablong[sapply(imptablong, is.numeric)] <-
@@ -648,12 +648,12 @@ In some settings \blue{imputation in wide format} may be possible.
 \begin{columns}[onlytextwidth]
 \begin{column}{0.54\linewidth}
 \only<1>{
-<<echo = F, fig.with = 6, fig.height = 4.5>>=
+<<impwideplot1a, echo = F, fig.with = 6, fig.height = 4.5>>=
 plong1_1
 @
 }
 \only<2>{
-<<echo = F, fig.with = 6, fig.height = 4.5>>=
+<<impwideplotab, echo = F, fig.with = 6, fig.height = 4.5>>=
 plong1_1 +
  geom_vline(xintercept = seq(1, 9, 2), lty = 2) +
   scale_x_continuous(breaks = seq(1, 9, 2))
@@ -661,7 +661,7 @@ plong1_1 +
 }
 \end{column}
 \begin{column}{0.45\linewidth}
-<<echo = F, size = 'scriptsize', warning = F>>=
+<<impwidedat, echo = F, size = 'scriptsize', warning = F>>=
 longdatatab
 @
 \end{column}
@@ -671,7 +671,7 @@ longdatatab
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 
-<<size = 'scriptsize', echo = F>>=
+<<impwidedat2, size = 'scriptsize', echo = F>>=
 subDFexlongwide[c("id",
             paste0("y.", c(1,3,5,7,9)),
             paste0("time.", c(1,3,5,7,9)))] %>%

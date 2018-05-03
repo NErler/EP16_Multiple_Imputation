@@ -312,7 +312,7 @@ $\hat x_{i2} = \hat\beta_0 + \hat\beta_1 x_{i1} + \hat\beta_2 x_{i3} + \hat\beta
 \end{column}
 \begin{column}{0.45\textwidth}
 \only<1>{
-<<echo = F, fig.width = 5.25, fig.height = 3.5>>=
+<<exampl1a, echo = F, fig.width = 5.25, fig.height = 3.5>>=
 par(mgp = c(1, 0.6, 0), mar = c(2, 2.5,0.5, 0.5))
 plot(X0, xaxt = "n", yaxt = "n",
      ylab = "",
@@ -321,7 +321,7 @@ plot(X0, xaxt = "n", yaxt = "n",
 @
 }
 \only<2>{
-<<echo = F, fig.width = 5.25, fig.height = 3.5>>=
+<<exampl1b, echo = F, fig.width = 5.25, fig.height = 3.5>>=
 par(mgp = c(1, 0.6, 0), mar = c(2, 2.5,0.5, 0.5))
 plot(X,
      pch = 19,
@@ -337,7 +337,7 @@ legend("bottomleft", pch = c(1,19), legend = c("missing", "observed"),
 abline(lm1, lwd = 2, col = grey(0.2))
 @
 }\only<3>{
-<<echo = F, fig.width = 5.25, fig.height = 3.5>>=
+<<example1c, echo = F, fig.width = 5.25, fig.height = 3.5>>=
 par(mgp = c(1, 0.6, 0), mar = c(2, 2.5,0.5, 0.5))
 plot(X,
      pch = 19,
@@ -422,7 +422,7 @@ With each set of coefficients, we also get slightly \blue{different predicted va
 \end{column}
 \begin{column}{0.5\textwidth}
 \only<-1>{
-<<echo = F, fig.width = 5.25, fig.height = 3.5>>=
+<<example1d, echo = F, fig.width = 5.25, fig.height = 3.5>>=
 par(mgp = c(1, 0.6, 0), mar = c(2, 2.5,0.5, 0.5))
 plot(X,
      pch = 19,
@@ -447,7 +447,7 @@ for (i in 1:5) {
 @
 }
 \only<2->{
-<<echo = F, fig.width = 5.25, fig.height = 3.5>>=
+<<example1e, echo = F, fig.width = 5.25, fig.height = 3.5>>=
 par(mgp = c(1, 0.6, 0), mar = c(2, 2.5,0.5, 0.5))
 plot(X,
      pch = 19,
@@ -499,7 +499,7 @@ We assume that the \blue{data have a distribution}, where
 \end{column}
 \begin{column}{0.5\textwidth}
 \only<1>{
-<<echo = F, fig.width = 5.25, fig.height = 3.5>>=
+<<example1f, echo = F, fig.width = 5.25, fig.height = 3.5>>=
 par(mgp = c(1, 0.6, 0), mar = c(2, 2.5,0.5, 0.5))
 plot(X,
      pch = 19,
@@ -526,7 +526,7 @@ for (i in 1) {
 @
 }
 \only<2>{
-<<echo = F, fig.width = 5.25, fig.height = 3.5>>=
+<<example1g, echo = F, fig.width = 5.25, fig.height = 3.5>>=
 par(mgp = c(1, 0.6, 0), mar = c(2, 2.5,0.5, 0.5))
 plot(X,
      pch = 19,
@@ -560,7 +560,7 @@ for (i in 1) {
 @
 }
 \only<3>{
-<<echo = F, fig.width = 5.25, fig.height = 3.5>>=
+<<example1h, echo = F, fig.width = 5.25, fig.height = 3.5>>=
 par(mgp = c(1, 0.6, 0), mar = c(2, 2.5,0.5, 0.5))
 plot(X,
      pch = 19,
@@ -597,7 +597,7 @@ for (i in 1) {
 @
 }
 \only<4>{
-<<echo = F, fig.width = 5.25, fig.height = 3.5>>=
+<<example1i, echo = F, fig.width = 5.25, fig.height = 3.5>>=
 par(mgp = c(1, 0.6, 0), mar = c(2, 2.5,0.5, 0.5))
 plot(X,
      pch = 19,
@@ -634,7 +634,7 @@ for (i in 1:2) {
 @
 }
 \only<5>{
-<<echo = F, fig.width = 5.25, fig.height = 3.5>>=
+<<example1j, echo = F, fig.width = 5.25, fig.height = 3.5>>=
 par(mgp = c(1, 0.6, 0), mar = c(2, 2.5,0.5, 0.5))
 plot(X,
      pch = 19,
@@ -671,7 +671,7 @@ for (i in 1:3) {
 @
 }
 \only<6>{
-<<echo = F, fig.width = 5.25, fig.height = 3.5>>=
+<<example1k, echo = F, fig.width = 5.25, fig.height = 3.5>>=
 par(mgp = c(1, 0.6, 0), mar = c(2, 2.5,0.5, 0.5))
 plot(X,
      pch = 19,
@@ -1245,7 +1245,7 @@ meandat <- ddply(dat, c("x", "imp", "it"), summarize, mean = mean(y))
 \begin{frame}[label = convergence_multiple]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 \only<1>{
-<<echo = F, fig.width = 7, fig.height = 4.5>>=
+<<convplot1a, echo = F, fig.width = 7, fig.height = 4.5>>=
 library(ggplot2)
 ggplot(dat, aes(x = it, y = y, color = imp)) +
   geom_line() +
@@ -1258,7 +1258,7 @@ ggplot(dat, aes(x = it, y = y, color = imp)) +
 @
 }
 \only<2>{
-<<echo = F, fig.width = 7.5, fig.height = 5>>=
+<<convplot1b, echo = F, fig.width = 7.5, fig.height = 5>>=
 g2 <- ggplot(dat, aes(x = it, y = y, color = imp, group = id)) +
   facet_grid(imp ~ x, scales = 'free',
              labeller = labeller(imp = c("imp1" = "imputation 1",
@@ -1276,13 +1276,13 @@ g2 + geom_line()
 @
 }
 \only<3>{
-<<echo = F, fig.width = 7.5, fig.height = 5>>=
+<<convplot1c, echo = F, fig.width = 7.5, fig.height = 5>>=
 g2 + geom_line(alpha = 0.5) +
   geom_line(data = meandat, aes(x = it, y = mean, group = 1), lwd = 1)
 @
 }
 \only<4>{
-<<echo = F, fig.width = 7.5, fig.height = 2.5>>=
+<<convplot1d, echo = F, fig.width = 7.5, fig.height = 2.5>>=
 ggplot(meandat, aes(x = it, y = mean, color = imp)) +
   geom_line(lwd = 0.7) +
   facet_wrap("x", scales = 'free', ncol = 4) +
@@ -1451,7 +1451,7 @@ In the results from multiply imputed data there are
 \item between imputation (horizontal shift between imputations)
 \end{itemize}
 
-<<echo = F, fig.width = 6, fig.height = 1.5>>=
+<<poolplot1a, echo = F, fig.width = 6, fig.height = 1.5>>=
 reslist <- lapply(seq_along(res$analyses),
                   function(i) {
                     x <- res$analyses[[i]]
@@ -1481,7 +1481,7 @@ ppool0
 @
 \end{frame}
 
-<<echo = F>>=
+<<poolcalc, echo = F>>=
 library(plyr)
 
 seDF <- do.call(rbind,
@@ -1509,14 +1509,14 @@ To summarize the results, we can take the mean of the results from the separate
 analyses. This is the \blue{pooled point estimate}.
 
 \only<1>{
-<<echo = F, fig.width = 6, fig.height = 1.5>>=
+<<poolplot1b, echo = F, fig.width = 6, fig.height = 1.5>>=
 ppool0 +
   geom_vline(data = ddply(poolDF, "var", summarize, coefmean = mean(coef)),
              aes(xintercept = coefmean), lty = 2)
 @
 }
 \only<2->{
-<<echo = F, fig.width = 6, fig.height = 1.5>>=
+<<poolplot1c, echo = F, fig.width = 6, fig.height = 1.5>>=
 ppool0 +
   geom_vline(data = ddply(poolDF, "var", summarize, coefmean = mean(coef)),
              aes(xintercept = coefmean), lty = 2) +
@@ -1580,7 +1580,7 @@ $$T = \bar U + B + B/m$$
 \end{frame}
 
 
-<<echo = F, fig.width = 6, fig.height = 1.5, eval = F>>=
+<<poolplot1d, echo = F, fig.width = 6, fig.height = 1.5, eval = F>>=
 ppool0 +
   geom_vline(data = ddply(poolDF, "var", summarize, coefmean = mean(coef)),
              aes(xintercept = coefmean), lty = 2) +
@@ -1590,7 +1590,7 @@ ppool0 +
   geom_vline(data = pooled, aes(xintercept = `hi 95`), lty = 2)
 @
 
-<<echo = F, eval = F>>=
+<<calc-by-hand, echo = F, eval = F>>=
 m <- 3
 alpha = 0.05
 Q <- means[,2]
@@ -1689,21 +1689,3 @@ or you can download an html version from Canvas (Practicals/Quiz\_PartI\_static.
 
 \vfill
 \end{frame}
-
-
-% \begin{frame}[allowframebreaks]{Quiz}
-% \begin{itemize}
-% \item Why do we create multiple imputations? (to take into account the uncertainty about the missing values)
-% \item How are MI and MICE related? (MICE is an approach to the imputation step in MI)
-% \item What is a full conditional distribution? (a distribution of one variable, depending on all other variables)
-% \item What is/are basic assumptions in MI? (unobserved data are conditionally the same as observed data)
-% \item What are the two main ideas behind MI? (multiple values are necessary to represent a missing value, a model is necessary to get meaningful imputations.)
-% \item How do single and multiple imputation differ? (single imputation only creates one imputed value, i.e. multiple imputaiton with m = 1)
-% \item How can we combine results from analyses performed on multiply imputed data? (rubin's rules)
-% \item Why can't we just take the average p-value?(underestimation of the variability)
-% \item Is multiple imputation frequentist or Bayesian? (both)
-% \item why do we need iterations in MICE (convergence, starting values, dependence)
-% \item what is convergence
-% \end{itemize}
-% \end{frame}
-

@@ -1,0 +1,81 @@
+\documentclass[a4paper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\hypersetup{
+    colorlinks,
+    linkcolor={blue}
+}
+
+\parindent0cm
+\renewcommand{\arraystretch}{1.5}
+
+\begin{document}
+\begin{center}
+{\huge%
+  \textbf{Assignment for\\[1ex]EP16: Missing Values in Clinical Research}
+}
+
+\vspace*{1cm}
+
+{\LARGE \textbf{Multiple Imputation}}
+
+\vspace*{1cm}
+
+\textbf{\large 14 -- 18 May, 2018}
+\end{center}
+
+
+\vspace*{1cm}
+
+\section*{Data}
+The \textbf{MIdat23} data comprise data of 992 liver transplant patients
+that are followed up after receiving the transplant, from a multi-center
+study.
+
+\bigskip
+
+The dataset contains the following variables:
+\begin{table}[!ht]
+\centering
+\begin{tabular}{lp{13cm}}\toprule
+variable & explanation\\\midrule
+\texttt{ID} & patient identifier\\
+\texttt{outcome} & survival outcome\\
+\texttt{time} & event time\\
+\texttt{bg\_rec} & blood group of the recipient (patient)\\
+\texttt{bg\_match} & are the blood groups of donor and recipient equal?\\
+\texttt{isc\_time} & ischemic time (time the organ was outside the body)\\
+\texttt{bg\_don} & blood group of the organ donor\\
+\texttt{age\_don} & age of the donor\\
+\texttt{sex} & sex of the recipient (patient)\\
+\texttt{year} & year the transplant was performed\\
+\texttt{age\_rec} & age of the recipient (patient)\\
+\texttt{birth} & year of birth of the recipient (patient)\\
+\texttt{graft} & type of graft (HF: heart beating donor, full liver;
+                                HP: heart beating donor, partial liver;
+                                DF: domino transplant, full liver;
+                                LL: living donor, split liver;
+                                NF: non-heart beating donor, full liver;
+                                HR: heart beating donor, reduced liver;
+                                NP: non-heart beating donor; partial liver)\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\section*{Analysis model of interest}
+The analysis model of interest is a Cox proportional hazard regression model with
+event time \texttt{time} and event indicator \texttt{outcome}
+and covariates \texttt{year}, \texttt{bg\_match}, \texttt{isc\_time},
+\texttt{age\_don}, \texttt{age\_rec} and \texttt{sex}.
+
+
+<<echo = FALSE, eval = FALSE>>=
+knit2pdf("Assignment/MIdat23_documentation.Rnw",
+         output = "Assignment/instructions/MIdat23_documentation.tex")
+file.remove("Assignment/instructions/MIdat23_documentation.tex")
+@
+\end{document}
