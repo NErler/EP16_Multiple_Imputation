@@ -49,7 +49,7 @@ methtab1 %>%
   kable(format = "latex", booktabs = TRUE, linesep = "", escape = F) %>%
   kable_styling(position = "center")
 @
-\blue{Note:} \parbox[t]{0.8\linewidth}{Just because a method is implemented does
+\blue{Note:} \parbox[t]{0.75\linewidth}{Just because a method is implemented does
                                     not mean you need to / should use it.}
 \end{frame}
 
@@ -89,7 +89,7 @@ In complex settings, variables may need to be \blue{re-calculated} or
 Not just in imputation: Set a \blue{seed value} to create reproducible results.
 \begin{itemize}
 \item in \textsf{R}: \Rfct{set.seed}
-\item in \Rfct{mice}: \Rarg{seed}
+\item in \Rfct{mice}: argument \Rarg{seed}
 \end{itemize}
 \end{frame}
 

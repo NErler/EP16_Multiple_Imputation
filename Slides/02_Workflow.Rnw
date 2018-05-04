@@ -550,7 +550,7 @@ p <- ggplot(plotDF, aes(x = value, fill = Var2, color = Var2)) +
 library(plotly)
 htmlp <- ggplotly(p, tooltip = "none", dynamicTicks = T)
 htmlwidgets::saveWidget(as_widget(htmlp),
-                        file = file.path(projdir, "Slides", "figure", "squeeze_plot1.html"))
+                        file = file.path(projdir, "Slides", "graphics", "squeeze_plot1.html"))
 @
 
 <<hist_creat, echo = F, fig.width = 6, fig.height = 4>>=
@@ -560,7 +560,7 @@ p
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 \begin{center}
-\href{run:figure/squeeze_plot1.html}{
+\href{run:graphics/squeeze_plot1.html}{
 \includegraphics[width = 0.85\linewidth]{figure/hist_creat-1.pdf}}
 \end{center}
 \end{frame}
@@ -598,11 +598,16 @@ apparently \blue{does not fit the} (assumption about the)
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 This \blue{post-processing} of imputed values allows for many
-\blue{more data manipulations} and is not restricted to \Rfct{squeeze} and \Rfct{ifdo}.
+\blue{more data manipulations} and is not restricted to \Rfct{squeeze} (and \Rfct{ifdo}).
 Any strings of \textsf{R} commands provided will be evaluated after the
-corresponding variable is imputed, within each iteration.
+corresponding variable is imputed, within each iteration.\bigskip
 
-\bigskip
+For example, if subjects with SBP $>140$ should be classified as
+hypertensive:
+<<eval = FALSE>>=
+post["hypten"] <- "imp[[j]][p$data[where[, j], 'SBP'] > 140, i] <- 'yes'"
+@
+
 
 This also allows for (some) \blue{MNAR scenarios}, for example, by multiplying or adding
 a constant to the imputed values or to re-impute values, depending on their
@@ -641,7 +646,7 @@ visitSeq <- imp2$visitSequence
 visitSeq
 @
 
-Currently, \Rarg{hypten} is imputed before \Rstring{SBP}, but the imputed values
+Currently, \Rstring{hypten} is imputed before \Rstring{SBP}, but the imputed values
 of \Rstring{hypten} are post-processed depending on the current value of
 \Rstring{SBP}.
 To get consistent values of these two variables, we need to change the
@@ -674,12 +679,14 @@ during one iteration. All incomplete variables must be visited at least once.
 \subsection{Good to know}\label{subsec:goodtoknow}
 \begin{frame}[fragile, label = goodtoknow]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-\Rfct{mice} performs some pre-processing and removes
+\Rfct{mice} performs some \blue{pre-processing} and \blue{removes}
 \begin{itemize}
 \item incomplete variables that are not imputed but are specified as predictor,
 \item constant variables, and
 \item collinear variables.
 \end{itemize}
+
+\bigskip
 
 In each iteration
 \begin{itemize}
@@ -707,12 +714,14 @@ As a \blue{consequence}
 
 \bigskip
 
+\begin{block}{}
 \begin{itemize}
 \item[\blue{\ding{225}}] Know your data
 \item[\blue{\ding{225}}] Make sure \Rarg{method} and \Rarg{predictorMatrix} are
       specified appropriately
 \item[\blue{\ding{225}}] Check the output and log of these automatic actions carefully
 \end{itemize}
+\end{block}
 \end{frame}
 
 
@@ -723,32 +732,69 @@ As a \blue{consequence}
 \begin{quote}
 ``Please realize that these choices are always needed. Imputation software
 needs to make default choices. These choices are intended to be useful across
-a wide range of applications. However, the default choices are not necessarily
+a wide range of applications. However, the \blue{default choices are not necessarily
 the best for the data at hand. There is simply no magical setting that always
-works, so often some tailoring is needed.'' \cite[p. 124]{Buuren2012}
+works}, so often some tailoring is needed.'' \cite[p. 124]{Buuren2012}
 \end{quote}
 \end{frame}
 
 
 \section{Convergence \& Diagnostics}
+\subsection{Logged events}
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+\mode<presentation>{
+The log of the automatic changes (slide~\ref{goodtoknow}) is returned
+as part of the \Robj{mids} object:
+}
+\mode<article>{
+The log of the automatic changes (Section~\ref{subsec:goodtoknow}) is returned
+as part of the \Robj{mids} object:
+}
+\begin{columns}[onlytextwidth]
+\begin{column}{0.45\linewidth}
+<<headloggedEvents>>=
+head(imp2$loggedEvents)
+@
+\end{column}
+\hfill
+\begin{column}{0.45\linewidth}
+With columns\\[2ex]
+
+\begin{tabular}{lp{12em}}
+\Rstring{it} & iteration number\\
+\Rstring{im} & imputation number\\
+\Rstring{co} & column number in the data\\
+\Rstring{dep} & dependent variable\\
+\Rstring{meth} & imputation method used\\
+\Rstring{out} & names of altered or removed predictors
+\end{tabular}
+\end{column}
+\end{columns}
+\end{frame}
+
+
 \subsection{Convergence}
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 
 \mode<presentation>{
-Recall from Slides~\ref{micealgorithm} and \ref{convergence}:
+Recall from slides~\ref{micealgorithm} and \ref{convergence}:
 }
 \mode<article>{
 Recall from Sections~\ref{subsec:micealgorithm} and \ref{subsec:convergence}:
 }
-\textbf{mice} uses an iterative algorithm and imputations from the first few
+\textbf{mice} uses an \blue{iterative algorithm} and imputations from the first few
 iterations may not be samples from the ``correct'' distributions.
 
 \bigskip
 
-Traceplots can be used to visually assess convergence. In \textbf{mice} the
-function \Rfct{plot} produces traceplots of the  mean and std. deviation
-(across subjects) per incomplete variable.
+\blue{Traceplots} can be used to visually assess \blue{convergence}.\bigskip
+
+
+In \textbf{mice} the
+function \Rfct{plot} produces traceplots of the  mean and standard deviation
+(across subjects) per incomplete variable (see slide~\ref{convergence_multiple}).
 \end{frame}
 
 \begin{frame}[fragile, allowframebreaks]{\thesection. \insertsection}
@@ -766,9 +812,9 @@ have an upward trend.
 \bigskip
 
 \blue{Strong trends} and traces that show \blue{correlation} between variables
-indicate problems of feedback.
+indicate \blue{problems of feedback}.
 This needs to be investigated and resolved in the specification of
-the \Rarg{predictorMatrix}.
+the \Rarg{predictorMatrix}.\bigskip
 
 \blue{Weak trends} may be artefacts that often disappear when the imputation is
 performed with more iterations.
@@ -777,19 +823,19 @@ performed with more iterations.
 \subsection{Diagnostics}
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-When MCMC chains have converged, the distributions of the imputed and observed
-values can be compared to investigate differences between observed and imputed
+When MCMC chains have converged, the \blue{distributions of the imputed and observed
+values} can be compared to investigate differences between observed and imputed
 data.
 
 \bigskip
 
 \blue{Note:}\\
-Plots usually show the marginal distributions of observed and imputed values,
+Plots usually show the \blue{marginal} distributions of observed and imputed values,
 which do not have do be identical under MAR.
 
 \bigskip
 
-\textbf{Recall:} the conditional distributions
+\textbf{Recall:} the \blue{conditional} distributions
 (given all the other variables in the imputation model) of the imputed values
 are assumed to be the same as the conditional distributions of the observed data.
 \end{frame}
@@ -941,8 +987,8 @@ investigate if \Rstring{age} can explain the differences in imputed values of
 <<hypten_age_table>>=
 round(sapply(split(NHANES[, "age"], addNA(NHANES$hypten)), summary), 1)
 @
-The table shows that the \Rstring{age} structure of participants with missing
-\Rstring{hypten} is very similar to the \Rstring{age} structure of participants
+The table shows that the distribution of \Rstring{age} in participants with missing
+\Rstring{hypten} is very similar to the distribution of \Rstring{age} in participants
 without \Rstring{hypten}.
 \end{frame}
 
@@ -956,52 +1002,20 @@ probplot(imp2, formula = hypten ~ cut(age, quantile(age), include.lowest = T))
 @
 \end{frame}
 
-\begin{frame}[fragile]{\thesection. \insertsection}
-\framesubtitle{\thesection.\thesubsection. \insertsubsection}
-For the first three quartiles of \Rstring{age} the distribution of the imputed
-values is similar to the distribution of the observed values of \Rstring{hypten}.
-<<hyptenagetab>>=
-with(NHANES, table(age = cut(age, quantile(age), include.lowest = T),
-                   hypten, exclude = NULL))
-@
-Since there are only
-\Sexpr{with(NHANES, sum(is.na(hypten[age > quantile(age, 0.75)])))}
-missing values for the last quartile, differences between observed and imputed
-values are insignificant.
-\end{frame}
+% \begin{frame}[fragile]{\thesection. \insertsection}
+% \framesubtitle{\thesection.\thesubsection. \insertsubsection}
+% For the first three quartiles of \Rstring{age} the distribution of the imputed
+% values is similar to the distribution of the observed values of \Rstring{hypten}.
+% <<hyptenagetab>>=
+% with(NHANES, table(age = cut(age, quantile(age), include.lowest = T),
+%                    hypten, exclude = NULL))
+% @
+% Since there are only
+% \Sexpr{with(NHANES, sum(is.na(hypten[age > quantile(age, 0.75)])))}
+% missing values for the last quartile, differences between observed and imputed
+% values are insignificant.
+% \end{frame}
 
-\subsection{Logged events}
-\begin{frame}[fragile]{\thesection. \insertsection}
-\framesubtitle{\thesection.\thesubsection. \insertsubsection}
-\mode<presentation>{
-The log of the automatic changes (slide~\ref{goodtoknow}) is returned
-as part of the \Robj{mids} object:
-}
-\mode<article>{
-The log of the automatic changes (Section~\ref{subsec:goodtoknow}) is returned
-as part of the \Robj{mids} object:
-}
-\begin{columns}[onlytextwidth]
-\begin{column}{0.45\linewidth}
-<<headloggedEvents>>=
-head(imp2$loggedEvents)
-@
-\end{column}
-\hfill
-\begin{column}{0.45\linewidth}
-With columns\\
-
-\begin{tabular}{lp{12em}}
-\Rstring{it} & iteration number\\
-\Rstring{im} & imputation number\\
-\Rstring{co} & column number in the data\\
-\Rstring{dep} & dependent variable\\
-\Rstring{meth} & imputation method used\\
-\Rstring{out} & names of altered or removed predictors
-\end{tabular}
-\end{column}
-\end{columns}
-\end{frame}
 
 
 \section{Analyse \& pool the imputed data}
@@ -1009,7 +1023,7 @@ With columns\\
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 Once we have confirmed that our imputation was successful, we can move on
-to the analysis of the imputed data.
+to the analysis of the imputed data.\bigskip
 
 For example, we might be interested in the following logistic regression model:
 <<fitglm, eval = F>>=
@@ -1023,20 +1037,26 @@ the data from the \Robj{mids} object, but can use \Rfct{with}.
 mod1 <- with(imp2, glm(DM ~ age + gender + hypchol + BMI + smoke + alc,
                        family = "binomial"))
 @
+
+\end{frame}
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+
 \Robj{mod1} is an object of class \Robj{mira} and has elements
 <<namesofmod1>>=
 names(mod1)
 @
 where \Robj{mod1}\texttt{\$}\Robj{analyses} is a list containing the fitted
 model for each imputed dataset.
-\end{frame}
 
+\end{frame}
 
 
 \subsection{Pooling results}
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-Pooled results can be obtained using \Rfct{pool} and its summary
+Pooled results can be obtained using \Rfct{pool} and its summary.
 <<pooled, size = "scriptsize">>=
 options(width = 90)
 res1 <- summary(pool(mod1))
@@ -1046,8 +1066,9 @@ round(res1, 3)
 
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-Pooling with \Rfct{mice::pool} is available only for some types of model.
-Generally, it should work for models for which the functions \Rfct{coef} and
+Pooling with \Rfct{mice::pool} is available for most types of models.\bigskip
+
+Generally, it works for models for which the functions \Rfct{coef} and
 \Rfct{vcov} can extract the (fixed effects) coefficients and variance-covariance
 matrix of these coefficients.
 
@@ -1116,6 +1137,7 @@ and pool them.
 
 \bigskip
 
+\pause
 \blue{Calculate correlation or covariance of imputed data:}
 <<miceaddsfcts2, eval = FALSE>>=
 miceadds::micombine.cor(mi.res, variables = NULL, conf.level = 0.95,
@@ -1130,7 +1152,7 @@ These functions take \Robj{mids} objects as input.
 \subsection{Extracting and exporting imputed data}
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-The function \Rfct{complete} allows extraction of the imputed data from a \Robj{mids} object:
+The function \Rfct{complete} allows \blue{extraction of the imputed data} from a \Robj{mids} object:
 <<completedata, eval = FALSE>>=
 mice::complete(x, action = 1, include = FALSE)
 @
@@ -1141,7 +1163,9 @@ mice::complete(x, action = 1, include = FALSE)
       \begin{itemize}
       \item \Rval{1}, \ldots, \Rval{m} (single imputed dataset)
       \item \Rstring{"long"}: long format (imputed data stacked vertically)
-      \item \Rstring{"broad"}: wide format (imputed data combined horizontally; ordered by imputation)
+      \item \Rstring{"broad"}: \parbox[t]{0.6\linewidth}{
+                                  wide format (imputed data combined horizontally;
+                                  ordered by imputation)}
       \item \Rstring{"repeated"}: (like \Rstring{"broad"}, but ordered by variable)
       \end{itemize}
 \item \Rarg{include}: include the orginal data?\\
@@ -1151,14 +1175,14 @@ mice::complete(x, action = 1, include = FALSE)
 
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-The function \Rfct{mids2spss} allows the export of imputed data (\Robj{mids} objects)
+The function \Rfct{mids2spss} allows the \blue{export of imputed data} (\Robj{mids} objects)
 to \textsf{SPSS}.
 <<exporttospss>>=
 mids2spss(imp2,
           filedat = "datafile.txt", # the file containing the data
-          filesps = "importsyntax.sps" # syntax to convert .txt to .sav
+          filesps = "importsyntax.sps", # syntax to convert .txt to .sav
+          silent = TRUE
 )
-
 @
 
 Data from \Robj{mids} objects can also be exported to \textsf{MPLUS} using
@@ -1168,7 +1192,7 @@ Data from \Robj{mids} objects can also be exported to \textsf{MPLUS} using
 \subsection{Combining \texttt{mids} objects}
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-To increase the number of imputed datasets without re-doing the initial $m$ imputations,
+To \blue{increase the number of imputed datasets} without re-doing the initial $m$ imputations,
 a second set of imputations can be done and the two \Robj{mids} objects combined
 using \Rfct{ibind}.
 
@@ -1196,9 +1220,9 @@ imp2combi$m
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 
-The function \Rfct{cbind.mids} allows to add columns to a \Robj{mids} object.
+The function \Rfct{cbind.mids} allows to \blue{add columns} to a \Robj{mids} object.
 The extra columns can either be a \Robj{data.frame}, \Robj{matrix}, \Robj{vector}
-or \Robj{factor} or another \Robj{mids} object.
+or \Robj{factor} or another \Robj{mids} object.\bigskip
 
 
 For examle data columns that should be part of the imputed data for completeness,
@@ -1211,7 +1235,7 @@ impextra <- mice:::cbind.mids(x = imp2, extravar = extravar)
 
 \blue{Note:}
 \Rfct{cbind} just adds columns to the data, you need to make sure they are
-sorted correctly so that the rows of the new data are from the same subjects
+\blue{sorted correctly} so that the rows of the new data are from the same subjects
 as the corresponding rows in the impute data.
 \end{frame}
 
@@ -1238,7 +1262,8 @@ A walk-through how to do multiple imputation in SPSS can be found
 \end{itemize}
 
 
-The procedure itself is located in the menu\\
+\pause
+The \blue{procedure} itself is located in the menu\\
 \blue{$>$} \parbox[t]{0.9\textwidth}{Analyze\\
   \blue{$>$} \parbox[t]{0.85\textwidth}{Multiple Imputation\\
     \blue{$>$} \parbox[t]{0.85\textwidth}{Impute Missing Data Values}
@@ -1289,9 +1314,8 @@ The procedure itself is located in the menu\\
 
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-In SPSS the list of models that can be pooled is available in the help
+In SPSS the \blue{list of models that can be pooled} is available in the help
 under
-% Help $>$ Missing Values Option $>$ Multiple Imputation $>$Analyzign Multiple Imputation Data
 
 \blue{$>$} \parbox[t]{0.9\textwidth}{Help\\
   \blue{$>$} \parbox[t]{0.85\textwidth}{Missing Values Option\\

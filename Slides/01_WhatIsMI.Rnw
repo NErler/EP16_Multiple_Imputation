@@ -1417,17 +1417,13 @@ Multiple sets of results:
 \subsection{Why pooling?}
 \begin{frame}{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-Recall from Slide~\ref{RubinsIdeas}:\\
+Recall from slide~\ref{RubinsIdeas}:\\
 We need to represent missing values by a \blue{number of imputations}.\\
 \blue{\ding{225}} $m$ imputed datasets
 
 \bigskip
 
 \pause
-% We are uncertain about what the unobserved values would have been.\\
-% \blue{\ding{225}} represent this uncertainty by using distribution of likely values.
-%
-% \bigskip
 
 From the different imputed datasets we get \blue{different sets of parameter estimates},
 each of them with a standard error, representing the uncertainty about the
@@ -1639,7 +1635,7 @@ CIDF <- data.frame(
 )
 
 ggplot(poolDF, aes(x = coef, y = as.numeric(imp))) +
-  geom_polygon(data = CIDF, aes(x = x, y = y), fill = "blue4", alpha = 0.4) +
+  geom_polygon(data = CIDF, aes(x = x, y = y), fill = "blue4", alpha = 0.3) +
   geom_point() +
   geom_errorbarh(aes(xmin = lo, xmax = hi), height = 0.1) +
   facet_grid(~var, scales = 'free') +
@@ -1682,7 +1678,7 @@ Quiz
 To reiterate the content of the above sections, you can take the corresponding
 quiz. An interactive version can be found at
 \begin{block}{}
-\centering\url{https://emcbiostatistics.shinyapps.io/Quiz_PartI}
+\centering\url{https://emcbiostatistics.shinyapps.io/MICourse_Quiz_PartI}
 \end{block}
 or you can download an html version from Canvas (Practicals/Quiz\_PartI\_static.html).
 \textcolor{red}{[update links]}.

@@ -205,6 +205,10 @@ single arrow head extend=.3cm,}}
 \usepackage[hidelinks]{hyperref}
 }
 
+\definecolor{links}{HTML}{6b2e6b}
+
+\hypersetup{colorlinks,linkcolor=, urlcolor=links}
+
 \usepackage{ulem} % for various types of underlining
 \usepackage{arydshln}
 \usepackage{booktabs}
