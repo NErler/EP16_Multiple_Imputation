@@ -37,14 +37,6 @@ if (names(rmarkdown::metadata$output) == "html_document") {
     opt
   })
   
-  # knitr::knit_hooks$set(solution = function(before, options, envir) {
-  #   if (before) {
-  #     '<div class="fold o">'
-  #   } else {
-  #     '</div>'
-  #   }
-  # })
-  
   static <- TRUE
 }
 ```

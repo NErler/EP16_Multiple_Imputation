@@ -22,7 +22,7 @@
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 There are several packages in \textsf{R} that provide functions to create and
-plot the missing data pattern.\\\bigskip
+\blue{plot the missing data pattern}.\\\bigskip
 
 Examples are:\\
 \textbf{mice}, \textbf{VIM}, \textbf{Amelia}, \textbf{visdat}, \textbf{naniar}, \ldots\\[3ex]
@@ -44,7 +44,7 @@ load(file.path(datadir, "NHANES.RData"))
 
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-<<setwidth120, echo = F>>=
+<<setwidth120, echo = FALSE>>=
 op <- getOption("width")
 options("width" = 120)
 @
@@ -54,7 +54,7 @@ mdp <- mice::md.pattern(NHANES)
 head(mdp[, -c(7:14)]) # omit some columns to fit it on the slide
 tail(mdp[, -c(7:14)])
 @
-<<resetwidth120, echo = F>>=
+<<resetwidth120, echo = FALSE>>=
 options('width' = op)
 @
 
@@ -64,7 +64,7 @@ options('width' = op)
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 <<JointAI_md_pattern, fig.width = 7, fig.height = 5, out.width = "80%", fig.keep = 'last'>>=
 par(mar = c(5, 0.5, 1, 3), mgp = c(2, 0.6, 0))
-JointAI::md_pattern(NHANES, print = F, yaxis_pars = list(cex.axis = 0.5))
+JointAI::md_pattern(NHANES, print = FALSE, yaxis_pars = list(cex.axis = 0.5))
 @
 \end{frame}
 
@@ -72,14 +72,14 @@ JointAI::md_pattern(NHANES, print = F, yaxis_pars = list(cex.axis = 0.5))
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 <<VIM_aggr, fig.width = 10, fig.height = 5, out.width = "95%", cache = T>>=
 par(mar = c(6, 3, 2, 1))
-VIM::aggr(NHANES, prop = T, numbers = F)
+VIM::aggr(NHANES, prop = T, numbers = FALSE)
 @
 \end{frame}
 
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 <<visdat_vis_dat, fig.width = 8, fig.height = 5, out.width = "95%", crop = T, cache = T>>=
-visdat::vis_dat(NHANES, sort_type = F)
+visdat::vis_dat(NHANES, sort_type = FALSE)
 @
 \end{frame}
 
@@ -195,7 +195,7 @@ for (i in 1:ncol(NHANESfac)) {
 \subsection{Correlations \& patterns}
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-Quick way to check for strong correlations between variables:
+A quick (and dirty) way to check for strong correlations between variables is:
 <<corr>>=
 # re-code all variables as numeric and calculate spearman correlation
 Corr <- cor(sapply(NHANES, as.numeric),
@@ -205,8 +205,10 @@ Corr <- cor(sapply(NHANES, as.numeric),
 <<corrplot syntax, eval = F>>=
 corrplot::corrplot(Corr, method = "square", type = "upper", tl.col = "black")
 @
-Note: We only use the correlation coefficient for binary variables in this
+\blue{Note:} \parbox[t]{0.9\linewidth}{
+We only use the correlation coefficient for binary variables in this
 visualization, not as a statistical result!
+}
 \end{frame}
 
 \begin{frame}[fragile]{\thesection. \insertsection}
@@ -238,7 +240,7 @@ Knowing your data also means to be able to answer these questions:
       (e.g. blood measurements)
 \item Are there \blue{structural missing values}? (e.g. pregnancy status in men)
 \item Are there \blue{patterns} in the missing values?\\
-      (e.g. only patients with hypertension have observations of HyperMed)
+      (e.g. only patients with hypertension have observations of \Rstring{HyperMed})
 \item Are values \blue{missing by design}?
 \item Is the \blue{assumption of ignorable missingness} (MAR or MCAR) justifiable?
 \end{itemize}
@@ -247,15 +249,15 @@ Knowing your data also means to be able to answer these questions:
 \subsection{Auxiliary variables}
 \begin{frame}{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-\blue{Auxiliary variables} are variables that are not part of the analysis but can
-help during imputation.\\\bigskip
+\blue{Auxiliary variables} are variables that are not part of the analysis but
+\blue{can help during imputation}.\\\bigskip
 
 Good auxiliary variables
 \begin{itemize}
-\item are related to the probability of missingness in a variable, or
-\item are related to the incomplete variable itself,
-\item do not have many missing values themselves and
-\item are (mostly) observed when the incomplete variable of interest is missing.
+\item are \blue{related to the probability of missingness} in a variable, or
+\item are \blue{related to the incomplete variable} itself,
+\item do \blue{not have many missing values} themselves and
+\item are (mostly) \blue{observed} when the incomplete variable of interest is missing.
 \end{itemize}
 \end{frame}
 
@@ -264,7 +266,7 @@ Good auxiliary variables
 \subsection{Main function arguments}
 \begin{frame}{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-The main arguments needed to impute data with \texttt{mice()} are:
+The main arguments needed to impute data with \Rfct{mice()} are:
 \begin{itemize}
 \item \texttt{\hlstd{data}}: the dataset
 \item \texttt{\hlkwc{m}}: number of imputed datasets (default is 5)
@@ -297,7 +299,7 @@ most commonly used ones are:
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 \textbf{Change the default imputation method:}\\
-To use \texttt{\hlstr{norm}} instead of \texttt{\hlstr{pmm}} for all
+E.g.: to use \texttt{\hlstr{norm}} instead of \texttt{\hlstr{pmm}} for all
 continuous incomplete variables, use:
 
 <<mice example, eval = F>>=
@@ -305,15 +307,17 @@ mice(NHANES, defaultMethod = c("norm", "logreg", "polyreg", "polr"))
 @
 
 
+\pause
 \textbf{Change imputation method for a single variable:}\\
 To change the imputation method for single variables
-(but also for changes in other arguments) it is convenient to do
-a setup run of \texttt{\hlkwd{mice}\hlstd{()}} without iterations
+(but also for changes in other arguments) it is convenient to \blue{do
+a setup run} of \texttt{\hlkwd{mice}\hlstd{()}} without iterations
 (\texttt{\hlkwc{maxit} \hlstd{=} \hlnum{0}})
 and to extract and modify the parameters from there.
 
 \bigskip
 
+\pause
 \textbf{Exclude variable from imputation:}\\
 When a variable that has missing values should not be imputed, the method needs
 to be set to \Rstring{""}.
@@ -340,17 +344,17 @@ meth["HyperMed"] <- ""
 \subsection{Predictor matrix}
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-The \Rarg{predictorMatrix} is a matrix that specifies which variables are used as
-predictors in which imputation model.\\
+The \Rarg{predictorMatrix} is a matrix that specifies \blue{which variables are used as
+predictors} in which imputation model.\\
 Each row represents the model for the variable given in the rowname.
 
 <<predmat>>=
 head(imp0$predictorMatrix)[, 1:11]
 @
 
-Variables not used as predictor are (or have to be set to) zero.\bigskip
+Variables \blue{not used as predictor} are (or have to be set to) \blue{zero}.\bigskip
 
-By default, all variables (except the variable itself) are used as predictor.\\
+By \blue{default, all variables} (except the variable itself) \blue{are used} as predictor.\\
 For complete variables all entries are 0.
 
 \end{frame}
@@ -359,7 +363,7 @@ For complete variables all entries are 0.
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 
 \blue{Important:}\\
-A variable that has missing values needs to be imputed in order to be used as
+A variable that has \blue{missing values needs to be imputed} in order to be used as
 predictor for other imputation models!!!
 
 \bigskip
@@ -373,7 +377,7 @@ of the imputation.
 
 \bigskip
 
-\blue{\ding{225}} Make sure all variables are coded correctly, so that the chosen
+\blue{\ding{225}} Make sure all \blue{variables are coded correctly}, so that the chosen
 imputation models are appropriate (e.g., ordered factors).
 \end{frame}
 
@@ -428,10 +432,10 @@ load(file.path(projdir, "Slides/workspaces/imp.RData"))
 \subsection{Passive imputation}
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-In some cases, variables are functions of other variables,
-e.g., $BMI = \frac{weight}{height^2}.$
+In some cases, variables are \blue{functions of other variables},
+e.g., $BMI = \frac{weight}{height^2}.$\bigskip
 
-If we impute \Rstring{BMI} directly, its values may be inconsistent with the
+If we impute \Rstring{BMI} directly, its values may be \blue{inconsistent} with the
 (imputed) values of \Rstring{height} and \Rstring{weight}.
 <<demo_passive1>>=
 DF1 <- complete(imp, 1) # select the first imputed dataset
@@ -447,7 +451,7 @@ values of \Rstring{height} and \Rstring{weight}.
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 Moreover, if some components of a variable are observed we want to use that
-information to reduce uncertainty.
+\blue{information to reduce uncertainty}.
 
 <<demo_passive2>>=
 table(weight_missing = is.na(NHANES$weight),
@@ -457,7 +461,8 @@ Here we have
 \Sexpr{sum(is.na(NHANES$height) & !is.na(NHANES$weight))} +
 \Sexpr{sum(is.na(NHANES$weight) & !is.na(NHANES$height))} =
 \Sexpr{sum(xor(is.na(NHANES$height), is.na(NHANES$weight)))} cases in which
-either \Rstring{height} or \Rstring{weight} is observed.\\
+either \Rstring{height} or \Rstring{weight} is observed.\bigskip
+
 We would like to impute \Rstring{height} and \Rstring{weight} separately and
 calculate \Rstring{BMI} from the (imputed) values of the two variables.
 \end{frame}
@@ -465,13 +470,13 @@ calculate \Rstring{BMI} from the (imputed) values of the two variables.
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 If \Rstring{BMI} is not a relevant predictor in any of the other imputation models,
-we could just exclude BMI from the imputation and re-calculate it afterwards.
+we could just exclude BMI from the imputation and \blue{re-calculate it afterwards}.
 
 \bigskip
 
-To use \Rstring{BMI} as predictor in the imputation, it has to be calculated
-in each iteration of the algorithm.
-In \textbf{mice} this is possible with \textit{passive imputation}.
+To use \Rstring{BMI} as predictor in the imputation, it has to be \blue{calculated
+in each iteration} of the algorithm.
+In \textbf{mice} this is possible with \blue{\textit{passive imputation}}.
 
 \bigskip
 
@@ -481,34 +486,36 @@ calculate \Rstring{BMI}:
 meth["BMI"] <- "~I(weight/height^2)"     # specify formula to impute BMI
 pred[c("weight", "height"), "BMI"] <- 0  # prevent feedback
 @
-To prevent feedback from \Rstring{BMI} in the imputation of \Rstring{height}
+To \blue{prevent feedback} from \Rstring{BMI} in the imputation of \Rstring{height}
 and \Rstring{weight} the \Rarg{predictorMatrix} needs to be modified.
 \end{frame}
 
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 
-Since \Rstring{BMI} and \Rstring{weight} are highly correlated
+Since \Rstring{BMI} depends on \Rstring{weight}, and the two variables are highly correlated
 ($\rho = $\Sexpr{round(cor(NHANES$weight, NHANES$BMI, use = "pair"), 2)})
-it may be beneficial not to use them simultaneously as predictors in the
+it may be beneficial \blue{not to use them simultaneously} as predictors in the
 other imputation models.
 
 Which one to use may differ between imputation models.
 
 \bigskip
 
-Passive imputation can also be useful in settings where
-imputation models include an \blue{interaction terms} between incomplete variables
-(see \cite[p. 133]{Buuren2012} for an example) or when
-a number of covariates is used to form a \blue{sum score}. The sum score, instead
+\blue{Passive imputation} can also be useful in settings where
+\begin{itemize}
+\item imputation models include an \blue{interaction terms} between incomplete variables
+(see \cite[p. 133]{Buuren2012} for an example), or when
+\item a number of covariates is used to form a \blue{sum score}. The sum score, instead
 of all single elements, can then be used as predictor in other imputation models.
+\end{itemize}
 \end{frame}
 
 \subsection{Post processing}
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 \Rfct{mice} has an argument \Rarg{post} that can be used to specify functions
-that modify imputed values.
+that modify imputed values.\bigskip
 
 Helpful functions are
 \begin{itemize}
@@ -519,6 +526,7 @@ Helpful functions are
 \textbf{Example:}\\
 When inspecting the imputed values from \Robj{imp}, we find that some imputed
 values in \Rstring{creat} are negative.
+
 <<demo_squeeze>>=
 summary(DF1$creat) # DF1 is the first imputed dataset we extracted earlier
 @
@@ -561,7 +569,7 @@ p
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 With the following syntax all imputed values of \Rstring{creat} that are
-outside the interval \texttt{c(0, 100)} will be set to those limiting values.
+outside the interval \texttt{c(0, 100)} will be \blue{set to those limiting values}.
 <<imp2, eval = F>>=
 post <- imp$post
 post["creat"] <- "imp[[j]][,i] <- squeeze(imp[[j]][,i], c(0, 100))"
@@ -580,16 +588,17 @@ load(file.path(projdir, "Slides/workspaces/imp2.RData"))
 @
 
 \blue{Note:}\\
-When many observations are outside the limits it may be better to change the
-imputation model since the implied assumption of the current model apparently does not
-fit the assumption about the complete data distribution.
+When many observations are outside the limits it may be better to \blue{change the
+imputation model} since the implied \blue{assumption of the imputation model}
+apparently \blue{does not fit the} (assumption about the)
+\blue{complete data distribution}.
 \end{frame}
 
 
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-This post-processing allows for many more data manipulations and is not
-restricted to \Rfct{squeeze} and \Rfct{ifdo}.
+This \blue{post-processing} of imputed values allows for many
+\blue{more data manipulations} and is not restricted to \Rfct{squeeze} and \Rfct{ifdo}.
 Any strings of \textsf{R} commands provided will be evaluated after the
 corresponding variable is imputed, within each iteration.
 
@@ -604,9 +613,9 @@ current value.
 \subsection{Visit sequence}
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-When the post-processed or passively imputed values of a variable depend on
-other variables, the sequence in which the variables are imputed may be
-important to obtain consistent values.
+When the \blue{post-processed or passively imputed values} of a variable depend on
+other variables, the \blue{sequence in which the variables are imputed} may be
+important to obtain \blue{consistent values}.
 
 \bigskip
 
@@ -614,7 +623,7 @@ important to obtain consistent values.
 If \Rstring{BMI} is passively imputed (calculated) before the new
 imputations for \Rstring{height} and \Rstring{weight} are drawn, the resulting
 values of \Rstring{BMI}, will match \Rstring{height} and \Rstring{weight} from
-the previous iteration, but not the iteration given in the imputed dataset.
+the \blue{previous iteration}, but not the iteration given in the imputed dataset.
 
 \bigskip
 

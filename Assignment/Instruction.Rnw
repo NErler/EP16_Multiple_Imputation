@@ -26,7 +26,7 @@
 
 
 \section*{Deadline \& submission:}
-\textcolor{red}{tba}
+Assignments need to be sumbitted via Canvas no later than \textcolor{red}{xx june 2018}
 
 \section*{Task:}
 Impute and analyze the dataset you have been assigned and provide documentation
@@ -68,6 +68,8 @@ The report needs to demonstrate
       have occured, and that these adjustments fixed the problem
 \end{itemize}
 
+\pagebreak
+
 Moreover
 \begin{itemize}
 \item Use plots and other R output (this you may also copy into the microsoft
@@ -87,7 +89,7 @@ Moreover
       decide yourself
       \begin{itemize}
       \item if additional variables should be used as auxiliary variables
-      \item if variables need to be re-coded or re-scaled
+      \item if variables \underline{need to} be re-coded or re-scaled
       \end{itemize}
 \item You do not need to check standard model assumptions in the final
       analysis model.

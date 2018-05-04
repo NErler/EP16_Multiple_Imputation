@@ -1,0 +1,79 @@
+\documentclass[a4paper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\hypersetup{
+    colorlinks,
+    linkcolor={blue}
+}
+
+\parindent0cm
+\renewcommand{\arraystretch}{1.5}
+
+\begin{document}
+\begin{center}
+{\huge%
+  \textbf{Assignment for\\[1ex]EP16: Missing Values in Clinical Research}
+}
+
+\vspace*{1cm}
+
+{\LARGE \textbf{Multiple Imputation}}
+
+\vspace*{1cm}
+
+\textbf{\large 14 -- 18 May, 2018}
+\end{center}
+
+
+\vspace*{1cm}
+
+\section*{Data}
+The \textbf{MIdat41} data comprise data of 969 participants of an observational
+study on the effects of testosterone on heart rate.
+
+\bigskip
+
+The dataset contains the following variables:
+\begin{table}[!ht]
+\centering
+\begin{tabular}{lp{13cm}}\toprule
+variable & explanation\\\midrule
+\texttt{ID} & subject identifier\\
+\texttt{Gender} & participant's gender\\
+\texttt{Income} & Household income\\
+\texttt{HR} & heart rate\\
+\texttt{sleep} & hours of sleep per night\\
+\texttt{PA} & number of days per week on which physical activity is performed\\
+\texttt{alc} & number of alcoholic drinks consumed per week\\
+\texttt{smoke} & smoking status\\
+\texttt{PC} & number of hours spent using a computer per day\\
+\texttt{TV} & number of hours spent watching television per day\\
+\texttt{height} & participant's height in cm\\
+\texttt{weight} & participant's weight in kg\\
+\texttt{BMI} & participant's BMI\\
+\texttt{Age} & participant's Age\\
+\texttt{Testosterone} & participant's testosterone level in ng/dL\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\section*{Analysis model of interest}
+The analysis model of interest is a linear regression with outcome \texttt{HR}
+and covariates \texttt{Testosterone}, \texttt{Gender}, \texttt{Age}, \texttt{smoke},
+\texttt{sleep}, \texttt{PA}, \texttt{PC}, \texttt{BMI} and \texttt{alc}.
+
+\bigskip
+
+We assume that there are interaction effects between \texttt{Testosterone}
+and \texttt{Gender} as well as between \texttt{Age} and \texttt{smoke}.
+
+<<echo = FALSE, eval = FALSE>>=
+knit2pdf("Assignment/MIdat41_documentation.Rnw",
+         output = "Assignment/instructions/MIdat41_documentation.tex")
+file.remove("Assignment/instructions/MIdat41_documentation.tex")
+@
+\end{document}

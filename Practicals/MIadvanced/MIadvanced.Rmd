@@ -2,7 +2,7 @@
 title: "Multiple Imputation in complex settings"
 output: 
 #   html_document:
-#     code_folding: hide
+#     code_folding: show
 #     df_print: paged
 #     toc: true
 #     toc_float:
@@ -11,9 +11,8 @@ output:
 #     theme: spacelab
 #     highlight: tango
 #     pandoc_args: [
-#       "--output=Practical_MICE.html"
+#       "--output=Practical_MIadvanced.html"
 #     ]
-#     css: mycss.css
 # editor_options:
 #   chunk_output_type: inline
   learnr::tutorial:
@@ -32,7 +31,7 @@ if (names(rmarkdown::metadata$output) == "learnr::tutorial") {
 
 if (names(rmarkdown::metadata$output) == "html_document") {
   knitr::opts_hooks$set(eval = function(opt) {
-    if (any(opt$exercise, opt$eval == FALSE))
+    if (any(opt$exercise))
       opt$eval <- opt$include <- FALSE
     
     opt
@@ -393,18 +392,18 @@ load("www/longimps.RData")
 ```
 
 <br>
-<div style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
-The focus of this practical is on the imputation of data that have features
-that require additional consideration.
+<div style="border:1px; border-style:solid; padding: 1em; border-color:#D11450">
+The focus of this practical is the imputation of data that has features
+that require special attention.
 In the interest of time, we will focus on these features and abbreviate steps
-that are the same as in any default imputation setting, i.e., getting to know 
-the data and checking that imputed values are realistic.
-Nevertheless, these steps are of course required as well when analysing data in 
+that are the same as in any imputation setting (e.g., getting to know 
+the data or checking that imputed values are realistic).
+Nevertheless, these steps are of course required when analysing data in 
 practice.
 </div>
 
 ## Non-linear associations
-### Data & Model of interest
+### Data & Model of interest {.tabset .tabset-fade .tabset-pills}
 To practice imputation when non-linear functional forms or interaction terms
 are involved, we use a subset of the **NHANES** data.
 
@@ -453,35 +452,45 @@ may differ with age, and, hence, include **interaction terms**
 between `age` and `chol` and `HDL`, respectively.
 Additionally, we want to include `educ` and `DBP` as auxiliary variables.
 
-### Imputation using **mice**
+### Imputation using **mice** {.tabset .tabset-fade .tabset-pills}
 When the analysis model of interest involves interaction terms between
 incomplete variables, **mice** has limited options to reduce the bias that may
 be introduced by naive handling of the missing values.
 
 Use of the "Just Another Variable" approach can in some settings reduce bias.
-Furthermore, predictive mean matching tends to lead to less bias than 
-normal imputation models. Alternatively, we can use passive imputation, i.e.,
+Alternatively, we can use passive imputation, i.e.,
 calculate the interaction terms in each iteration of the MICE algorithm.
+Furthermore, predictive mean matching tends to lead to less bias than 
+normal imputation models.
 
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 1\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
 
 Calculate the interaction terms in the incomplete data and perform the imputation
 with `mice()`, using the **JAV approach and using passive imputation**.
 Follow the usual procedure of doing a setup run and adjusting
 the imputation method and predictor matrix.
-(For each of the two approaches 10 iterations of 5 imputed datasets take approx. 30 seconds.)
+```{r, include = !static, echo = FALSE}
+asis_output("(For each of the two approaches 10 iterations of 5 imputed datasets take approx. 30 seconds.)")
+```
 
 ```{r miceint, exercise = TRUE, exercise.timelimit = 200}
 
 ```
 
-```{r miceint-hint-1}
+```{r miceint-hint-1, include = !static}
 # calculate the interaction terms
 NHANES$agechol <- NHANES$age * NHANES$chol
 NHANES$ageHDL <- NHANES$age * NHANES$HDL
 
 ```
 
-```{r miceint-hint-2}
+```{r miceint-hint-2, include = !static}
 # calculate the interaction terms
 NHANES$agechol <- NHANES$age * NHANES$chol
 NHANES$ageHDL <- NHANES$age * NHANES$HDL
@@ -494,7 +503,7 @@ pred_miceint <- miceint0$predictorMatrix
 
 ```
 
-```{r miceint-hint-3}
+```{r miceint-hint-3, include = !static}
 # calculate the interaction terms
 NHANES$agechol <- NHANES$age * NHANES$chol
 NHANES$ageHDL <- NHANES$age * NHANES$HDL
@@ -505,17 +514,19 @@ miceint0 <- mice(NHANES, maxit = 0)
 meth_miceint <- miceint0$method 
 pred_miceint <- miceint0$predictorMatrix
 
-# change the imputation method for JAV
+# change the imputation method:
 meth_miceint["DBP"] <- "norm"
+# replace all "pmm" with "midastouch"
 meth_miceint <- gsub("pmm", "midastouch", meth_miceint)
 
-# changes in predictor matrix
+# changes in predictor matrix to prevent that the original variables are
+# imputed based on the interaction terms
 pred_miceint["chol", "agechol"] <- 0
 pred_miceint["HDL", "ageHDL"] <- 0
 
 ```
 
-```{r miceint-hint-4}
+```{r miceint-hint-4, include = !static}
 # calculate the interaction terms
 NHANES$agechol <- NHANES$age * NHANES$chol
 NHANES$ageHDL <- NHANES$age * NHANES$HDL
@@ -526,11 +537,13 @@ miceint0 <- mice(NHANES, maxit = 0)
 meth_miceint <- miceint0$method 
 pred_miceint <- miceint0$predictorMatrix
 
-# change the imputation method for JAV
+# change the imputation method:
 meth_miceint["DBP"] <- "norm"
+# replace all "pmm" with "midastouch"
 meth_miceint <- gsub("pmm", "midastouch", meth_miceint)
 
-# changes in predictor matrix
+# changes in predictor matrix to prevent that the original variables are
+# imputed based on the interaction terms
 pred_miceint["chol", "agechol"] <- 0
 pred_miceint["HDL", "ageHDL"] <- 0
 
@@ -540,33 +553,53 @@ meth_miceintPAS[c("agechol", "ageHDL")] <- c("~I(age*chol)", "~I(age*HDL)")
 
 ```
 
-```{r miceint-solution}
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 1\\n")
+```
+
+```{r miceint-solution, cache = TRUE}
+# calculate the interaction terms
 NHANES$agechol <- NHANES$age * NHANES$chol
 NHANES$ageHDL <- NHANES$age * NHANES$HDL
 
+# setup run
 miceint0 <- mice(NHANES, maxit = 0)
 
 meth_miceint <- miceint0$method 
 pred_miceint <- miceint0$predictorMatrix
 
-# change the imputation method
+# change the imputation method:
 meth_miceint["DBP"] <- "norm"
+# replace all "pmm" with "midastouch"
 meth_miceint <- gsub("pmm", "midastouch", meth_miceint)
 
-# changes in predictor matrix
+# changes in predictor matrix to prevent that the original variables are
+# imputed based on the interaction terms
 pred_miceint["chol", "agechol"] <- 0
 pred_miceint["HDL", "ageHDL"] <- 0
 
-# changs in imputation method for passive imputation
+# changes in imputation method for passive imputation only
 meth_miceintPAS <- meth_miceint
 meth_miceintPAS[c("agechol", "ageHDL")] <- c("~I(age*chol)", "~I(age*HDL)")
 
+# run imputation with the JAV approach
 miceintJAV <- mice(NHANES, method = meth_miceint, predictorMatrix = pred_miceint,
                 maxit = 10, m = 5)
 
+# run imputation with passive imputation
 miceintPAS <- mice(NHANES, method = meth_miceintPAS, predictorMatrix = pred_miceint,
                 maxit = 10, m = 5)
 
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 2\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
 ```
 
 We skip the evaluation of convergence and investigation of the imputed values.
@@ -576,7 +609,7 @@ Omitting the changes in the `predictorMatrix`
 would have resulted in convergence problems for `HDL`, `ageHDL`, `chol` and `agechol`.
 
 Analyse the imputed data and pool the results.
-```{r miceint-analysis-setup}
+```{r miceint-analysis-setup, eval = !static, include = !static}
 NHANES$agechol <- NHANES$age * NHANES$chol
 NHANES$ageHDL <- NHANES$age * NHANES$HDL
 
@@ -603,6 +636,12 @@ meth_miceintPAS[c("agechol", "ageHDL")] <- c("~I(age*chol)", "~I(age*HDL)")
 
 ```
 
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 2\\n")
+```
+
 ```{r miceint-analysis-solution}
 miceint_miraJAV <- with(miceintJAV, 
                      lm(weight  ~ gender + bili + age + chol + HDL + agechol +
@@ -614,18 +653,35 @@ miceint_miraPAS <- with(miceintPAS,
 
 summary(pool(miceint_miraJAV))
 summary(pool(miceint_miraPAS))
+```
 
+```{r, include = static, echo = FALSE}
+asis_output("Because we want to perform the imputation with other methods
+            on the same original dataset, we remove the two columns `agechol` 
+            and `ageHDL` that we had added to the data.")
+```
+
+```{r, eval = static, include = static}
+NHANES <- subset(NHANES, select = -c(agechol, ageHDL))
 ```
 
 
 
-### Imputation using **JointAI**
+### Imputation using **JointAI** {.tabset .tabset-fade .tabset-pills}
 The package **JointAI** performs analysis and imputation jointly.
 There are three main functions, `lm_imp()`, `glm_imp()` and `lme_imp()` that
-perform linear regression, generalized linear regression and linear mixed
-models. The specification of these functions is very similar to the use
+perform linear regression, generalized linear regression and analysis with 
+linear mixed models. The specification of these functions is very similar to the use
 of their complete
 data versions `lm()`, `glm()` and `lme` (from the **nlme** package).
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 1\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
 
 Check the [help file](https://www.rdocumentation.org/packages/JointAI/versions/0.1.0/topics/model_imp)
 for `lm_imp()` to find out which arguments you need to specify to fit the 
@@ -633,6 +689,12 @@ linear regression model for `weight`.
 
 ```{r, eval = !static, echo = FALSE}
 asis_output("###\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 1\\n")
 ```
 
 `lm_imp()`, `glm_imp()` and `lme_imp()` have many arguments, but not all of 
@@ -689,6 +751,14 @@ available.
 asis_output("###\\n")
 ```
 
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 2\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
 Analyse (and impute) the data using `lm_imp()` and the linear regression model
 specified above.
 
@@ -698,10 +768,28 @@ specified above.
 * Increase `n.iter` if necessary.
 
 
+```{r fitJointAIintr_hint, eval = static, results = 'asis', echo = FALSE}
+cat('<button type="button" class="btn btn-info btn-sm" data-toggle="collapse" data-target="#JointAIint">Hint</button>
+<div id = "JointAIint" class="collapse" style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+You need to specify the
+
+* model formula
+* the dataset
+* auxiliary variables
+* the number of iterations for the sample
+* set `inits = NULL`
+</div>')
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("<br>")
+```
+
 `traceplot()` shows by default the MCMC chains of the main model parameters.
 This is different to the traceplots we have seen when using `mice()`, but the
 principle of convergence is the same.
-
 
 The result of the model can be displayed with the function `summary()`. 
 To exclude parts of the MCMC chains from the result (if the ) part of the MCMC chains after
@@ -710,10 +798,11 @@ specify the first iteration to be used. See an example in the
 [help page](https://www.rdocumentation.org/packages/JointAI/versions/0.1.0/topics/summary.JointAI)
 of the `summary()` for `JointAI` objects.
 
-<div style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+<div style="border:1px; border-style:solid; padding: 1em; border-color:#D11450">
 **Note:**<br>
 Due to a bug in version 0.1.0 of **JointAI** you need to specify
-`inits = NULL`. This bug is resolved in the development version on GitHub.
+`inits = NULL` when using auxiliary variables.
+This bug is resolved in the development version on GitHub.
 </div>
 
 ```{r fitJointAIint, exercise = TRUE, timelimit.exercise = 200, fig.width = 9, fig.height = 4.5}
@@ -723,8 +812,8 @@ JointAIint <- ...
 
 ```
 
-```{r fitJointAIint-hint-1}
-# You need to specify the 
+```{r fitJointAIint-hint-1, include = !static}
+# You need to specify the
 # * model formula
 # * the dataset
 # * auxiliary variables
@@ -732,7 +821,11 @@ JointAIint <- ...
 # * set inits = NULL
 ```
 
-```{r, fitJointAIint-solution}
+```{r, eval = static, echo = FALSE}
+asis_output("#### Solution 2\\n")
+```
+
+```{r, fitJointAIint-solution, cache = TRUE}
 library(JointAI)
 JointAIint <- lm_imp(weight ~ gender + bili + age * (chol + HDL) + height,
                   data = NHANES,
@@ -746,18 +839,34 @@ summary(JointAIint, start = 200)
 
 
 
-### Imputation using **smcfcs**
+### Imputation using **smcfcs** {.tabset .tabset-fade .tabset-pills}
 The package **smcfcs** performs imputation using
 "substantive model compatible fully conditional specification".
 
 The main function is called `smcfcs()` and its use is similar to the use
-of `mice()`. Check the [help file](https://www.rdocumentation.org/packages/smcfcs/versions/1.3.0/topics/smcfcs)
+of `mice()`. 
+
+
+```{r eval = static, echo = FALSE}
+asis_output("#### Task 1")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+Check the [help file](https://www.rdocumentation.org/packages/smcfcs/versions/1.3.0/topics/smcfcs)
 to find out the details of this function.
 
 ```{r, eval = !static, echo = FALSE}
 asis_output("###\\n")
 ```
 
+```{r eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 1")
+```
 
 <div id = "smcdetails">`smcfcs()` takes the following arguments as input:</div>
 ```{r smcargs, echo = FALSE}
@@ -818,13 +927,49 @@ For logistic regression, `smcfcs` requires the outcome to be coded as numeric
 asis_output("###\\n")
 ```
 
-Impute the NHANES data with `smcfcs()` and take the following into account
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 2\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+Impute the NHANES data with `smcfcs()` and take into account
 that `DBP` and `educ` should be used as auxiliary variables.<br>
 => you need to specify the `predictorMatrix` to specify this
 
-**Note:**
+```{r smcint_hint1, eval = static, results = 'asis', echo = FALSE}
+cat('<button type="button" class="btn btn-info btn-sm" data-toggle="collapse" data-target="#smcint_hint1">Hint (i)</button>
+<div id = "smcint_hint1" class="collapse" style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+To create the predictor matrix:
+`pred <- matrix(nrow = ncol(NHANES), ncol = ncol(NHANES), data = 1, dimnames = list(names(NHANES), names(NHANES)))`
+
+Then exclude variables from their own imputation model:
+`diag(pred) <- 0`
+</div>')
+```
+
+```{r smcint_hint2, eval = static, results = 'asis', echo = FALSE}
+cat('<button type="button" class="btn btn-info btn-sm" data-toggle="collapse" data-target="#smcint_hint2">Hint (ii)</button>
+<div id = "smcint_hint2" class="collapse" style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+In `smcfcs()` you need to specify 
+
+* the data
+* the model type
+* the model formula
+* the vector of imputation methods
+* the predictor matrix
+* possibly the number of iterations
+</div>')
+```
+
+```{r include = !static}
+asis_output("**Note:**
 The `NHANES` dataset has been reset to the original form. All columns we had
-added for imputation with `mice` are removed.
+added for imputation with `mice` are removed.")
+```
+
 
 ```{r runsmcint, exercise = TRUE, timelimit.exercise = 200}
 # create the predictor Matrix
@@ -835,7 +980,7 @@ smcint <- ...
 ```
 
 
-```{r runsmcint-hint-1}
+```{r runsmcint-hint-1, include = !static}
 # To create the predictor matrix:
 pred <- matrix(nrow = ncol(NHANES), ncol = ncol(NHANES), data = 1,
                dimnames = list(names(NHANES), names(NHANES)))
@@ -844,7 +989,7 @@ diag(pred) <- 0
 ```
 
 
-```{r runsmcint-hint-2}
+```{r runsmcint-hint-2, include = !static}
 # In smcfcs() you need to specify 
 # * the data
 # * the model type
@@ -854,10 +999,17 @@ diag(pred) <- 0
 # * possibly the number of iterations
 ```
 
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
 
-```{r runsmcint-solution}
+asis_output("#### Solution 2\\n")
+```
+
+```{r runsmcint-solution, cache = TRUE}
+# To create the predictor matrix:
 pred <- matrix(nrow = ncol(NHANES), ncol = ncol(NHANES), data = 1,
                dimnames = list(names(NHANES), names(NHANES)))
+# exclude variables from their own imputation model
 diag(pred) <- 0
 
 
@@ -871,10 +1023,25 @@ smcint <- smcfcs(NHANES,
 ```
 
 
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 3\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
 
 Find out the `class` of the object returned by `smcfcs()` and its elements.
 The section **Value** in the [help page](https://www.rdocumentation.org/packages/smcfcs/versions/1.3.0/topics/smcfcs)
 can help with this.
+```{r smcint_hint3, eval = static, results = 'asis', echo = FALSE}
+cat('<button type="button" class="btn btn-info btn-sm" data-toggle="collapse" data-target="#smcint_hint3">Hint</button>
+<div id = "smcint_hint3" class="collapse" style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+The estimates of the model parameters from each iteration are returned
+in the list element `smCoefIter`.
+</div>')
+```
+
 Then plot the chains of the estimated model parameters to evaluate if the
 algorithm has converged.
 ```{r conv_smcint, exercise = TRUE, fig.width = 9, fig.height = 6}
@@ -882,11 +1049,16 @@ algorithm has converged.
 ```
 
 
-```{r conv_smcint-hint-1}
+```{r conv_smcint-hint-1, include = !static}
 # The estimates of the model parameters from each iteration are returned
 # in the list element "smCoefIter".
 ```
 
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 3\\n")
+```
 
 ```{r conv_smcint-solution, fig.width = 9, fig.height = 6}
 # class of the returned object
@@ -918,6 +1090,9 @@ for (i in 1:dim(smcint$smCoefIter)[2]) {
 asis_output("###\\n")
 ```
 
+```{r, eval = static, echo = FALSE}
+asis_output("#### Continue\\n")
+```
 
 The imputed datasets are returned as a `list`, where each element of the `list`
 is one imputed dataset.
@@ -932,6 +1107,14 @@ unordered factors. To use `as.mids()` we would have to turn the list into
 a long format dataset (where the original data and all imputed datasets are
 stacked on top of each other) and add
 a column that identifies the imputation number and one that identifies subjects.
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 4\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
 
 Instead do the following:
 
@@ -949,13 +1132,13 @@ Instead do the following:
 
 
 
-```{r pool_smcint-hint-1}
+```{r pool_smcint-hint-1, include = !static}
 # 1. convert to imputationList
 library(mitools)
 smcint_impList <- imputationList(smcint$impDatasets)
 ```
 
-```{r pool_smcint-hint-2}
+```{r pool_smcint-hint-2, include = !static}
 # 1. convert to imputationList
 library(mitools)
 smcint_impList <- imputationList(smcint$impDatasets)
@@ -965,7 +1148,7 @@ intmod_mitools <- with(smcint_impList,
                        lm(weight ~ gender + bili + age * (chol + HDL) + height))
 ```
 
-```{r pool_smcint-hint-3}
+```{r pool_smcint-hint-3, include = !static}
 # 1. convert to imputationList
 library(mitools)
 smcint_impList <- imputationList(smcint$impDatasets)
@@ -981,7 +1164,7 @@ smcintpool_mitools <- MIcombine(intmod_mitools)
 ```
 
 
-```{r pool_smcint-hint-4}
+```{r pool_smcint-hint-4, include = !static}
 # 1. convert to imputationList
 library(mitools)
 smcint_impList <- imputationList(smcint$impDatasets)
@@ -997,7 +1180,7 @@ smcintpool_mitools <- MIcombine(intmod_mitools)
 smcint_mira <- as.mira(intmod_mitools)
 ```
 
-```{r pool_smcint-hint-5}
+```{r pool_smcint-hint-5, include = !static}
 # 1. convert to imputationList
 library(mitools)
 smcint_impList <- imputationList(smcint$impDatasets)
@@ -1015,6 +1198,12 @@ smcint_mira <- as.mira(intmod_mitools)
 
 # 5. pool the mira object
 smcintpool_mice <- pool(smcint_mira)
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 4\\n")
 ```
 
 ```{r pool_smcint-solution}
@@ -1043,12 +1232,20 @@ summary(smcintpool_mice)
 
 
 
-### Imputation using **jomo**
+### Imputation using **jomo** {.tabset .tabset-fade .tabset-pills}
 
 In this part of the practical we will use **jomo** to impute the NHANES data 
 with the joint model approach to multiple imputation. 
-
 For our linear regression of `weight`, this can be  done using the function `jomo.lm()`.
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 1\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
 Check the [help page](https://www.rdocumentation.org/packages/jomo/versions/2.6-1/topics/jomo.lm)
 to find out which arguments need to be specified in `jomo.lm()`.
 
@@ -1056,6 +1253,11 @@ to find out which arguments need to be specified in `jomo.lm()`.
 asis_output("###\\n")
 ```
 
+```{r, eval = static, echo = FALSE}
+asis_output('</div>')
+
+asis_output("#### Solution 1\\n")
+```
 
 The main arguments of `jomo.lm()` are:
 ```{r jomoargs, echo = FALSE}
@@ -1098,14 +1300,33 @@ passive imputation is currently not available.
 asis_output("###\\n")
 ```
 
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 2\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
 Run `jomo.lm.MCMCchain()` for our linear regression of `weight` and 
 investigate the resulting object.
+```{r jomolm_hint, eval = static, results = 'asis', echo = FALSE}
+cat('<button type="button" class="btn btn-info btn-sm" data-toggle="collapse" data-target="#jomoint">Hint</button>
+<div id = "jomoint" class="collapse" style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+You need to specify
+
+* the model formula
+* the dataset
+* the distribution family of the outcome
+* the number of burn-in iterations
+</div>')
+```
 
 ```{r runjomointMCMC, exercise = TRUE, fig.width = 9, fig.height = 6, timelimit.exercise = 500}
 
 ```
 
-```{r runjomointMCMC-hint-1}
+```{r runjomointMCMC-hint-1, include = !static}
 # you need to specify
 # * the model formula
 # * the dataset
@@ -1113,7 +1334,13 @@ investigate the resulting object.
 # * the number of burn-in iterations
 ```
 
-```{r runjomointMCMC-hint-2}
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 2\\n")
+```
+
+```{r runjomointMCMC-hint-2, cache = TRUE}
 jomointMCMC <- jomo.lm.MCMCchain(weight ~ gender + bili + age * (chol + HDL) + height,
                     data = NHANES, output = 0)
 
@@ -1140,11 +1367,24 @@ asis_output("###\\n")
   burn-in period for the mean and variance-covariance matrix of the multivariate normal distribution.
 
 
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 3\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
 Make plots to evaluate convergence.
 ```{r jomointconv, exercise = TRUE, fig.width = 9, fig.height = 9}
 
 ```
 
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 3\\n")
+```
 
 ```{r jomointconv-solution, fig.width = 9, fig.height = 9}
 par(mfrow = c(3,4), mar = c(3,3,1,1), mgp = c(2, 0.6, 0))
@@ -1168,6 +1408,14 @@ for (i in 1:dim(jomointMCMC$collectomega)[2]) {
 
 ```
 
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 4\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
 When you are satisfied with the convergence, run the imputation with the 
 number of burn-in iterations that you found to be sufficient and explore the 
 resulting object.
@@ -1176,7 +1424,13 @@ resulting object.
 
 ```
 
-```{r runjomoint-solution}
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 4\\n")
+```
+
+```{r runjomoint-solution, cache = TRUE}
 jomoint <- jomo.lm(weight ~ gender + bili + age * (chol + HDL) + height,
                     nburn = 1000, nbetween = 200, nimp = 5, data = NHANES)
 
@@ -1185,6 +1439,13 @@ dim(jomoint)
 summary(jomoint)
 ```
 
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 5\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
 
 `jomo.lm()`  returns a `data.frame` in long format, including the original data.
 **jomo** has added a column `id`  to identify subjects and a column `Imputation` 
@@ -1195,6 +1456,12 @@ model for `weight` on the imputed data and pool the results.
 
 ```{r jomoint-pool, exercise = TRUE}
 
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 5\\n")
 ```
 
 ```{r jomoint-pool-solution}
@@ -1210,7 +1477,7 @@ summary(pool(jomoint_mira))
 ```
 
 
-### Comparison of the results for the NHANES data
+### Comparison of the results for the NHANES data {.tabset .tabset-fade .tabset-pills}
 We have imputed the NHANES data using five different approaches:
 
 * with **mice**, using the Just Another Variable approach
@@ -1284,7 +1551,7 @@ ggplot(plotint, aes(x = method, y = est)) +
 
 
 ## Longitudinal data
-### Data & Model of interest
+### Data & Model of interest {.tabset .tabset-fade .tabset-pills}
 In this part of the practical, we will work with data on a trial on primary 
 biliary cirrhosis (PBC) of the liver.
 
@@ -1355,7 +1622,7 @@ mixed effects model with random intercept and slope
 (either using `lme`  from the package **nlme** or using `lmer` from the 
 package **lme4**):
 
-```{r longmodels, eval = FALSE}
+```{r longmodels, eval = FALSE, echo = TRUE}
 # using package nlme
 lme(protime ~ year + sex + trt + age + ascites + bili + chol + albumin, random = ~year|id)
 
@@ -1366,7 +1633,7 @@ lmer(protime ~ year + sex + trt + age + ascites + bili + chol + albumin + (year|
 ```
 
 
-### Imputation using  **mice**
+### Imputation using  **mice** {.tabset .tabset-fade .tabset-pills}
 For imputation of longitudinal data, the **mice** package provides
 special imputation methods that take into account the two-level structure of
 the data.
@@ -1376,6 +1643,14 @@ are available.
 The `predictorMatrix` requires some extra specification to identify the 
 id variable (set to -2) and the random effects structure (set to 2).
 
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 1\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
 Run the setup imputation and perform the necessary changes in the imputation
 method and predictor matrix:
 
@@ -1384,6 +1659,12 @@ method and predictor matrix:
 
 meth_micelong <- ...
 pred_micelong <- ...
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 1\\n")
 ```
 
 ```{r micelong0-solution}
@@ -1403,11 +1684,19 @@ pred_micelong
 ```
 
 
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 2\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
 Now run the imputation with the adapted imputation method `meth_micelong` 
 and predictor matrix `pred_micelong`, analyse the imputed data and pool 
 the results.
 
-```{r micelong-setup}
+```{r micelong-setup, include = !static, eval = !static}
 micelong0 <- mice(pbclong, maxit = 0)
 meth_micelong <- micelong0$method
 pred_micelong <- micelong0$predictorMatrix
@@ -1424,7 +1713,16 @@ pred_micelong[, "year"] <- 2
 
 ```
 
-```{r micelong-solution, eval = FALSE}
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 2\\n")
+```
+
+```{r micelong-solution, eval = static, cache = TRUE}
+micelong <- mice(pbclong, meth = meth_micelong, pred = pred_micelong,
+                 maxit = 20)
+
 micelong_mira <- with(micelong, lme(protime ~ year + sex + trt + age + 
                                       ascites + bili + chol + albumin,
                                     random = ~year|id)
@@ -1441,7 +1739,7 @@ summary(pool(micelong_mira))
 
 
 
-### Imputation using **JointAI**
+### Imputation using **JointAI** {.tabset .tabset-fade .tabset-pills}
 
 To analyse incomplete longitudinal data a linear mixed model,
 the function `lme_imp()` can be used. Its specification of the major model
@@ -1451,6 +1749,13 @@ For the specification of the other arguments of `lme_imp()`, refer to the
 [help page](https://www.rdocumentation.org/packages/JointAI/versions/0.1.0/topics/model_imp)
 or to the details given in the previous part of this practical.
 
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
 
 Run the imputation (start with `n.iter = 500`; this will take a few seconds)
 and check the `traceplot()`.
@@ -1461,7 +1766,13 @@ JointAIlong <- ...
 ...
 ```
 
-```{r runJoitAIlong-solution}
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution\\n")
+```
+
+```{r runJoitAIlong-solution, cache = TRUE, fig.width = 9, fig.height = 5}
 library(JointAI)
 JointAIlong <- lme_imp(protime ~ year + sex + trt + age + ascites + bili + chol + albumin,
     random = ~year|id, data = pbclong, n.iter = 1000)
@@ -1473,7 +1784,7 @@ summary(JointAIlong)
 
 
 
-### Imputation using **jomo**
+### Imputation using **jomo** {.tabset .tabset-fade .tabset-pills}
 The package **jomo** provides functionality to impute normal and non-normal
 longitudinal outcomes using the functions `jomo.lmer()` and `jomo.glmer()`,
 which use the model specification of the complete data versions `lmer()` and
@@ -1489,12 +1800,20 @@ of `jomo.lmer()` or the details provided in the previous part of this practical
 to get more information on the other parameters that need to be specified.
 
 
-<div style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+<div style="border:1px; border-style:solid; padding: 1em; border-color:#D11450">
 **Note:**<br>
 In the current version of **jomo** the random intercept needs to be specified
 explicitely, i.e. `(1 + year|id)` instead of `(year|id)`.
 </div>
 <br>
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 1\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
 
 We skip the step to determine the number of iterations necessary in the burn-in
 phase (you would have to use `jomo.lmer.MCMCchain()` to do this step)
@@ -1506,14 +1825,21 @@ lvl_jomolong <- ...
 jomolong <- 
 ```
 
-```{r runjomolong-hint-1}
+```{r runjomolong-hint-1, include = !static}
 # specify the levels of the variables
 lvl_jomolong <- c(protime = 1, year = 1, sex = 2, trt = 2, age = 2, ascites = 2,
                   bili = 2, chol = 2, albumin = 1, id = 1)
 
 ```
 
-```{r runjomolong-solution}
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 1\\n")
+```
+
+```{r runjomolong-solution, cache = TRUE}
+# specify the levels of the variables
 lvl_jomolong <- c(protime = 1, year = 1, sex = 2, trt = 2, age = 2, ascites = 2,
                   bili = 2, chol = 2, albumin = 1, id = 1)
 
@@ -1528,6 +1854,10 @@ t1 - t0
 ```
 
 
+```{r, eval = static, echo = FALSE}
+asis_output("#### Continue\\n")
+```
+
 When we try to convert the long format dataset returned by `jomo.lmer()` to
 a `mids` object using `as.mids()` (like we did in the previous part of this
 practical), we get an error message: 
@@ -1538,6 +1868,14 @@ leads to an error.
 
 Instead, we use the function `datalist2mids()` from the **miceadds** package.
 
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 2\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
 Analyse the imputed data and pool the results, using the following steps:
 
 1. split `jomolong` by imputation number into a list of imputed datasets
@@ -1546,7 +1884,21 @@ Analyse the imputed data and pool the results, using the following steps:
 4. analyse the `mids` object
 5. pool the results
 
-<div style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+```{r jomolong_hint, eval = static, results = 'asis', echo = FALSE}
+cat('<button type="button" class="btn btn-info btn-sm" data-toggle="collapse" data-target="#jomolong">Hint</button>
+<div id = "jomolong" class="collapse" style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+To split a dataset into a list, use `split()`.
+</div>')
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("<br>")
+```
+
+
+<div style="border:1px; border-style:solid; padding: 1em; border-color:#D11450">
 **Note:**<br>
 `jomo.lmer()` changes the `id` variable to `clus`. When analysing the imputed
 data, you need to use `clus` in the random effects specification.
@@ -1557,11 +1909,11 @@ data, you need to use `clus` in the random effects specification.
 ```
 
 
-```{r pooljomolong-hint-1}
+```{r pooljomolong-hint-1, include = !static}
 # to split a dataset into a list, use split()
 ```
 
-```{r pooljomolong-hint-2}
+```{r pooljomolong-hint-2, include = !static, eval = !static}
 library(miceadds)
 jomolong_mids <- datalist2mids(
   split(jomolong, jomolong$Imputation)[-1] # split and remove first element
@@ -1569,6 +1921,9 @@ jomolong_mids <- datalist2mids(
 
 ```
 
+```{r, eval = static, echo = FALSE}
+asis_output("#### Solution 2\\n")
+```
 
 ```{r pooljomolong-solution}
 library(miceadds)
@@ -1591,11 +1946,11 @@ summary(pool(jomolong_mira))
 
 
 
-### Comparison of the results for the longitudinal pbc data
+### Comparison of the results for the longitudinal pbc data {.tabset .tabset-fade .tabset-pills}
 We have imputed the longitudinal pbc data using three different approaches:
 
 * with **mice**, using the 2-level imputation methods `2lonly.norm` and `2lonly.pmm`
-* with **JontAI**
+* with **JointAI**
 * with **jomo**
 
 Here is how the pooled results from these imputations compare:
@@ -1658,7 +2013,7 @@ ggplot(longresDF, aes(x = method, y = est)) +
 
 
 ## Survival data
-### Data & Model of interest
+### Data & Model of interest {.tabset .tabset-fade .tabset-pills}
 In this part of the practical, we will work with a different subset of the PBC data,
 omitting the longitudinal structure and focusing on the survival component.
 
@@ -1721,19 +2076,33 @@ coxph(Surv(time, status == 'dead') ~ platelet + age + sex + chol + stage)
 ```
 
 
-### Imputation with **mice**
+### Imputation with **mice** {.tabset .tabset-fade .tabset-pills}
 As we have seen in the lecture, the **mice** package provides the function 
 `nelsonaalen()` that calculates the Nelson-Aalen estimator with which the
 cumulative Hazard can be approximated.
 
 
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 1\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
 Calculate the Nelson-Aalen estimate for patient survival in the pbc data and
 perform the usual setup steps for imputation using `mice()`.
-`nelsonaalen()` does not accept the `status == 'dead` specification of the
+`nelsonaalen()` does not accept the `status == 'dead'` specification of the
 event, hence, we need to create a new event indicator `event`.
 
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
 
-<div style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+asis_output("<br>")
+```
+
+
+<div style="border:1px; border-style:solid; padding: 1em; border-color:#D11450">
 **Note:**<br>
 `nelsonaalen()` uses the name `status` internally in such a way that it is 
 replaced by the covariate `status` of our dataset `pbcdat`, which leads to an 
@@ -1744,13 +2113,12 @@ To do this, use `data = subset(pbcdat, select = -c(status))` inside the
 </div>
 
 
-
 ```{r micesurvprep, exercise = TRUE, exercise.timelimit = 200}
 pbcdat$event <- ...
 
 ```
 
-```{r micesurvprep-hint-1}
+```{r micesurvprep-hint-1, include = !static}
 pbcdat$event <- as.numeric(pbcdat$status == 'dead')
 
 pbcdat$na <- nelsonaalen(data = subset(pbcdat, select = -c(status)),
@@ -1758,7 +2126,7 @@ pbcdat$na <- nelsonaalen(data = subset(pbcdat, select = -c(status)),
                          statusvar = "event")
 ```
 
-```{r micesurvprep-hint-2}
+```{r micesurvprep-hint-2, include = !static}
 pbcdat$event <- as.numeric(pbcdat$status == 'dead')
 
 pbcdat$na <- nelsonaalen(data = subset(pbcdat, select = -c(status)),
@@ -1768,6 +2136,10 @@ pbcdat$na <- nelsonaalen(data = subset(pbcdat, select = -c(status)),
 micesurv0 <- mice(pbcdat, maxit = 0)
 micesurvmeth <- micesurv0$meth
 micesurvpred <- micesurv0$pred
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Solution 1\\n")
 ```
 
 ```{r micesurvprep-solution}
@@ -1793,8 +2165,16 @@ micesurvpred
 ```
 
 
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 2\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
 Now run the imputation, and analyse the imputed data.
-```{r micesurvimp-setup}
+```{r micesurvimp-setup, include = !static, eval = !static}
 pbcdat$event <- as.numeric(pbcdat$status == 'dead')
 
 pbcdat$na <- nelsonaalen(data = subset(pbcdat, select = -c(status)),
@@ -1817,16 +2197,30 @@ micesurvpred[, "event"] <- 0
 
 ```
 
-```{r micesurvimp-solution}
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 2\\n")
+```
+
+```{r micesurvimp-solution, cache = TRUE}
 micesurv <- mice(pbcdat, predictorMatrix = micesurvpred, maxit = 10, m = 5)
 micesurv_mira <- with(micesurv, coxph(Surv(time = time, event) ~ platelet + 
                                age + sex + chol + stage))
 
-summary(micesurv_mira)
+summary(pool(micesurv_mira))
+```
+
+```{r, include = static, echo = FALSE}
+asis_output("Again, we remove the added column from the dataset to use the original data in the subsequent imputations.")
+```
+
+```{r, include = static, eval = static}
+pbcdat <- subset(pbcdat, select = -c(na))
 ```
 
 
-### Imputation with **smcfcs**
+### Imputation with **smcfcs** {.tabset .tabset-fade .tabset-pills}
 An alternative approach, that aims to remove the bias introduced by using the 
 Nelson-Aalen estimator to approximate the cumulative hazard is implemented
 in the package **smcfcs**. 
@@ -1836,6 +2230,13 @@ If you are uncertain which parameters need to be specified, check the
 for the function `smcfcs()` or go back to the first part of this practical
 where some of the details about the specification were described.
 
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 1\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
 
 Impute the `pbcdat` data with `smcfcs()` and the model formula specified above.
 We will skip the confirmation of convergence in the interest of time.
@@ -1843,7 +2244,7 @@ We will skip the confirmation of convergence in the interest of time.
 `smcfcs()` does can not handle the event specification used in the complete
 data model above (`status == 'dead'`), so you need to use `event` instead.
 
-```{r smcimp-setup}
+```{r smcimp-setup, include = !static}
 pbcdat$event <- as.numeric(pbcdat$status == 'dead')
 
 ```
@@ -1853,14 +2254,21 @@ smcsurv <- ...
 ```
 
 
-```{r smcimp-hint-1}
+```{r smcimp-hint-1, include = !static}
 # specify imputation method (in order of variables in dataset)
 meth_smcsurv <- c(time = "", status = "", platelet = "norm",
                   age = "", sex = "", chol = "norm", stage = "podds",
                   event = "")
 ```
 
-```{r smcimp-solution}
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 1\\n")
+```
+
+
+```{r smcimp-solution, cache = TRUE}
 # specify imputation method (in order of variables in dataset)
 meth_smcsurv <- c(time = "", status = "", platelet = "norm",
                   age = "", sex = "", chol = "norm", stage = "podds",
@@ -1876,6 +2284,14 @@ smcsurv <- smcfcs(originaldata = pbcdat,
 ```
 
 
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 2\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
 Assuming the algorithm has converged (it has for the settings chosen in the solution),
 fit the Cox model and pool the results.
 
@@ -1883,8 +2299,13 @@ fit the Cox model and pool the results.
 
 ```
 
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
 
-```{r smcsurvpool-solution, eval = FALSE}
+asis_output("#### Solution 2\\n")
+```
+
+```{r smcsurvpool-solution, eval = static, cache = TRUE}
 # create mids object or imputationList object
 smcsurv_impList <- mitools::imputationList(smcsurv$impDatasets)
 
@@ -1903,12 +2324,19 @@ summary(pool(smcsurv_mira))
 ```
 
 
-### Imputation with **jomo**
+### Imputation with **jomo** {.tabset .tabset-fade .tabset-pills}
 
 To impute the pbc survival data with the package **jomo** we use the function
 `jomo.coxph()`, which works analogously to the other `jomo.<...>()` functions we
 have seen.
 
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
 
 Perform the imputation, analyse the imputed data and pool the results.
 Again, we will skip the convergence check to save some time. Use `nburn = 1000` 
@@ -1918,7 +2346,22 @@ indicator `event` instead of `status == 'dead'`. Since **jomo** considers
 all extra columns as auxiliary variables, we need to exclude `status` to 
 prevent multicollinearity issues.
 
-```{r jomosurvrun-setup}
+```{r jomosurv_hint1, eval = static, results = 'asis', echo = FALSE}
+cat('<button type="button" class="btn btn-info btn-sm" data-toggle="collapse" data-target="#jomosurv1">Hint (i)</button>
+<div id = "jomosurv1" class="collapse" style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+To exclude the variable `status` use `data = subset(pbcdat, select = -status)`.
+</div>')
+```
+```{r jomosurv_hint2, eval = static, results = 'asis', echo = FALSE}
+cat('<button type="button" class="btn btn-info btn-sm" data-toggle="collapse" data-target="#jomosurv2">Hint (ii)</button>
+<div id = "jomosurv2" class="collapse" style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+To run the analysis on the imputed data, convert the long format data to a 
+`mids` object, like we did in the NHANES example.
+</div>')
+```
+
+
+```{r jomosurvrun-setup, include = !static}
 pbcdat$event <- as.numeric(pbcdat$status == 'dead')
 ```
 
@@ -1931,17 +2374,23 @@ jomosurv <- ...
 
 ```
 
-```{r jomosurvrun-hint-1}
+```{r jomosurvrun-hint-1, include = !static}
 # To exclude the variable "status" use "data = subset(pbcdat, select = -status)"
 
 ```
 
-```{r jomosurvrun-hint-2}
+```{r jomosurvrun-hint-2, include = !static}
 # To run the analysis on the imputed data, convert the long format data
 # to a mids object, like we did in the NHANES example.
 ```
 
-```{r jomosurvrun-solution}
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution\\n")
+```
+
+```{r jomosurvrun-solution, cache = TRUE}
 jomosurv <- jomo.coxph(formula = Surv(time = time, event) ~ platelet + 
                          age + sex + chol + stage,
                        data = subset(pbcdat, select = -status), 
@@ -1961,7 +2410,7 @@ summary(pool(jomosurv_mira))
 ```
 
 
-### Comparison of the results for the pbc survival data
+### Comparison of the results for the pbc survival data {.tabset .tabset-fade .tabset-pills}
 We have imputed the pbc survival data using three different approaches:
 
 * with **mice**, using the Nelson-Aalen approximation
@@ -2028,3 +2477,8 @@ ggplot(survresDF, aes(x = method, y = est)) +
 
 ```
 
+<div style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+<center>
+**You have reached the end of this practical. Well done!**
+</center>
+</div>
