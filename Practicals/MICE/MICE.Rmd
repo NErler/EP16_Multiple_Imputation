@@ -13,7 +13,6 @@ output:
 #     pandoc_args: [
 #       "--output=Practical_MICE.html"
 #     ]
-#     css: mycss.css
 # editor_options:
 #   chunk_output_type: inline
   learnr::tutorial:
@@ -47,7 +46,8 @@ library(ggplot2)
 library(JointAI)
 library(kableExtra)
 library(knitr)
-# library(miceadds)
+library(miceadds)
+library(mitools)
 library(magrittr)
 library(mice)
 library(nlme)
@@ -60,14 +60,16 @@ library(visdat)
 
 
 ```{r load_data, context="data", include=FALSE}
-load("www/NHANES.RData")
+# load("data/NHANES.RData")
+# 
+# set.seed(2018)
+# sub <- sample(nrow(NHANES), 1000, prob = c(2/3, 1/3)[as.numeric(complete.cases(NHANES)) + 1])
+# NHANES <- NHANES[sub, ]
+# NHANES$cohort <- "2011"
+# NHANES <- NHANES[, sample(ncol(NHANES))]
+# save(NHANES, file = "Practicals/MICE/www/NHANES_1.RData")
 
-set.seed(2018)
-sub <- sample(nrow(NHANES), 1000, prob = c(2/3, 1/3)[as.numeric(complete.cases(NHANES)) + 1])
-NHANES <- NHANES[sub, ]
-NHANES$cohort <- "2011"
-NHANES <- NHANES[, sample(ncol(NHANES))]
-
+load("www/NHANES_1.RData")
 
 micemeths <- read.csv2(file = "www/micefunctions.csv")
 names(micemeths) <- gsub("vartype", "variable type", names(micemeths))
@@ -89,17 +91,17 @@ of this practical, the data is already loaded. ")
 
 ```{r, eval = static, echo = FALSE, results = 'asis'}
 cat(
-# <p style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+# <p style="border:1px; border-style:solid; padding: 1em; border-color:#D11450">
 # **Note:**
 'To load this dataset, you can use the command `file.choose()` which opens the
-explorer and allows you to navigate to the location of the file `NHANES.RData`. If you
-know the path to the file, you can also use `load("<path>/NHANES.RData")`.'
+explorer and allows you to navigate to the location of the file `NHANES_1.RData`. If you
+know the path to the file, you can also use `load("<path>/NHANES_1.RData")`.'
 # </p>
 )
 ```
 
 
-<div style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+<div style="border:1px; border-style:solid; padding: 1em; border-color:#D11450">
 **Note:**<br>
 To display the help file for any function, type a `?` followed by the name of the
 function in one of the code fields and click on "Run Code".
@@ -119,6 +121,10 @@ or find the whole manual for a package at
 asis_output("#### Task\\n")
 ```
 
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
 The **mice** package needs to be loaded with the command `library()`.
 Let's take a first look at the data. Useful functions are
 `dim()`, `head()`, `str()` and `summary()`.
@@ -128,6 +134,8 @@ Let's take a first look at the data. Useful functions are
 ```
 
 ```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
 asis_output("#### Solution\\n")
 ```
 
@@ -155,6 +163,10 @@ as ordinal variables, but `educ` is an unordered factor.
 asis_output("#### Task\\n")
 ```
 
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
 Using `levels(NHANES$educ)` we can print the names of the categories of `educ`.
 Convert the unordered factor to an ordered factor, for example using `as.ordered()`.
 Afterwards, check if the conversion was successful.
@@ -163,6 +175,8 @@ Afterwards, check if the conversion was successful.
 ```
 
 ```{r, eval = static, echo = FALSE}
+asis_output("</div")
+
 asis_output("#### Solution\\n")
 ```
 
@@ -188,6 +202,10 @@ asis_output("#### Task 1\\n")
 ```
 
 ```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+```{r, eval = static, echo = FALSE}
 asis_output("Explore the missing data pattern of the NHANES data.")
 ```
 
@@ -197,6 +215,8 @@ asis_output("Explore the missing data pattern of the NHANES data.")
 ```
 
 ```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
 asis_output("#### Solution 1\\n")
 ```
 
@@ -218,6 +238,10 @@ pattern, the last row the number of missing values per variable.
 
 ```{r, eval = static, echo = FALSE}
 asis_output("#### Task 2\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
 ```
 
 Visualize and inspect the missing data pattern using one or more of the
@@ -252,10 +276,18 @@ To prevent the printed output use `print = FALSE`.
 For more options check out the help pages of the functions.
 </div>
 
+```{r echo = FALSE, eval = static}
+asis_output("</div>")
+```
+
 <br>
 
 ```{r, eval = static, echo = FALSE}
 asis_output("#### Task 3\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
 ```
 
 Now get an overview of how much missingness there is in each variable and the
@@ -289,6 +321,8 @@ the case is complete and FALSE if there are missing values.
 
 
 ```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
 asis_output("#### Solution 3\\n")
 ```
 
@@ -311,14 +345,21 @@ cbind("# NA" = sort(colSums(is.na(NHANES))),
 asis_output("#### Task 4\\n")
 ```
 
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+
 Our data contains `height`, `weight` and `BMI`. 
-Let's check the missing data pattern specifically for those three variables:
+Check the missing data pattern specifically for those three variables.
 
 ```{r heightweight, exercise = TRUE}
 
 ```
 
 ```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
 asis_output("#### Solution 4\\n")
 ```
 
@@ -347,6 +388,10 @@ impute `height` and `weight` separately and calculate `BMI` from the imputed val
 asis_output("#### Task 5\\n")
 ```
 
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
 Because we might expect that hypertensive medication is only prescribed
 for patients with hypertension, we will also look into the variables `HyperMed` 
 and `hypten`. Make a table of the two variables to confirm our expectation.
@@ -356,6 +401,8 @@ Make sure that missing values are also displayed in that table!
 ```
 
 ```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
 asis_output("#### Solution 5\\n")
 ```
 
@@ -367,6 +414,10 @@ with(NHANES, table(HyperMed, hypten, exclude = NULL))
 asis_output("#### Task 6\\n")
 ```
 
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
 Furthermore, we can expect a systematic relationship between `hypchol` and
 `chol`. Find out how these two variables are related.
 
@@ -375,8 +426,11 @@ Furthermore, we can expect a systematic relationship between `hypchol` and
 ```
 
 ```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
 asis_output("#### Solution 6\\n")
 ```
+
 
 ```{r hypchol-solution, solution = TRUE}
 with(NHANES, plot(chol ~ hypchol))
@@ -400,6 +454,10 @@ imputation models.
 
 ```{r, eval = static, echo = FALSE}
 asis_output("#### Task\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
 ```
 
 Visualize the distributions of the incomplete continuous and categorical 
@@ -433,10 +491,12 @@ Of course, you could also use the **ggplot2** package.
 ```
 
 ```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
 asis_output("#### Solution\\n")
 ```
 
-```{r distr-solution, solution = TRUE, fig.widht = 9, fig.height = 9}
+```{r distr-solution, solution = TRUE, fig.width = 9, fig.height = 9}
 # One option that allows to quickly get an overview of all variables,
 # categorical and continuous
 
@@ -468,6 +528,10 @@ ready to impute!
 asis_output("#### Task\\n")
 ```
 
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
 First, do a set-up run of `mice()`, without any iterations (`maxit = 0`).
 This is to get all the objects that we may need to adjust in order to customize
 the imputation to our data.
@@ -484,6 +548,8 @@ imp0 <-
 ```
 
 ```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
 asis_output("#### Solution\\n")
 ```
 
@@ -519,6 +585,10 @@ If unspecified, `mice` will use
 asis_output("#### Task 1\\n")
 ```
 
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
 When a normal imputation model seems to be appropriate for most of the 
 continuous covariates, you may want to specify `norm` as
 the default method in the setup run. Let's do that:
@@ -527,7 +597,7 @@ the default method in the setup run. Let's do that:
 imp0 <- ...(..., defaultMethod = ...)
 ```
 
-```{r imp0v2-hint-1, eval = !static}
+```{r imp0v2-hint-1, eval = !static, echo = FALSE}
 # The order for the types of variables is:
 # continuous, binary, factor, ordered factor
 ```
@@ -540,6 +610,8 @@ The order of the types of variable is: continuous, binary, factor, ordered facto
 ```
 
 ```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
 asis_output("#### Solution 1\\n")
 ```
 
@@ -553,13 +625,17 @@ imp0 <- mice(NHANES, maxit = 0,
 asis_output("#### Task 2\\n")
 ```
 
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
 Looking at the histograms we made for the continuous variables, we can see
 that the variable `creat` has a skewed distribution, so using a normal imputation
 model may not work well. 
 
 Let's change the imputation method for `creat` so that it is imputed with predictive mean matching:
 
-```{r changeimpmod-setup, exercise.setup = "educrecode", eval = !static}
+```{r changeimpmod-setup, exercise.setup = "educrecode", eval = !static, echo = FALSE}
 imp0 <- mice(NHANES, maxit = 0, 
              defaultMethod = c("norm", 'logreg', 'polyreg', 'polr'))
 ```
@@ -570,6 +646,8 @@ meth <- ...
 ```
 
 ```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
 asis_output("#### Solution 2\\n")
 ```
 
@@ -584,9 +662,14 @@ meth["creat"] <- "pmm"
 asis_output("#### Task 1\\n")
 ```
 
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+
 We can now check out if we need to make any changes to the `predictorMatrix` 
 argument. 
-```{r predmat-setup, eval = !static}
+```{r predmat-setup, eval = !static, echo = FALSE}
 imp0 <- mice(NHANES, maxit = 0,
              defaultMethod = c("norm", 'logreg', 'polyreg', 'polr'))
 meth <- imp0$meth
@@ -599,6 +682,8 @@ pred
 ```
 
 ```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
 asis_output("#### Solution 1\\n")
 ```
 
@@ -609,6 +694,10 @@ pred
 
 ```{r, eval = static, echo = FALSE}
 asis_output("#### Task 2\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
 ```
 
 Remember that we wanted to impute `height` and `weight` separately? But let's
@@ -631,7 +720,7 @@ pred <- imp0$pred
 
 ```
 
-```{r changepred-hint-1, eval = !static}
+```{r changepred-hint-1, eval = !static, echo = FALSE}
 # For passive imputation, you need to specify the formula used to calculate
 # BMI in meth using "~I(...)".
 ```
@@ -644,6 +733,8 @@ For passive imputation, you need to specify the formula used to calculate BMI in
 ```
 
 ```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
 asis_output("#### Solution 2\\n")
 ```
 
@@ -666,6 +757,11 @@ meth["HyperMed"] <- ""
 ```{r, eval = static, echo = FALSE}
 asis_output("#### Task\\n")
 ```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
 
 To make sure that the imputed values of `BMI` match the imputed values of
 `height` and `weight`,`BMI` needs to be imputed after `height` and `weight`.
@@ -700,14 +796,19 @@ visSeq <- ...
 ```
 
 ```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
 asis_output("#### Solution\\n")
 ```
 
 ```{r changevisseq-solution, solution = TRUE}
 visSeq <- imp0$visitSequence
-# the lazy version
+
+# the lazy version:
 visSeq <- c(visSeq[-2], visSeq[2])
-# to make sure you still do the correct thing if the order of the columns in 
+
+# the save version:
+# To make sure you still do the correct thing if the order of the columns in 
 # NHANES would change
 which_BMI <- match("BMI", names(visSeq))
 visSeq <- c(visSeq[-which_BMI], visSeq[which_BMI])
@@ -746,6 +847,11 @@ visSeq <- c(visSeq[-which_BMI], visSeq[which_BMI])
 asis_output("#### Task\\n")
 ```
 
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+
 With the changes that we have made to the `predictorMatrix` and `method`, we
 can now perform the imputation. Use `m = 5` and `maxit = 10`.
 
@@ -754,6 +860,8 @@ imp <-
 ```
 
 ```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
 asis_output("#### Solution\\n")
 ```
 
@@ -786,6 +894,10 @@ You can hide the lengthy output by specifying
 
 ```{r, eval = static, echo = FALSE}
 asis_output("#### Task\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
 ```
 
 `mice()` does not return a `data.frame`. 
@@ -828,6 +940,8 @@ imp <- savedimps_imp
 ```
 
 ```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
 asis_output("#### Solution\\n")
 ```
 
@@ -926,6 +1040,9 @@ rbind(
 asis_output("#### Task\\n")
 ```
 
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
 
 It is good practice to make sure that `mice()` has not done 
 any processing of the data that was not planned or that you are not aware of.
@@ -939,6 +1056,8 @@ Do these checks for `imp`.
 ```
 
 ```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
 asis_output("#### Solution\\n")
 ```
 
@@ -961,6 +1080,10 @@ be used.
 asis_output("#### Task 1\\n")
 ```
 
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
 Find out if there is more information in the
 [help](https://www.rdocumentation.org/packages/mice/versions/2.46.0/topics/mice.impute.polr)
 [pages](https://www.rdocumentation.org/packages/mice/versions/2.46.0/topics/mice.impute.polyreg)
@@ -970,16 +1093,10 @@ for those two functions.
 
 ```
 
-```{r checkpolr-hint-1, include = !static}
-# Using "polr" and "polyreg" when specifying the "method" argument in mice
-# actually calls the functions "mice.impute.polr" and "mice.impute.polyreg"
-# when running the imputation.
-```
-
 ```{r, echo = F, results = 'asis'}
 if (static) {
-  cat('<div id = "checkpolrhint" style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">')
-  cat('Note:')
+cat('<button type="button" class="btn btn-info btn-sm" data-toggle="collapse" data-target="#checkpolr">Hint</button>
+<div id = "checkpolr" class="collapse" style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">')
 } else {
   cat('<div id = "checkpolr-hint">')
 }
@@ -996,6 +1113,8 @@ asis_output("###\\n")
 ```
 
 ```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
 asis_output("#### Solution 1\\n")
 ```
 
@@ -1015,7 +1134,7 @@ ordinal models for `alc`, `educ` and `smoke` did not converge and multinomial mo
 had to be used instead.
 
 ```{r, eval = static, echo = FALSE}
-asis_output("#### Continue\\n")
+asis_output("#### Task 2\\n")
 ```
 
 Let's see what else would have come up if we had not prepared the
@@ -1025,19 +1144,19 @@ The object `impnaive` contains the result of
 impnaive <- mice(NHANES, m = 5, maxit = 10)
 ```
 
-
 ```{r, eval = static, echo = FALSE}
-asis_output("#### Task 2\\n")
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
 ```
 
-Take a look at the `loggedEvents` of `impnaive`: 
-
+Take a look at the `loggedEvents` of `impnaive`. 
 
 ```{r impnaiveloggedEvents, exercise = TRUE, exercise.setup = "allimp"}
 
 ```
 
 ```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
 asis_output("#### Solution 2\\n")
 ```
 
@@ -1080,19 +1199,25 @@ Hence, `hypten` was not used in the imputation of `HyperMed`.
 asis_output("#### Task 3\\n")
 ```
 
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
 We also did not change the `visitSequence` in `impnaive`. Find out what
-the effects of that are:
+the effects of that are.
 
 ```{r impnaiveVisSeq, exercise = TRUE, exercise.setup = "allimp"}
 
 ```
 
-```{r impnaiveVisSeq-hint-1, include = !static}
+```{r impnaiveVisSeq-hint-1, include = !static, echo = FALSE}
 # You can get an imputed datasets from a mids object using the function complete().
 # Use ?complete for more information.
 ```
 
 ```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
 asis_output("#### Solution 3\\n")
 ```
 
@@ -1124,6 +1249,10 @@ stored in the elements `chainMean` and `chainVar` of the `mids` object.
 asis_output("#### Task\\n")
 ```
 
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
 Let's plot them to see if our imputation `imp` has converged:
 
 ```{r convergence, exercise = TRUE, exercise.setup = "allimp", fig.width = 9, fig.height = 7}
@@ -1131,11 +1260,12 @@ Let's plot them to see if our imputation `imp` has converged:
 ```
 
 ```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
 asis_output("#### Solution\\n")
 ```
 
 ```{r convergence-solution, solution = TRUE, fig.width = 9, fig.height = 7, cache = TRUE}
-
 # implemented plotting function (use layout to change the number of rows and columns)
 plot(imp, layout = c(6, 6))
 
@@ -1177,7 +1307,7 @@ case for `weight`). Moreover, `hyperchol` shows some undesired behaviour, where
 four chains move upwards and the 5th chain separates from them after half of the
 iterations. These are clear signs that there is correlation or identification
 problems between these variables and some other variables (which is why we made
-adjustments to the `predictorMatrix` for `imp`.)
+adjustments to the `predictorMatrix` for `imp`).
 
 ### Imputed values {.tabset .tabset-fade .tabset-pills}
 Now that we know that `imp` has converged, we can compare the distribution of
@@ -1185,6 +1315,10 @@ the imputed values against the distribution of the observed values.
 
 ```{r, eval = static, echo = FALSE}
 asis_output("#### Task\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
 ```
 
 Plot the distributions of the imputed variables (continuous and categorical),
@@ -1208,7 +1342,7 @@ using the function `complete()` and get the summary of that.
 </div>')
 ```
 
-```{r distrplot-hint-1, include = !static}
+```{r distrplot-hint-1, include = !static, echo = FALSE}
 # You can use densityplot and probplot to get plots for all continuous and
 # categorical variables.
 # 
@@ -1218,6 +1352,8 @@ using the function `complete()` and get the summary of that.
 ```
 
 ```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
 asis_output("#### Solution\\n")
 ```
 
@@ -1284,6 +1420,10 @@ be analysed with any complete data method.
 asis_output("#### Task\\n")
 ```
 
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
 Choose any analysis model of interest and fit it on the imputed data. 
 The model could for instance be a linear regression model (using `lm`) or a 
 generalized linear regression model, e.g., logistic regression
@@ -1311,6 +1451,8 @@ to be a `data.frame`. Instead, use `with(imp, <model function without data>)`.
 ```
 
 ```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
 asis_output("#### Solution\\n")
 ```
 
@@ -1376,6 +1518,10 @@ the function `pool()` can be used.
 asis_output("#### Task\\n")
 ```
 
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
 Pool one of the provided `mira` objects (`models1`, `models2` or `models3`)
 and investigate its structure.
 
@@ -1420,6 +1566,8 @@ models3 <- with(imp, glm(creat ~ age + gender + uricacid + WC + BMI,
 ```
 
 ```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
 asis_output("#### Solution\\n")
 ```
 
@@ -1476,7 +1624,7 @@ function provided in the course notes.
 
 However, the function `summary()` applied to the `mipo` object will do this for us.
 
-<div style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+<div style="border:1px; border-style:solid; padding: 1em; border-color:#D11450">
 **Note:**<br>
 `pool()` extracts the model coefficients and variance-covariance matrices using
 the functions `coef()` and `vcov()`. Hence, pooling using the `pool()` 
@@ -1495,6 +1643,10 @@ asis_output("#### Task\\n")
 ```
 
 ```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+```{r, eval = static, echo = FALSE}
 asis_output("Get the summary of the pooled results.")
 ```
 
@@ -1504,6 +1656,8 @@ pooled1 <- pool(models1)
 ```
 
 ```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
 asis_output("#### Solution\\n")
 ```
 
@@ -1511,7 +1665,6 @@ asis_output("#### Solution\\n")
 pooled1 <- pool(models1)
 summary(pooled1)
 ```
-
 
 
 <div style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">

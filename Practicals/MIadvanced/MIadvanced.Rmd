@@ -62,7 +62,7 @@ source("www/probplot.R")
 
 ```{r data, include = FALSE, context = "data"}
 # NHANES data ------------------------------------------------------------------
-# load("www/NHANES.RData")
+# load("data/NHANES.RData")
 # NHANES <- subset(NHANES, select = c("weight", "gender", "bili", "age", "chol",
 #                                     "HDL", "educ", "DBP", "height"),
 #                  subset = !is.na(weight) & !is.na(educ))
@@ -74,7 +74,7 @@ source("www/probplot.R")
 # 
 # NHANES$DBP[is.nan(NHANES$DBP)] <- NA
 
-# save(NHANES, file = "Practicals/MIadvanced/www/NHANES.RData")
+# save(NHANES, file = "Practicals/MIadvanced/www/NHANES_2.RData")
 
 # pbclong ----------------------------------------------------------------------
 
@@ -117,7 +117,7 @@ source("www/probplot.R")
 # pbcdat$chol <- as.numeric(pbcdat$chol)
 
 # save(pbcdat, file = "Practicals/MIadvanced/www/pbcdat.RData")
-load("www/NHANES.RData")
+load("www/NHANES_2.RData")
 load("www/pbclong.RData")
 load("www/pbcdat.RData")
 
@@ -411,6 +411,11 @@ practice.
 ### Data & Model of interest {.tabset .tabset-fade .tabset-pills}
 To practice imputation when non-linear functional forms or interaction terms
 are involved, we use a subset of the **NHANES** data.
+
+```{r, eval = static, echo = FALSE}
+asis_output('To get the **NHANES** data, load the file `NHANES_2.RData`.')
+```
+
 
 The variables in this subset have the following distributions and proportions
 of missing values:
@@ -1560,6 +1565,11 @@ ggplot(plotint, aes(x = method, y = est)) +
 In this part of the practical, we will work with data on a trial on primary 
 biliary cirrhosis (PBC) of the liver.
 
+```{r, eval = static, echo = FALSE}
+asis_output('To get the **pbclong** data, load the file `pbclong.RData`.')
+```
+
+
 The variables contained in the dataset `pbclong` are:
 
 ```{r pbclongvars, echo = FALSE}
@@ -2021,6 +2031,11 @@ ggplot(longresDF, aes(x = method, y = est)) +
 ### Data & Model of interest {.tabset .tabset-fade .tabset-pills}
 In this part of the practical, we will work with a different subset of the PBC data,
 omitting the longitudinal structure and focusing on the survival component.
+
+```{r, eval = static, echo = FALSE}
+asis_output('To get the **pbcdat** data, load the file `pbcdat.RData`.')
+```
+
 
 The variables contained in this subset (`pbcdat`) are:
 ```{r, echo = FALSE}
