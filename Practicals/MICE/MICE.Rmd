@@ -1335,6 +1335,8 @@ cat('<button type="button" class="btn btn-info btn-sm" data-toggle="collapse" da
 <div id = "impdistrhint" class="collapse" style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
 You can use `densityplot()` and `probplot()` to get plots for all continuous and
 categorical variables.
+
+You can obtain `probplot()` from [https://gist.github.com/NErler/0d00375da460dd33839b98faeee2fdab](https://gist.github.com/NErler/0d00375da460dd33839b98faeee2fdab).
  
 To check all imputed values you can either get a summary of the `imp` element
 of the `mids` object or create a complete dataset containing all imputations
@@ -1343,7 +1345,7 @@ using the function `complete()` and get the summary of that.
 ```
 
 ```{r distrplot-hint-1, include = !static, echo = FALSE}
-# You can use densityplot and probplot to get plots for all continuous and
+# You can use "densityplot()" and "probplot()" to get plots for all continuous and
 # categorical variables.
 # 
 # To check all imputed values you can either get a summary of the "imp" element
