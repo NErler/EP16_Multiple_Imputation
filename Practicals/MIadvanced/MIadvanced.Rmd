@@ -62,59 +62,64 @@ source("www/probplot.R")
 
 ```{r data, include = FALSE, context = "data"}
 # NHANES data ------------------------------------------------------------------
-load("www/NHANES.RData")
-NHANES <- subset(NHANES, select = c("weight", "gender", "bili", "age", "chol",
-                                    "HDL", "educ", "DBP", "height"),
-                 subset = !is.na(weight) & !is.na(educ))
+# load("www/NHANES.RData")
+# NHANES <- subset(NHANES, select = c("weight", "gender", "bili", "age", "chol",
+#                                     "HDL", "educ", "DBP", "height"),
+#                  subset = !is.na(weight) & !is.na(educ))
+# 
+# set.seed(2018)
+# sub <- sample(nrow(NHANES), 750, 
+#               prob = c(4/5, 1/5)[as.numeric(complete.cases(NHANES)) + 1])
+# NHANES <- NHANES[sub, ]
+# 
+# NHANES$DBP[is.nan(NHANES$DBP)] <- NA
 
-set.seed(2018)
-sub <- sample(nrow(NHANES), 750, 
-              prob = c(4/5, 1/5)[as.numeric(complete.cases(NHANES)) + 1])
-NHANES <- NHANES[sub, ]
-
-NHANES$DBP[is.nan(NHANES$DBP)] <- NA
-
-
+# save(NHANES, file = "Practicals/MIadvanced/www/NHANES.RData")
 
 # pbclong ----------------------------------------------------------------------
 
-pbcseq$year <- pbcseq$day/365.25
-pbclong <- subset(pbcseq, select = c("protime", "year", "sex", "trt", "age", "ascites", "bili",
-                                    "chol", "albumin", "id"))
-
-pbclong$ascites <- ifelse(sapply(split(pbclong$ascites, pbclong$id), mean) == 0,
-                          0, 1)[match(pbclong$id, unique(pbclong$id))]
-
-pbclong$bili <- sapply(split(pbclong$bili, pbclong$id), quantile, 0.1)[match(pbclong$id, unique(pbclong$id))]
-
-pbclong$chol <- sapply(split(pbclong$chol, pbclong$id), function(x) {
-                       ifelse(mean(is.na(x)) > 0.5, NA, median(x, na.rm = T))
-  })[match(pbclong$id, unique(pbclong$id))]
-
-
-probs <- with(pbclong[match(unique(pbclong$id), pbclong$id), ],
-              plogis(3 * as.numeric(sex) - 0.1 * age + 0.5 * as.numeric(trt)))
-
-set.seed(2018)
-pbclong$bili[pbclong$id %in% sample(length(unique(pbclong$id)), prob = probs,
-                                    size = length(unique(pbclong$id)) * 0.3)] <- NA
-
-pbclong$trt <- factor(pbclong$trt)
-pbclong$ascites <- factor(pbclong$ascites)
-
+# pbcseq$year <- pbcseq$day/365.25
+# pbclong <- subset(pbcseq, select = c("protime", "year", "sex", "trt", "age", "ascites", "bili",
+#                                     "chol", "albumin", "id"))
+# 
+# pbclong$ascites <- ifelse(sapply(split(pbclong$ascites, pbclong$id), mean) == 0,
+#                           0, 1)[match(pbclong$id, unique(pbclong$id))]
+# 
+# pbclong$bili <- sapply(split(pbclong$bili, pbclong$id), quantile, 0.1)[match(pbclong$id, unique(pbclong$id))]
+# 
+# pbclong$chol <- sapply(split(pbclong$chol, pbclong$id), function(x) {
+#                        ifelse(mean(is.na(x)) > 0.5, NA, median(x, na.rm = T))
+#   })[match(pbclong$id, unique(pbclong$id))]
+# 
+# 
+# probs <- with(pbclong[match(unique(pbclong$id), pbclong$id), ],
+#               plogis(3 * as.numeric(sex) - 0.1 * age + 0.5 * as.numeric(trt)))
+# 
+# set.seed(2018)
+# pbclong$bili[pbclong$id %in% sample(length(unique(pbclong$id)), prob = probs,
+#                                     size = length(unique(pbclong$id)) * 0.3)] <- NA
+# 
+# pbclong$trt <- factor(pbclong$trt)
+# pbclong$ascites <- factor(pbclong$ascites)
+# save(pbclong, file = "Practicals/MIadvanced/www/pbclong.RData")
 
 # pbcdata ----------------------------------------------------------------------
-pbcdat <- subset(pbc, 
-                 select = c("time", "status", "platelet", "age",
-                            "sex", "chol", "stage"))
-pbcdat$status <- factor(pbcdat$status,
-                        levels = 0:2,
-                        labels = c("censored", "transplant", "dead"))
-pbcdat$stage <- factor(pbcdat$stage, ordered = TRUE)
+# pbcdat <- subset(pbc, 
+#                  select = c("time", "status", "platelet", "age",
+#                             "sex", "chol", "stage"))
+# pbcdat$status <- factor(pbcdat$status,
+#                         levels = 0:2,
+#                         labels = c("censored", "transplant", "dead"))
+# pbcdat$stage <- factor(pbcdat$stage, ordered = TRUE)
+# 
+# pbcdat$time <- as.numeric(pbcdat$time)
+# pbcdat$platelet <- as.numeric(pbcdat$platelet)
+# pbcdat$chol <- as.numeric(pbcdat$chol)
 
-pbcdat$time <- as.numeric(pbcdat$time)
-pbcdat$platelet <- as.numeric(pbcdat$platelet)
-pbcdat$chol <- as.numeric(pbcdat$chol)
+# save(pbcdat, file = "Practicals/MIadvanced/www/pbcdat.RData")
+load("www/NHANES.RData")
+load("www/pbclong.RData")
+load("www/pbcdat.RData")
 
 ```
 

@@ -39,7 +39,7 @@ mentioned <- paste0("mice.impute.",
 
 micemeth <- sort(grep("mice.impute", getNamespaceExports("mice"), value = TRUE)) %>%
     cell_spec("latex", color = ifelse(. %in% used, "blue",
-                                      ifelse(. %in% mentioned, "green!50!black", "black")))
+                                      ifelse(. %in% mentioned, "green!40!black", "black")))
 
 
 methtab1 <- matrix(data = c(micemeth, rep(NA, length(micemeth) %% 3)),
@@ -225,18 +225,20 @@ When there are no auxiliary variables, imputation and analysis model are equal.
 \subsection{Notes of caution \& things to keep in mind}
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-Multiple imputation is not a quick and easy solution for missing data.
-It requires care and knowledge about
+Multiple imputation is \blue{not a quick and easy solution for missing data}.
+It requires \blue{care and knowledge} about
 \begin{itemize}
-\item the data to be imputed (and the context of the data),
-\item the statistical method used for imputation, and
-\item the software implementation used.
+\item the \blue{data} to be imputed (and the context of the data),
+\item the statistical \blue{method} used for imputation, and
+\item the \blue{software} implementation used.
 \end{itemize}
+
+\vfill
 
 Moreover
 \begin{itemize}
-\item Never accept default settings of software blindly.
-\item Question the plausibility of the MAR assumption. If it is doubtful,
+\item \blue{Never accept default settings of software blindly.}
+\item \blue{Question the plausibility of the MAR assumption.} If it is doubtful,
       use sensitivity analysis.
 \end{itemize}
 
@@ -246,21 +248,21 @@ Moreover
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 \blue{Remember:}
 \begin{itemize}
-\item Use as much information as possible
+\item \blue{Use as much information as possible}
       \begin{itemize}
       \item include all covariates \textcolor{red}{and the outcome}
       \item use auxiliary information
       \item use the most detailed version of variables if possible
       \end{itemize}
-\item Avoid feedback from derived variables to their originals.
+\item \blue{Avoid feedback} from derived variables to their originals.
 \item \blue{Imputation models must fit the data}\\
       (correct assumption of error distribution and functional forms and
       possible interactions of predictor variables).
 \item Think carefully how to handle variables that are derived from other variables.
-\item Consider the impact the visit sequence may have.
-\item Choose an appropriate number of imputations.
-\item Make sure the imputation algorithm has converged.
-\item Use common sense when evaluating if the imputed values are plausible.
+\item Consider the impact the \blue{visit sequence} may have.
+\item Choose an appropriate \blue{number of imputations}.
+\item Make sure the imputation algorithm has \blue{converged}.
+\item Use \blue{common sense} when evaluating if the imputed values are plausible.
 \end{itemize}
 \end{frame}
 
@@ -338,7 +340,7 @@ multiple imputation.
 \begin{itemize}
 \item \blue{Stata, SAS and MPLUS} provide packages/functions to perform multiple
       imputation and pool the results.
-\item There are macros and additional packages available, e.g.e,
+\item There are macros and additional packages available, e.g.,
       \blue{smcfcs} is implemented for \blue{Stata} as well
 \item \blue{SPSS} provides some functionality to perform MI
 \end{itemize}

@@ -66,7 +66,7 @@ pexqdr1 <- ggplot(DFexqdr, aes(x = x, y = y,
   theme_light() +
   theme(legend.position = c(0.1, 0.15),
         legend.background = element_rect(fill = 'transparent'),
-        legend.text = element_text(size = 12),
+        legend.text = element_text(size = 13),
         panel.grid = element_blank(),
         axis.text = element_blank(),
         axis.title = element_text(size = 15),
@@ -193,7 +193,7 @@ tabexqdr %>%
 
 
 \subsection{Example: Interaction effect}
-<<example_interact_bias, echo = F, include = F, fig.width = 6, fig.height = 4, fig.keep = "high">>=
+<<example_interact_bias, echo = F>>=
 # sim data interact -----------------------------------------------------------
 set.seed(2)
 N <- 200
@@ -220,17 +220,6 @@ DFexint$ximp2[is.na(DFexint$xmis)] <- imps2
 lm0 <- lm(y ~ x*z, DFexint)
 lm_imp <- lm(y ~ ximp*z, DFexint)
 lm_imp2 <- lm(y ~ ximp2*z, DFexint)
-
-# xp <- seq(from = -1.5, to = 1.5, by = 0.1)
-#
-# yp0 <- predict(lm0, newdata = data.frame(x = xp, z = 0))
-# yp1 <- predict(lm0, newdata = data.frame(x = xp, z = 1))
-#
-# yimp0 <- predict(lm_imp, newdata = data.frame(ximp = xp, z = 0))
-# yimp1 <- predict(lm_imp, newdata = data.frame(ximp = xp, z = 1))
-#
-# yimp20 <- predict(lm_imp2, newdata = data.frame(ximp2 = xp, z = 0))
-# yimp21 <- predict(lm_imp2, newdata = data.frame(ximp2 = xp, z = 1))
 @
 
 
@@ -246,7 +235,7 @@ i.e., $y$ has a \blue{non-linear relationship} with $x$ due to the
 \begin{columns}
 \begin{column}{0.6\linewidth}
 \begin{center}
-<<plot_int1, echo = F, fig.width = 6, fig.height = 4>>=
+<<plot_int1, echo = F, fig.width = 6, fig.height = 4.5>>=
 plotexint <- reshape2::melt(DFexint, id.vars = c("y", "z", "ximp2", "xmis"))
 plotexint$combi <- paste0(plotexint$variable, "_",
                           ifelse(is.na(plotexint$xmis), "mis", "obs"), plotexint$z)
@@ -262,7 +251,7 @@ ggplot(plotexint[plotexint$variable == "x", ], aes(x = value, y = y,
         axis.ticks = element_blank(),
         axis.text = element_blank(),
         axis.title = element_text(size = 15),
-        legend.text = element_text(size = 12),
+        legend.text = element_text(size = 13),
         legend.spacing.x = unit(-0.5,  "lines"),
         legend.spacing.y = unit(-1.5, "lines"),
         legend.box = "horizontal") +
@@ -309,7 +298,7 @@ ggplot(plotexint[plotexint$variable == "x" | is.na(plotexint$xmis), ],
         axis.text = element_blank(),
         axis.ticks = element_blank(),
         axis.title = element_text(size = 15),
-        legend.text = element_text(size = 12),
+        legend.text = element_text(size = 13),
         legend.spacing.x = unit(-0.5,  "lines"),
         legend.spacing.y = unit(-1.5, "lines"),
         legend.box = "horizontal") +
@@ -378,7 +367,7 @@ ggplot(plotexint[plotexint$variable == "x" | is.na(plotexint$xmis), ],
         axis.ticks = element_blank(),
         axis.text = element_blank(),
         axis.title = element_text(size = 15),
-        legend.text = element_text(size = 12),
+        legend.text = element_text(size = 13),
         legend.spacing.x = unit(-0.5,  "lines"),
         legend.spacing.y = unit(-1.5, "lines"),
         legend.box = "horizontal",
@@ -477,7 +466,7 @@ the \blue{outcome variable is longitudinal}.
 <<trajectories, echo = F, fig.with = 6, fig.height = 4.5>>=
 plong1_0 <- ggplot(subDFexlong, aes(x = time, y = y, color = factor(id))) +
   theme(legend.position = "none",
-        axis.title = element_text(size = 15),
+        axis.title = element_text(size = 18),
         axis.text = element_text(size = 12)) +
   scale_color_brewer(palette = "Dark2") +
   scale_y_continuous(breaks = NULL,
@@ -987,11 +976,12 @@ where $H_0(T)$ is the cumulative baseline hazard.\cite{White2009}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 Using the naively assumed imputation model can lead to \blue{severe bias}:
 
-<<plot surv example, echo = F, fig.width = 6, fig.height = 3, out.width = "80%">>=
+<<plot surv example, echo = F, fig.width = 7, fig.height = 3, out.width = "90%">>=
 library(ggplot2)
 ggplot(plotcox, aes(x = meth, y = est)) +
   geom_point() +
   geom_errorbar(aes(min = `lo 95`, max = `hi 95`), width = 0.2) +
+  theme(axis.text = element_text(size = 12)) +
   facet_wrap("var", scales = 'free',
              labeller = labeller(var = c("x22" = "x2 (binary)",
                                          "x1" = "x1 (continuous)",
@@ -1227,8 +1217,8 @@ $$\text{e.g.: } \bmath x_k \text{ binary }
 $$
 
 <<echo = F, fig.width = 6, fig.height = 3, out.width = "70%">>=
-par(mar = c(3.5, 3.5, 0.5, 0.5), mgp = c(2, 0.6, 0))
-plot(seq(-4, 4, 0.1), dnorm(seq(-4, 4, 0.1)), type = "l",
+par(mar = c(3.5, 4.4, 0.5, 0.5), mgp = c(2.5, 0.6, 0))
+plot(seq(-4, 4, 0.1), dnorm(seq(-4, 4, 0.1)), type = "l", cex.lab = 1.5,
      xlab = expression(hat(x)[k]), ylab = expression(density~of~hat(x)[k]))
 polygon(x = c(seq(-4, 0, 0.1), 0),
         y = c(dnorm(seq(-4, 0, 0.1)), 0), col = grey(0.9), border = 'transparent')
@@ -1236,8 +1226,8 @@ polygon(x = c(seq(4, 0, -0.1), 0),
         y = c(dnorm(seq(4, 0, -0.1)), 0), col = grey(0.7), border = 'transparent')
 abline(v = 0, lty = 2)
 lines(seq(-4, 4, 0.1), dnorm(seq(-4, 4, 0.1)))
-text(x = -1, y = 0.05, label = bquote(x[k] == 0))
-text(x = 1, y = 0.05, label = bquote(x[k] == 1))
+text(x = -1, y = 0.05, label = bquote(x[k] == 0), cex = 1.5)
+text(x = 1, y = 0.05, label = bquote(x[k] == 1), cex = 1.5)
 @
 \end{frame}
 
@@ -1251,9 +1241,9 @@ text(x = 1, y = 0.05, label = bquote(x[k] == 1))
     $\addtolength\arraycolsep{-.8ex}\def\arraystretch{1.5}
     \begin{array}{rclclcl}
     \bmath y   &=& \bmath X_c \bmath{\beta}_y     &+& \bmath{ Z_y} \;\bmath{ b_y} &+& \bmath{ \varepsilon_y}\\
-    \textcolor{black!50}{\bmath w} &=& \textcolor{black!50}{\bmath X_c \bmath{\beta}_w}
-                                   &+& \textcolor{black!50}{\bmath{ Z_w} \,\bmath{ b_w}}
-                                   &+& \textcolor{black!50}{\bmath{ \varepsilon_w}}\\
+    \textcolor{black!30}{\bmath w} &=& \textcolor{black!30}{\bmath X_c \bmath{\beta}_w}
+                                   &+& \textcolor{black!30}{\bmath{ Z_w} \,\bmath{ b_w}}
+                                   &+& \textcolor{black!30}{\bmath{ \varepsilon_w}}\\
     \bmath{\hat x}_1 &=& \bmath X_c \bmath{\beta}_{x_1} &+& \phantom{\bmath Z_w\,} \bmath{ \varepsilon_{x_1}}      &&\\[-1ex]
                & \vdots&                                & & \phantom{\bmath Z_w\;} \vdots                                &&\\[-1ex]
     \bmath{\hat x}_p &=& \bmath X_c \bmath{\beta}_{x_p} &+& \phantom{\bmath Z_w\,} \bmath{ \varepsilon_{x_p}}      &&
@@ -1299,8 +1289,10 @@ text(x = 1, y = 0.05, label = bquote(x[k] == 1))
 
 \bigskip
 
-Imputation with \blue{non-linear associations} or \blue{survival data} is
+\begin{center}
+\parbox{0.6\linewidth}{Imputation with \blue{non-linear associations} or \blue{survival data} is
 possible with \blue{extensions} of the multivariate normal approach.
+}\end{center}
 \end{frame}
 
 \subsection{Sequential Factorization}
@@ -1332,17 +1324,17 @@ completely observed covariates.
 That the analysis model is part of the specification of the joint distribution has
 several advantages:
 \begin{itemize}
-\item The outcome is \blue{automatically included in the imputation} procedure.
-\item The outcome does not appear in any of the predictors of the imputation
+\item<1-> The outcome is \blue{automatically included in the imputation} procedure.
+\item<1-> The outcome does not appear in any of the predictors of the imputation
       models:
       \begin{itemize}
       \item \blue{no need to approximate} complex outcomes,
       \item \blue{no need to summarize} complex outcomes.
       \end{itemize}
-\item The parameters of interest are obtained directly\\
+\item<2-> The parameters of interest are obtained directly\\
       \blue{\ding{225}}
       imputation and analysis in one step
-\item \blue{Non-linear associations} or interactions involving incomplete covariates
+\item<3-> \blue{Non-linear associations} or interactions involving incomplete covariates
       are specified in the analysis model and thereby
       \blue{automatically taken into account}
 \end{itemize}
@@ -1350,8 +1342,8 @@ several advantages:
 
 \bigskip
 
-Since the joint distribution usually does not have a known form, Gibbs sampling
-is used to estimate parameters and sample imputed values.
+\onslide<4>{Since the joint distribution usually does not have a known form, Gibbs sampling
+is used to estimate parameters and sample imputed values.}
 \end{frame}
 
 
@@ -1361,19 +1353,19 @@ is used to estimate parameters and sample imputed values.
 \begin{column}{0.55\linewidth}
 \blue{Advantages:}
 \begin{itemize}
-\item flexible with regards to outcome type
+\item \blue{flexible} with regards to outcome type
 \item univariate conditional distributions of incomplete covariates can be chosen
-according to type of variable
-\item non-linear associations and interactions can be taken into account
-\item assures congeniality and compatible imputation models
+according to \blue{type of variable}
+\item \blue{non-linear associations} and interactions can be taken into account
+\item assures \blue{congeniality and compatible imputation models}
 \end{itemize}
 \end{column}
 \begin{column}{0.45\linewidth}
 \blue{Disadvantages:}
 \begin{itemize}
-\item separate models need to be specified per incomplete variable: takes more time
-and consideration
-\item the joint distribution is of unknown form and sampling may be more computationally intensive
+\item separate models need to be specified per incomplete variable: \blue{takes more time
+and consideration}
+\item the joint distribution is of unknown form and sampling may be more \blue{computationally intensive}
 \end{itemize}
 \end{column}
 \end{columns}
@@ -1389,18 +1381,18 @@ that provide alternatives to \textbf{mice}.
 
 \vfill
 
-These three packages use Bayesian methodology to impute values, but once imputed
+These three packages use \blue{Bayesian methodology} to impute values, but once imputed
 datasets are obtained, standard complete data methods can be used.
 
 \bigskip
 
-\blue{jomo} and \blue{smcfcs} perform multiple imputation and create imputed
+\blue{jomo} and \blue{smcfcs} perform \blue{multiple imputation} and create imputed
 datasets that can then be analysed the same way data imputed by \textbf{mice}
 would be analysed.
 
 \bigskip
 
-\blue{JointAI} works fully Bayesian and performs the analysis and imputation
+\blue{JointAI} works \blue{fully Bayesian} and performs the analysis and imputation
 simultaneously, so that the results from the analysis model of interest are
 obtained directly.
 \end{frame}
@@ -1480,7 +1472,7 @@ DF_nonlin$x[sample(1:length(x), size = N/2)] <- NA
 
 \pause
 In the naive approach, we leave all settings to the defaults.
-<<>>=
+<<size = 'small'>>=
 # naive imputation, using only y, x, z
 impnaive <- mice(DF_nonlin, printFlag = F)
 @
@@ -1491,7 +1483,7 @@ impnaive <- mice(DF_nonlin, printFlag = F)
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 We use two different JAV approaches:\\[2ex]
 \blue{JAV:} calculating the quadratic and interaction term before imputation
-<<>>=
+<<size = 'small'>>=
 # add quadratic term and interaction to data
 DF2 <- DF_nonlin
 DF2$xx <- DF2$x^2
@@ -1501,7 +1493,7 @@ DF2$xz <- DF2$x * DF2$z
 impJAV <- mice(DF2, printFlag = F, maxit = 20)
 @
 \blue{JAV2:} additionally using an interaction between $z$ and $y$
-<<>>=
+<<size = 'small'>>=
 # add interaction between y and z to data
 DF3 <- DF2
 DF3$yz <- DF3$y * DF3$z
@@ -1514,7 +1506,7 @@ impJAV2 <- mice(DF3, printFlag = F, maxit = 20)
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 We also try using imputation method \Rarg{quadratic}.
-<<warning = F>>=
+<<warning = F, size = 'small'>>=
 # adapt the imputation method for quadratic imputation
 methqdr <- impJAV$meth
 methqdr[c("x", "xx", "xz")] <- c("quadratic", "~I(x^2)", "~I(x*z)")
@@ -1560,39 +1552,16 @@ polyDF_nonlin <- data.frame(x = rep(c(0, 5, 5, 0), 5),
 
 ggplot(resqdr, aes(x = meth, y = est)) +
   geom_polygon(data = polyDF_nonlin,
-               aes(x = x, y = y), fill = 'blue', alpha = 0.3) +
+               aes(x = x, y = y), fill = 'blue', alpha = 0.2) +
   geom_point() +
   geom_errorbar(aes(ymin = `lo 95`, ymax = `hi 95`)) +
   facet_wrap("var", scales = 'free') +
   geom_hline(aes(yintercept = beta), lty = 2) +
   scale_x_discrete(limits = c("naive", "JAV", "JAV2", "qdr")) +
-  xlab("imputation method") +
   ylab("estimate & 95% confidence interval")
 @
 For this example, \blue{none of the approaches provided satisfying results}.
 \end{frame}
-
-
-
-% \begin{frame}[fragile]{\thesection. \insertsection}
-% \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-% For this example, \blue{none of the approaches provided satisfying results}.\\
-% (To make a more general statement, a simulation study would be needed.)
-%
-% \bigskip
-%
-% Note that we used a relatively large proportion of missing values and that not
-% a lot of additional covariate information was used \ding{225} in practice
-% bias may be less
-%
-% \bigskip
-%
-% The message is:\\
-% When incomplete variables are involved in interactions or have non-linear association
-% with the outcome, you can not be sure that MICE will provide valid imputations.
-% Since usually we do not know the true values, it is impossible to judge if this
-% is a problem in a real dataset or how big the resulting bias is.
-% \end{frame}
 
 
 \subsection{R package JointAI}
@@ -1626,13 +1595,13 @@ installed from \url{https://sourceforge.net/projects/mcmc-jags/files/}.
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 \blue{JointAI} can be installed from CRAN
-<<eval = F>>=
+<<eval = F, size = 'small'>>=
 install.packages("JointAI")
 @
 
 The development version (containing bug fixes and other improvements)
 can be installed from \href{https://github.com/nerler/JointAI}{GitHub}
-<<eval = F>>=
+<<eval = F, size = 'small'>>=
 install.packages("devtools")
 devtools::install_github(repo = "JointAI", username = "NErler")
 @
@@ -1647,13 +1616,15 @@ package, and a vignette with an in-depth example analysis will be available soon
 The syntax we use to analyse and impute the current example using \blue{JointAI} is
 similar to the specification of a standard linear model using \Rfct{lm}.
 
-<<JointAI_nonlin, eval = F>>=
+<<JointAI_nonlin, eval = F, size = 'small'>>=
 library(JointAI)
-JointAI_nonlin <- lm_imp(y ~ x*z + I(x^2), data = DF_nonlin, n.iter = 2500)
+JointAI_nonlin <- lm_imp(y ~ x*z + I(x^2), data = DF_nonlin,
+                         n.iter = 2500)
 @
 
+\pause
 Convergence of the Gibbs sampler can be checked using a traceplot.
-<<JointAI_nonlin02, eval = F>>=
+<<JointAI_nonlin02, eval = F, size = 'small'>>=
 traceplot(JointAI_nonlin)
 @
 
@@ -1670,7 +1641,7 @@ load("workspaces/JointAI_nonlin.RData")
 
 Results (no separate analysis \& pooling is necessary) can be obtained with
 the \Rfct{summary} function:
-<<>>=
+<<size = 'small'>>=
 res_JointAI_nonlin <- summary(JointAI_nonlin)
 @
 \end{frame}
@@ -1710,7 +1681,7 @@ For more information see the help files and the
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 The syntax to impute the data in the current example using the package \blue{smcfcs}
 is:
-<<smcfcs_nonlin01, eval = F>>=
+<<smcfcs_nonlin01, eval = F, size = 'small'>>=
 library(smcfcs)
 smcfcs_nonlin <- smcfcs(originaldata = DF_nonlin, smtype = "lm",
                         smformula = "y~x*z + I(x^2)",
@@ -1720,7 +1691,7 @@ smcfcs_nonlin <- smcfcs(originaldata = DF_nonlin, smtype = "lm",
 
 The convergence of the procedure should be checked, for example with the
 following syntax:
-<<smcfcs_nonlin02, eval = F>>=
+<<smcfcs_nonlin02, eval = F, size = 'small'>>=
 par(mfrow = c(2,3), mar = c(2, 2, 0.5, 0.5), mgp = c(2, 0.6, 0))
 for(i in 1:dim(smcfcs_nonlin$smCoefIter)[2]) {
   matplot(t(smcfcs_nonlin$smCoefIter[, i, ]), type = 'l', ylab = '')
@@ -1757,14 +1728,14 @@ to a \Robj{mids} object.
 
 This can be done with the function \Rfct{datalist2mids} from the \textbf{miceadds}
 package.
-<<smcfcs_nonlin_pool1, eval = F>>=
+<<smcfcs_nonlin_pool1, eval = F, size = 'small'>>=
 library(miceadds)
 impobj_smcfcs_nonlin <- datalist2mids(smcfcs_nonlin$impDatasets)
 @
 
 The \Robj{mids} object can then be pooled and summarized as we have seen before
 with \texttt{mids} objects created by \Rfct{mice}.
-<<smcfcs_nonlin_pool2, eval = F>>=
+<<smcfcs_nonlin_pool2, eval = F, size = 'small'>>=
 models_smcfcs_nonlin <- with(impobj_smcfcs_nonlin, lm(y ~ x*z + I(x^2)))
 res_smcfcs_nonlin <- summary(pool(models_smcfcs_nonlin))
 @
@@ -1783,7 +1754,7 @@ with \blue{extensions to assure compatibility} between analysis and imputation m
 
 \bigskip
 
-\textbf{jomo} (version 2.6-1) can handle
+\textbf{jomo} (version 2.6-2) can handle
 \begin{itemize}
 \item linear regression,
 \item generalized linear regression,
@@ -1797,7 +1768,7 @@ with \blue{extensions to assure compatibility} between analysis and imputation m
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 Using \blue{jomo} we can impute the data in the current example as follows:
-<<jomo_nonlin, eval = F>>=
+<<jomo_nonlin, eval = F, size = 'small'>>=
 library(jomo)
 jomo_nonlin <- jomo.lm(y ~ x*z + I(x^2), data = DF_nonlin)
 @
@@ -1820,9 +1791,10 @@ models_jomo_nonlin <- with(impobj_jomo_nonlin, lm(y ~ x*z + I(x^2)))
 res_jomo_nonlin <- summary(pool(models_jomo_nonlin))
 @
 
+\pause
 To check the convergence of the model, the corresponding function with
 ending \Rfct{.MCMCchain} as to be used.
-<<jomo_nonlin2, eval = F>>=
+<<jomo_nonlin2, eval = F, size = 'small'>>=
 jomo_nonlinMCMC <- jomo.lm.MCMCchain(y ~ x*z + I(x^2), data = DF_nonlin)
 
 par(mfcol = c(2, 3), mar = c(3, 2.5, 0.5, 0.5), mgp = c(2, 0.6, 0))
@@ -1852,14 +1824,14 @@ the original data and all imputed datasets are stacked onto each other.
 \Rfct{split} splits the dataset by imputation number into a list of datasets,
 from which we need to exclude the first element (the original/incomplete data).
 
-<<eval = F>>=
+<<eval = F, size = 'small'>>=
 impobj_jomo_nonlin <- datalist2mids(split(jomo_nonlin,
                                           jomo_nonlin$Imputation)[-1])
 @
 
 With the resulting \Robj{mids} object, analysis of the imputed data and
 pooling of the results works as in the above examples.
-<<eval = F>>=
+<<eval = F, size = 'small'>>=
 models_jomo_nonlin <- with(impobj_jomo_nonlin, lm(y ~ x*z + I(x^2)))
 res_jomo_nonlin <- summary(pool(models_jomo_nonlin))
 @
@@ -1897,47 +1869,17 @@ ggplot(plot_nonlin, aes(x = L1, y = coef)) +
   geom_point() +
   geom_errorbar(aes(ymin = lo, ymax = up), width = 0.3) +
   facet_wrap("var", scales = 'free') +
-  geom_polygon(data = polyDF, aes(x = x, y = y), fill = 'blue', alpha = 0.3) +
+  geom_polygon(data = polyDF, aes(x = x, y = y), fill = 'blue', alpha = 0.2) +
   geom_hline(data = data.frame(betas = coef(mod_nonlin),
                                var = names(coef(mod_nonlin))),
              aes(yintercept = betas), lty = 2) +
-  xlab("imputation method") +
   ylab("coefficient") +
+  xlab("") +
   scale_x_discrete(limits = c("naive", "JAV", "JAV2", "qdr",
                               "JointAI", "smcfcs", "jomo")) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 @
 \end{frame}
-
-
-% \begin{frame}[fragile]{\thesection. \insertsection}
-% \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-%
-% For the current example data, the \blue{mice} package was clearly outperformed
-% by the three alternative packages \blue{JointAI}, \blue{smcfcs} and \blue{jomo}.
-%
-% \bigskip
-%
-% To make a more general statement, a simulation study would be needed.
-%
-% \bigskip
-%
-% Note also that we used a large proportion of missing values (50\%) and that not
-% a lot of additional covariate information was used\\
-% \blue{\ding{225}} In practice, \blue{mice} may perform better than what we saw here.
-%
-% \bigskip
-%
-% \begin{block}{The message:}
-% When \blue{incomplete variables} are involved in \blue{interactions} or
-% have \blue{non-linear association} with the outcome, standard MICE approaches
-% may not provide valid imputations.
-%
-% \bigskip
-%
-% Alternative methods are available and should be considered.
-% \end{block}
-% \end{frame}
 
 
 \section{Imputation of longitudinal data}
@@ -1992,7 +1934,7 @@ can be specified as different values in the \Rarg{predictorMatrix}:
 \item fixed effects of group means \& random effects: 4
 \end{itemize}
 
-<<micelong_ex1_cont3_, eval = F>>=
+<<micelong_ex1_cont3_, eval = F, size = 'small'>>=
 # random effects of x in model for y
 pred["y","x"] <- 2
 # fixed effects of x and group mean of x
@@ -2033,26 +1975,6 @@ In all case, the group identifier ("id" variable") needs to be set to -2 in
 the \Rarg{predictorMatrix}.
 \end{frame}
 
-% \begin{frame}[fragile]{\thesection. \insertsection}
-% \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-% Functions for impuation of \blue{level-2} variables:
-% \begin{itemize}
-% \item \Rfct{mice.impute.2lonly.norm} (Bayesian lin. regression)
-% \item \Rfct{mice.impute.2lonly.pmm} (predictive mean matching)
-% \item \Rfct{mice.impute.2lonly.mean}
-% \end{itemize}
-%
-% \bigskip
-%
-% \Rstring{2lonly.norm} and \Rstring{2lonly.pmm} can be used
-% to impute level-2 variables (in combination with \Rstring{2l.pan} for
-% level-1 variables\cite{Yucel2008}).
-%
-% \bigskip
-%
-% In any case, the group identifier ("id" variable") needs to be set to -2 in
-% the \Rarg{predictorMatrix}.
-% \end{frame}
 
 
 \begin{frame}[fragile]{\thesection. \insertsection}
@@ -2094,14 +2016,14 @@ to impute $x2$ and $x3$.
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 As usual, we start with the setup run of \Rfct{mice}
-<<miceimp_DFexlong2>>=
+<<miceimp_DFexlong2, size = 'small'>>=
 imp0 <- mice(DFexlong2, maxit = 0)
 meth <- imp0$method
 pred <- imp0$predictorMatrix
 @
 
 and adjust the imputation \Rarg{method} and \Rarg{predictorMatrix}
-<<miceimp_DFexlong2_02>>=
+<<miceimp_DFexlong2_02, size = 'small'>>=
 meth[c("x2", "x3")] <- "2lonly.pmm"
 meth[c("x4")] <- "2lonly.norm"
 
@@ -2110,8 +2032,9 @@ pred[, "ti"] <- 0 # don't use time-point indicator
 @
 
 We can then perform the imputation.
-<<miceimp_DFexlong2_03>>=
-imp <- mice(DFexlong2, maxit = 10, meth = meth, pred = pred, printFlag = F)
+<<miceimp_DFexlong2_03, size = 'small'>>=
+imp <- mice(DFexlong2, maxit = 10, method = meth,
+            predictorMatrix = pred, printFlag = F)
 @
 \end{frame}
 
@@ -2119,7 +2042,7 @@ imp <- mice(DFexlong2, maxit = 10, meth = meth, pred = pred, printFlag = F)
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 The imputed data can be analysed using either \Rfct{lmer} from the package
 \textbf{lme4}, or \Rfct{lme} from \textbf{nlme}. Here we use the former.
-<<miceimp_DFexlong2_04>>=
+<<miceimp_DFexlong2_04, size = 'small'>>=
 library(lme4)
 models <- with(imp, lmer(y ~ x1 + x2 + x3 + x4 + time + I(time^2) +
                            (time|id)))
@@ -2167,7 +2090,7 @@ analysed using the package \textbf{JointAI}.
 
 The syntax is analogous the syntax used in \Rfct{lme} of the package \textbf{nlme}.
 
-<<JointAI_long, eval = F>>=
+<<JointAI_long, eval = F, size = 'small'>>=
 library(JointAI)
 JointAI_long <- lme_imp(y ~ x1 + x3 + x2 + x4 + time + I(time^2),
                         random = ~time|id, data = DFexlong2,
@@ -2175,15 +2098,15 @@ JointAI_long <- lme_imp(y ~ x1 + x3 + x2 + x4 + time + I(time^2),
 @
 
 Again, convergence of the Gibbs sampler should be checked using a traceplot,
-<<JointAI_long_02, eval = F>>=
+<<JointAI_long_02, eval = F, size = 'small'>>=
 traceplot(JointAI_long)
 @
 before obtaining the results:
-<<JointAI_long_03, eval = F>>=
+<<JointAI_long_03, eval = F, size = 'small'>>=
 res_JointAI_long <- summary(JointAI_long)
 @
 
-<<JointAI_long_run, eval = F, echo = F>>=
+<<JointAI_long_run, eval = F, echo = F, size = 'small'>>=
 library(JointAI)
 JointAI_long <- lme_imp(y ~ x1 + x3 + x2 + x4 + time + I(time^2),
                         random = ~time|id, data = DFexlong2,
@@ -2192,7 +2115,7 @@ JointAI_long <- lme_imp(y ~ x1 + x3 + x2 + x4 + time + I(time^2),
 save(JointAI_long, file = "Slides/workspaces/JointAI_long.RData")
 @
 
-<<JointAI_long_get, echo = F, fig.width = 8, fig.height = 4, message = F>>=
+<<JointAI_long_get, echo = F, fig.width = 8, fig.height = 4, message = F, size = 'small'>>=
 load("workspaces/JointAI_long.RData")
 res_JointAI_long <- summary(JointAI_long)
 @
@@ -2212,10 +2135,10 @@ can be used to impute longitudinal data with normal or non-normal outcomes.
 
 \bigskip
 
-In the multi-level setting, the level of each variable needs to be specified
-(1: repeated measurements, 2: baseline covariates), and ordered the same way
+In the multi-level setting, the \blue{level of each variable} needs to be specified
+(1: repeated measurements, 2: baseline covariates), and \blue{ordered the same way}
 the variables occur in the data frame.
-<<jomo_long, eval = F>>=
+<<jomo_long, eval = F, size = 'small'>>=
 library(jomo)
 # specify the level of each variable
 lvl <- c("id" = 1, y = 1, x1 = 2, x2 = 2, x3 = 2, x4 = 2, time = 1)
@@ -2226,7 +2149,7 @@ jomo_long <- jomo.lmer(formula = y ~ x1 + x2 + x3 + x4 +
 @
 
 
-<<jomo_long_run, eval = F, echo = F>>=
+<<jomo_long_run, eval = F, echo = F, size = 'small'>>=
 library(jomo)
 source(file.path(projdir, "Slides", "Rfcts/myjomo.R"))
 
@@ -2248,7 +2171,7 @@ matplot(t(jomo_longMCMC$collectu[3, , ]), type = 'l')
 save(jomo_long, jomo_longMCMC, file = 'Slides/workspaces/jomo_long.RData')
 @
 
-<<jomo_long_get, echo = F>>=
+<<jomo_long_get, echo = F, size = 'small'>>=
 load('workspaces/jomo_long.RData')
 @
 
@@ -2262,7 +2185,7 @@ needs to be checked.
 Again, the stacked dataframe returned by \Rfct{jomo.lmer} needs to be split
 by imputation number and the original data excluded, before fitting the model
 and pooling the results.
-<<>>=
+<<size = 'small'>>=
 library(miceadds)
 impobj_jomo_long <- datalist2mids(split(jomo_long,
                                         jomo_long$Imputation)[-1])
@@ -2285,7 +2208,7 @@ models is maintained.
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 \only<1>{
-<<echo = F, figwidth = 6, fig.height = 4.5>>=
+<<echo = F, figwidth = 6, fig.height = 4.5, size = 'small'>>=
 mod_long2 <- with(DFexlong2_orig,
                   lmer(y ~ x1 + x2 + x3 + x4 + time + I(time^2) + (time|id)))
 
@@ -2317,28 +2240,28 @@ ggplot(plot_long[plot_long$L1 != "mice_naive", ], aes(x = L1, y = coef)) +
   geom_point(na.rm = T) +
   geom_errorbar(aes(ymin = lo, ymax = up), width = 0.3, na.rm = T) +
   facet_wrap("var", scales = 'free', ncol = 4) +
-  geom_polygon(data = polyDF, aes(x = pmin(x, 3.5), y = y), fill = 'blue', alpha = 0.3) +
+  geom_polygon(data = polyDF, aes(x = pmin(x, 3.5), y = y), fill = 'blue', alpha = 0.2) +
   geom_hline(data = data.frame(betas = fixef(mod_long2),
                                var = names(fixef(mod_long2))),
              aes(yintercept = betas), lty = 2) +
-  xlab("imputation method") +
   ylab("coefficient") +
+  xlab("") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   scale_x_discrete(limits = c("mice_long", "JointAI", "jomo"),
                    labels = c("mice", "JointAI", "jomo"))
 @
 }
 \only<2>{
-<<echo = F, figwidth = 6, fig.height = 4.5>>=
+<<echo = F, figwidth = 6, fig.height = 4.5, size = 'small'>>=
 ggplot(plot_long, aes(x = L1, y = coef)) +
   geom_point(na.rm = T) +
   geom_errorbar(aes(ymin = lo, ymax = up), width = 0.3, na.rm = T) +
   facet_wrap("var", scales = 'free', ncol = 4) +
-  geom_polygon(data = polyDF, aes(x = x, y = y), fill = 'blue', alpha = 0.3) +
+  geom_polygon(data = polyDF, aes(x = x, y = y), fill = 'blue', alpha = 0.2) +
   geom_hline(data = data.frame(betas = fixef(mod_long2),
                                var = names(fixef(mod_long2))),
              aes(yintercept = betas), lty = 2) +
-  xlab("imputation method") +
+  xlab("") +
   ylab("coefficient") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   scale_x_discrete(limits = c("mice_long", "JointAI", "jomo", "mice_naive"),
@@ -2406,12 +2329,12 @@ In \textbf{mice}, \Rfct{nelsonaalen} can be used to
 \blue{calculate the Nelson-Aalen estimator}, to use it as covariate in the
 imputation.
 
-<<mice_surv01>>=
+<<mice_surv01, size = 'small'>>=
 survdat$H0 <- nelsonaalen(survdat, timevar = Time, statusvar = event)
 @
 
 Then, we can prepare the imputation using the same steps as in previous examples:
-<<mice_surv02>>=
+<<mice_surv02, size = 'small'>>=
 # setup run
 imp0 <- mice(survdat, maxit = 0)
 meth <- imp0$method
@@ -2436,16 +2359,16 @@ survimp <- mice(survdat, maxit = 10, method = meth, predictorMatrix = pred,
 
 
 To obtain the pooled results, we first fit the model of interest
-<<mice_surv2>>=
+<<mice_surv2, size = 'small'>>=
 cox_mice <- with(survimp, coxph(Surv(Time, event) ~ x1 + x2 + x3))
 @
 
 and pool and summarize the results.
-<<>>=
+<<size = 'small'>>=
 res_mice_surv <- summary(pool(cox_mice))
 @
 The warning message refers to the way the degrees of freedom for the formulas
-we saw in part I (slide \ref{poolingdf}) are calculated and can be ignored.
+we saw in Part I (slide \ref{poolingdf}) are calculated and can be ignored.
 \end{frame}
 
 
@@ -2455,7 +2378,7 @@ we saw in part I (slide \ref{poolingdf}) are calculated and can be ignored.
 Using the package \blue{smcfcs}, the same data can be imputed with the following
 syntax:
 
-<<smcfcs_surv, eval = F>>=
+<<smcfcs_surv, eval = F, size = 'small'>>=
 library(smcfcs)
 smcfcs_surv <- smcfcs(originaldata = survdat, smtype = "coxph",
                       smformula = "Surv(Time, event) ~ x1 + x2 + x3",
@@ -2471,14 +2394,14 @@ After the resulting object is converted to a \Robj{mids} object, fitting the
 model and pooling the results is identical to what was done with the data imputed
 by \textbf{mice}.
 
-<<smcfcs_surv02, eval = F>>=
+<<smcfcs_surv02, eval = F, size = 'small'>>=
 impobj_smcfcs_surv <- datalist2mids(smcfcs_surv$impDatasets)
 models_smcfcs_surv <- with(impobj_smcfcs_surv,
                            coxph(Surv(Time, event) ~ x1 + x2 + x3))
 res_smcfcs_surv <- summary(pool(models_smcfcs_surv))
 @
 
-<<smcfcs_surv_run, echo = F, eval = F>>=
+<<smcfcs_surv_run, echo = F, eval = F, size = 'small'>>=
 library(smcfcs)
 smcfcs_surv <- smcfcs(originaldata = survdat, smtype = "coxph",
                       smformula = "Surv(Time, event) ~ x1 + x2 + x3",
@@ -2488,7 +2411,7 @@ smcfcs_surv <- smcfcs(originaldata = survdat, smtype = "coxph",
 save(smcfcs_surv, file = "Slides/workspaces/smcfcs_surv.Rdata")
 @
 
-<<smcfcs_surv_load, echo = F, warning = F>>=
+<<smcfcs_surv_load, echo = F, warning = F, size = 'small'>>=
 load("workspaces/smcfcs_surv.Rdata")
 impobj_smcfcs_surv <- datalist2mids(smcfcs_surv$impDatasets)
 models_smcfcs_surv <- with(impobj_smcfcs_surv,
@@ -2503,13 +2426,13 @@ res_smcfcs_surv <- summary(pool(models_smcfcs_surv))
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 In the package \blue{jomo}, the function \Rfct{jomo.coxph} can be used to
 impute our example survival data:
-<<jomo_surv, eval = F>>=
+<<jomo_surv, eval = F, size = 'small'>>=
 library(jomo)
 jomo_surv <- jomo.coxph(formula = Surv(Time, event) ~ x1 + x2 + x3,
                         data = survdat)
 @
 
-<<jomo_surv_run, echo = F, eval = F>>=
+<<jomo_surv_run, echo = F, eval = F, size = 'small'>>=
 library(jomo)
 set.seed(2018)
 jomo_survMCMC <- jomo.coxph.MCMCchain(formula = Surv(Time, event) ~ x1 + x2 + x3,
@@ -2522,7 +2445,7 @@ jomo_surv <- jomo.coxph(formula = Surv(Time, event) ~ x1 + x2 + x3,
 save(jomo_surv, jomo_survMCMC, file = "Slides/workspaces/jomo_surv.RData")
 @
 
-<<jomo_surv_get, echo = F, include = F>>=
+<<jomo_surv_get, echo = F, include = F, size = 'small'>>=
 library(jomo)
 load("workspaces/jomo_surv.RData")
 impobj_jomo_surv <- datalist2mids(split(jomo_surv, jomo_surv$Imputation)[-1])
@@ -2535,7 +2458,7 @@ Note that the convergence of the procedure should be checked using
 \bigskip
 
 To analyse \& pool the imputed data the steps are identical to the other examples:
-<<eval = F>>=
+<<eval = F, size = 'small'>>=
 impobj_jomo_surv <- datalist2mids(split(jomo_surv, jomo_surv$Imputation)[-1])
 models_jomo_surv <- with(impobj_jomo_surv,
                          coxph(Surv(Time, event) ~ x1 + x2 + x3))
@@ -2547,7 +2470,7 @@ res_jomo_surv <- summary(pool(models_jomo_surv))
 \subsection{Comparison of results}
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-<<echo = F, fig.width = 6, fig.height = 2.5>>=
+<<echo = F, fig.width = 6, fig.height = 2.5, size = 'small'>>=
 mod_surv <- with(survdat_orig, coxph(Surv(Time, event) ~ x1 + x2 + x3))
 
 res_surv <- list(mice_naive = rescox01,
@@ -2559,7 +2482,6 @@ res_surv <- list(mice_naive = rescox01,
 res_surv <- lapply(res_surv, function(x) {
   colnames(x) <- c("coef", "lo", "up")
   x$var <- rownames(x)
-  # x$var <- gsub("x22", "x2", rownames(x))
   x
 })
 
@@ -2576,12 +2498,12 @@ ggplot(plot_surv, aes(x = L1, y = coef)) +
   geom_point(na.rm = T) +
   geom_errorbar(aes(ymin = lo, ymax = up), width = 0.3, na.rm = T) +
   facet_wrap("var", scales = 'free') +
-  geom_polygon(data = polyDF, aes(x = x, y = y), fill = 'blue', alpha = 0.3) +
+  geom_polygon(data = polyDF, aes(x = x, y = y), fill = 'blue', alpha = 0.2) +
   geom_hline(data = data.frame(betas = coef(mod_surv),
                                var = names(coef(mod_surv))),
              aes(yintercept = betas), lty = 2) +
-  xlab("imputation method") +
   ylab("coefficient") +
+  xlab("") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   scale_x_discrete(limits = c("mice_naive", "mice", "smcfcs", "jomo"),
                    labels = c("mice\nnaive", "mice", "smcfcs", "jomo"))
@@ -2605,43 +2527,44 @@ is \blue{expected to be biased}.
 }
 \begin{frame}[allowframebreaks]{Summary \& Conclusion of Part III}
 \begin{itemize}
-\item MICE requires congenial \& compatible imputation models to work well.
-\item When this is not the case, (naive) use of MICE can lead to biased results.
+\item MICE requires \blue{congenial \& compatible imputation models} to work well.
+\item When this is not the case, (naive) use of MICE can lead to \blue{biased results}.
 \item Common settings that require special attention are
       \begin{itemize}
-      \item non-linear functional forms \& interaction terms
-      \item longitudinal data
-      \item survival data
+      \item \blue{non-linear functional forms \& interaction terms}
+      \item \blue{longitudinal data}
+      \item \blue{survival data}
       \end{itemize}
-\item When using the package \textbf{mice}, there are choices that can reduce bias
+\framebreak
+\item When using the package \textbf{mice}, there are choices that can \blue{reduce bias}
       \begin{itemize}
       \item \Rarg{pmm} tends to be less biased than \Rarg{norm} for interactions or non-linear associations
       \item JAV approach reduces bias in settings with interactions or non-linear associations
-      \item special 2-level imputation methods are available for longitudinal data
-      \item The Nelson-Aalen estimator can be used instead of the time variable
+      \item \blue{special 2-level imputation methods} are available for longitudinal data
+      \item The \blue{Nelson-Aalen estimator} can be used instead of the time variable
             for imputing survival data when effects are not too large.
       \end{itemize}
-\framebreak
-\item Generally, problems are more severe when
+\item Generally, \blue{problems} are more severe when
       \begin{itemize}
-      \item proportions of missing values are large,
+      \item \blue{proportions of missing values are large},
       \item effect sizes are large,
-      \item little other covariate information is available.
+      \item little other \blue{covariate information} is available.
       \end{itemize}
       (Note that in the examples we had all of the above.)
+\framebreak
 \item In settings where MICE may not provide valid imputations,
-      alternative approaches are available and should be considered.
+      \blue{alternative approaches} are available and should be considered.
 \item R packages that provide such alternative approaches are for example:
       \begin{itemize}
-      \item JointAI (non-linear \& longitudinal)
-      \item smcfcs (non-linear \& survival)
-      \item jomo (non-linear, longitudinal \& survival)
+      \item \blue{JointAI} (non-linear \& longitudinal)
+      \item \blue{smcfcs} (non-linear \& survival)
+      \item \blue{jomo} (non-linear, longitudinal \& survival)
       \end{itemize}
 \item These packages are very young.
       \begin{itemize}
       \item Hence, they may still have some problems.\\
-            \blue{\ding{225}} Use them carefully! (and email the maintainer about problems)
-      \item They are under active development, so resolutions of bugs and
+            \blue{\ding{225}} \blue{Use them carefully!} (and email the maintainer about problems)
+      \item They are under \blue{active development}, so resolutions of bugs and
       features are frequently added.
       \end{itemize}
 \end{itemize}

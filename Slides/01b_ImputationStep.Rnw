@@ -160,9 +160,11 @@ In empirical \blue{Bootstrap}, (many) replications of the data are created by
 repeatedly drawing values from the original data.
 
 \pause
-\tcbset{width=(\linewidth-2mm)/3,before=,after=\hfill,
-colframe=blue!75!black,colback=white, size = title, valign = center,
-halign = center, size = title, height = 2.5cm, width = 2cm}
+\tcbset{%width=(\linewidth-2mm)/3,
+before=,after=\hfill, boxsep=0mm,
+colframe=blue!75!black,colback=white, size = title,
+valign = center,
+halign = center, size = title, height = 2.5cm, width = 2.1cm}
 
 \vfill
 
@@ -170,7 +172,7 @@ halign = center, size = title, height = 2.5cm, width = 2cm}
 \begin{column}{0.55\linewidth}
 \scalebox{0.68}{
 \setlength{\unitlength}{1cm}
-\begin{picture}(10, 9)
+\begin{picture}(10, 9.2)
 %
 \put(0, 4.5){
 \begin{tcolorbox}
@@ -197,13 +199,13 @@ halign = center, size = title, height = 2.5cm, width = 2cm}
   bootstrap sample
 \end{tcolorbox}
 }
-\put(5.4, 7.2){\vector(1,0){1}}
+\put(5.4, 7.7){\vector(1,0){1}}
 \put(5.4, 4.2){\vector(1,0){1}}
 \put(5.4, 1.2){\vector(1,0){1}}
 %
-\put(6.7, 7.1){\large estimate $\boldsymbol{\hat\beta}$ and $\hat\sigma$}
-\put(6.7, 4.1){estimate $\boldsymbol{\hat\beta}$ and $\hat\sigma$}
-\put(6.7, 1.1){estimate $\boldsymbol{\hat\beta}$ and $\hat\sigma$}
+\put(6.7, 7.4){\parbox{2cm}{\Large estimate\\$\boldsymbol{\hat\beta}$ and $\hat\sigma$}}
+\put(6.7, 4.1){\parbox{2cm}{\Large estimate\\$\boldsymbol{\hat\beta}$ and $\hat\sigma$}}
+\put(6.7, 1.1){\parbox{2cm}{\Large estimate\\$\boldsymbol{\hat\beta}$ and $\hat\sigma$}}
 \end{picture}
 }
 \end{column}
@@ -306,16 +308,16 @@ are compared.
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 Several \blue{criteria to select donors} have been proposed:
 \begin{enumerate}\itemsep3mm
-\item The donor is the \blue{(one) case with the smallest absolute difference}
+\item<1-> The donor is the \blue{(one) case with the smallest absolute difference}
       $\left|\hat y_{mis,i} - \hat y_{obs, j}\right|, \; j = 1,\ldots,q$.
-\item Donor candidates are the \blue{$d$ cases with the smallest absolute difference}
+\item<2-> Donor candidates are the \blue{$d$ cases with the smallest absolute difference}
       $\left|\hat y_{mis,i} - \hat y_{obs, j}\right|, \; j = 1,\ldots,q$.
       The donor is selected randomly from the candidates.
-\item Donor candidates are those cases for which the \blue{absolute difference
+\item<3-> Donor candidates are those cases for which the \blue{absolute difference
       is smaller than some limit $\eta$}:
       $\left|\hat y_{mis,i} - \hat y_{obs, j}\right|<\eta, \; j = 1,\ldots,q$.
       The donor is selected randomly from the candidates.
-\item Select candidates like in 2. or 3., but select the donor from the candidates
+\item<4-> Select candidates like in 2. or 3., but select the donor from the candidates
       with probability that depends on $\left|\hat y_{mis,i} - \hat y_{obs, j}\right|$.\cite{Siddique2008}
 \end{enumerate}
 \end{frame}
@@ -327,10 +329,10 @@ Several \blue{criteria to select donors} have been proposed:
 \begin{itemize}\itemsep2mm
 \item<1-> Selection criteria 2. - 4., \blue{require the number of candidates} $d$ (or maximal
 difference $\eta$) to be specified. Common choices for $d$ are 3, 5 or 10.
-\item<2-> If the same donor is chosen in many/all imputations (e.g., because
+\item<1-> If the same donor is chosen in many/all imputations (e.g., because
           only a few similar observed cases are available), the
           \blue{uncertainty about the missing values will be underestimated}.\\[2ex]
-\onslide<3->{\blue{\ding{225}} PMM may be \blue{problematic} when
+\onslide<2->{\blue{\ding{225}} PMM may be \blue{problematic} when
           \begin{itemize}
           \item the \blue{dataset is very small},
           \item the \blue{proportion of missing values is large}, or
@@ -338,9 +340,9 @@ difference $\eta$) to be specified. Common choices for $d$ are 3, 5 or 10.
                 to the missingness}.
           \end{itemize}
 }
-\item<4-> Therefore, using $d = 1$ (selection criterion 1.) is not a
+\item<3-> Therefore, using $d = 1$ (selection criterion 1.) is not a
           good idea. On the other hand, using too many candidates can lead to bad matches.
-\item<5-> Schenker and Taylor \cite{Schenker1996} proposed an adaptive procedure
+\item<4-> Schenker and Taylor \cite{Schenker1996} proposed an adaptive procedure
           to select $d$, but it is not used much in practice.
 \end{itemize}
 \end{frame}
@@ -424,36 +426,36 @@ observed data.
 \begin{frame}[allowframebreaks]{Summary of Part I}
 \blue{1. What is Multiple Imputation?}\\
 \begin{itemize}
-\item Rubin's two ideas:
+\item Rubin's two \blue{ideas}:
       \begin{itemize}
-      \item Missing values need to be represented by multiple imputed values.
-      \item A model is necessary to obain good imputations.
+      \item Missing values need to be represented by \blue{multiple imputed values}.
+      \item A \blue{model is necessary} to obain good imputations.
       \end{itemize}
-\item Imputed values are obtained from the predictive distribution of the missing data,
+\item Imputed values are obtained from the \blue{predictive distribution} of the missing data,
 given the observed data.
 \item Multiple completed datasets are created from the muliple imputed values.
-\item Multiple imputation has three steps: Imputation, analysis, pooling
+\item Multiple imputation has \blue{three steps: Imputation, analysis, pooling}
 \end{itemize}
 
 \framebreak
 
 \blue{2. Imputation step}
 \begin{itemize}
-\item Two sources of variation need to be taken into account
+\item Two \blue{sources of variation} need to be taken into account
       \begin{itemize}
-      \item parameter uncertainty
-      \item random variation
+      \item \blue{parameter uncertainty}
+      \item \blue{random variation}
       \end{itemize}
-\item For two main approaches to MI for imputation of non-monotone multivariate missing data
+\item \blue{Two approaches} to MI for imputation of non-monotone multivariate missing data
       \begin{itemize}
-      \item MICE/FCS
-      \item Joint model imputation
+      \item \blue{MICE/FCS}
+      \item \blue{Joint model imputation}
       \end{itemize}
 \item The MICE algorithm re-uses univariate imputation models by iterating
-      through all incomplete variables, multiple times (iterations)
-\item Multiple runs through the algorithm are necessary to create multiple
+      through all incomplete variables, multiple times (\blue{iterations})
+\item \blue{Multiple runs} through the algorithm are necessary to create multiple
       imputed dataset
-\item The convergence of the chains needs to be checked.
+\item The \blue{convergence of the chains} needs to be checked.
 \end{itemize}
 
 \framebreak
@@ -467,11 +469,11 @@ given the observed data.
 \blue{4. Pooling}
 \begin{itemize}
 \item Results from analyses of multiple imputed datasets can be summarized
-      by taking the average of the regression coefficients
-\item For the total variance, two sources of variation need to be considered:
+      by taking the \blue{average of the regression coefficients}
+\item For the total variance, \blue{two sources of variation} need to be considered:
       \begin{itemize}
-      \item within imputation variance
-      \item between imputation variance
+      \item \blue{within imputation variance}
+      \item \blue{between imputation variance}
       \end{itemize}
 \end{itemize}
 
@@ -479,20 +481,20 @@ given the observed data.
 
 \blue{5. A closer look at the imputation step}
 \begin{itemize}
-\item Two parametric approaches for imputation:
+\item Two \blue{parametric approaches} for imputation:
       \begin{itemize}
-      \item Bayesian (sample from posterior distribution of parameters)
-      \item Bootstrap (uses bootstrap samples of the data to estimate parameters)
+      \item \blue{Bayesian} (sample from posterior distribution of parameters)
+      \item \blue{Bootstrap} (uses bootstrap samples of the data to estimate parameters)
       \end{itemize}
-\item Predictive mean matching is a semi-parametric alternative\\
+\item \blue{Predictive mean matching} is a semi-parametric alternative\\
       (it matches observed and missing cases based on their predicted values).
 \item In PMM we need to consider
       \begin{itemize}
-      \item donor selection
-      \item matching type (how parameters are sampled/estimated),
-      \item the set of data used to calculate/estmate the parameters.
+      \item \blue{donor selection}
+      \item \blue{matching type} (how parameters are sampled/estimated),
+      \item the \blue{set of data} used to calculate/estmate the parameters.
       \end{itemize}
 \item Bayesian and bootstrap imputation take into account the variation, while
-      many choices in PMM lead to underestimation of the variation.
+      many \blue{choices in PMM lead to underestimation of the variation}.
 \end{itemize}
 \end{frame}

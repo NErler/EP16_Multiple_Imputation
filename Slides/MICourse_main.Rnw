@@ -107,49 +107,6 @@
 
 
 
-
-  % \newif\iffootline
-  % \footlinefalse
-  % % \footlinetrue
-  %
-  %
-  % \iffootline
-  % % from infolines outer theme
-  % \makeatletter
-  % \setbeamertemplate{footline}{%
-  %   \leavevmode%
-  %   \hbox{%
-  %     \begin{beamercolorbox}[wd=\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
-  %   \begin{beamercolorbox}[wd=.25\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
-  %     \usebeamerfont{author in head/foot}%
-  %     \insertshortauthor\expandafter\beamer@ifempty\expandafter{\beamer@shortinstitute}{}{~~(\insertshortinstitute)}
-  %   \end{beamercolorbox}%
-  %   \begin{beamercolorbox}[wd=.5\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
-  %     \usebeamerfont{title in head/foot}\insertshorttitle
-  %   \end{beamercolorbox}%
-  %   \begin{beamercolorbox}[wd=.25\paperwidth,ht=2.25ex,dp=1ex,center]{date in head/foot}%
-  %     \usebeamerfont{date in head/foot}\insertshortdate{}%\hspace*{2em}
-  %     % \insertframenumber{} / \inserttotalframenumber\hspace*{2ex}
-  %   \end{beamercolorbox}
-  %   \end{beamercolorbox}}%}%
-  %   \vskip0pt%
-  % }
-  % \makeatother
-  % % remove navigation
-  % \setbeamertemplate{navigation symbols}{}
-  %
-  % \else
-  %
-  % \setbeamertemplate{navigation symbols}{%
-  % \hspace{1em}\usebeamerfont{footline}%
-  %   \insertframenumber / \inserttotalframenumber
-  % }
-  %
-  % \fi
-
-
-
-
 % color definitions for template -----------------------------------------------
 \usepackage{xcolor}
 \definecolor{EMCdark}{RGB}{12, 32, 116}
@@ -165,18 +122,6 @@
 \definecolor{Dark26}{HTML}{E6AB02}
 \definecolor{Dark27}{HTML}{A6761D}
 \definecolor{Dark28}{HTML}{666666}
-
-
-
-% colors for part from ErasmusAGE presentation
-% \definecolor{myred}{RGB}{228,26,28}
-% \definecolor{myblue}{RGB}{55,106,184}
-% \definecolor{mygreen}{RGB}{77, 135, 74}
-% \definecolor{mypurple}{RGB}{152,68,133}
-% \definecolor{myorange}{RGB}{217,95, 2}
-% end of colors for part from ErasmusAGE presentation
-
-
 
 
 % packages ---------------------------------------------------------------------
@@ -205,7 +150,8 @@ single arrow head extend=.3cm,}}
 \usepackage[hidelinks]{hyperref}
 }
 
-\definecolor{links}{HTML}{6b2e6b}
+% \definecolor{links}{HTML}{6b2e6b}
+\definecolor{links}{HTML}{8d0c75}
 
 \hypersetup{colorlinks,linkcolor=, urlcolor=links}
 
@@ -251,6 +197,7 @@ single arrow head extend=.3cm,}}
 % \setlength{\parskip}{\baselineskip}%
 \setlength{\parindent}{0pt}%
 
+\renewcommand{\hlkwc}[1]{\textcolor[rgb]{0.2,0.4,0.2}{#1}}%
 
 
 \begin{document}
@@ -279,6 +226,7 @@ opts_chunk$set(fig.align = "center")
 projdir <- gsub("Slides", "", getwd())
 @
 }
+
 
 
 \maketitle
@@ -313,6 +261,13 @@ projdir <- gsub("Slides", "", getwd())
 
 
 
+\begin{frame}
+\begin{beamercolorbox}[sep=8pt,center,wd=\textwidth]{part title}
+\usebeamerfont{part title}
+References
+\end{beamercolorbox}
+\end{frame}
+
 
 \begin{frame}[allowframebreaks=0.9]{References}
 \nocite{*}\footnotesize
@@ -324,6 +279,7 @@ projdir <- gsub("Slides", "", getwd())
 \mode<presentation>{
 \setbeamercolor{background canvas}{bg=EMCdark}
 \begin{frame}[plain,noframenumbering]
+\hypersetup{colorlinks,linkcolor=, urlcolor=white}
   \begin{center}
     \includegraphics[width = 8cm]{graphics/Logo1DB.pdf}
 
