@@ -60,6 +60,10 @@ library(kableExtra)
 source("www/probplot.R")
 ```
 
+```{r, echo = FALSE, eval = static}
+source("www/myfcts.R")
+```
+
 ```{r data, include = FALSE, context = "data"}
 # NHANES data ------------------------------------------------------------------
 # load("data/NHANES.RData")
@@ -73,6 +77,7 @@ source("www/probplot.R")
 # NHANES <- NHANES[sub, ]
 # 
 # NHANES$DBP[is.nan(NHANES$DBP)] <- NA
+# NHANES$DBP[NHANES$DBP == 0] <- NA
 
 # save(NHANES, file = "Practicals/MIadvanced/www/NHANES_2.RData")
 
@@ -120,7 +125,6 @@ source("www/probplot.R")
 load("www/NHANES_2.RData")
 load("www/pbclong.RData")
 load("www/pbcdat.RData")
-
 ```
 
 ```{r savemodels interact, echo = FALSE, eval = FALSE}
@@ -156,7 +160,7 @@ NHANES <- subset(NHANES, select = -c(agechol, ageHDL))
 set.seed(2018)
 t0 <- Sys.time()
 JointAIint <- lm_imp(weight ~ gender + bili + age * (chol + HDL) + height,
-           data = NHANES, n.iter = 500, inits = NULL,
+           data = NHANES, n.iter = 1000, inits = NULL,
            auxvars = c("DBP", "educ"))
 t1 <- Sys.time()
 
@@ -186,14 +190,17 @@ for (i in 1:dim(smcint$smCoefIter)[2]) {
 
 
 # jomo -------------------------------------------------------------------------
-set.seed(2018)
-jomoint <- jomo.lm(weight ~ gender + bili + age * (chol + HDL) + height,
-                   data = NHANES, nburn = 1000, 
-                    nbetween = 200, nimp = 5, output = 0)
+
 t0 <- Sys.time()
-jomointMCMC <- jomo.lm.MCMCchain(weight ~ gender + bili + age * (chol + HDL) + height,
-                    data = NHANES, nburn = 1000, output = 0)
+set.seed(123)
+jomointMCMC <- jomo.lm.MCMCchainC(weight ~ gender + bili + age * (chol + HDL) + height,
+                    data = NHANES, nburn = 30000, output = 0)
 t1 <- Sys.time()
+
+set.seed(123)
+jomoint <- jomo.lmC(weight ~ gender + bili + age * (chol + HDL) + height,
+                   data = NHANES, nburn = 20000, 
+                    nbetween = 1000, nimp = 5, output = 0)
 
 par(mfrow = c(3,4), mar = c(3,3,1,1), mgp = c(2, 0.6, 0))
 for (i in 1:dim(jomointMCMC$collectbeta)[2]) {
@@ -206,7 +213,7 @@ for (i in 1:dim(jomointMCMC$collectbetaY)[2]) {
 }
 
 
-par(mfrow = c(6, 6), mar = c(3,3,1,1), mgp = c(2, 0.6, 0))
+par(mfrow = c(8, 9), mar = c(3,3,1,1), mgp = c(2, 0.6, 0))
 for (i in 1:dim(jomointMCMC$collectomega)[2]) {
   for (j in 1:i) {
     plot(jomointMCMC$collectomega[i, j , ], type = 'l')
@@ -974,7 +981,7 @@ In `smcfcs()` you need to specify
 </div>')
 ```
 
-```{r include = !static}
+```{r,  include = !static, echo = FALSE}
 asis_output("**Note:**
 The `NHANES` dataset has been reset to the original form. All columns we had
 added for imputation with `mice` are removed.")
@@ -1277,13 +1284,13 @@ jomoargs <- rbind(
   c("`nburn`", "number of burn-in iterations"),
   c("`nbetween`" , "Number of iterations between imputations"),
   c("`nimp`", "number of imputations (default is 5)"),
-  c("`output`", "if 1: output at end of imputation, if $\neq1$: no output shown"),
+  c("`output`", "if 1: output at end of imputation, if $\neq 1$: no output shown"),
   c("`out.iter`", "prints output info each `out.iter` iterations")
 ) %>% as.data.frame
 
 names(jomoargs) <- c("", "")
 
-jomoargs %>% kable(format = 'html') %>%
+jomoargs %>% kable(format = 'html', escape = FALSE) %>%
   kable_styling()
 ```
 
@@ -1350,14 +1357,25 @@ asis_output("</div>")
 asis_output("#### Solution 2\\n")
 ```
 
-```{r runjomointMCMC-hint-2, cache = TRUE}
+```{r runjomointMCMC-hint-2, include = !static, eval = !static}
 jomointMCMC <- jomo.lm.MCMCchain(weight ~ gender + bili + age * (chol + HDL) + height,
-                    data = NHANES, output = 0)
+                    data = NHANES, output = 0, nburn = 1000)
 
 class(jomointMCMC)
 names(jomointMCMC)
 lapply(jomointMCMC, class)
 
+```
+
+```{r runjomointMCMC-hint_2, eval = F, echo = static}
+jomointMCMC <- jomo.lm.MCMCchain(weight ~ gender + bili + age * (chol + HDL) + height,
+                    data = NHANES, output = 0, nburn = 30000)
+```
+
+```{r runjomointMCMC-hint_2b, include = static}
+class(jomointMCMC)
+names(jomointMCMC)
+lapply(jomointMCMC, class)
 ```
 
 
@@ -1386,13 +1404,32 @@ asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-co
 ```
 
 Make plots to evaluate convergence.
-```{r jomointconv, exercise = TRUE, fig.width = 9, fig.height = 9}
-
-```
 
 ```{r, eval = static, echo = FALSE}
 asis_output("</div>")
+```
 
+```{r, eval = static, echo = FALSE}
+asis_output('
+<br>
+<div style="border:1px; border-style:solid; padding: 1em; border-color:#D11450">
+**Note:**<br>
+In version 2.6-2 of **jomo** there is a bug in the sampling of the
+covariance parameters, which will be resolved in the next version.
+The objects `jomointMCMC` and `jomoint` (see later) used in the solution were
+created using a preliminary fix of the bug.
+</div>')
+```
+
+
+```{r jomointconv, exercise = TRUE, fig.width = 9, fig.height = 9}
+# Note: In the current version of jomo there is a bug in the sampling of the
+# covariance parameters, which will be resolved in the next version.
+# The object "jomointMCMC" that you will work with from here on was created using a
+# preliminary fix of the bug.
+```
+
+```{r, eval = static, echo = FALSE}
 asis_output("#### Solution 3\\n")
 ```
 
@@ -1409,7 +1446,7 @@ for (i in 1:dim(jomointMCMC$collectbetaY)[2]) {
   plot(jomointMCMC$collectbetaY[1, i, ], type = 'l')
 }
 
-par(mfrow = c(11, 11), mar = c(3,3,1,1), mgp = c(2, 0.6, 0))
+par(mfrow = c(9, 8), mar = c(2.1, 2.5, 0.5, 0.5), mgp = c(2, 0.6, 0))
 for (i in 1:dim(jomointMCMC$collectomega)[2]) {
   for (j in 1:i) {
     plot(jomointMCMC$collectomega[i, j , ], type = 'l')
@@ -1431,7 +1468,12 @@ number of burn-in iterations that you found to be sufficient and explore the
 resulting object.
 
 ```{r runjomoint, exercise = TRUE, exercise.timelimit = 200}
+# Note: The 30000 iterations used in "jomointMCMC" took more than 5 minutes.
+# For the purporse of this practical, use 1000 iterations or less.
+# When you use "jomoint" in the code chunks below, this will be an object
+# created with the fixed version, using a burnin of 20000 iterations.
 
+ 
 ```
 
 ```{r, eval = static, echo = FALSE}
@@ -1441,7 +1483,7 @@ asis_output("#### Solution 4\\n")
 ```
 
 ```{r runjomoint-solution, cache = TRUE}
-jomoint <- jomo.lm(weight ~ gender + bili + age * (chol + HDL) + height,
+jomoint <- jomo.lmC(weight ~ gender + bili + age * (chol + HDL) + height,
                     nburn = 1000, nbetween = 200, nimp = 5, data = NHANES)
 
 class(jomoint)
@@ -1555,7 +1597,8 @@ ggplot(plotint, aes(x = method, y = est)) +
   facet_wrap("name", scales = "free") +
   scale_x_discrete(limits = c("miceJAV", "micePAS", "JointAI", "smcfcs", "jomo"),
                    labels = c("mice\nJAV", "mice\nPAS", "JointAI", "smcfcs", "jomo")
-  )
+  ) +
+  xlab("")
  
 ```
 
@@ -2021,7 +2064,8 @@ ggplot(longresDF, aes(x = method, y = est)) +
   geom_point() +
   geom_errorbar(aes(min = lo, max = hi), width = 0.5) +
   facet_wrap("name", scales = 'free') +
-  scale_x_discrete(limits = c("mice", "JointAI", "jomo"))
+  scale_x_discrete(limits = c("mice", "JointAI", "jomo")) +
+  xlab("")
 
 ```
 
@@ -2493,7 +2537,8 @@ ggplot(survresDF, aes(x = method, y = est)) +
   geom_point() +
   geom_errorbar(aes(min = lo, max = hi), width = 0.5) +
   facet_wrap("name", scales = 'free') +
-  scale_x_discrete(limits = c("mice", "smcfcs", "jomo"))
+  scale_x_discrete(limits = c("mice", "smcfcs", "jomo")) +
+  xlab("")
 
 ```
 

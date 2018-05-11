@@ -360,7 +360,7 @@ Type-0 & point estimates $\hat\beta$ are used in both prediction models
          (least squares or maximum likelihood)\\[2ex]
 Type-I & $\hat\beta$ to predict $\hat y_{obs}$; $\tilde\beta$ to predict $\hat y_{mis}$
          is sampled from the posterior distribution of $\beta$ (Bayesian) or
-         bootstraped\\[2ex]
+         bootstrapped\\[2ex]
 Type-II & $\tilde\beta$ to predict $\hat y_{obs}$ as well as $\hat y_{mis}$\\[2ex]
 Type-III & different draws $\tilde\beta^{(1)}$ and $\tilde\beta^{(2)}$ to
            predict $\hat y_{obs}$ and $\hat y_{mis}$, respectively
@@ -429,11 +429,11 @@ observed data.
 \item Rubin's two \blue{ideas}:
       \begin{itemize}
       \item Missing values need to be represented by \blue{multiple imputed values}.
-      \item A \blue{model is necessary} to obain good imputations.
+      \item A \blue{model is necessary} to obtain good imputations.
       \end{itemize}
 \item Imputed values are obtained from the \blue{predictive distribution} of the missing data,
 given the observed data.
-\item Multiple completed datasets are created from the muliple imputed values.
+\item Multiple completed datasets are created from the multiple imputed values.
 \item Multiple imputation has \blue{three steps: Imputation, analysis, pooling}
 \end{itemize}
 
@@ -492,7 +492,7 @@ given the observed data.
       \begin{itemize}
       \item \blue{donor selection}
       \item \blue{matching type} (how parameters are sampled/estimated),
-      \item the \blue{set of data} used to calculate/estmate the parameters.
+      \item the \blue{set of data} used to calculate/estimate the parameters.
       \end{itemize}
 \item Bayesian and bootstrap imputation take into account the variation, while
       many \blue{choices in PMM lead to underestimation of the variation}.

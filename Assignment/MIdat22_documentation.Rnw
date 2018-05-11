@@ -60,7 +60,7 @@ variable & explanation\\\midrule
 \texttt{origin} & patient's place of origin\\
 \texttt{isc\_time} & ischemic time (time the organ was outside the body)\\
 \texttt{age\_don} & age of the donor\\
-\texttt{bg\_match} & are the blood groups of donor and recipient equal?\\
+\texttt{bg\_match} & are the blood groups of donor and recipient equal? (\texttt{factor(bg\_don == bg\_rec)})\\
 \texttt{bg\_don} & blood group of the organ donor\\
 \bottomrule
 \end{tabular}

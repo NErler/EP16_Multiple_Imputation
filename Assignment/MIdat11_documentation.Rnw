@@ -45,19 +45,20 @@ The dataset contains the following variables:
 variable & explanation\\\midrule
 \texttt{ID} & subject identifier\\
 \texttt{sex} & child's sex\\
-\texttt{weight} & child's total weight in kg at DXA scan\\
-\texttt{leanfrac} & proportion of lean mass (lean mass/total mass; lean mass = total mass - fat mass)\\
-\texttt{sports} & does the child play sports regularily?\\
-\texttt{singleton} & is the child a singleton birth?\\
-\texttt{ethn} & child's ethnicity\\
 \texttt{vitD} & mother's serum vitamin D concentrations in 10 nmol/L\\
-\texttt{birthwgt} & birthweight (standard deviation score)\\
-\texttt{sun} & average sun light duration in minutes/day in the month before blood sampling\\
-\texttt{season} & season of blood sampling\\
-\texttt{length} & child's length in cm at time of DXA scan\\
-\texttt{sun\_birth} & average sun light duration in the month before birth in hours/day\\
-\texttt{bdate} & child'd birth date\\
+\texttt{weight} & child's total weight in kg at DXA scan\\
 \texttt{BMC} & bone mineral content of the child in grams, determined by DXA scan\\
+\texttt{season} & season of blood sampling\\
+\texttt{bdate} & child'd birth date\\
+\texttt{singleton} & is the child a singleton birth?\\
+\texttt{length} & child's length in cm at time of DXA scan\\
+\texttt{sun} & average sun light duration in minutes/day in the month before blood sampling\\
+\texttt{sun\_birth} & average sun light duration in the month before birth in hours/day\\
+\texttt{sports} & does the child play sports regularily?\\
+\texttt{leanfrac} & proportion of lean mass (lean mass/total mass; lean mass = total mass - fat mass)\\
+\texttt{birthwgt} & birthweight (standard deviation score)\\
+\texttt{ethn} & child's ethnicity\\
+\texttt{lean} & lean mass in kg\\
 \bottomrule
 \end{tabular}
 \end{table}

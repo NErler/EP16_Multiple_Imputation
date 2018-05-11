@@ -46,7 +46,7 @@ variable & explanation\\\midrule
 \texttt{outcome} & survival outcome\\
 \texttt{time} & event time\\
 \texttt{bg\_rec} & blood group of the recipient (patient)\\
-\texttt{bg\_match} & are the blood groups of donor and recipient equal?\\
+\texttt{bg\_match} & are the blood groups of donor and recipient equal? (\texttt{factor(bg\_don == bg\_rec)})\\
 \texttt{isc\_time} & ischemic time (time the organ was outside the body)\\
 \texttt{bg\_don} & blood group of the organ donor\\
 \texttt{age\_don} & age of the donor\\

@@ -421,7 +421,6 @@ restab_interact %>%
 
 
 
-
 \subsection{Example: Longitudinal outcome}
 <<simlong data, echo = F, fig.with = 6, fig.height = 4>>=
 IDs <- c(5, 6, 7, 8, 18)
@@ -1881,6 +1880,24 @@ ggplot(plot_nonlin, aes(x = L1, y = coef)) +
 @
 \end{frame}
 
+\begin{frame}
+\begin{beamercolorbox}[sep=8pt,center,wd=\textwidth]{part title}
+\usebeamerfont{part title}
+Practical
+\end{beamercolorbox}
+
+\vfill
+
+To practice imputation with non-linear forms or interaction terms, go to
+\begin{block}{}
+\centering\url{https://emcbiostatistics.shinyapps.io/MICourse_MIadvanced}
+\end{block}
+or download the instructions and data for the practical from Canvas\\
+(Files $>$ Principal documents $>$ Multiple Imputation $>$ Practical MIadvanced).
+
+\vfill
+
+\end{frame}
 
 \section{Imputation of longitudinal data}
 \subsection{R package mice}
@@ -2270,6 +2287,27 @@ ggplot(plot_long, aes(x = L1, y = coef)) +
 }
 \end{frame}
 
+
+\begin{frame}
+\begin{beamercolorbox}[sep=8pt,center,wd=\textwidth]{part title}
+\usebeamerfont{part title}
+Practical
+\end{beamercolorbox}
+
+\vfill
+
+To practice imputation with longitudinal data, continue with the practical at
+\begin{block}{}
+\centering\url{https://emcbiostatistics.shinyapps.io/MICourse_MIadvanced}
+\end{block}
+or the offline version that can be downloaded from Canvas\\
+(Files $>$ Principal documents $>$ Multiple Imputation $>$ Practical MIadvanced).
+
+\vfill
+
+\end{frame}
+
+
 \section{Imputation of survival data}
 \subsection{Results from literature}
 \begin{frame}[fragile]{\thesection. \insertsection}
@@ -2519,6 +2557,25 @@ Note that the \blue{true effects} (log HR) of $x1$ and $x2$ are \blue{very large
 (-2 and 2.5, respectively),
 and represent the setting where the approximation by the Nelson-Aalen estimate
 is \blue{expected to be biased}.
+\end{frame}
+
+\begin{frame}
+\begin{beamercolorbox}[sep=8pt,center,wd=\textwidth]{part title}
+\usebeamerfont{part title}
+Practical
+\end{beamercolorbox}
+
+\vfill
+
+To practice imputation with survival data, continue with the practical at
+\begin{block}{}
+\centering\url{https://emcbiostatistics.shinyapps.io/MICourse_MIadvanced}
+\end{block}
+or the offline version that can be downloaded from Canvas\\
+(Files $>$ Principal documents $>$ Multiple Imputation $>$ Practical MIadvanced).
+
+\vfill
+
 \end{frame}
 
 

@@ -1036,7 +1036,7 @@ probplot(imp2, formula = hypten ~ cut(age, quantile(age), include.lowest = T),
 
 
 \section{Analyse \& pool the imputed data}
-\subsection{Analyzing imputed data}
+\subsection{Analysing imputed data}
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 Once we have confirmed that our imputation was successful, we can move on
@@ -1230,7 +1230,7 @@ The extra columns can either be a \Robj{data.frame}, \Robj{matrix}, \Robj{vector
 or \Robj{factor} or another \Robj{mids} object.\bigskip
 
 
-For examle data columns that should be part of the imputed data for completeness,
+For example data columns that should be part of the imputed data for completeness,
 but are not needed in the imputation.
 
 <<cibindmids, size = 'small'>>=
@@ -1334,4 +1334,25 @@ under
 \bigskip
 
 \url{https://www.ibm.com/support/knowledgecenter/en/SSLVMB_24.0.0/spss/mva/mi_analysis.html}
+\end{frame}
+
+
+
+\begin{frame}
+\begin{beamercolorbox}[sep=8pt,center,wd=\textwidth]{part title}
+\usebeamerfont{part title}
+Practical
+\end{beamercolorbox}
+
+\vfill
+
+To practice all that we have seen above, go to
+\begin{block}{}
+\centering\url{https://emcbiostatistics.shinyapps.io/MICourse_MICE}
+\end{block}
+or download the instructions and data for the practical from Canvas\\
+(Files $>$ Principal documents $>$ Multiple Imputation $>$ Practical MICE).
+
+\vfill
+
 \end{frame}

@@ -68,7 +68,7 @@ variable & explanation\\\midrule
 \section*{Analysis model of interest}
 The analysis model of interest is a linear mixed model for \texttt{weight} with
 random intercept and slope for \texttt{gage}.
-Covariates are \texttt{smoke}, \texttt{kcal}, \texttt{stress},
+Covariates are \texttt{smoke}, \texttt{kcal}, \texttt{stress}, \texttt{preterm},
 \texttt{parity}, \texttt{educ} and \texttt{income}.
 
 \texttt{weight} is assumed to have a non-linear (quadratic) slope over time.

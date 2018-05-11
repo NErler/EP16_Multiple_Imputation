@@ -59,7 +59,7 @@ variable & explanation\\\midrule
 \texttt{center} & study center identifier\\
 \texttt{isc\_time} & ischemic time (time the organ was outside the body)\\
 \texttt{age\_don} & age of the donor\\
-\texttt{bg\_match} & are the blood groups of donor and recipient equal?\\
+\texttt{bg\_match} & are the blood groups of donor and recipient equal? (\texttt{factor(bg\_don == bg\_rec)})\\
 \texttt{age\_rec} & age of the recipient (patient)\\
 \texttt{birth} & year of birth of the recipient (patient)\\
 \bottomrule

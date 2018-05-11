@@ -1030,10 +1030,9 @@ $X_1$ & $X_2$ & $X_3$ & $X_4$\\\hline
 \EndFor
 }
 \end{algorithmic}
-% % \caption{pseudocode for the calculation of }
-% % \label{alg:seq}
 \end{algorithm}
 \end{frame}
+
 
 \begin{frame}{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
@@ -1739,8 +1738,8 @@ quiz. An interactive version can be found at
 \begin{block}{}
 \centering\url{https://emcbiostatistics.shinyapps.io/MICourse_Quiz_PartI}
 \end{block}
-or you can download an html version from Canvas (Practicals/Quiz\_PartI\_static.html).
-\textcolor{red}{[update links]}.
+or you can download an html version from Canvas\\
+(Files $>$ Principal documents $>$ Multiple Imputation $>$ Quiz\_PartI\_static.html).
 
 \vfill
 \end{frame}
