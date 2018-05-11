@@ -2,10 +2,10 @@
 title: "What Is Multiple Imputation?"
 output: 
   html_document:
-#   learnr::tutorial:
-#     progressive: true
-#     allow_skip: true
-# runtime: shiny_prerendered
+  learnr::tutorial:
+    progressive: true
+    allow_skip: true
+runtime: shiny_prerendered
 ---
 
 ```{r setup, include=FALSE}
@@ -82,7 +82,7 @@ question("How are MI and MICE related?",
 
 
 ```{r Q3}
-question("What is a *full conditional distribution*?",
+question("What is a *full conditional distribution* ?",
          answer("A probability distribution, that conditions on all other variables.",
                 correct = T),
          answer("A conditional distribution that does not have any missing values."),
@@ -105,10 +105,10 @@ question("What is/are basic assumption(s) in MI?",
 
 ```{r Q5}
 question("Why can we not just use the predicted values 
-         (e.g., $y_{mis} = X_{mis}\\beta$) as imputations?",
+         (e.g., \\(y_{mis} = X_{mis}\\beta\\)) as imputations?",
          answer("Predicting the same missing value multiple times will always
                 result in the same value.", correct = TRUE),
-         answer("Using $X_{mis}\\beta$ does not take into account the uncertainty about $\\beta$.", correct = TRUE),
+         answer("Using \\(X_{mis}\\beta\\) does not take into account the uncertainty about \\(\\beta\\).", correct = TRUE),
          answer("Predicted values underestimate the uncertainty.", correct = TRUE),
          answer("Predicted values are not correct in general, there is always random variation.", correct = TRUE),
          allow_retry = TRUE,   random_answer_order = TRUE, type = "multiple")
@@ -128,7 +128,6 @@ question("Why is it not correct to average the standard errors from multiple ana
          answer("Because the between imputation variation is then not taken into account.", correct = TRUE),
          answer("Because the standard error is usually not distributed symmetrically."),
          answer("Because relevant information on the within-imputation variation is lost."),
-         # answer(""),
          allow_retry = TRUE,   random_answer_order = TRUE, type = "multiple")
 ```
 
@@ -139,7 +138,6 @@ question("Why are iterations necessary in MICE for non-monotone missing patterns
          answer("The starting values are filled in at random and need to be replaced
                 by better choices.", correct = TRUE),
          answer("To represent the uncertainty that is associated with the missing values."),
-         # answer("Imputed values directly depend on "),
          allow_retry = TRUE,   random_answer_order = TRUE, type = "multiple")
 ```
 
