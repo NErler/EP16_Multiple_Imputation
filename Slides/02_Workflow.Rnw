@@ -329,6 +329,11 @@ to be set to \Rstring{""}.
 
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
+<<echo = FALSE>>=
+op <- getOption("width")
+options(width = 60)
+@
+
 <<imp0, size = 'small'>>=
 library(mice)
 imp0 <- mice(NHANES, maxit = 0)
@@ -338,6 +343,11 @@ meth["albu"] <- "norm"
 meth["HyperMed"] <- ""
 # imp <- mice(NHANES, method = meth)
 @
+
+<<echo = FALSE>>=
+options(width = op)
+@
+
 \end{frame}
 
 
@@ -397,7 +407,8 @@ meth["HyperMed"] <- ""
 
 pred <- imp0$predictorMatrix
 pred[, "HyperMed"] <- 0
-imp <- mice(NHANES, method = meth, predictorMatrix = pred, printFlag = F)
+imp <- mice(NHANES, method = meth, predictorMatrix = pred,
+            printFlag = F)
 @
 
 <<imprun, echo = F, eval = F>>=
@@ -484,7 +495,7 @@ In \textbf{mice} this is possible with \blue{\textit{passive imputation}}.
 Instead of using a standard imputation \Rarg{method}, we can specify a formula to
 calculate \Rstring{BMI}:
 <<passive_BMI, size = 'small'>>=
-meth["BMI"] <- "~I(weight/height^2)"     # specify formula to impute BMI
+meth["BMI"] <- "~I(weight/height^2)"     # formula to impute BMI
 pred[c("weight", "height"), "BMI"] <- 0  # prevent feedback
 @
 To \blue{prevent feedback} from \Rstring{BMI} in the imputation of \Rstring{height}
@@ -612,7 +623,7 @@ corresponding variable is imputed, within each iteration.\bigskip
 
 For example, if subjects with SBP $>140$ should be classified as
 hypertensive:
-<<eval = FALSE, size = 'small'>>=
+<<eval = FALSE>>=
 post["hypten"] <- "imp[[j]][p$data[where[, j], 'SBP'] > 140, i] <- 'yes'"
 @
 
@@ -867,7 +878,7 @@ are assumed to be the same as the conditional distributions of the observed data
 
 \bigskip
 
-These functions create \href{https://stat.ethz.ch/R-manual/R-devel/library/lattice/html/Lattice.html}{\dotuline{lattice graphics}},
+These functions create \href{https://stat.ethz.ch/R-manual/R-devel/library/lattice/html/Lattice.html}{lattice graphics},
 which can be modified analogous to their parent functions from the \textbf{lattice} package.
 \end{frame}
 
@@ -949,7 +960,7 @@ category.
 
 \textbf{mice} does not provide a function to do this, but we can write one
 ourselves, as for instance the function \Rfct{probplot}, for which the syntax
-can be found \href{https://gist.github.com/NErler/0d00375da460dd33839b98faeee2fdab}{\dotuline{here}}.
+can be found \href{https://gist.github.com/NErler/0d00375da460dd33839b98faeee2fdab}{here}.
 
 The function can be loaded into \textsf{R} using:
 <<load gist, message = F, eval = F, size = 'small'>>=
@@ -963,7 +974,7 @@ source(file.path(projdir, "Slides", "Rfcts", "probplot.R"))
 
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-<<probplot, warning = F, fig.width = 10, fig.height = 5>>=
+<<probplot, warning = F, fig.width = 10, fig.height = 6, size = 'small'>>=
 probplot(imp2, strip.text = element_text(size = 14))
 @
 \end{frame}
@@ -990,7 +1001,11 @@ for \Rstring{hypten}, we can include those factors into the plot.
 
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-<<probplot_alc, fig.width = 10, fig.height = 6>>=
+<<probplot_alc_print, eval = FALSE, size = 'small'>>=
+probplot(imp2, formula = alc ~ race + gender)
+@
+
+<<probplot_alc, fig.width = 10, fig.height = 6, echo = FALSE>>=
 probplot(imp2, formula = alc ~ race + gender, strip.text = element_text(size = 12))
 @
 \end{frame}
@@ -1013,7 +1028,11 @@ without \Rstring{hypten}.
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 Plotting the proportions of observed and imputed \Rstring{hypten} separately
 per quartile of \Rstring{age}:
-<<probplot_hypten, fig.width = 10, fig.height = 4.5>>=
+<<probplot_hypten_print, fig.width = 10, fig.height = 4.5, eval = FALSE>>=
+probplot(imp2, formula = hypten ~ cut(age, quantile(age), include.lowest = T))
+@
+
+<<probplot_hypten, fig.width = 10, fig.height = 5, echo = FALSE>>=
 probplot(imp2, formula = hypten ~ cut(age, quantile(age), include.lowest = T),
          strip.text = element_text(size = 12))
 @
@@ -1184,7 +1203,7 @@ to \textsf{SPSS}.
 <<exporttospss, size = 'small'>>=
 mids2spss(imp2,
           filedat = "datafile.txt", # the file containing the data
-          filesps = "importsyntax.sps", # syntax to convert .txt to .sav
+          filesps = "importsyntax.sps", # syntax to get .sav from .txt
           silent = TRUE
 )
 @

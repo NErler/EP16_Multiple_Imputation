@@ -22,6 +22,7 @@ library(lme4)
 library(knitr)
 
 source(file.path(projdir, "Slides", "Rfcts/make_exampledata.R"))
+source(file.path(projdir, "Slides", "Rfcts/myfcts.R"))
 @
 
 \section{Settings where MICE may have problems}
@@ -980,7 +981,8 @@ library(ggplot2)
 ggplot(plotcox, aes(x = meth, y = est)) +
   geom_point() +
   geom_errorbar(aes(min = `lo 95`, max = `hi 95`), width = 0.2) +
-  theme(axis.text = element_text(size = 12)) +
+  theme(axis.text = element_text(size = 12),
+        strip.text = element_text(size = 12)) +
   facet_wrap("var", scales = 'free',
              labeller = labeller(var = c("x22" = "x2 (binary)",
                                          "x1" = "x1 (continuous)",
@@ -1672,7 +1674,7 @@ while ensuring compatibility between analysis model and imputation models.
 
 For more information see the help files and the
 \href{https://cran.r-project.org/web/packages/smcfcs/vignettes/smcfcs-vignette.html}%
-{\dotuline{vignette}}.
+{vignette}.
 \end{frame}
 
 
@@ -1775,8 +1777,8 @@ jomo_nonlin <- jomo.lm(y ~ x*z + I(x^2), data = DF_nonlin)
 <<jomo_nonlin_run, echo = F, eval = F>>=
 library(jomo)
 set.seed(2018)
-jomo_nonlinMCMC <- jomo.lm.MCMCchain(y ~ x*z + I(x^2), data = DF_nonlin)
-jomo_nonlin <- jomo.lm(y ~ x*z + I(x^2), data = DF_nonlin)
+jomo_nonlinMCMC <- jomo.lm.MCMCchainC(y ~ x*z + I(x^2), data = DF_nonlin)
+jomo_nonlin <- jomo.lmC(y ~ x*z + I(x^2), data = DF_nonlin)
 save(jomo_nonlin, jomo_nonlinMCMC, file = "workspaces/jomo_nonlin.RData")
 @
 
@@ -2089,7 +2091,7 @@ help files of the R functions.
 \bigskip
 
 A
-\href{https://gerkovink.github.io/miceVignettes/Multi_level/Multi_level_data.html}{\dotuline{vignette}}
+\href{https://gerkovink.github.io/miceVignettes/Multi_level/Multi_level_data.html}{vignette}
 on multi-level imputation with \textbf{mice} is available.
 It gives a more elaborate example of how to analyse such data.
 %\textcolor{red}{[which did not run when I tried on march 29, 2018]}
@@ -2161,29 +2163,47 @@ library(jomo)
 lvl <- c("id" = 1, y = 1, x1 = 2, x2 = 2, x3 = 2, x4 = 2, time = 1)
 
 jomo_long <- jomo.lmer(formula = y ~ x1 + x2 + x3 + x4 +
-                         time + I(time^2) + (time|id),
+                         time + I(time^2) + (1 + time|id),
                        data = DFexlong2[, names(lvl)], level = lvl)
 @
 
 
 <<jomo_long_run, eval = F, echo = F, size = 'small'>>=
 library(jomo)
-source(file.path(projdir, "Slides", "Rfcts/myjomo.R"))
-
 lvl <- c("id" = 1, y = 1, x1 = 2, x2 = 2, x3 = 2, x4 = 2, time = 1)
 
-jomo_long <- myjomo.lmer(formula = y ~ x1 + x2 + x3 + x4 +
+jomo_long <- jomo.lmer(formula = y ~ x1 + x2 + x3 + x4 +
                          time + I(time^2) + (time|id),
                        data = DFexlong2[, names(lvl)], level = lvl)
 
-jomo_longMCMC <- myjomo.lmer.MCMCchain(formula = y ~ x1 + x2 + x3 + x4 +
-                                         time + I(time^2) + (time|id),
-                                       data = DFexlong2[, names(lvl)],
-                                       level = lvl)
+jomo_longMCMC <- jomo.lmer.MCMCchain(formula = y ~ x1 + x2 + x3 + x4 +
+                                       time + I(time^2) + (1 + time|id),
+                                     data = DFexlong2[, names(lvl)],
+                                     level = lvl, nburn = 3000)
 
 plot(jomo_longMCMC$collectbeta[1, 1, ], type = 'l')
 plot(jomo_longMCMC$collectomega[1, 1, ], type = 'l')
-matplot(t(jomo_longMCMC$collectu[3, , ]), type = 'l')
+
+par(mfrow = c(5, 5), mar = c(2.5, 2.5, 0.5, 0.5), mgp = c(2, 0.6, 0))
+for (i in 1:dim(jomo_longMCMC$collectcovu)[1]) {
+  for (j in 1:i) {
+    plot(jomo_longMCMC$collectcovu[i, j, ], type = 'l')
+  }
+}
+
+for (i in 1:dim(jomo_longMCMC$collectbetaY)[2]) {
+  plot(jomo_longMCMC$collectbetaY[1, i, ], type = 'l')
+}
+
+plot(jomo_longMCMC$collectvarY, type = "l")
+
+par(mfrow = c(2, 2), mar = c(2.5, 2.5, 0.5, 0.5), mgp = c(2, 0.6, 0))
+for (i in 1:dim(jomo_longMCMC$collectcovuY)[1]) {
+  for (j in 1:i) {
+    plot(jomo_longMCMC$collectcovuY[i, j, ], type = 'l')
+  }
+}
+
 
 save(jomo_long, jomo_longMCMC, file = 'Slides/workspaces/jomo_long.RData')
 @
@@ -2390,9 +2410,9 @@ pred[, "Time"] <- 0
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 With the modified arguments \Rarg{method} and \Rarg{predictorMatrix} we run
 the imputation:
-<<mice_surv03>>=
-survimp <- mice(survdat, maxit = 10, method = meth, predictorMatrix = pred,
-                printFlag = F)
+<<mice_surv03, size = 'small'>>=
+survimp <- mice(survdat, maxit = 10, method = meth,
+                predictorMatrix = pred, printFlag = F)
 @
 
 
@@ -2475,8 +2495,8 @@ library(jomo)
 set.seed(2018)
 jomo_survMCMC <- jomo.coxph.MCMCchain(formula = Surv(Time, event) ~ x1 + x2 + x3,
                                       data = survdat)
-# matplot(t(test$collectbeta[1, c(2,3), ]), type = 'l')
-# matplot(t(test$collectomega[1, , ]), type = 'l')
+matplot(t(jomo_survMCMC$collectbeta[1, c(2,3), ]), type = 'l')
+matplot(t(jomo_survMCMC$collectomega[1, , ]), type = 'l')
 
 jomo_surv <- jomo.coxph(formula = Surv(Time, event) ~ x1 + x2 + x3,
                         data = survdat)
@@ -2497,7 +2517,8 @@ Note that the convergence of the procedure should be checked using
 
 To analyse \& pool the imputed data the steps are identical to the other examples:
 <<eval = F, size = 'small'>>=
-impobj_jomo_surv <- datalist2mids(split(jomo_surv, jomo_surv$Imputation)[-1])
+impobj_jomo_surv <- datalist2mids(split(jomo_surv,
+                                        jomo_surv$Imputation)[-1])
 models_jomo_surv <- with(impobj_jomo_surv,
                          coxph(Surv(Time, event) ~ x1 + x2 + x3))
 res_jomo_surv <- summary(pool(models_jomo_surv))
