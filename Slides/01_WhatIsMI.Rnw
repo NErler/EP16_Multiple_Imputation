@@ -902,7 +902,7 @@ extends univariable imputation to the setting with multivariate non-monotone mis
 MICE/FCS
 \begin{itemize}
 \item imputes multivariate missing data on a variable-by-variable basis,
-\item using the technique for univariable missing data.
+\item using the technique for univariate missing data.
 % \item requires specification of an imputation model per incomplete variable.
 \end{itemize}
 
@@ -1500,8 +1500,8 @@ We want to \blue{summarize} the results and describe
 In the results from multiply imputed data there are
 \blue{two types of variation/uncertainty}:
 \begin{itemize}
-\item within imputation (represented by the confidence intervals)
-\item between imputation (horizontal shift between imputations)
+\item \blue{within} imputation (represented by the confidence intervals)
+\item \blue{between} imputation (horizontal shift between imputations)
 \end{itemize}
 
 <<poolplot1a, echo = F, fig.width = 6, fig.height = 1.5>>=

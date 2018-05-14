@@ -87,7 +87,7 @@ $$\mathbb E(\bmath y_{mis}\mid \bmath X, \bmath \beta) = f(\bmath X_{mis}\bmath 
 \bigskip
 
 The posterior distribution of $\bmath \beta$ and $\sigma$,
-$p(\bmath\beta, \sigma\mid \bmath y_{obs}\mid \bmath y_{obs}, \bmath X_{obs})$,
+$p(\bmath\beta, \sigma \mid \bmath y_{obs}, \bmath X_{obs})$,
 is estimated from the corresponding regression model on the observed data.
 
 \bigskip
@@ -117,7 +117,7 @@ is a normal distribution and we can
 \item draw $\bmath{\tilde \beta}$ from $p(\bmath\beta \mid \bmath y_{obs}, \bmath X_{obs})$,
 \item draw $\tilde\sigma$ from $p(\sigma \mid \bmath y_{obs}, \bmath X_{obs})$,
 \item draw $\bmath {\tilde y}_{mis}$ from a normal distribution with mean (= expectation)
-      $\bmath X \bmath{\tilde\beta}$ and variance $\tilde\sigma^2$.
+      $\bmath X_{mis} \bmath{\tilde\beta}$ and variance $\tilde\sigma^2$.
 \end{itemize}
 
 \bigskip
@@ -226,13 +226,15 @@ The statistic of interest is then calculated on each of the bootstrap samples.
 In \blue{bootstrap multiple imputation},
 \begin{itemize}
 \item \blue{one bootstrap sample} of the \blue{observed data} is created per imputation,
-\item the \blue{least-squares estimates} of the parameters are calculated from
+\item the (least squares or maximum likelihood) estimates of the parameters are calculated from
       $$\bmath y_{obs} = \bmath X_{obs}
       \underset{\stackrel{\downarrow}{\bmath{\hat\beta}}}{\bmath\beta} +
       \underset{\stackrel{\downarrow}{\hat\sigma}}{\varepsilon_{obs}}\hspace{2cm}\text{(step 1)}.$$
 \item Imputed values are sampled from
 $p(\bmath y_{mis} \mid \bmath X_{mis}, \bmath{\hat\beta}, \hat\sigma)$ (step 2).
 \end{itemize}
+
+\vfill
 
 \pause
 Analogous to Bayesian multiple imputation, for a normal imputation model,
