@@ -207,7 +207,7 @@ corrplot::corrplot(Corr, method = "square", type = "upper",
                    tl.col = "black")
 @
 \blue{Note:} \parbox[t]{0.9\linewidth}{
-We only use the correlation coefficient for binary variables in this\\
+We only use the correlation coefficient for categorical variables in this\\
 visualization, not as a statistical result!
 }
 \end{frame}

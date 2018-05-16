@@ -1619,7 +1619,7 @@ The \blue{variance} of the pooled parameter estimate is calculated from the
 \bigskip
 
 \blue{Average within imputation variance:}
-$$\bar U = \frac{1}{m} \sum_{\ell = 1}^m U_\ell$$
+$$\bar U = \frac{1}{m} \sum_{\ell = 1}^m \hat U_\ell$$
 
 \bigskip
 \blue{Between imputation variance:}
