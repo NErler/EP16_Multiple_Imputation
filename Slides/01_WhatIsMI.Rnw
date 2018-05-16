@@ -1024,7 +1024,7 @@ $X_1$ & $X_2$ & $X_3$ & $X_4$\\\hline
 \State Draw parameters $\dot \theta_j^t\sim p(\theta_j^t \mid X_j^{obs}, \dot X_{-j}^t, R)$.
 }
 \uncover<5->{
-\State Draw imputations $\dot X_j^t \sim P(X_j^{mis}\mid \dot X_{-j}^t, R, \dot\theta_j^t)$.
+\State Draw imputations $\dot X_j^t \sim p(X_j^{mis}\mid \dot X_{-j}^t, R, \dot\theta_j^t)$.
 }
 \EndFor
 \EndFor
@@ -1066,7 +1066,7 @@ $X_1$ & $X_2$ & $X_3$ & $X_4$\\\hline
 p(\theta_{\textcolor{blue}{1}}^{\textcolor{darkred}{1}} \mid X_{\textcolor{blue}{1}}^{obs},
 \dot X_{\textcolor{blue}{-1}}^{\textcolor{darkred}{1}}, R)$.
 \State Draw imputations $\dot X_{\textcolor{blue}{1}}^{\textcolor{darkred}{1}} \sim
-P(X_{\textcolor{blue}{1}}^{mis}\mid \dot X_{\textcolor{blue}{-1}}^{\textcolor{darkred}{1}}, R,
+p(X_{\textcolor{blue}{1}}^{mis}\mid \dot X_{\textcolor{blue}{-1}}^{\textcolor{darkred}{1}}, R,
 \dot\theta_{\textcolor{blue}{1}}^{\textcolor{darkred}{1}})$.
 }
 \only<2>{%
@@ -1082,7 +1082,7 @@ P(X_{\textcolor{blue}{1}}^{mis}\mid \dot X_{\textcolor{blue}{-1}}^{\textcolor{da
 p(\theta_{\textcolor{blue}{2}}^{\textcolor{darkred}{1}} \mid X_{\textcolor{blue}{2}}^{obs},
 \dot X_{\textcolor{blue}{-2}}^{\textcolor{darkred}{1}}, R)$.
 \State Draw imputations $\dot X_{\textcolor{blue}{2}}^{\textcolor{darkred}{1}} \sim
-P(X_{\textcolor{blue}{2}}^{mis}\mid \dot X_{\textcolor{blue}{-2}}^{\textcolor{darkred}{1}}, R,
+p(X_{\textcolor{blue}{2}}^{mis}\mid \dot X_{\textcolor{blue}{-2}}^{\textcolor{darkred}{1}}, R,
 \dot\theta_{\textcolor{blue}{2}}^{\textcolor{darkred}{1}})$.
 }
 \only<3>{%
@@ -1098,7 +1098,7 @@ P(X_{\textcolor{blue}{2}}^{mis}\mid \dot X_{\textcolor{blue}{-2}}^{\textcolor{da
 p(\theta_{\textcolor{blue}{3}}^{\textcolor{darkred}{1}} \mid X_{\textcolor{blue}{3}}^{obs},
 \dot X_{\textcolor{blue}{-3}}^{\textcolor{darkred}{1}}, R)$.
 \State Draw imputations $\dot X_{\textcolor{blue}{3}}^{\textcolor{darkred}{1}} \sim
-P(X_{\textcolor{blue}{3}}^{mis}\mid \dot X_{\textcolor{blue}{-3}}^{\textcolor{darkred}{1}}, R,
+p(X_{\textcolor{blue}{3}}^{mis}\mid \dot X_{\textcolor{blue}{-3}}^{\textcolor{darkred}{1}}, R,
 \dot\theta_{\textcolor{blue}{3}}^{\textcolor{darkred}{1}})$.
 }
 \only<4>{%
@@ -1114,7 +1114,7 @@ P(X_{\textcolor{blue}{3}}^{mis}\mid \dot X_{\textcolor{blue}{-3}}^{\textcolor{da
 p(\theta_{\textcolor{blue}{4}}^{\textcolor{darkred}{1}} \mid X_{\textcolor{blue}{4}}^{obs},
 \dot X_{\textcolor{blue}{-4}}^{\textcolor{darkred}{1}}, R)$.
 \State Draw imputations $\dot X_{\textcolor{blue}{4}}^{\textcolor{darkred}{1}} \sim
-P(X_{\textcolor{blue}{4}}^{mis}\mid \dot X_{\textcolor{blue}{-4}}^{\textcolor{darkred}{1}}, R,
+p(X_{\textcolor{blue}{4}}^{mis}\mid \dot X_{\textcolor{blue}{-4}}^{\textcolor{darkred}{1}}, R,
 \dot\theta_{\textcolor{blue}{4}}^{\textcolor{darkred}{1}})$.
 }
 \only<5>{%
@@ -1130,7 +1130,7 @@ P(X_{\textcolor{blue}{4}}^{mis}\mid \dot X_{\textcolor{blue}{-4}}^{\textcolor{da
 p(\theta_{\textcolor{blue}{1}}^{\textcolor{darkred}{2}} \mid X_{\textcolor{blue}{1}}^{obs},
 \dot X_{\textcolor{blue}{-1}}^{\textcolor{darkred}{2}}, R)$.
 \State Draw imputations $\dot X_{\textcolor{blue}{1}}^{\textcolor{darkred}{2}} \sim
-P(X_{\textcolor{blue}{1}}^{mis}\mid \dot X_{\textcolor{blue}{-1}}^{\textcolor{darkred}{2}}, R,
+p(X_{\textcolor{blue}{1}}^{mis}\mid \dot X_{\textcolor{blue}{-1}}^{\textcolor{darkred}{2}}, R,
 \dot\theta_{\textcolor{blue}{1}}^{\textcolor{darkred}{2}})$.
 }
 \only<6>{%
@@ -1146,7 +1146,7 @@ P(X_{\textcolor{blue}{1}}^{mis}\mid \dot X_{\textcolor{blue}{-1}}^{\textcolor{da
 p(\theta_{\textcolor{blue}{2}}^{\textcolor{darkred}{2}} \mid X_{\textcolor{blue}{2}}^{obs},
 \dot X_{\textcolor{blue}{-2}}^{\textcolor{darkred}{2}}, R)$.
 \State Draw imputations $\dot X_{\textcolor{blue}{2}}^{\textcolor{darkred}{2}} \sim
-P(X_{\textcolor{blue}{2}}^{mis}\mid \dot X_{\textcolor{blue}{-2}}^{\textcolor{darkred}{2}}, R,
+p(X_{\textcolor{blue}{2}}^{mis}\mid \dot X_{\textcolor{blue}{-2}}^{\textcolor{darkred}{2}}, R,
 \dot\theta_{\textcolor{blue}{2}}^{\textcolor{darkred}{2}})$.
 }
 \EndFor
@@ -1619,7 +1619,7 @@ The \blue{variance} of the pooled parameter estimate is calculated from the
 \bigskip
 
 \blue{Average within imputation variance:}
-$$\bar U = \frac{1}{m} \sum_{\ell = 1}^m \bar U_\ell$$
+$$\bar U = \frac{1}{m} \sum_{\ell = 1}^m U_\ell$$
 
 \bigskip
 \blue{Between imputation variance:}
@@ -1717,7 +1717,7 @@ ggplot(poolDF, aes(x = coef, y = as.numeric(imp))) +
 \pause
 
 The corresponding \blue{p-value} is the probability
-$$Pr\left\{F_{1,\nu} > \left(Q_0-\bar Q_m\right)^2/T\right\},$$
+$$Pr\left\{F_{1,\nu} > \left(Q_0-\bar Q\right)^2/T\right\},$$
 
 where $F_{1,\nu}$ is a random variable that has an F distribution with
 $1$ and $\nu$ degrees of freedom, and $Q_0$ is the null hypothesis value

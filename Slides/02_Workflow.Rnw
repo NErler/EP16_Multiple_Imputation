@@ -21,22 +21,23 @@
 \subsection{Missing data patterns}
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
+To demonstrate the work flow when performing multiple imputation with the
+\textbf{mice} package, we use data from the
+\href{https://www.cdc.gov/nchs/nhanes/index.htm}{National Health and Nutrition
+Examination Survey (NHANES)}.
+
+\vfill
+
 There are several packages in \textsf{R} that provide functions to create and
 \blue{plot the missing data pattern}.\\\bigskip
 
 Examples are:\\
 \textbf{mice}, \textbf{VIM}, \textbf{Amelia}, \textbf{visdat}, \textbf{naniar}, \ldots\\[3ex]
 
-To create the plots on the following slides, we need to load the example data
 <<load NHANES prep, echo = F>>=
 datadir <- file.path(projdir, "data")
 load(file.path(datadir, "NHANES.RData"))
 NHANES <- subset(NHANES, select = -DBP)
-@
-
-<<load NHANES, eval = F>>=
-datadir <-     # fill in path to folder containing the data
-load(file.path(datadir, "NHANES.RData"))
 @
 \end{frame}
 
@@ -299,7 +300,7 @@ most commonly used ones are:
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 \textbf{Change the default imputation method:}\\
-E.g.: to use \texttt{\hlstr{norm}} instead of \texttt{\hlstr{pmm}} for all
+Example: To use \texttt{\hlstr{norm}} instead of \texttt{\hlstr{pmm}} for all
 continuous incomplete variables, use:
 
 <<mice example, eval = F, size = 'small'>>=
@@ -387,8 +388,8 @@ of the imputation.
 
 \bigskip
 
-\blue{\ding{225}} Make sure all \blue{variables are coded correctly}, so that the chosen
-imputation models are appropriate (e.g., ordered factors).
+\blue{\ding{225}} Make sure all \blue{variables are coded correctly}, so that the
+automatically chosen imputation models are appropriate.
 \end{frame}
 
 
@@ -996,7 +997,7 @@ more often than we would expect from the observed data,
 \bigskip
 
 If we expect that \Rstring{gender} and \Rstring{race} might explain the differences
-for \Rstring{hypten}, we can include those factors into the plot.
+for \Rstring{alc}, we can include those factors into the plot.
 \end{frame}
 
 \begin{frame}[fragile]{\thesection. \insertsection}
@@ -1015,9 +1016,11 @@ probplot(imp2, formula = alc ~ race + gender, strip.text = element_text(size = 1
 Since hypertension is more common in older individuals, we may want to
 investigate if \Rstring{age} can explain the differences in imputed values of
 \Rstring{hypten}.
+
 <<hypten_age_table>>=
 round(sapply(split(NHANES[, "age"], addNA(NHANES$hypten)), summary), 1)
 @
+
 The table shows that the distribution of \Rstring{age} in participants with missing
 \Rstring{hypten} is very similar to the distribution of \Rstring{age} in participants
 without \Rstring{hypten}.
@@ -1326,10 +1329,10 @@ The \blue{procedure} itself is located in the menu\\
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 \textsf{SPSS} does not let you
 \begin{itemize}
-\item select between linear regression imputation and pmm \blue{per} variable\\
+\item select between linear regression imputation and predictive mean matching \blue{per} variable
       (only jointly for all variables)
-\item uses \blue{only one donor} in predictive mean matching
-\item uses logistic regression for any categorical variable
+\item use more than \blue{one donor} in predictive mean matching
+\item use anything but logistic regression for categorical variables
 \item chose per imputation model which variables should be used as predictors
 \item re-calculate variables during the iterations
 \item \ldots

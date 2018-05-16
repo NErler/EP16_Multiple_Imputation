@@ -73,7 +73,7 @@ variable are \blue{most likely}, the \blue{variance} is a measure of the
 \pause
 In \blue{Bayesian imputation}, the \blue{information obtained from the observed data}
 is used to \blue{estimate the probability distributions} for the missing values and unknown
-parameters, and values are \blue{imputed by draws} from that posterior (= after having seen the data)
+parameters, and values are \blue{imputed by draws} from that posterior (=~after having seen the data)
 distribution.
 \end{frame}
 
@@ -96,7 +96,7 @@ is estimated from the corresponding regression model on the observed data.
 To \blue{impute} missing values, while \blue{taking into account the uncertainty about
 $\bmath\beta$ and $\sigma$}, the estimated posterior distributions of the missing
 values and parameters are multiplied
-$$p(\bmath y_{mis}\mid \bmath X_{mis}, \bmath \beta, \bmath \sigma)
+$$p(\bmath y_{mis}\mid \bmath X_{mis}, \bmath \beta, \bmath \sigma)\,
 p(\bmath \beta, \sigma \mid \bmath y_{obs}, \bmath X_{obs})$$
 
 In practice, this can be implemented by first making a draw from the posterior
