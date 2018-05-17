@@ -1,24 +1,24 @@
 ---
 title: "Multiple Imputation with the mice package"
 output: 
-#   html_document:
-#     code_folding: show
-#     df_print: paged
-#     toc: true
-#     toc_float:
-#       collapsed: false
-#     number_sections: false
-#     theme: spacelab
-#     highlight: tango
-#     pandoc_args: [
-#       "--output=Practical_MICE.html"
-#     ]
-# editor_options:
-#   chunk_output_type: inline
-  learnr::tutorial:
-    progressive: true
-    allow_skip: true
-runtime: shiny_prerendered
+  html_document:
+    code_folding: show
+    df_print: paged
+    toc: true
+    toc_float:
+      collapsed: false
+    number_sections: false
+    theme: spacelab
+    highlight: tango
+    pandoc_args: [
+      "--output=Practical_MICE.html"
+      ]
+editor_options:
+  chunk_output_type: inline
+#   learnr::tutorial:
+#     progressive: true
+#     allow_skip: true
+# runtime: shiny_prerendered
 ---
 
 ```{r, include = F}
@@ -866,12 +866,14 @@ asis_output("#### Solution\\n")
 ```
 
 ```{r runimp-solution, solution = TRUE, cache = TRUE}
-imp <- mice(NHANES, method = meth, predictorMatrix = pred, maxit = 10, m = 5,
+imp <- mice(NHANES, method = meth, predictorMatrix = pred, visitSequence = visSeq,
+            maxit = 10, m = 5,
             seed = 2018)
 ```
 
 ```{r saveimp, include = FALSE, eval = static, cache = TRUE}
 savedimps_imp <- mice(NHANES, method = meth, predictorMatrix = pred,
+                      visitSequence = visSeq,
                       maxit = 10, m = 5,
                       seed = 2018)
 savedimps_impnaive <- mice(NHANES, maxit = 10, m = 5, seed = 2018)
