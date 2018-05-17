@@ -26,7 +26,7 @@
 
 
 \section*{Deadline \& submission:}
-Assignments need to be sumbitted via Canvas no later than \textcolor{red}{xx june 2018}
+Assignments need to be sumbitted via Canvas no later than 11 june 2018.
 
 \section*{Task:}
 Impute and analyze the dataset you have been assigned and provide documentation

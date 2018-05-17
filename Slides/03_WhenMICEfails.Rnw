@@ -1794,7 +1794,7 @@ res_jomo_nonlin <- summary(pool(models_jomo_nonlin))
 
 \pause
 To check the convergence of the model, the corresponding function with
-ending \Rfct{.MCMCchain} as to be used.
+ending \Rfct{.MCMCchain} has to be used.
 <<jomo_nonlin2, eval = F, size = 'small'>>=
 jomo_nonlinMCMC <- jomo.lm.MCMCchain(y ~ x*z + I(x^2), data = DF_nonlin)
 
