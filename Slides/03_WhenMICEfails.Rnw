@@ -1604,7 +1604,7 @@ The development version (containing bug fixes and other improvements)
 can be installed from \href{https://github.com/nerler/JointAI}{GitHub}
 <<eval = F, size = 'small'>>=
 install.packages("devtools")
-devtools::install_github(repo = "JointAI", username = "NErler")
+devtools::install_github("NErler/JointAI")
 @
 
 A detailed explanation of the functionality is given in the help files of the
