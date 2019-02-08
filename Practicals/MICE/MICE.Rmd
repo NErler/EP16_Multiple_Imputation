@@ -1,24 +1,24 @@
 ---
 title: "Multiple Imputation with the mice package"
 output: 
-#   html_document:
-#     code_folding: show
-#     df_print: paged
-#     toc: true
-#     toc_float:
-#       collapsed: false
-#     number_sections: false
-#     theme: spacelab
-#     highlight: tango
-#     pandoc_args: [
-#       "--output=Practical_MICE.html"
-#       ]
-# editor_options:
-#   chunk_output_type: inline
-  learnr::tutorial:
-    progressive: true
-    allow_skip: true
-runtime: shiny_prerendered
+  html_document:
+    code_folding: show
+    df_print: paged
+    toc: true
+    toc_float:
+      collapsed: false
+    number_sections: false
+    theme: spacelab
+    highlight: tango
+    pandoc_args: [
+      "--output=Practical_MICE.html"
+      ]
+editor_options:
+  chunk_output_type: inline
+  # learnr::tutorial:
+  #   progressive: true
+  #   allow_skip: true
+# runtime: shiny_prerendered
 ---
 
 ```{r, include = F}
@@ -175,7 +175,7 @@ Afterwards, check if the conversion was successful.
 ```
 
 ```{r, eval = static, echo = FALSE}
-asis_output("</div")
+asis_output("</div>")
 
 asis_output("#### Solution\\n")
 ```
@@ -518,6 +518,8 @@ for (i in 1:ncol(NHANES)) {
 ```
 
 
+
+
 ## Imputation
 Now that we know how our data and the missing values are distributed, we are 
 ready to impute!
@@ -560,6 +562,7 @@ imp0 <- mice(NHANES, maxit = 0)
 ```{r, eval = static, echo = FALSE}
 asis_output("Note: This command will not produce any output.")
 ```
+
 
 
 ### Imputation method {.tabset .tabset-fade .tabset-pills}
@@ -810,9 +813,10 @@ visSeq <- c(visSeq[-2], visSeq[2])
 # the save version:
 # To make sure you still do the correct thing if the order of the columns in 
 # NHANES would change
-which_BMI <- match("BMI", names(visSeq))
+which_BMI <- match("BMI", visSeq)
 visSeq <- c(visSeq[-which_BMI], visSeq[which_BMI])
 ```
+
 
 
 ### Run the imputation  {.tabset .tabset-fade .tabset-pills}
@@ -839,7 +843,7 @@ meth["BMI"] <- "~I(weight/height^2)"
 meth["HyperMed"] <- ""
 
 visSeq <- imp0$visitSequence
-which_BMI <- match("BMI", names(visSeq))
+which_BMI <- match("BMI", visSeq)
 visSeq <- c(visSeq[-which_BMI], visSeq[which_BMI])
 ```
 
@@ -850,6 +854,7 @@ asis_output("#### Task\\n")
 ```{r, eval = static, echo = FALSE}
 asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
 ```
+
 
 
 With the changes that we have made to the `predictorMatrix` and `method`, we
@@ -889,6 +894,7 @@ categorical variables, especially when they have many categories.
 
 You can hide the lengthy output by specifying
 `printFlag = FALSE`.
+
 
 
 ## Investigate the imputation
@@ -950,6 +956,7 @@ asis_output("#### Solution\\n")
 ```{r findclass-solution, solution = TRUE}
 class(imp)
 ```
+
 
 
 ### Elements of the `mids` object {.tabset .tabset-fade .tabset-pills}
@@ -1267,7 +1274,7 @@ asis_output("</div>")
 asis_output("#### Solution\\n")
 ```
 
-```{r convergence-solution, solution = TRUE, fig.width = 9, fig.height = 7, cache = TRUE}
+```{r convergence-solution, solution = TRUE, fig.width = 9, fig.height = 7}
 # implemented plotting function (use layout to change the number of rows and columns)
 plot(imp, layout = c(6, 6))
 
@@ -1279,7 +1286,7 @@ matplot(imp$chainMean["weight", , ], type = "l", ylab = "imputed value",
 library(ggplot2)
 library(reshape2)
 ggplot(melt(imp$chainMean), aes(x = Var2, y = value, color = Var3)) +
-  geom_line() +
+  geom_line(na.rm = TRUE) +
   facet_wrap("Var1", scales = 'free') +
   theme(legend.position = 'none') +
   xlab("iteration") +
@@ -1413,6 +1420,7 @@ to judge the distribution of imputed values. Adjusting the distributions
 of observed `smoke` for `alc` shows that the subject with missing
 smoking status was a drinker, and drinkers were more often in the `current`
 group of smoking.
+
 
 
 ## Analysis

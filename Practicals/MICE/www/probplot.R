@@ -5,6 +5,7 @@
 # x: mids object (from mice)
 # formula: formula describing which variables to plot
 # facet: either "wrap" for facet_wrap or "grid" for facet_grid
+# ...: additional parameters passed to theme()
 #
 # Note: if the formula is not specified, all imputed categorical variables are
 # plottet. A formula has the structure
@@ -17,6 +18,8 @@ probplot <- function(x, formula, facet = "wrap", ...) {
   library(reshape2)
 
   cd <- data.frame(mice::complete(x, "long", include = TRUE))
+  cd$.imp <- factor(cd$.imp)
+
   r <- as.data.frame(is.na(x$data))
 
   impcat <- x$meth != "" & sapply(x$data, is.factor)
@@ -77,7 +80,7 @@ probplot <- function(x, formula, facet = "wrap", ...) {
 
   p <- ggplot(plotDF, aes(x = value, fill = get(svars), y = prop)) +
     geom_bar(position = "dodge", stat = "identity") +
-    theme(legend.position = "bottom") +
+    theme(legend.position = "bottom", ...) +
     ylab("proportion") +
     scale_fill_manual(name = "",
                       values = c("black",
