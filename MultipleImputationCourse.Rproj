@@ -16,4 +16,6 @@ RootDocument: Slides/MICourse_Slides.Rnw
 AutoAppendNewline: Yes
 StripTrailingWhitespace: Yes
 
+BuildType: Website
+
 QuitChildProcessesOnExit: Yes
