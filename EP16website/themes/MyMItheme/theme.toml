@@ -1,0 +1,11 @@
+name = "MyMItheme"
+
+[author]
+  name = "Nicole Erler"
+  homepage = "http://nerler.com"
+
+# If porting an existing theme
+[original]
+  name = "Blackburn"
+  homepage = "http://yoshiharuyamashita.com"
+  repo = "https://github.com/yoshiharuyamashita/blackburn"

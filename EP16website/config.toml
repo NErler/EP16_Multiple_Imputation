@@ -1,0 +1,71 @@
+baseURL = "https://nerler.github.io/MultipleImputationCourse/"
+languageCode = "en-uk"
+title = "EP16: Missing Values in Clinical Research"
+theme = "MyMItheme"
+author = "Nicole S. Erler"
+copyright = "&copy; 2019. All rights reserved."
+canonifyurls = true
+paginate = 10
+ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$", "other"]
+publishDir = "../docs"
+sectionPagesMenu = "main"
+
+[indexes]
+  tag = "tags"
+  topic = "topics"
+
+
+[params]
+  # Shown in the home page
+  subtitle = "Multiple Imputation"
+  brand = "EP16: MI"
+  #googleAnalytics = "127879026"
+  # disqus = "Your Disqus shortname"
+  # CSS name for highlight.js
+  highlightjs = "androidstudio"
+  dateFormat = "02 Jan 2006, 15:04"
+
+[menu]
+  # Shown in the side menu.
+  [[menu.main]]
+    name = "Home"
+    pre = "<i class='fa fa-home fa-fw'></i>"
+    weight = -1
+    identifier = "home"
+    url = "/"
+  [[menu.main]]
+    name = "Slides"
+    pre = "<i class='fa fa-tv fa-fw'></i>"
+    weight = 2
+    identifier = "slide"
+    url = "/slide/"
+  [[menu.main]]
+    name = "Practicals"
+    pre = "<i class='fa fa-edit fa-fw'></i>"
+    weight = 3
+    identifier = "practical"
+    url = "/practical/"
+#  [[menu.main]]
+#    name = "About"
+#    pre = "<i class='fa fa-user fa-fw'></i>"
+#    weight = 4
+#    identifier = "about"
+#    url = "/about/"
+  [[menu.main]]
+    name = "News Archive"
+    pre = "<i class='fa fa-newspaper-o'></i>"
+    weight = 5
+    identifier = "news"
+    url = "/news/"
+
+[social]
+  # Link your social networking accouns to the side menu
+  # by entering your username or ID.
+  twitter = "N_Erler"
+#  facebook = "*"
+#  instagram = "*"
+  github = "NErler/MultipleImputationCourse"
+  nihes = "https://www.nihes.com/course/ep16_missing_values_in_clinical_research/"
+  web = "https://nerler.com/"
+#  stackoverflow = "*"
+#  linkedin = "*"

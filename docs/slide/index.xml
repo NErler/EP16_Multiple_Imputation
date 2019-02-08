@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Slides on EP16: Missing Values in Clinical Research</title>
+    <link>/MultipleImputationCourse/slide/</link>
+    <description>Recent content in Slides on EP16: Missing Values in Clinical Research</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-uk</language>
+    <copyright>&amp;copy; 2019. All rights reserved.</copyright>
+    <lastBuildDate>Sat, 01 Dec 2018 14:45:13 -0500</lastBuildDate>
+    
+	<atom:link href="/MultipleImputationCourse/slide/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>JointAI R package</title>
+      <link>/MultipleImputationCourse/slide/cqm2/</link>
+      <pubDate>Sat, 01 Dec 2018 14:45:13 -0500</pubDate>
+      
+      <guid>/MultipleImputationCourse/slide/cqm2/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>
