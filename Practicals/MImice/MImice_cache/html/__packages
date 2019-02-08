@@ -1,0 +1,7 @@
+base
+kableExtra
+knitr
+lattice
+mice
+ggplot2
+reshape2
