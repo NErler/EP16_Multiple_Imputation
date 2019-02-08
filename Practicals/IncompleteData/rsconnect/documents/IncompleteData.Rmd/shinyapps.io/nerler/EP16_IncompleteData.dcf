@@ -1,0 +1,13 @@
+name: EP16_IncompleteData
+title: EP16_IncompleteData
+username:
+account: nerler
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 701715
+bundleId: 1864575
+url: https://nerler.shinyapps.io/EP16_IncompleteData/
+when: 1549647560.15989
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: IncompleteData.html|Practical_IncompleteData.html

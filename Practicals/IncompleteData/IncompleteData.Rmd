@@ -1,0 +1,503 @@
+---
+title: "Getting to know your incomplete data"
+output: 
+  # html_document:
+  #   code_folding: show
+  #   df_print: paged
+  #   toc: true
+  #   toc_float:
+  #     collapsed: false
+  #   number_sections: false
+  #   theme: spacelab
+  #   highlight: tango
+  #   pandoc_args: [
+  #     "--output=Practical_IncompleteData.html"
+  #     ]
+  learnr::tutorial:
+    progressive: true
+    allow_skip: true
+runtime: shiny_prerendered
+---
+
+```{r, include = F}
+if (names(rmarkdown::metadata$output) == "learnr::tutorial") {
+  library(learnr)
+  learnr::initialize_tutorial()
+  static <- FALSE
+}
+
+if (names(rmarkdown::metadata$output) == "html_document") {
+  knitr::opts_hooks$set(eval = function(opt) {
+    if (any(opt$exercise))
+      opt$eval <- opt$include <- FALSE
+    
+    opt
+  })
+  
+  static <- TRUE
+  
+  options(width = 100)
+}
+
+library(knitr)
+library(VIM)
+library(visdat)
+library(mice)
+library(JointAI)
+library(plyr)
+```
+
+
+```{r load_data, context="data", include=FALSE}
+load("www/NHANES_for_practicals.RData")
+```
+
+## Preface {data-progressive=FALSE}
+### R packages
+
+```{r, eval = static, echo = FALSE, results = 'asis'}
+cat('In this practical, a number of R packages are used.
+If any of them are not installed you can still follow the practical
+but will not be able to run all of the code. The packages used (with versions
+that were used to generate the solutions) are:')
+```
+```{r, eval = !static, echo = FALSE, results = 'asis'}
+cat('In this practical, a number of R packages are used.
+    The names and version numbers of the packages available on this platform are:')
+```
+
+* `mice` (version: `r packageVersion("mice")`)
+* `visdat` (version: `r packageVersion("visdat")`) 
+* `JointAI` (version: `r packageVersion("JointAI")`)
+* `VIM` (version: `r packageVersion("VIM")`)
+* `plyr` (version: `r packageVersion("plyr")`)
+
+
+
+### Help files
+You can find help files for any function by adding a `?` before the name of the 
+function.
+
+```{r, eval = !static, results = 'asis', echo = FALSE}
+cat("The files might look a bit funny when they are displayed as R output.")
+```
+
+Alternatively, you can look up the help pages online at 
+[https://www.rdocumentation.org/](https://www.rdocumentation.org/)
+or find the whole manual for a package at
+[https://cran.r-project.org/web/packages/available_packages_by_name.html](https://cran.r-project.org/web/packages/available_packages_by_name.html)
+
+
+## Dataset 
+### Overview {.tabset .tabset-fade .tabset-pills}
+
+For this example, we will use the **NHANES** dataset.
+```{r, eval = static, echo = FALSE, results = 'asis'}
+cat(
+'To load this dataset, you can use the command `file.choose()` which opens the
+explorer and allows you to navigate to the location of the file
+`NHANES_for_practicals.RData` on your computer.
+If you know the path to the file, you can also use `load("<path>/NHANES_for_practicals.RData")`.'
+)
+```
+```{r, eval = !static, echo = FALSE, results = 'asis'}
+cat("In the interactive version
+of this practical, the data is already loaded. ")
+```
+
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+Let's take a first look at the data. Useful functions are
+`dim()`, `head()`, `str()` and `summary()`.
+
+```{r load-mice, exercise = TRUE}
+
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution\\n")
+```
+
+```{r load-mice-solution, solution = TRUE}
+dim(NHANES)
+head(NHANES)
+str(NHANES)
+summary(NHANES)
+```
+
+
+### Variable coding {.tabset .tabset-fade .tabset-pills}
+It is important to check that all variables are coded correctly, i.e., have
+the correct `class`. Imputation software (e.g., the **mice** package) uses the
+`class` to automatically select imputation methods.
+When importing data from other software it can happen that factors become
+continuous variables or that ordered factors lose their ordering.
+
+`str()` showed that in the NHANES data `smoke` and `alc` are correctly specified
+as ordinal variables, but `educ` is an unordered factor.
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+Using `levels(NHANES$educ)` we can print the names of the categories of `educ`.
+Convert the unordered factor to an ordered factor, for example using `as.ordered()`.
+Afterwards, check if the conversion was successful.
+```{r ordered_educ, exercise = TRUE}
+
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution\\n")
+```
+
+```{r ordered_educ-solution, solution = TRUE}
+levels(NHANES$educ)
+
+NHANES$educ <- as.ordered(NHANES$educ)
+
+str(NHANES$educ)
+```
+
+```{r educrecode, echo = F}
+NHANES$educ <- as.ordered(NHANES$educ)
+```
+
+## Distribution of missing values
+### Missing data pattern {.tabset .tabset-fade .tabset-pills}
+In the `summary()` we could already see that there are missing values in several
+variables. The missing data pattern can be obtained and visualized by several
+functions from different packages.
+Examples are 
+
+* `md.pattern()` from package **mice**
+* `md_pattern()` from package **JointAI** (with argument `patter = TRUE`)
+* `aggr()` from package **VIM**
+* `vis_dat()` and `vis_miss()` from package **visdat**
+
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("Explore the missing data pattern of the NHANES data.")
+```
+
+
+```{r md-pattern, exercise = TRUE, exercise.setup = "educrecode"}
+
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution (i)\\n")
+```
+
+```{r md-pattern-solution, solution = TRUE, fig.width = 7, fig.height = 10, include = !static}
+mdp <- mice::md.pattern(NHANES)
+mdp
+
+# or
+MDP <- JointAI::md_pattern(NHANES, pattern = TRUE)
+MDP
+
+# or
+VIM::aggr(NHANES)
+```
+
+```{r, eval = !static, echo=FALSE}
+asis_output("### \\n")
+```
+
+```{r md-pattern-solution-mice, solution = TRUE, fig.width = 7, fig.height = 10, include = static}
+mdp <- mice::md.pattern(NHANES)
+mdp
+```
+
+
+```{r, eval = !static, echo=FALSE}
+asis_output("### \\n")
+```
+
+`md.pattern()` from package **mice** gives us a matrix where each row represents
+one missing data pattern (1 = observed, 0 = missing).
+The rownames show how many rows of the dataset have the given pattern.
+The last column shows the number of missing values in each
+pattern, the last row the number of missing values per variable.
+
+`md.pattern()` also plots the missing data pattern automatically.
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Solution (ii)\\n")
+```
+
+```{r md-pattern-solution-JointAI, fig.width = 7, fig.height = 10, include = static}
+MDP <- JointAI::md_pattern(NHANES, pattern = TRUE)
+MDP
+```
+
+The function `md_pattern()` from package **JointAI** gives a matrix very
+similar to the one obtained from `mice::md.pattern()`.
+Hovever, here, the number of rows in the data that have a particular missing
+data pattern are given in the last column.
+
+For more information on how to customize the visualization by `md_pattern()`
+see the vignette [Visualizing Incomplete Data](https://nerler.github.io/JointAI/articles/VisualizingIncompleteData.html)
+on the [webpage of **JointAI**](https://nerler.github.io/JointAI/index.html).
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Solution (iii)\\n")
+```
+
+```{r md-pattern-solution-VIM, fig.width = 8, fig.height = 5, include = static}
+VIM::aggr(NHANES)
+```
+
+`aggr()` from **VIM** plots a histogram of the proportion of missing values
+per column as well as a visualization of the missing data pattern. Here,
+a small histogram on the right edge of the plot shows the proportion of cases
+in each pattern.
+
+For more options how to customize the plot, see the 
+[**VIM** documentation](https://CRAN.R-project.org/package=VIM).
+
+### Proportion of missing values {.tabset .tabset-fade .tabset-pills}
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+Now get an overview of
+
+* how much missingness there is in each variable, and
+* the proportion of (in)complete cases.
+
+```{r misprop, exercise = TRUE}
+
+```
+
+```{r misprop-hint-1, eval = !static, include = !static}
+# The function complete.cases() will give you a vector that is TRUE if the
+# the case is complete and FALSE if there are missing values.
+
+# is.na() returns TRUE if the value is missing, FALSE if the value is observed
+# colSums() calculates the sum of values in each column of a data.frame or matrix
+# colMeans() calculates the mean of values in each column of a data.frame or matrix
+```
+
+```{r mispropr_hint, eval = static, results = 'asis', echo = FALSE}
+cat('<button type="button" class="btn btn-info btn-sm" data-toggle="collapse" data-target="#misprop">Hint</button>
+<div id = "misprop" class="collapse" style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+The function `complete.cases()` will give you a vector that is TRUE if the
+the case is complete and FALSE if there are missing values.
+
+`is.na()` returns `TRUE` if the value is missing, `FALSE` if the value is observed
+
+`colSums()` calculates the sum of values in each column of a data.frame or matrix
+
+`colMeans()` calculates the mean of values in each column of a data.frame or matrix
+</div>')
+```
+
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution\\n")
+```
+
+```{r misprop-hint-2, solution = TRUE}
+# number and proportion of complete cases
+cbind(
+  "#" = table(ifelse(complete.cases(NHANES), 'complete', 'incomplete')),
+  "%" = round(100 * table(complete.cases(NHANES))/nrow(NHANES), 2)
+)
+
+# number and proportion of missing values per variable
+cbind("# NA" = sort(colSums(is.na(NHANES))),
+      "% NA" = round(sort(colMeans(is.na(NHANES))) * 100, 2))
+
+```
+
+### Relationship between variables {.tabset .tabset-fade .tabset-pills}
+In the missing data pattern we could already see that some variables tend to 
+be missing together. But there may be different types of relationships between
+variables that are of interest.
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 1\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+
+Our data contains `hgt` (height), `wgt` (weight) and `BMI`. 
+Check the missing data pattern specifically for those three variables.
+
+```{r heightweight, exercise = TRUE}
+
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 1\\n")
+```
+
+```{r heightweight-solution, solution = TRUE}
+# Three solutions to choose from:
+JointAI::md_pattern(NHANES[, c("hgt", "wgt", "BMI")], pattern = TRUE, plot = FALSE)
+
+with(NHANES, 
+     table(ifelse(is.na(hgt), 'height mis.', 'height obs.'),
+           ifelse(is.na(wgt), 'weight mis.', 'weight obs.'),
+           ifelse(is.na(BMI), 'BMI mis.', 'BMI obs.'))
+)
+
+plyr::ddply(NHANES, c(height = "ifelse(is.na(hgt), 'missing', 'observed')",
+                      weight = "ifelse(is.na(wgt), 'missing', 'observed')",
+                      BMI = "ifelse(is.na(BMI), 'missing', 'observed')"),
+            plyr::summarize,
+            N = length(hgt)
+)
+```
+
+As we have already seen in the lecture, there are some cases where
+only either `hgt` or `wgt` is missing. `BMI` is only observed when both
+components are observed. To use all available information, we want to 
+impute `hgt` and `wgt` separately and calculate `BMI` from the imputed values.
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 2\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+The data contains variables on hypertension (`hypten`) and the use of medication
+to treat hypertension (`HyperMed`).
+We might expect that medication is only prescribed for patients with hypertension, hence, we need to investigate the relationship between `HyperMed` and `hypten`.
+
+* Make a table of the two variables to confirm our expectation.
+* Make sure that missing values are also displayed in that table!
+```{r hyptentab, exercise = TRUE}
+
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 2\\n")
+```
+
+```{r hyptentab-solution, solution = TRUE}
+with(NHANES, table(HyperMed, hypten, exclude = NULL))
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 3\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+Furthermore, we can expect a systematic relationship between the variables
+`hypchol` (Hypercholesterolemia) and `chol` (serum cholesterol).
+Find out how these two variables are related.
+
+```{r hypchol, exercise = TRUE}
+
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 3\\n")
+```
+
+
+```{r hypchol-solution, solution = TRUE}
+with(NHANES, plot(chol ~ hypchol))
+
+with(NHANES, summary(chol[hypchol == "no"]))
+with(NHANES, summary(chol[hypchol == "yes"]))
+```
+
+```{r, eval = !static, echo = FALSE}
+asis_output("### \\n")
+```
+
+It seems that `hypchol` is defined as `chol > 6.2`, which makes `hypchol`
+dependent on `chol`. 
+
+
+## Distribution of the data {.tabset .tabset-fade .tabset-pills}
+Before imputing missing values it is important to take a look at how the 
+observed parts of incomplete variables are distributed, so that we can choose
+appropriate imputation models.
+
+```{r, eval = static, echo = FALSE}
+asis_output("### Task\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+Visualize the distributions of the incomplete continuous and categorical 
+variables. The package **JointAI** provides the convenient function `plot_all()`,
+
+
+Pay attention to
+
+* whether continuous distributions deviate considerably from the normal distribution,
+* if variables have values close to the limits of the range they are defined in,
+* whether categorical variables are very unbalanced (i.e., some category very small).
+
+
+```{r distr, exercise = TRUE, fig.width = 9, fig.height = 8, exercise.setup = "educrecode"}
+
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("### Solution\\n")
+```
+
+```{r distr-solution, solution = TRUE, fig.width = 9, fig.height = 10.5, dpi=600}
+par(mar = c(3, 3, 2, 1), mgp = c(2, 0.6, 0))
+JointAI::plot_all(NHANES, nclass = 30, ncol = 4)
+```
+
+To learn more about additional options of `plot_all()` check out the vignette [Visualizing Incomplete Data](https://nerler.github.io/JointAI/articles/VisualizingIncompleteData.html)
+on the [webpage of **JointAI**](https://nerler.github.io/JointAI/index.html).

@@ -1,0 +1,13 @@
+name: IncompleteData
+title: IncompleteData
+username:
+account: nerler
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 701765
+bundleId: 1864587
+url: https://nerler.shinyapps.io/IncompleteData/
+when: 1549648018.39389
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: IncompleteData.html|Practical_IncompleteData.html
