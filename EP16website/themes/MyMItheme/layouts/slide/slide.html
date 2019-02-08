@@ -9,8 +9,9 @@
     {{ .Content }}
 </div>
 
-<div class="row" style="margin:1em;">
-  {{ range .Pages }}
+
+<div class="grid-container">
+    {{ range .Pages.ByTitle }}
 
     {{ partial "card.html" . }}
 
