@@ -7,17 +7,17 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-uk</language>
     <copyright>&amp;copy; 2019. All rights reserved.</copyright>
-    <lastBuildDate>Sat, 01 Dec 2018 14:45:13 -0500</lastBuildDate>
+    <lastBuildDate>Sat, 09 Feb 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/MultipleImputationCourse/slide/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title>JointAI R package</title>
-      <link>/MultipleImputationCourse/slide/cqm2/</link>
-      <pubDate>Sat, 01 Dec 2018 14:45:13 -0500</pubDate>
+      <title>Lecture slides</title>
+      <link>/MultipleImputationCourse/slide/lecture/</link>
+      <pubDate>Sat, 09 Feb 2019 00:00:00 +0000</pubDate>
       
-      <guid>/MultipleImputationCourse/slide/cqm2/</guid>
+      <guid>/MultipleImputationCourse/slide/lecture/</guid>
       <description></description>
     </item>
     

@@ -20,3 +20,36 @@
 .w3-hover-theme:hover {color:#fff !important; background-color:#485167 !important}
 .w3-hover-text-theme:hover {color:#485167 !important}
 .w3-hover-border-theme:hover {border-color:#485167 !important}
+
+
+.card {
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+  transition: 0.3s;
+  border-radius: 5px 5px 5px 5px;
+  margin: 10px;
+}
+
+.card:hover {
+  box-shadow: 8px 8px 16px 0 rgba(0,0,0,0.4);
+}
+
+.container-tr {
+  padding: 2px 16px;
+  border-radius: 5px 5px 0 0;
+}
+
+.container-br {
+  padding: 2px 16px 2px 16px;
+  border-radius: 0 0 5px 5px;
+}
+
+.container {
+  padding: 5px 5px 5px 5px;
+}
+
+
+.grid-container {
+   display: grid;
+   grid-template-columns: repeat(auto-fit, minmax(300px, 35%));
+   grid-gap: 5px;
+}

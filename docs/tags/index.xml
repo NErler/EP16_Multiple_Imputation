@@ -2,13 +2,13 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Tags on EP16: Missing Values in Clinical Research</title>
-    <link>/MultipleImputationCourse/tags/</link>
+    <link>https://nerler.github.io/MultipleImputationCourse/tags/</link>
     <description>Recent content in Tags on EP16: Missing Values in Clinical Research</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-uk</language>
     <copyright>&amp;copy; 2019. All rights reserved.</copyright>
     
-	<atom:link href="/MultipleImputationCourse/tags/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://nerler.github.io/MultipleImputationCourse/tags/index.xml" rel="self" type="application/rss+xml" />
     
     
   </channel>
