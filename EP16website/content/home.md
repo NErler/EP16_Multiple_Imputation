@@ -24,8 +24,8 @@ use the following R packages:
 * [mitools](https://cran.r-project.org/web/packages/mitools) (version 2.3)
 * [JointAI](https://cran.r-project.org/web/packages/JointAI) (version 0.4.0)
 * [rjags](https://cran.r-project.org/web/packages/rjags) (version 4-8)
-* [smcfcs](https://cran.r-project.org/web/packages/smcfcs) (version >= 1.3.1)
-* [jomo](https://cran.r-project.org/web/packages/jomo) (version >= 2.6-7)
+* [smcfcs](https://cran.r-project.org/web/packages/smcfcs) (version 1.3.1)
+* [jomo](https://cran.r-project.org/web/packages/jomo) (version 2.6-7)
 
 For **JointAI** it is suggested to use the most recent version available on GitHub
 ```r
