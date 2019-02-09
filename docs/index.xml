@@ -2,31 +2,31 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>EP16: Missing Values in Clinical Research</title>
-    <link>https://nerler.github.io/MultipleImputationCourse/</link>
+    <link>/EP16_Multiple_Imputation/</link>
     <description>Recent content on EP16: Missing Values in Clinical Research</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-uk</language>
     <copyright>&amp;copy; 2019. All rights reserved.</copyright>
     <lastBuildDate>Sat, 09 Feb 2019 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="https://nerler.github.io/MultipleImputationCourse/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="/EP16_Multiple_Imputation/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>02 - Multiple imputation using mice</title>
-      <link>https://nerler.github.io/MultipleImputationCourse/practical/mimice/</link>
+      <link>/EP16_Multiple_Imputation/practical/mimice/</link>
       <pubDate>Sat, 09 Feb 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://nerler.github.io/MultipleImputationCourse/practical/mimice/</guid>
+      <guid>/EP16_Multiple_Imputation/practical/mimice/</guid>
       <description></description>
     </item>
     
     <item>
       <title>EP16: Missing Values in Clinical Research</title>
-      <link>https://nerler.github.io/MultipleImputationCourse/home/</link>
+      <link>/EP16_Multiple_Imputation/home/</link>
       <pubDate>Sat, 09 Feb 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://nerler.github.io/MultipleImputationCourse/home/</guid>
+      <guid>/EP16_Multiple_Imputation/home/</guid>
       <description>[This website is currently under construction]  This website contains slides and materials for the Multiple Imputation part of NIHES course Missing Values in Clinical Research (EP16).
 Practicals are available as interactive learnr tutorials (links will follow) as well as in a static html version.
 The practicals require R and JAGS to be installed and use the following R packages: (JAGS (and rjags) are only necessary for the parts of the practical that use the JointAI package.</description>
@@ -34,19 +34,19 @@ The practicals require R and JAGS to be installed and use the following R packag
     
     <item>
       <title>Lecture slides</title>
-      <link>https://nerler.github.io/MultipleImputationCourse/slide/lecture/</link>
+      <link>/EP16_Multiple_Imputation/slide/lecture/</link>
       <pubDate>Sat, 09 Feb 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://nerler.github.io/MultipleImputationCourse/slide/lecture/</guid>
+      <guid>/EP16_Multiple_Imputation/slide/lecture/</guid>
       <description></description>
     </item>
     
     <item>
       <title>01 - Getting to know your incomplete data</title>
-      <link>https://nerler.github.io/MultipleImputationCourse/practical/incompletedata/</link>
+      <link>/EP16_Multiple_Imputation/practical/incompletedata/</link>
       <pubDate>Fri, 01 Feb 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://nerler.github.io/MultipleImputationCourse/practical/incompletedata/</guid>
+      <guid>/EP16_Multiple_Imputation/practical/incompletedata/</guid>
       <description></description>
     </item>
     

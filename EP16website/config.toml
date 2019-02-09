@@ -1,4 +1,4 @@
-baseURL = "https://nerler.github.io/MultipleImputationCourse/"
+baseURL = "https://nerler.github.io/EP16_Multiple_Imputation/"
 languageCode = "en-uk"
 title = "EP16: Missing Values in Clinical Research"
 theme = "MyMItheme"
