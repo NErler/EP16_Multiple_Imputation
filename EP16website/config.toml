@@ -19,7 +19,7 @@ sectionPagesMenu = "main"
   # Shown in the home page
   subtitle = "Multiple Imputation"
   brand = "EP16: MI"
-  #googleAnalytics = "127879026"
+  googleAnalytics = "127879026"
   # disqus = "Your Disqus shortname"
   # CSS name for highlight.js
   highlightjs = "androidstudio"
