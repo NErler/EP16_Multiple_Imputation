@@ -7,10 +7,19 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-uk</language>
     <copyright>&amp;copy; 2019. All rights reserved.</copyright>
-    <lastBuildDate>Fri, 01 Feb 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 09 Feb 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://nerler.github.io/MultipleImputationCourse/practical/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>02 - Multiple imputation using mice</title>
+      <link>https://nerler.github.io/MultipleImputationCourse/practical/mimice/</link>
+      <pubDate>Sat, 09 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://nerler.github.io/MultipleImputationCourse/practical/mimice/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>01 - Getting to know your incomplete data</title>

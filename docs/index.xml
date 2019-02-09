@@ -7,10 +7,39 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-uk</language>
     <copyright>&amp;copy; 2019. All rights reserved.</copyright>
-    <lastBuildDate>Fri, 01 Feb 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 09 Feb 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://nerler.github.io/MultipleImputationCourse/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>02 - Multiple imputation using mice</title>
+      <link>https://nerler.github.io/MultipleImputationCourse/practical/mimice/</link>
+      <pubDate>Sat, 09 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://nerler.github.io/MultipleImputationCourse/practical/mimice/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>EP16: Missing Values in Clinical Research</title>
+      <link>https://nerler.github.io/MultipleImputationCourse/home/</link>
+      <pubDate>Sat, 09 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://nerler.github.io/MultipleImputationCourse/home/</guid>
+      <description>[This website is currently under construction]  This website contains slides and materials for the Multiple Imputation part of NIHES course Missing Values in Clinical Research (EP16).
+Practicals are available as interactive learnr tutorials (links will follow) as well as in a static html version.
+The practicals require R and JAGS to be installed and use the following R packages: (JAGS (and rjags) are only necessary for the parts of the practical that use the JointAI package.</description>
+    </item>
+    
+    <item>
+      <title>Lecture slides</title>
+      <link>https://nerler.github.io/MultipleImputationCourse/slide/lecture/</link>
+      <pubDate>Sat, 09 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://nerler.github.io/MultipleImputationCourse/slide/lecture/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>01 - Getting to know your incomplete data</title>
@@ -19,15 +48,6 @@
       
       <guid>https://nerler.github.io/MultipleImputationCourse/practical/incompletedata/</guid>
       <description></description>
-    </item>
-    
-    <item>
-      <title></title>
-      <link>https://nerler.github.io/MultipleImputationCourse/home/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://nerler.github.io/MultipleImputationCourse/home/</guid>
-      <description>This webpage contains materials for the Multiple Imputatoin part of the NIHES course EP16: Missing Values in Clinical Research.</description>
     </item>
     
   </channel>
