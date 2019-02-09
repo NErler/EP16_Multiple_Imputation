@@ -32,7 +32,7 @@ sectionPagesMenu = "main"
     pre = "<i class='fa fa-home fa-fw'></i>"
     weight = -1
     identifier = "home"
-    url = "/"
+    url = "/home/"
   [[menu.main]]
     name = "Slides"
     pre = "<i class='fa fa-tv fa-fw'></i>"
@@ -51,12 +51,12 @@ sectionPagesMenu = "main"
 #    weight = 4
 #    identifier = "about"
 #    url = "/about/"
-  [[menu.main]]
-    name = "News Archive"
-    pre = "<i class='fa fa-newspaper-o'></i>"
-    weight = 5
-    identifier = "news"
-    url = "/news/"
+#  [[menu.main]]
+#    name = "News Archive"
+#    pre = "<i class='fa fa-newspaper-o'></i>"
+#    weight = 5
+#    identifier = "news"
+#    url = "/news/"
 
 [social]
   # Link your social networking accouns to the side menu

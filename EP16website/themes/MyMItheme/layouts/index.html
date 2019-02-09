@@ -6,10 +6,12 @@
 </div>
 
 <br>
-<br>
 
 <div class="content">
-{{ readFile "home.md" }}
+  {{ with .GetPage "/home" }}
+  {{ .Content }}
+  {{ end }}
+
 </div>
 
 <br>
