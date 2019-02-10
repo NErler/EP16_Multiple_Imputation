@@ -30,6 +30,3 @@ if (!dir.exists("EP16website/static/slide/lecture"))
 
 file.copy('Slides/MICourse_Slides.pdf',
           'EP16website/static/slide/lecture', overwrite = TRUE)
-
-webshot::webshot('Slides/MICourse_Slides.pdf',
-                 'EP16website/static/slide/lecture/image.png')
