@@ -3,4 +3,14 @@ PMM
 MICE/MICE_cache
 MICE/MICE_files
 
+IncompleteData/IncompleteData_cache
+IncompleteData/IncompleteData_data
+IncompleteData/IncompleteData_files
+IncompleteData/rsconnect
+IncompleteData.html
+
+MImice/MImice_cache
+MImice/MImice_data
+MImice/MImice_files
 MImice/rsconnect
+MImice.html
