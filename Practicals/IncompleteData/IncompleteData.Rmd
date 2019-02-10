@@ -10,6 +10,9 @@ output:
   #   number_sections: false
   #   theme: spacelab
   #   highlight: tango
+  #   includes:
+  #     after_body: ../footer.html
+  #   css: ../style.css
   #   pandoc_args: [
   #     "--output=Practical_IncompleteData.html"
   #     ]
@@ -45,6 +48,7 @@ library(visdat)
 library(mice)
 library(JointAI)
 library(plyr)
+library(corrplot)
 ```
 
 
@@ -63,7 +67,7 @@ that were used to generate the solutions) are:')
 ```
 ```{r, eval = !static, echo = FALSE, results = 'asis'}
 cat('In this practical, a number of R packages are used.
-    The names and version numbers of the packages available on this platform are:')
+    The names of the packages used (and their version numbers available on this platform) are:')
 ```
 
 * `mice` (version: `r packageVersion("mice")`)
@@ -71,7 +75,7 @@ cat('In this practical, a number of R packages are used.
 * `JointAI` (version: `r packageVersion("JointAI")`)
 * `VIM` (version: `r packageVersion("VIM")`)
 * `plyr` (version: `r packageVersion("plyr")`)
-
+* `corrplot` (version: `r packageVersion("corrplot")`)
 
 
 ### Help files
@@ -458,6 +462,59 @@ asis_output("### \\n")
 
 It seems that `hypchol` is defined as `chol > 6.2`, which makes `hypchol`
 dependent on `chol`. 
+
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 4\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+Visualize the correlations between variables to detect associations that you
+may have missed.
+
+```{r corrplot, exercise = TRUE}
+
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 4\\n")
+```
+
+
+```{r corrplot-solution, solution = TRUE, fig.width = 9, fig.height = 9, warning=FALSE}
+# convert all variables to numeric
+dat_num <- sapply(NHANES, as.numeric)
+cormat <- cor(dat_num, use = 'pair', method = 'spearman')
+corrplot::corrplot(cormat, method = 'square', type = 'lower')
+```
+
+Note: Correlations involving categorical variables are not usually done!
+We only use this as a quick-and-dirty method for visualization of relationships.
+
+```{r, eval = !static, echo = FALSE}
+asis_output("### \\n")
+```
+
+The questionmaks in the plot indicate that no correlation
+could be calculated for `cohort` (because `cohort` is the same for all subjects)
+and neither between `HyperMed` and `hypten` (but we already knew that).
+
+The plot shows that besides the relations we were already aware of, `wgt` is
+strongly correlated with `WC`.
+Comparing the number of cases where only either `wgt` or `WC` is missing
+shows that there are 14 cases where `wgt` is missing but `WC` is observed
+and 58 cases where `WC` is missing and `wgt` is observed.
+
+```{r}
+with(NHANES, table(ifelse(is.na(WC), 'WC mis.', 'WC obs.'),
+                   ifelse(is.na(wgt), 'wgt mis.', 'wgt obs.')
+))
+```
 
 
 ## Distribution of the data {.tabset .tabset-fade .tabset-pills}
