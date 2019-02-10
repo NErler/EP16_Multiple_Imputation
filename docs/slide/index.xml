@@ -2,22 +2,22 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Slides on EP16: Missing Values in Clinical Research</title>
-    <link>https://nerler.github.io/EP16_Multiple_Imputation/slide/</link>
+    <link>/EP16_Multiple_Imputation/slide/</link>
     <description>Recent content in Slides on EP16: Missing Values in Clinical Research</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-uk</language>
     <copyright>&amp;copy; 2019. All rights reserved.</copyright>
     <lastBuildDate>Sat, 09 Feb 2019 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="https://nerler.github.io/EP16_Multiple_Imputation/slide/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="/EP16_Multiple_Imputation/slide/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Lecture slides</title>
-      <link>https://nerler.github.io/EP16_Multiple_Imputation/slide/lecture/</link>
+      <link>/EP16_Multiple_Imputation/slide/lecture/</link>
       <pubDate>Sat, 09 Feb 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://nerler.github.io/EP16_Multiple_Imputation/slide/lecture/</guid>
+      <guid>/EP16_Multiple_Imputation/slide/lecture/</guid>
       <description></description>
     </item>
     
