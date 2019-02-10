@@ -5,9 +5,9 @@ account: nerler
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 701773
-bundleId: 1864594
+bundleId: 1867036
 url: https://nerler.shinyapps.io/EP16IncompleteData/
-when: 1549648352.85189
+when: 1549804083.82592
 asMultiple: FALSE
 asStatic: FALSE
 ignoredFiles: IncompleteData.html|Practical_IncompleteData.html|IncompleteData_data/data_chunks_index.txt|IncompleteData_data/load_data.RData|IncompleteData_files/figure-html/md-pattern-solution-JointAI-1.png|IncompleteData_files/figure-html/md-pattern-solution-mice-1.png|IncompleteData_files/figure-html/md-pattern-solution-VIM-1.png
