@@ -1,6 +1,136 @@
 
-## Analysis
-### Fitting models on `mids` objects {.tabset .tabset-fade .tabset-pills}
+---
+title: "Analysing imputed data"
+output: 
+  html_document:
+    code_folding: show
+    df_print: paged
+    toc: true
+    toc_float:
+      collapsed: false
+    number_sections: false
+    theme: spacelab
+    highlight: tango
+    includes:
+      after_body: ../footer.html
+    css: ../style.css
+    pandoc_args: [
+      "--output=Practical_AnalyseMIData.html"
+      ]
+#   learnr::tutorial:
+#     progressive: true
+#     allow_skip: true
+# runtime: shiny_prerendered
+---
+
+```{r, include = F}
+if (names(rmarkdown::metadata$output) == "learnr::tutorial") {
+  library(learnr)
+  learnr::initialize_tutorial()
+  static <- FALSE
+}
+
+if (names(rmarkdown::metadata$output) == "html_document") {
+  knitr::opts_hooks$set(eval = function(opt) {
+    if (any(opt$exercise))
+      opt$eval <- opt$include <- FALSE
+    
+    opt
+  })
+  
+  static <- TRUE
+  
+  options(width = 100)
+}
+```
+
+
+```{r packages, include = FALSE}
+library(kableExtra)
+library(knitr)
+library(JointAI)
+library(reshape2)
+library(plyr)
+library(RColorBrewer)
+library(ggplot2)
+```
+
+
+```{r load_data, context="data", include=FALSE}
+load("www/NHANES_for_practicals.RData")
+NHANES$educ <- as.ordered(NHANES$educ)
+
+source("www/propplot.R")
+load("www/imps.RData")
+
+imp <- savedimps_imp
+
+library(mice)
+```
+
+
+## Preface {data-progressive=FALSE}
+### R packages
+
+```{r, eval = static, echo = FALSE, results = 'asis'}
+cat('In this practical, a number of R packages are used.
+If any of them are not installed you can still follow the practical
+but will not be able to run all of the code. The packages used (with versions
+that were used to generate the solutions) are:')
+```
+```{r, eval = !static, echo = FALSE, results = 'asis'}
+cat('In this practical, a number of R packages are used.
+    The names of the packages used (and their version numbers available on this platform) are:')
+```
+
+* `mice` (version: `r packageVersion("mice")`)
+* `JointAI` (version: `r packageVersion("JointAI")`)
+* `reshape2` (version: `r packageVersion("reshape2")`)
+* `RColorBrewer` (version: `r packageVersion("RColorBrewer")`)
+* `ggplot2` (version: `r packageVersion("RColorBrewer")`)
+
+
+### Help files
+You can find help files for any function by adding a `?` before the name of the 
+function.
+
+```{r, eval = !static, results = 'asis', echo = FALSE}
+cat("The files might look a bit funny when they are displayed as R output.")
+```
+
+Alternatively, you can look up the help pages online at 
+[https://www.rdocumentation.org/](https://www.rdocumentation.org/)
+or find the whole manual for a package at
+[https://cran.r-project.org/web/packages/available_packages_by_name.html](https://cran.r-project.org/web/packages/available_packages_by_name.html)
+
+
+### Dataset 
+
+For this practical, we will again use the **NHANES** dataset that we have seen in
+the previous practical.
+```{r, eval = !static, echo = FALSE, results = 'asis'}
+cat("In the interactive version of this practical, the data is already loaded
+    and the variable `educ` correctly coded as an ordered factor.")
+```
+```{r, eval = static, echo = FALSE, results = 'asis'}
+cat(
+'To load this dataset, you can use the command `file.choose()` which opens the
+explorer and allows you to navigate to the location of the file
+`NHANES_for_practicals.RData` on your computer.
+If you know the path to the file, you can also use `load("<path>/NHANES_for_practicals.RData")`.
+
+If you have not followed the first practical or if you re-loaded the NHANES data
+you need to re-code the variable `educ` again:'
+)
+```
+```{r, eval = FALSE, echo = static}
+NHANES$educ <- as.ordered(NHANES$educ)
+```
+
+
+
+## Fitting models on `mids` objects {.tabset .tabset-fade .tabset-pills}
+>>>>>>> 53a367e9b9539ec3f1556bbba5969dd4a5b90bee
 When we are confident that the imputation was successfull, the imputed data can
 be analysed with any complete data method. 
 
@@ -41,7 +171,7 @@ to be a `data.frame`. Instead, use `with(imp, <model function without data>)`.
 ```{r, eval = static, echo = FALSE}
 asis_output("</div>")
 
-asis_output("#### Solution\\n")
+asis_output("### Solution\\n")
 ```
 
 ```{r analysisstep-hint-2}
@@ -68,7 +198,7 @@ summary(models1$analyses[[1]])
 
 
 
-### Structure of `mira` objects {.tabset .tabset-fade .tabset-pills}
+## Structure of `mira` objects {.tabset .tabset-fade .tabset-pills}
 Analyses performed on `mids` objects will result in a `mira` object
 (multiply imputed repeated analyses).
 
@@ -123,20 +253,20 @@ meth["HyperMed"] <- ""
 
 pred <- imp0$pred
 
-pred[c("height", "weight"), "BMI"] <- 0
-pred[, c("height", "weight")] <- 0
-pred["height", "weight"] <- 1
-pred["weight", "height"] <- 1
+pred[c("hgt", "wgt"), "BMI"] <- 0
+pred[, c("hgt", "wgt")] <- 0
+pred["hgt", "wgt"] <- 1
+pred["wgt", "hgt"] <- 1
 
 pred[, "HyperMed"] <- 0
 
 pred["chol", "hypchol"] <- 0
 
-meth["BMI"] <- "~I(weight/height^2)"
+meth["BMI"] <- "~I(wgt/hgt^2)"
 meth["HyperMed"] <- ""
 
 visSeq <- imp0$visitSequence
-which_BMI <- match("BMI", names(visSeq))
+which_BMI <- match("BMI", visSeq)
 visSeq <- c(visSeq[-which_BMI], visSeq[which_BMI])
 
 impnaive <- savedimps_impnaive
@@ -171,7 +301,7 @@ str(pooled1)
 ```
 
 
-### Structure of `mipo` objects {.tabset .tabset-fade .tabset-pills}
+## Structure of `mipo` objects {.tabset .tabset-fade .tabset-pills}
 Pooling of a `mira` object results in a `mipo` object (multiply imputed pooled analysis).
 
 The `mipo` object is a list that has the following elements:
@@ -227,7 +357,7 @@ object using `as.mira()`.
 
 
 ```{r, eval = static, echo = FALSE}
-asis_output("#### Task\\n")
+asis_output("### Task\\n")
 ```
 
 ```{r, eval = static, echo = FALSE}
@@ -246,17 +376,10 @@ pooled1 <- pool(models1)
 ```{r, eval = static, echo = FALSE}
 asis_output("</div>")
 
-asis_output("#### Solution\\n")
+asis_output("### Solution\\n")
 ```
 
 ```{r, summarypooled-solution, solution = TRUE}
 pooled1 <- pool(models1)
 summary(pooled1)
 ```
-
-
-<div style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
-<center>
-**You have reached the end of this practical. Well done!**
-</center>
-</div>

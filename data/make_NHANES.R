@@ -52,13 +52,16 @@ demo <- data.frame(ID = demo_orig$SEQN,
 
 weight_orig <- as.data.frame(haven::read_xpt(file.path(datadir, "WHQ_G.XPT")))
 weight <- data.frame(ID = weight_orig$SEQN,
-                     hgt = weight_orig$WHD010*2.54/100, # inches to meter
-                     wgt = weight_orig$WHD020*0.45359237 # pound to kg
+                     hgt = weight_orig$WHD010,
+                     wgt = weight_orig$WHD020
 )
 
 weight <- setNA(weight,
                 vars = c("hgt", "wgt"),
                 vals = c(7777, 9999))
+
+weight$hgt <- weight$hgt * 2.54/100 # inches to meter
+weight$wgt <- weight$wgt * 0.45359237 # pound to kg
 
 # occumpation data -------------------------------------------------------------
 occup_orig <- as.data.frame(haven::read_xpt(file.path(datadir, "OCQ_G.XPT")))
@@ -367,7 +370,7 @@ save(NHANES, file = "data/NHANES_for_lectures.RData")
 # data for practical #
 ######################
 set.seed(2018)
-sub <- sample(nrow(NHANES), 1000, prob = c(2/3, 1/3)[as.numeric(complete.cases(NHANES)) + 1])
+sub <- sample(nrow(NHANES), 1000, prob = c(9/10, 1/10)[as.numeric(complete.cases(NHANES)) + 1])
 NHANES <- NHANES[sub, ]
 NHANES$cohort <- "2011"
 

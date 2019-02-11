@@ -1,4 +1,4 @@
-baseURL = "https://nerler.github.io/MultipleImputationCourse/"
+baseURL = "https://nerler.github.io/EP16_Multiple_Imputation/"
 languageCode = "en-uk"
 title = "EP16: Missing Values in Clinical Research"
 theme = "MyMItheme"
@@ -19,7 +19,7 @@ sectionPagesMenu = "main"
   # Shown in the home page
   subtitle = "Multiple Imputation"
   brand = "EP16: MI"
-  #googleAnalytics = "127879026"
+  googleAnalytics = "127879026"
   # disqus = "Your Disqus shortname"
   # CSS name for highlight.js
   highlightjs = "androidstudio"
@@ -32,7 +32,7 @@ sectionPagesMenu = "main"
     pre = "<i class='fa fa-home fa-fw'></i>"
     weight = -1
     identifier = "home"
-    url = "/"
+    url = "/home/"
   [[menu.main]]
     name = "Slides"
     pre = "<i class='fa fa-tv fa-fw'></i>"
@@ -51,12 +51,12 @@ sectionPagesMenu = "main"
 #    weight = 4
 #    identifier = "about"
 #    url = "/about/"
-  [[menu.main]]
-    name = "News Archive"
-    pre = "<i class='fa fa-newspaper-o'></i>"
-    weight = 5
-    identifier = "news"
-    url = "/news/"
+#  [[menu.main]]
+#    name = "News Archive"
+#    pre = "<i class='fa fa-newspaper-o'></i>"
+#    weight = 5
+#    identifier = "news"
+#    url = "/news/"
 
 [social]
   # Link your social networking accouns to the side menu
@@ -64,7 +64,7 @@ sectionPagesMenu = "main"
   twitter = "N_Erler"
 #  facebook = "*"
 #  instagram = "*"
-  github = "NErler/MultipleImputationCourse"
+  github = "NErler/EP16_Multiple_Imputation"
   nihes = "https://www.nihes.com/course/ep16_missing_values_in_clinical_research/"
   web = "https://nerler.com/"
 #  stackoverflow = "*"

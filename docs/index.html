@@ -21,13 +21,13 @@
   <!--<![endif]-->
 
   <!--[if lte IE 8]>
-  <link rel="stylesheet" href="https://nerler.github.io/MultipleImputationCourse/css/side-menu-old-ie.css">
+  <link rel="stylesheet" href="/EP16_Multiple_Imputation/css/side-menu-old-ie.css">
   <![endif]-->
   <!--[if gt IE 8]><!-->
-  <link rel="stylesheet" href="https://nerler.github.io/MultipleImputationCourse/css/side-menu.css">
+  <link rel="stylesheet" href="/EP16_Multiple_Imputation/css/side-menu.css">
   <!--<![endif]-->
 
-  <link rel="stylesheet" href="https://nerler.github.io/MultipleImputationCourse/css/blackburn.css">
+  <link rel="stylesheet" href="/EP16_Multiple_Imputation/css/blackburn.css">
 
   
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -40,7 +40,7 @@
 
  
   
-  <link rel="alternate" type="application/rss+xml" title="EP16: Missing Values in Clinical Research" href="https://nerler.github.io/MultipleImputationCourse/index.xml" />
+  <link rel="alternate" type="application/rss+xml" title="EP16: Missing Values in Clinical Research" href="/EP16_Multiple_Imputation/EP16_Multiple_Imputation/index.xml" />
   
 
   
@@ -50,7 +50,8 @@
   <script>hljs.initHighlightingOnLoad();</script>
   
 
-  <link rel="shortcut icon" href="https://nerler.github.io/MultipleImputationCourse/img/favicon.ico" type="image/x-icon" />
+  <link rel="shortcut icon" href="/EP16_Multiple_Imputation/EP16_Multiple_Imputation/img/icon.png" type="image/x-icon" />
+
 
   
   
@@ -69,7 +70,7 @@
 <div id="menu">
 
   
-  <a class="pure-menu-heading brand" href="https://nerler.github.io/MultipleImputationCourse/">EP16: MI</a>
+  <a class="pure-menu-heading brand" href="/EP16_Multiple_Imputation/">EP16: MI</a>
 
 
   <div class="pure-menu">
@@ -77,25 +78,19 @@
       
       
         <li class="pure-menu-item">
-          <a class="pure-menu-link" href="https://nerler.github.io/MultipleImputationCourse/"><i class='fa fa-home fa-fw'></i>Home</a>
+          <a class="pure-menu-link" href="/EP16_Multiple_Imputation/home/"><i class='fa fa-home fa-fw'></i>Home</a>
       
         </li>
       
       
         <li class="pure-menu-item">
-          <a class="pure-menu-link" href="https://nerler.github.io/MultipleImputationCourse/slide/"><i class='fa fa-tv fa-fw'></i>Slides</a>
+          <a class="pure-menu-link" href="/EP16_Multiple_Imputation/slide/"><i class='fa fa-tv fa-fw'></i>Slides</a>
       
         </li>
       
       
         <li class="pure-menu-item">
-          <a class="pure-menu-link" href="https://nerler.github.io/MultipleImputationCourse/practical/"><i class='fa fa-edit fa-fw'></i>Practicals</a>
-      
-        </li>
-      
-      
-        <li class="pure-menu-item">
-          <a class="pure-menu-link" href="https://nerler.github.io/MultipleImputationCourse/news/"><i class='fa fa-newspaper-o'></i>News Archive</a>
+          <a class="pure-menu-link" href="/EP16_Multiple_Imputation/practical/"><i class='fa fa-edit fa-fw'></i>Practicals</a>
       
         </li>
       
@@ -158,7 +153,7 @@
 
     
     <li class="pure-menu-item">
-      <a class="pure-menu-link" href="https://github.com/NErler/MultipleImputationCourse" target="_blank"><i class="fa fa-github-square fa-fw"></i>GitHub</a>
+      <a class="pure-menu-link" href="https://github.com/NErler/EP16_Multiple_Imputation" target="_blank"><i class="fa fa-github-square fa-fw"></i>GitHub</a>
     </li>
     
 
@@ -223,11 +218,40 @@
 </div>
 
 <br>
-<br>
 
 <div class="content">
-This webpage contains materials for the Multiple Imputatoin part of the NIHES
-course EP16: Missing Values in Clinical Research.
+  
+  <div style="color:red;">
+<h3>[This website is currently under construction]</h3>
+</div>
+
+<p>This website contains slides and materials for the Multiple Imputation part of
+NIHES course <a href="https://www.nihes.com/course/ep16_missing_values_in_clinical_research/">Missing Values in Clinical Research (EP16)</a>.</p>
+
+<p>Practicals are available as interactive <a href="https://rstudio.github.io/learnr/">learnr</a>
+tutorials (links will follow) as well as in a static html version.</p>
+
+<p>The practicals require <a href="https://cran.r-project.org/">R</a> and
+<a href="https://sourceforge.net/projects/mcmc-jags/files/">JAGS</a> to be installed and
+use the following R packages:
+(JAGS (and <strong>rjags</strong>) are only necessary for the parts of the practical that use the <strong>JointAI</strong> package.)</p>
+
+<ul>
+<li><a href="https://cran.r-project.org/web/packages/mice">mice</a> (version 3.3.0)</li>
+<li><a href="https://cran.r-project.org/web/packages/miceadds">miceadds</a> (version 3.0-16)</li>
+<li><a href="https://cran.r-project.org/web/packages/mitools">mitools</a> (version 2.3)</li>
+<li><a href="https://cran.r-project.org/web/packages/JointAI">JointAI</a> (version 0.4.0)</li>
+<li><a href="https://cran.r-project.org/web/packages/rjags">rjags</a> (version 4-8)</li>
+<li><a href="https://cran.r-project.org/web/packages/smcfcs">smcfcs</a> (version 1.3.1)</li>
+<li><a href="https://cran.r-project.org/web/packages/jomo">jomo</a> (version 2.6-7)</li>
+</ul>
+
+<p>For <strong>JointAI</strong> it is suggested to use the most recent version available on GitHub</p>
+
+<pre><code class="language-r">devtools::install_github(&quot;NErler/JointAI&quot;)
+</code></pre>
+
+  
 
 </div>
 
@@ -243,9 +267,22 @@ course EP16: Missing Values in Clinical Research.
 
 </div>
 </div>
-<script src="https://nerler.github.io/MultipleImputationCourse/js/ui.js"></script>
-<script src="https://nerler.github.io/MultipleImputationCourse/js/menus.js"></script>
+<script src="/EP16_Multiple_Imputation/EP16_Multiple_Imputation/js/ui.js"></script>
+<script src="/EP16_Multiple_Imputation/EP16_Multiple_Imputation/js/menus.js"></script>
 
+
+<script>
+  
+  if (window.location.hostname != "localhost") {
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', '127879026', 'auto');
+    ga('send', 'pageview');
+  }
+</script>
 
 
 
