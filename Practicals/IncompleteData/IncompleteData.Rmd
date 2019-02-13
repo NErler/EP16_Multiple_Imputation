@@ -81,7 +81,6 @@ cat('In this practical, a number of R packages are used.
 ### Help files
 You can find help files for any function by adding a `?` before the name of the 
 function.
-
 ```{r, eval = !static, results = 'asis', echo = FALSE}
 cat("The files might look a bit funny when they are displayed as R output.")
 ```
