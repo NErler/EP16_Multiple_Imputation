@@ -28,10 +28,10 @@ webshot::webshot('Practicals/MImice/Practical_MImice.html',
 if (!dir.exists("EP16website/static/practical/AnalysisMI"))
   dir.create("EP16website/static/practical/AnalysisMI")
 
-file.copy('Practicals/AnalysisMI/AnalyseMIData.html',
+file.copy('Practicals/AnalysisMI/AnalysisMI.html',
           'EP16website/static/practical/AnalysisMI', overwrite = TRUE)
 
-webshot::webshot('Practicals/AnalysisMI/AnalyseMIData.html',
+webshot::webshot('Practicals/AnalysisMI/AnalysisMI.html',
                  'EP16website/static/practical/AnalysisMI/image.png',
                  vwidth = 800, vheight = 450,
                  cliprect = 'viewport', zoom = 2)
