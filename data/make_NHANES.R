@@ -385,3 +385,7 @@ file.copy("data/NHANES_for_practicals.RData",
 file.copy("data/NHANES_for_practicals.RData",
           "practicals/MImice/www/NHANES_for_practicals.RData",
           overwrite = TRUE)
+
+file.copy("data/NHANES_for_practicals.RData",
+          "practicals/AnalysisMI/www/NHANES_for_practicals.RData",
+          overwrite = TRUE)

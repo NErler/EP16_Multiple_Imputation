@@ -1,26 +1,25 @@
-
 ---
-title: "Analysing imputed data"
+title: "How to analyse data after multiple imputation"
 output: 
-  html_document:
-    code_folding: show
-    df_print: paged
-    toc: true
-    toc_float:
-      collapsed: false
-    number_sections: false
-    theme: spacelab
-    highlight: tango
-    includes:
-      after_body: ../footer.html
-    css: ../style.css
-    pandoc_args: [
-      "--output=Practical_AnalyseMIData.html"
-      ]
-#   learnr::tutorial:
-#     progressive: true
-#     allow_skip: true
-# runtime: shiny_prerendered
+  # html_document:
+  #   code_folding: show
+  #   df_print: paged
+  #   toc: true
+  #   toc_float:
+  #     collapsed: false
+  #   number_sections: false
+  #   theme: spacelab
+  #   highlight: tango
+  #   includes:
+  #     after_body: ../footer.html
+  #   css: ../style.css
+    # pandoc_args: [
+    #   "--output=Practical_AnalyseMIData.html"
+    #   ]
+  learnr::tutorial:
+    progressive: true
+    allow_skip: true
+runtime: shiny_prerendered
 ---
 
 ```{r, include = F}
@@ -48,11 +47,11 @@ if (names(rmarkdown::metadata$output) == "html_document") {
 ```{r packages, include = FALSE}
 library(kableExtra)
 library(knitr)
-library(JointAI)
-library(reshape2)
-library(plyr)
-library(RColorBrewer)
-library(ggplot2)
+# library(JointAI)
+# library(reshape2)
+# library(plyr)
+# library(RColorBrewer)
+# library(ggplot2)
 ```
 
 
@@ -60,7 +59,7 @@ library(ggplot2)
 load("www/NHANES_for_practicals.RData")
 NHANES$educ <- as.ordered(NHANES$educ)
 
-source("www/propplot.R")
+# source("www/propplot.R")
 load("www/imps.RData")
 
 imp <- savedimps_imp
@@ -84,16 +83,10 @@ cat('In this practical, a number of R packages are used.
 ```
 
 * `mice` (version: `r packageVersion("mice")`)
-* `JointAI` (version: `r packageVersion("JointAI")`)
-* `reshape2` (version: `r packageVersion("reshape2")`)
-* `RColorBrewer` (version: `r packageVersion("RColorBrewer")`)
-* `ggplot2` (version: `r packageVersion("RColorBrewer")`)
-
 
 ### Help files
 You can find help files for any function by adding a `?` before the name of the 
 function.
-
 ```{r, eval = !static, results = 'asis', echo = FALSE}
 cat("The files might look a bit funny when they are displayed as R output.")
 ```
@@ -105,11 +98,10 @@ or find the whole manual for a package at
 
 
 ### Dataset 
-
 For this practical, we will again use the **NHANES** dataset that we have seen in
-the previous practical.
+the previous practicals.
 ```{r, eval = !static, echo = FALSE, results = 'asis'}
-cat("In the interactive version of this practical, the data is already loaded
+cat("In this interactive version of this practical, the data is already loaded
     and the variable `educ` correctly coded as an ordered factor.")
 ```
 ```{r, eval = static, echo = FALSE, results = 'asis'}
@@ -127,12 +119,42 @@ you need to re-code the variable `educ` again:'
 NHANES$educ <- as.ordered(NHANES$educ)
 ```
 
+### Imputed data
+The imputed data are stored in a `mids` object called `imp` that we created in
+the previous practical.
+```{r, eval = !static, echo = FALSE, results = 'asis'}
+cat("`imp` is already loaded in this interactive version of this practical.")
+```
+```{r, eval = static, echo = FALSE, results = 'asis'}
+cat(
+'You can load it into your workspace by clicking the object `imps.RData` 
+if you are using RStudio.
+Alternatively, you can load this workspace using `load("<path>/imps.RData")`.
+You then need to run:')
+```
+```{r, eval = FALSE, echo = static}
+imp <- savedimps_imp
+```
 
 
-## Fitting models on `mids` objects {.tabset .tabset-fade .tabset-pills}
->>>>>>> 53a367e9b9539ec3f1556bbba5969dd4a5b90bee
+## Analysing mulitple imputed datasets
+### Fitting models on `mids` objects {.tabset .tabset-fade .tabset-pills}
 When we are confident that the imputation was successfull, the imputed data can
-be analysed with any complete data method. 
+be analysed with any standard complete data method. 
+
+Depending on the research question, for the NHANES data you might use
+
+* linear regression using `lm()`
+* logistic regression using `glm()` with `family = binomial()`
+* other generalized linear regression models using `glm()` with an appropriate `family`
+
+Since our imputed data `imp` is not a `data.frame` but a `mids` object, we cannot 
+use the standard specification
+`lm(formula = ..., data = imp, ...)`
+but need to use the function `with()` from the **mice** package:
+
+`with(imp, lm(formula, ...))`
+
 
 ```{r, eval = static, echo = FALSE}
 asis_output("#### Task\\n")
@@ -142,18 +164,16 @@ asis_output("#### Task\\n")
 asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
 ```
 
-Choose any analysis model of interest and fit it on the imputed data. 
-The model could for instance be a linear regression model (using `lm`) or a 
-generalized linear regression model, e.g., logistic regression
-(using `glm()`).
-Find out the `class` and structure of the resulting object.
+* Choose any analysis model of interest and fit it on the imputed data. 
+* Find out the `class` and structure of the resulting object.
 
 ```{r analysisstep_hint, eval = static, results = 'asis', echo = FALSE}
 cat('<button type="button" class="btn btn-info btn-sm" data-toggle="collapse" data-target="#analysisstep">Hint</button>
 <div id = "analysisstep" class="collapse" style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
-`imp` is not a dataframe but an object of class `mids`, so we cannot use the
-normal specification of a model in which we specify the argument `data`
-to be a `data.frame`. Instead, use `with(imp, <model function without data>)`.
+For example:\n
+`mod1 <- with(imp, lm(SBP ~ age + gender + bili + chol + BMI))`\n
+`mod2 <- with(imp, glm(hypchol ~ age + gender + bili + race + BMI, family = "binomial"))`\n
+`mod3 <- with(imp, glm(creat ~ age + gender + uricacid + WC + BMI, family = Gamma(link = "log")))`\n
 </div>')
 ```
 
@@ -161,44 +181,36 @@ to be a `data.frame`. Instead, use `with(imp, <model function without data>)`.
 
 ```
 
-```{r analysisstep-hint-1, include = !static}
-# "imp" is not a dataframe but an object of class "mids", so we cannot use the
-# normal specification of a model in which we specify the argument "data"
-# to be a "data.frame". Instead, use "with(imp, <model function without data>)".
-
-```
-
 ```{r, eval = static, echo = FALSE}
 asis_output("</div>")
 
-asis_output("### Solution\\n")
+asis_output("#### Solution\\n")
 ```
 
-```{r analysisstep-hint-2}
-# for example:
-models1 <- with(imp, lm(SBP ~ age + gender + bili + chol + BMI))
-models2 <- with(imp, glm(hypchol ~ age + gender + bili + race + BMI,
+```{r analysisstep-hint-1}
+# You may, for example, choose one of these models:
+mod1 <- with(imp, lm(SBP ~ age + gender + bili + chol + BMI))
+mod2 <- with(imp, glm(hypchol ~ age + gender + bili + race + BMI,
                        family = "binomial"))
-models3 <- with(imp, glm(creat ~ age + gender + uricacid + WC + BMI,
+mod3 <- with(imp, glm(creat ~ age + gender + uricacid + WC + BMI,
                        family = Gamma(link = 'log')))
 ```
 
-```{r analysisstep-hint-3}
+```{r analysisstep-hint-2}
 # to determine the class
-class(models1)
+class(mod1)
 
 # to determine the structure
-names(models1)
-lapply(models1, class)
+names(mod1)
+lapply(mod1, class)
 
 # explore further
-models1$analyses
-summary(models1$analyses[[1]])
+mod1$analyses
+summary(mod1$analyses[[1]])
 ```
 
 
-
-## Structure of `mira` objects {.tabset .tabset-fade .tabset-pills}
+### Structure of `mira` objects
 Analyses performed on `mids` objects will result in a `mira` object
 (multiply imputed repeated analyses).
 
@@ -224,6 +236,10 @@ miradf %>% kable(format = 'html') %>%
 The class of each of the components of `imp$analyses` will depend on the
 type of model that was fitted.
 
+If you want to check the results from one particular imputed dataset, e.g., the
+3rd, you can access the fitted model via `mod1$analyses[[3]]`. 
+Alternatively you can use the function `getfit()`.
+
 ## Pooling 
 ```{r, eval = static, echo = FALSE}
 asis_output('### Combining results {.tabset .tabset-fade .tabset-pills}')
@@ -240,42 +256,17 @@ asis_output("#### Task\\n")
 asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
 ```
 
-Pool one of the provided `mira` objects (`models1`, `models2` or `models3`)
+Pool one of the provided `mira` objects (`mod1`, `mod2` or `mod3`)
 and investigate its structure.
 
 ```{r impmods, echo = FALSE}
-NHANES$educ <- as.ordered(NHANES$educ)
-imp0 <- mice(NHANES, maxit = 0, 
-             defaultMethod = c("norm", 'logreg', 'polyreg', 'polr'))
-meth <- imp0$meth
-meth["creat"] <- "pmm"
-meth["HyperMed"] <- ""
-
-pred <- imp0$pred
-
-pred[c("hgt", "wgt"), "BMI"] <- 0
-pred[, c("hgt", "wgt")] <- 0
-pred["hgt", "wgt"] <- 1
-pred["wgt", "hgt"] <- 1
-
-pred[, "HyperMed"] <- 0
-
-pred["chol", "hypchol"] <- 0
-
-meth["BMI"] <- "~I(wgt/hgt^2)"
-meth["HyperMed"] <- ""
-
-visSeq <- imp0$visitSequence
-which_BMI <- match("BMI", visSeq)
-visSeq <- c(visSeq[-which_BMI], visSeq[which_BMI])
-
 impnaive <- savedimps_impnaive
 imp <- savedimps_imp
 
-models1 <- with(imp, lm(SBP ~ age + gender + bili + chol + BMI))
-models2 <- with(imp, glm(hypchol ~ age + gender + bili + race + BMI, 
+mod1 <- with(imp, lm(SBP ~ age + gender + bili + chol + BMI))
+mod2 <- with(imp, glm(hypchol ~ age + gender + bili + race + BMI, 
                        family = "binomial"))
-models3 <- with(imp, glm(creat ~ age + gender + uricacid + WC + BMI,
+mod3 <- with(imp, glm(creat ~ age + gender + uricacid + WC + BMI,
                        family = Gamma(link = 'log')))
 ```
 
@@ -292,7 +283,7 @@ asis_output("#### Solution\\n")
 
 ```{r pooling-solution, solution = TRUE}
 # pool the model
-pooled1 <- pool(models1)
+pooled1 <- pool(mod1)
 
 # investigate the structure
 class(pooled1)
@@ -301,63 +292,76 @@ str(pooled1)
 ```
 
 
-## Structure of `mipo` objects {.tabset .tabset-fade .tabset-pills}
+### Structure of `mipo` objects {.tabset .tabset-fade .tabset-pills}
 Pooling of a `mira` object results in a `mipo` object (multiply imputed pooled analysis).
 
 The `mipo` object is a list that has the following elements:
 ```{r, echo = FALSE}
 pooldf <- rbind(
   c("`call`:", "The call that created the `mipo` object."),
-  c("`call1`:", "The call that created the `mids` object."),
-  c("`call2`:", "The call that created the `mira` object."),
-  c("`data`", "The original, incomplete data."),
-  c("`nmis`:", "The number of missing values per variable."),
-  c("`m`:", "The number of imputations."),
-  c("`qhat`:", "The coefficients from all analyses: a matrix with `m` rows and `npar`columns."),
-  c("`u`:", paste0("The variance-covariance matrix of the coefficients from each analysis: ",
-                   "an array of dimension `c(m, npar, npar)`.")),
-  c("`qbar`:", "The pooled parameter estimates: a vector of length `npar`."),
-  c("`ubar`:", paste0("The average within imputation variance: ",
-                      "a matrix with `npar` rows and `npar` columns containing ",
-                      "the averaged variance-covariance matrices.")),
-  c("`b`:", "The between imputation variance-covariance matrix ($u + b + b/m$)."),
-  c("`t`:", "The total variance-covariance matrix."),
-  c("`r`:", "The relative increase in variance due to the missing values."),
-  c("`dfcom`:", "Degrees of freedom in the hypothetically complete data (`N - # free parameters`)."),
-  c("`df`:", "Degrees of freedom associated with the $t$-statistics."),
-  c("`fmi`:", "Fraction of missing information."),
-  c("`lambda`:", "Proportion of the variation due to the missing values: $(b+b/m)/t$.")
+  # c("`call1`:", "The call that created the `mids` object."),
+  # c("`call2`:", "The call that created the `mira` object."),
+  # c("`data`", "The original, incomplete data."),
+  # c("`nmis`:", "The number of missing values per variable."),
+  c("`m`:", "The number of imputed datasets."),
+  c("`pooled`:", "A `data.frame` containing pooled estimates and variances.")
+  # c("`qhat`:", "The coefficients from all analyses: a matrix with `m` rows and `npar`columns."),
+  # c("`u`:", paste0("The variance-covariance matrix of the coefficients from each analysis: ",
+  #                  "an array of dimension `c(m, npar, npar)`.")),
+  # c("`qbar`:", "The pooled parameter estimates: a vector of length `npar`."),
+  # c("`ubar`:", paste0("The average within imputation variance: ",
+  #                     "a matrix with `npar` rows and `npar` columns containing ",
+  #                     "the averaged variance-covariance matrices.")),
+  # c("`b`:", "The between imputation variance-covariance matrix ($u + b + b/m$)."),
+  # c("`t`:", "The total variance-covariance matrix."),
+  # c("`r`:", "The relative increase in variance due to the missing values."),
+  # c("`dfcom`:", "Degrees of freedom in the hypothetically complete data (`N - # free parameters`)."),
+  # c("`df`:", "Degrees of freedom associated with the $t$-statistics."),
+  # c("`fmi`:", "Fraction of missing information."),
+  # c("`lambda`:", "Proportion of the variation due to the missing values: $(b+b/m)/t$.")
 ) %>% as.data.frame
 
 names(pooldf) <- c(" ", " ")
 
 pooldf %>% kable(format = 'html') %>%
-  kable_styling()
+  kable_styling(full_width = FALSE)
 ```
 
-From the elements contained in the `mipo` object, we could obtain the pooled
-coefficients (`qbar`) and variances (`t`),
-and calculate the pooled confidence intervals and p-values by hand, using the
-function provided in the course notes.
+
+`pooled` has the following columns:
+```{r, echo = FALSE}
+tab <- rbind(
+  c("`estimate`:", "Pooled parameter estimates"),
+  c("`ubar`:", "The within-imputation variance of the `estimate`"),
+  c("`b`:", "The between-imputation variance of the `estimate`"),
+  c("`t`:", "The total variance of the `estimate`"),
+  c("`dfcom`:", "Degrees of freedom in the complete data"),
+  c("`df`:", "Degrees of freedom associated with the $t$-statistics."),
+  c("`riv`:", "The relative increase in variance due to the missing values: $(b+b/m)/ubar$"),
+  c("`lambda`:", "Proportion of the variation due to the missing values: $(b+b/m)/t$."),
+  c("`fmi`:", "Fraction of missing information.")
+)
+
+names(tab) <- c(" ", " ")
+
+tab %>% kable(format = 'html') %>%
+  kable_styling(full_width = FALSE)
+```
+
+From the elements contained in the `mipo` object, we could calculate the pooled
+confidence intervals and p-values by hand, using the function provided in 
+the course notes.
 
 However, the function `summary()` applied to the `mipo` object will do this for us.
+This function has four more arguments that may be relevant:
 
-<div style="border:1px; border-style:solid; padding: 1em; border-color:#D11450">
-**Note:**<br>
-`pool()` extracts the model coefficients and variance-covariance matrices using
-the functions `coef()` and `vcov()`. Hence, pooling using the `pool()` 
-function from **mice** only works for those types of models for which these functions
-will return the regression coefficients and corresponding variance-covariance matrix.
-
-Moreover, `pool()` only works for objects of class `mira`. When data has been
-imputed in a different package/software, or analyses have not been performed
-in the way described above, a list of fitted models can be converted to a `mira`
-object using `as.mira()`.
-</div>
-
+* `conf.int`: needs to be set to `TRUE` in order to to get confidence intervals
+* `conf.level`: the confidence level, by default this is 0.95
+* `exponentiate`: whether to exponentiate the pooled estimates and confidence
+  intervals (e.g., for logistic regression)
 
 ```{r, eval = static, echo = FALSE}
-asis_output("### Task\\n")
+asis_output("#### Task\\n")
 ```
 
 ```{r, eval = static, echo = FALSE}
@@ -369,17 +373,26 @@ asis_output("Get the summary of the pooled results.")
 ```
 
 ```{r summarypooled, exercise = TRUE, exercise.setup = "impmods"}
-pooled1 <- pool(models1)
+pooled1 <- pool(mod1)
 ...
 ```
 
 ```{r, eval = static, echo = FALSE}
 asis_output("</div>")
 
-asis_output("### Solution\\n")
+asis_output("#### Solution\\n")
 ```
 
 ```{r, summarypooled-solution, solution = TRUE}
-pooled1 <- pool(models1)
-summary(pooled1)
+pooled1 <- pool(mod1)
+summary(pooled1, conf.int = TRUE)
 ```
+
+
+<div style="border:1px; border-style:solid; padding: 1em; border-color:#D11450">
+**Note:**<br>
+`pool()` extracts the model coefficients and variance-covariance matrices using
+`tidy` from the package **broom**. 
+Hence, pooling using the `pool()` function from **mice** only works for models
+of classes for which a method `tidy` exists.
+</div>
