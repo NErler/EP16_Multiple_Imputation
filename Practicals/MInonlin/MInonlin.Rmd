@@ -1,0 +1,634 @@
+---
+title: "Imputation of data with non-linear associations"
+output: 
+  html_document:
+    code_folding: show
+    df_print: paged
+    toc: true
+    toc_float:
+      collapsed: false
+    number_sections: false
+    theme: spacelab
+    highlight: tango
+    includes:
+      after_body: ../footer.html
+    css: ../style.css
+#   learnr::tutorial:
+#     progressive: true
+#     allow_skip: true
+# runtime: shiny_prerendered
+---
+
+```{r, include = F}
+if (names(rmarkdown::metadata$output) == "learnr::tutorial") {
+  library(learnr)
+  learnr::initialize_tutorial()
+  static <- FALSE
+}
+
+if (names(rmarkdown::metadata$output) == "html_document") {
+  knitr::opts_hooks$set(eval = function(opt) {
+    if (any(opt$exercise))
+      opt$eval <- opt$include <- FALSE
+    
+    opt
+  })
+  
+  static <- TRUE
+  
+  options(width = 100)
+}
+```
+
+
+```{r packages, include = FALSE}
+library(kableExtra)
+library(knitr)
+library(JointAI)
+library(reshape2)
+library(plyr)
+library(RColorBrewer)
+library(ggplot2)
+```
+
+
+```{r load_data, context="data", include=FALSE}
+load("www/NHANES_for_practicals_2.RData")
+
+# source("www/propplot.R")
+load("www/imps_nonlin.RData")
+
+library(mice)
+```
+
+
+## Preface {data-progressive=FALSE}
+### R packages
+
+```{r, eval = static, echo = FALSE, results = 'asis'}
+cat('In this practical, a number of R packages are used.
+If any of them are not installed you can still follow the practical
+but will not be able to run all of the code. The packages used (with versions
+that were used to generate the solutions) are:')
+```
+```{r, eval = !static, echo = FALSE, results = 'asis'}
+cat('In this practical, a number of R packages are used.
+    The names of the packages used (and their version numbers available on this platform) are:')
+```
+
+* `mice` (version: `r packageVersion("mice")`)
+* `JointAI` (version: `r packageVersion("JointAI")`)
+* `reshape2` (version: `r packageVersion("reshape2")`)
+* `RColorBrewer` (version: `r packageVersion("RColorBrewer")`)
+* `ggplot2` (version: `r packageVersion("RColorBrewer")`)
+
+
+### Help files
+You can find help files for any function by adding a `?` before the name of the 
+function.
+```{r, eval = !static, results = 'asis', echo = FALSE}
+cat("The files might look a bit funny when they are displayed as R output.")
+```
+
+Alternatively, you can look up the help pages online at 
+[https://www.rdocumentation.org/](https://www.rdocumentation.org/)
+or find the whole manual for a package at
+[https://cran.r-project.org/web/packages/available_packages_by_name.html](https://cran.r-project.org/web/packages/available_packages_by_name.html)
+
+
+### Dataset 
+
+For this practical, we will use a subset of the **NHANES** dataset that we have
+seen in the previous practicals. It contains only those cases that have
+observed `wgt` and some columns that are not needed were excluded.
+```{r, eval = !static, echo = FALSE, results = 'asis'}
+cat("In the interactive version of this practical, the data is already loaded
+    and the variable `educ` correctly coded as an ordered factor.")
+```
+```{r, eval = static, echo = FALSE, results = 'asis'}
+cat(
+'To load this dataset, you can use the command `file.choose()` which opens the
+explorer and allows you to navigate to the location of the file
+`NHANES_for_practicals_2.RData` on your computer.
+If you know the path to the file, you can also use `load("<path>/NHANES_for_practicals_2.RData")`.'
+)
+```
+
+### Aim
+The focus of this practical is the imputation of data that has features
+that require special attention.
+
+In the interest of time, we will focus on these features and **abbreviate steps
+that are the same as in any imputation setting** (e.g., getting to know 
+the data or checking that imputed values are realistic).
+**Nevertheless, these steps are of course required when analysing data in 
+practice.**
+
+
+Our aim is to fit the following **linear regression model for weight**:
+```{r NHANESmodel, eval = FALSE}
+mod <- lm(wgt ~ gender + bili + age * (chol + HDL) + hgt)
+```
+
+We expect that the effects of cholesterol and HDL may differ with age, and, 
+hence, include **interaction terms** between `age` and `chol` and `HDL`,
+respectively.
+
+Additionally, we want to include the other variables in the dataset as auxiliary variables.
+
+## Imputation using **mice**
+When the analysis model of interest involves interaction terms between
+incomplete variables, **mice** has limited options to reduce the bias that may
+be introduced by naive handling of the missing values.
+
+
+Use of the "Just Another Variable" approach can in some settings reduce bias.
+Alternatively, we can use passive imputation, i.e.,
+calculate the interaction terms in each iteration of the MICE algorithm.
+Furthermore, predictive mean matching tends to lead to less bias than 
+normal imputation models.
+
+### Just Another Variable approach {.tabset .tabset-fade .tabset-pills}
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 1\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+* Calculate the interaction terms in the incomplete data,  and
+* perform the setup-run of `mice()` without any iterations.
+
+```{r miceJAVsetup, exercise = TRUE, exercise.timelimit = 200}
+
+```
+
+```{r miceJAVsetup-hint-1, include = !static}
+# calculate the interaction terms
+NHANES$agechol <- NHANES$age * NHANES$chol
+NHANES$ageHDL <- NHANES$age * NHANES$HDL
+```
+
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 1\\n")
+```
+
+```{r miceJAVsetup-solution}
+# calculate the interaction terms
+NHANES$agechol <- NHANES$age * NHANES$chol
+NHANES$ageHDL <- NHANES$age * NHANES$HDL
+
+# setup run
+imp0 <- mice(NHANES, maxit = 0, defaultMethod = c('norm', 'logreg', 'polyreg', 'polr'))
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 2\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+Apply the necessary change to the imputation method and predictor matrix.
+```{r miceJAVchanges-setup, eval = !static, include = !static}
+# calculate the interaction terms
+NHANES$agechol <- NHANES$age * NHANES$chol
+NHANES$ageHDL <- NHANES$age * NHANES$HDL
+
+# setup run
+imp0 <- mice(NHANES, maxit = 0, defaultMethod = c('norm', 'logreg', 'polyreg', 'polr'))
+
+```
+
+```{r miceJAVchanges, exercise = TRUE}
+meth <- ...
+pred <- ...
+
+...
+```
+
+```{r, eval = static, results = 'asis', echo = FALSE}
+cat('<button type="button" class="btn btn-info btn-sm" data-toggle="collapse" data-target="#JAVhint">Hint</button>
+<div id = "JAVhint" class="collapse" style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+Since the interaction terms are calculated from the orignal variables,
+these interaction terms should not be used to impute the original variables.
+</div>')
+```
+
+```{r miceJAVchanges-hint-1, include = !static}
+# Since the interaction terms are calculated from the orignal variables,
+# these interaction terms should not be used to impute the original variables.
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 2\\n")
+```
+
+```{r, miceJAVchanges-solution}
+meth <- imp0$method 
+pred <- imp0$predictorMatrix
+
+# change imputation for "bili" to pmm (to prevent negative values)
+meth["bili"] <- 'pmm'
+ 
+# changes in predictor matrix to prevent that the original variables are
+# imputed based on the interaction terms
+pred["chol", "agechol"] <- 0
+pred["HDL", "ageHDL"] <- 0
+```
+
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 3\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+Run the imputation using the **JAV approach**.
+
+```{r, include = !static, echo = FALSE}
+asis_output("(For each of the two approaches 10 iterations of 5 imputed datasets take approx. 30 seconds.)")
+```
+
+```{r miceJAV-setup, eval = !static, include = !static}
+NHANES$agechol <- NHANES$age * NHANES$chol
+NHANES$ageHDL <- NHANES$age * NHANES$HDL
+
+imp0 <- mice(NHANES, maxit = 0, defaultMethod = c('norm', 'logreg', 'polyreg', 'polr'))
+
+meth <- imp0$method 
+pred <- imp0$predictorMatrix
+
+# change imputation for "bili" to pmm (to prevent negative values)
+meth["bili"] <- 'pmm'
+ 
+# changes in predictor matrix to prevent that the original variables are
+# imputed based on the interaction terms
+pred["chol", "agechol"] <- 0
+pred["HDL", "ageHDL"] <- 0
+```
+
+```{r miceJAV, exercise = TRUE, exercise.timelimit = 200}
+impJAV <- ...
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 3\\n")
+```
+
+```{r miceJAV-solution, eval = FALSE}
+# run imputation with the JAV approach
+impJAV <- mice(NHANES, method = meth, predictorMatrix = pred,
+                maxit = 10, m = 5)
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 4\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+We skip the evaluation of convergence and investigation of the imputed values.
+With the settings given in the solution the chains have converged and distributions
+of the imputed values match the distributions of the observed data close enough.
+
+* Analyse the imputed data and pool the results.
+
+```{r miceJAV-analysis-setup, eval = !static, include = !static}
+NHANES$agechol <- NHANES$age * NHANES$chol
+NHANES$ageHDL <- NHANES$age * NHANES$HDL
+
+imp0 <- mice(NHANES, maxit = 0)
+
+meth <- imp0$method 
+pred <- imp0$predictorMatrix
+
+# change the imputation method
+meth["DBP"] <- "norm"
+meth <- gsub("pmm", "midastouch", meth)
+
+# changes in predictor matrix
+pred["chol", "agechol"] <- 0
+pred["HDL", "ageHDL"] <- 0
+
+impJAV <- savedimps_impJAV
+```
+
+```{r, echo = FALSE, eval = static}
+impJAV <- savedimps_impJAV
+```
+
+
+```{r miceJAV-analysis, exercise = TRUE}
+
+
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 4\\n")
+```
+
+```{r miceJAV-analysis-solution}
+miraJAV <- with(impJAV, 
+                lm(wgt  ~ gender + bili + age + chol + HDL + agechol + ageHDL + hgt))
+summary(pool(miraJAV), conf.int = TRUE)
+```
+
+
+### Passive Imputation {.tabset .tabset-fade .tabset-pills}
+For the passive imputation, we can re-use the adjusted versions of `meth` and 
+`pred` we created for the JAV approach, but additional changes to `meth`
+are necessary.
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 4\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+Specify the new imputation method.
+
+```{r, eval = static, results = 'asis', echo = FALSE}
+cat('<button type="button" class="btn btn-info btn-sm" data-toggle="collapse" data-target="#PAShint">Hint</button>
+<div id = "PAShint" class="collapse" style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+For passive imputation instead of an imputation method you need to specify the formula used to calculate the value that is imputed passively.
+</div>')
+```
+
+```{r micePASchanges-setup, eval = !static, include = !static}
+NHANES$agechol <- NHANES$age * NHANES$chol
+NHANES$ageHDL <- NHANES$age * NHANES$HDL
+
+imp0 <- mice(NHANES, maxit = 0, defaultMethod = c('norm', 'logreg', 'polyreg', 'polr'))
+
+meth <- imp0$method 
+pred <- imp0$predictorMatrix
+
+# change imputation for "bili" to pmm (to prevent negative values)
+meth["bili"] <- 'pmm'
+ 
+# changes in predictor matrix to prevent that the original variables are
+# imputed based on the interaction terms
+pred["chol", "agechol"] <- 0
+pred["HDL", "ageHDL"] <- 0
+```
+
+```{r micePASchanges, exercise = TRUE, exercise.timelimit = 200}
+methPAS <- meth
+...
+```
+
+```{r micePASchanges-hint-1, include = !static}
+# For passive imputation instead of an imputation method you need to specify 
+# the formula used to calculate the value that is imputed passively.
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 1\\n")
+```
+
+```{r micePASchanges-solution, cache = TRUE}
+# changes in imputation method for passive imputation
+methPAS <- meth
+methPAS[c("agechol", "ageHDL")] <- c("~I(age*chol)", "~I(age*HDL)")
+```
+
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 2\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+Run the imputation.
+
+```{r micePAS-setup, eval = !static, include = !static}
+NHANES$agechol <- NHANES$age * NHANES$chol
+NHANES$ageHDL <- NHANES$age * NHANES$HDL
+
+imp0 <- mice(NHANES, maxit = 0, defaultMethod = c('norm', 'logreg', 'polyreg', 'polr'))
+
+meth <- imp0$method 
+pred <- imp0$predictorMatrix
+
+# change imputation for "bili" to pmm (to prevent negative values)
+meth["bili"] <- 'pmm'
+ 
+# changes in predictor matrix to prevent that the original variables are
+# imputed based on the interaction terms
+pred["chol", "agechol"] <- 0
+pred["HDL", "ageHDL"] <- 0
+
+methPAS <- meth
+methPAS[c("agechol", "ageHDL")] <- c("~I(age*chol)", "~I(age*HDL)")
+```
+
+```{r micePAS, exercise = TRUE}
+impPAS <- ...
+
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 2\\n")
+```
+
+```{r micePAS-solution, eval = FALSE}
+# run imputation with passive imputation
+impPAS <- mice(NHANES, method = methPAS, predictorMatrix = pred,
+                maxit = 10, m = 5)
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 3\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+We will again skip evaluation of convergence and investigation of the imputed values.
+
+* Analyse the imputed data and pool the results.
+
+```{r micePASanalysis-setup, eval = !static, include = !static}
+NHANES$agechol <- NHANES$age * NHANES$chol
+NHANES$ageHDL <- NHANES$age * NHANES$HDL
+
+imp0 <- mice(NHANES, maxit = 0)
+
+meth <- imp0$method 
+pred <- imp0$predictorMatrix
+
+# change the imputation method
+meth["DBP"] <- "norm"
+meth <- gsub("pmm", "midastouch", meth)
+
+# changes in predictor matrix
+pred["chol", "agechol"] <- 0
+pred["HDL", "ageHDL"] <- 0
+
+# changs in imputation method for passive imputation
+methPAS <- meth
+methPAS[c("agechol", "ageHDL")] <- c("~I(age*chol)", "~I(age*HDL)")
+
+impPAS <- savedimps_impPAS
+```
+
+```{r micePASanalysis, exercise = TRUE}
+
+
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 3\\n")
+```
+
+```{r, echo = FALSE, eval = static}
+impPAS <- savedimps_impPAS
+```
+
+```{r micePASanalysis-solution}
+miraPAS <- with(impPAS, 
+                lm(wgt ~ gender + bili + age + chol + HDL + agechol + ageHDL + hgt))
+
+summary(pool(miraPAS), conf.int = TRUE)
+```
+
+
+```{r saveimp, include = FALSE, eval = FALSE, cache = TRUE}
+savedimps_impJAV <- mice(NHANES, method = meth, predictorMatrix = pred,
+                maxit = 10, m = 5)
+
+savedimps_impPAS <- mice(NHANES, method = methPAS, predictorMatrix = pred,
+                         maxit = 10, m = 5)
+
+save(savedimps_impJAV,
+     savedimps_impPAS, file = "www/imps_nonlin.RData")
+```
+
+## Imputation with **JointAI**
+**JointAI** provides functions that allow to fit Bayesian regression models
+with incomplete covariates. The main functions are designed to resemble the 
+standard functions to fit regression models with complete data.
+
+For univariate outcomes the following functions are available:
+
+* `lm_imp()`: for linear regression
+* `glm_imp()`: for generalized linear regression (e.g., logistic, Gamma or Poisson)
+* `clm_imp()`: for ordinal (cumulative logit) regression
+
+### Specification of the analysis model {.tabset .tabset-fade .tabset-pills}
+Similar to the complete data versions, the functions from **JointAI** take
+the following arguments:
+```{r JointAIargs, echo = FALSE}
+JointAIargs <- rbind(
+  c("`formula`", "model formula"),
+  c("`data`", "original, incomplete dataset"),
+  c("`family`", "for glm's: the distribution family of the outcome")
+) %>% as.data.frame
+
+names(JointAIargs) <- c("", "")
+
+JointAIargs %>% kable(format = 'html') %>%
+  kable_styling(full_width = FALSE)
+```
+
+### Specification of the imputation models {.tabset .tabset-fade .tabset-pills}
+Moreover, there are some arguments related to the imputation part of the model:
+```{r JointAIargs2, echo = FALSE}
+JointAIargs <- rbind(
+  c("`models`", paste0("vector of imputation methods. Implemented are `norm` ",
+                     "(normal model), `logit` (logistic model), `lognorm` ",
+                     "(linear with log-transformed outcome), `multilogit` ",
+                     "(multinomial logit model), `cumlogit` (cumulative logit model)")),
+  c("`auxvars`", paste0("vector of names of variables that are not part of the analysis",
+                        " model but should be used to predict missing values (optional)")),
+  c("`refcats`", "allows to specify which category of categorical variables is used as reference (optional)"),
+  c("`trunc`", "allows to truncate distributions of incomplete continuous covariates")
+) %>% as.data.frame
+
+names(JointAIargs) <- c("", "")
+
+JointAIargs %>% kable(format = 'html') %>%
+  kable_styling(full_width = FALSE)
+
+```
+
+### Specification of the MCMC settings {.tabset .tabset-fade .tabset-pills}
+Specification of the basic settings for the MCMC sampling can be achieved using
+the following arguments:
+```{r JointAIargs3, echo = FALSE}
+JointAIargs <- rbind(
+  c("`n.chains`", "number of MCMC chains"),
+  c("`n.adapt`", "number of iterations used in the adaptive phase (details see below)"),
+  c("`n.iter`", "number of iterations per MCMC chain in the sampling phase")
+) %>% as.data.frame
+
+names(JointAIargs) <- c("", "")
+
+JointAIargs %>% kable(format = 'html') %>%
+  kable_styling(full_width = FALSE)
+```
+
+There are more arguments, but we will focus on the ones given above.
+
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 1\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+Fit the linear regression model using `lm_imp()`.
+
+* specify a non-normal distribution for `bili`
+* set the reference category to the highest values
+* use 100 iterations
+
+```{r JointAIsetup, exercise = TRUE, exercise.timelimit = 500}
+lm1 <- ...
+```
+
+```{r JointAIsetup-hint-1, include = !static}
+# To specify a different model for bili use the argument models
+```
+
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 1\\n")
+```
+
+```{r JointAIsetup-solution, cache = TRUE}
+lm1 <- lm_imp(wgt ~ gender + bili + age * (chol + HDL) + hgt, data = NHANES,
+               auxvars = c('educ', 'race', 'SBP', 'hypten', 'WC'),
+               models = c(bili = 'lognorm'), refcats = 'largest',
+               n.iter = 100, quiet = FALSE)
+```
+
