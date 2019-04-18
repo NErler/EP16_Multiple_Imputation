@@ -369,23 +369,42 @@ save(NHANES, file = "data/NHANES_for_lectures.RData")
 ######################
 # data for practical #
 ######################
-set.seed(2018)
+set.seed(2019)
 sub <- sample(nrow(NHANES), 1000, prob = c(9/10, 1/10)[as.numeric(complete.cases(NHANES)) + 1])
 NHANES <- NHANES[sub, ]
 NHANES$cohort <- "2011"
 
 NHANES <- NHANES[, sample(ncol(NHANES))]
-
 save(NHANES, file = "data/NHANES_for_practicals.RData")
 
-file.copy("data/NHANES_for_practicals.RData",
-          "practicals/IncompleteData/www/NHANES_for_practicals.RData",
-          overwrite = TRUE)
+########################
+# data for practical 2 #
+########################
+
+NHANES <- subset(NHANES,
+                  subset = !is.na(NHANES$wgt),
+                  select = c(wgt, gender, bili, age, chol, HDL, hgt,
+                             educ, race, SBP, hypten, WC)
+)
+NHANES$educ <- as.ordered(NHANES$educ)
+
+NHANES <- NHANES[sample(1:nrow(NHANES), size = 500), ]
+
+
+save(NHANES, file = "data/NHANES_for_practicals_2.RData")
+
+
+#########################################################################
 
 file.copy("data/NHANES_for_practicals.RData",
-          "practicals/MImice/www/NHANES_for_practicals.RData",
-          overwrite = TRUE)
+          "practicals/IncompleteData/www", overwrite = TRUE)
 
 file.copy("data/NHANES_for_practicals.RData",
-          "practicals/AnalysisMI/www/NHANES_for_practicals.RData",
-          overwrite = TRUE)
+          "practicals/MImice/www", overwrite = TRUE)
+
+file.copy("data/NHANES_for_practicals.RData",
+          "practicals/AnalysisMI/www", overwrite = TRUE)
+
+##########################################################################
+file.copy("data/NHANES_for_practicals_2.RData",
+          "practicals/MInonlin/www", overwrite = TRUE)
