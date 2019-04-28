@@ -133,6 +133,7 @@
 \usepackage{algorithm,algpseudocode}
 \usepackage{float}
 \usepackage[many]{tcolorbox}
+\usepackage{animate}
 
 \usepackage{tikz}
 \usetikzlibrary{fadings,shapes.arrows,shadows}
@@ -189,7 +190,7 @@ single arrow head extend=.3cm,}}
 \subtitle[Multiple Imputation]{Multiple Imputation}
 \author[N. Erler]{Nicole Erler}
 \institute[Erasmus MC]{Department of Biostatistics, Erasmus MC\\ \texttt{n.erler@erasmusmc.nl}}
-\date{14 - 18 May, 2018}
+\date{13 - 17 May, 2019}
 % end of title page specifications ---------------------------------------------
 
 
@@ -236,27 +237,27 @@ projdir <- gsub("Slides", "", getwd())
 \end{frame}
 
 
-<<Part0, child="00_Intro.Rnw", eval = T>>=
+<<Part0, child="00_Intro.Rnw", eval = TRUE>>=
 @
 
 
 \part{Multiple Imputation}
-<<Part1a, child="01_WhatIsMI.Rnw", eval = T>>=
+<<Part1a, child="01_WhatIsMI.Rnw", eval = TRUE>>=
 @
-<<Part1b, child="01b_ImputationStep.Rnw", eval = T>>=
+<<Part1b, child="01b_ImputationStep.Rnw", eval = TRUE>>=
 @
 
 \part{Multiple Imputation Workflow}
-<<Part2, child="02_Workflow.Rnw", eval = T>>=
+<<Part2, child="02_Workflow.Rnw", eval = TRUE>>=
 @
 
 \part{When MICE might fail}
-<<Part3, child="03_WhenMICEfails.Rnw", eval = T>>=
+<<Part3, child="03_WhenMICEfails.Rnw", eval = TRUE>>=
 @
 
 
 \part{Multiple Imputation Strategies}
-<<Part4, child="04_MIStrategies.Rnw", eval = T>>=
+<<Part4, child="04_MIStrategies.Rnw", eval = TRUE>>=
 @
 
 
@@ -279,7 +280,7 @@ References
 \mode<presentation>{
 \setbeamercolor{background canvas}{bg=EMCdark}
 \begin{frame}[plain,noframenumbering]
-\hypersetup{colorlinks,linkcolor=, urlcolor=white}
+\hypersetup{linkcolor=, urlcolor=white}
   \begin{center}
     \includegraphics[width = 8cm]{graphics/Logo1DB.pdf}
 
@@ -289,7 +290,8 @@ References
     \begin{tabular}{rl}
       \textbf{\faEnvelope} & \textbf{n.erler\myat erasmusmc.nl}\\
       \href{https://twitter.com/N_Erler}{\textbf{\faTwitter}} & \href{https://twitter.com/N_Erler}{\textbf{N\_Erler}}\\
-      \href{https://github.com/nerler}{\textbf{\faGithub}}  & \href{https://github.com/nerler}{\textbf{NErler}}\\[2ex]
+      \href{https://github.com/nerler}{\textbf{\faGithub}}  & \href{https://github.com/nerler}{\textbf{NErler}}\\
+      \href{https://nerler.com}{\textbf{\faGlobe}}  & \href{https://nerler.com}{\textbf{www.nerler.com}}\\[2ex]
       \textbf{Dep. Biostatistics:}  & \url{www.erasmusmc.nl/biostatistiek}
     \end{tabular}
   \end{center}
@@ -302,7 +304,8 @@ References
     \begin{tabular}{rl}
       \textbf{\faEnvelope} & \textbf{n.erler\myat erasmusmc.nl}\\
       \href{https://twitter.com/N_Erler}{\textbf{\faTwitter}} & \href{https://twitter.com/N_Erler}{\textbf{N\_Erler}}\\
-      \href{https://github.com/nerler}{\textbf{\faGithub}}  & \href{https://github.com/nerler}{\textbf{NErler}}\\[2ex]
+      \href{https://github.com/nerler}{\textbf{\faGithub}}  & \href{https://github.com/nerler}{\textbf{NErler}}\\
+      \href{https://nerler.com}{\textbf{\faGlobe}}  & \href{https://nerler.com}{\textbf{www.nerler.com}}\\[2ex]
       \textbf{Dep. Biostatistics:}  & \url{www.erasmusmc.nl/biostatistiek}
     \end{tabular}
   \end{center}
