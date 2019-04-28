@@ -1,5 +1,5 @@
 ---
-title: "Imputation of data with non-linear associations"
+title: "Imputation of Data with Non-linear Associations"
 output: 
   html_document:
     code_folding: show
@@ -19,7 +19,10 @@ output:
 # runtime: shiny_prerendered
 ---
 
-```{r, include = F}
+```{r, include = FALSE}
+
+runimps <- FALSE
+
 if (names(rmarkdown::metadata$output) == "learnr::tutorial") {
   library(learnr)
   learnr::initialize_tutorial()
@@ -45,9 +48,6 @@ if (names(rmarkdown::metadata$output) == "html_document") {
 library(kableExtra)
 library(knitr)
 library(JointAI)
-library(reshape2)
-library(plyr)
-library(RColorBrewer)
 library(ggplot2)
 ```
 
@@ -55,7 +55,7 @@ library(ggplot2)
 ```{r load_data, context="data", include=FALSE}
 load("www/NHANES_for_practicals_2.RData")
 
-# source("www/propplot.R")
+source("www/propplot.R")
 load("www/imps_nonlin.RData")
 
 library(mice)
@@ -78,9 +78,8 @@ cat('In this practical, a number of R packages are used.
 
 * `mice` (version: `r packageVersion("mice")`)
 * `JointAI` (version: `r packageVersion("JointAI")`)
+* `ggplot2` (version: `r packageVersion("ggplot2")`)
 * `reshape2` (version: `r packageVersion("reshape2")`)
-* `RColorBrewer` (version: `r packageVersion("RColorBrewer")`)
-* `ggplot2` (version: `r packageVersion("RColorBrewer")`)
 
 
 ### Help files
@@ -355,14 +354,14 @@ For the passive imputation, we can re-use the adjusted versions of `meth` and
 are necessary.
 
 ```{r, eval = static, echo = FALSE}
-asis_output("#### Task 4\\n")
+asis_output("#### Task 1\\n")
 ```
 
 ```{r, eval = static, echo = FALSE}
 asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
 ```
 
-Specify the new imputation method.
+Specify the new imputation method, i.e., adapt `meth` and save it as `methPAS`.
 
 ```{r, eval = static, results = 'asis', echo = FALSE}
 cat('<button type="button" class="btn btn-info btn-sm" data-toggle="collapse" data-target="#PAShint">Hint</button>
@@ -518,15 +517,21 @@ summary(pool(miraPAS), conf.int = TRUE)
 ```
 
 
-```{r saveimp, include = FALSE, eval = FALSE, cache = TRUE}
+```{r saveimp, include = FALSE, eval = runimps}
 savedimps_impJAV <- mice(NHANES, method = meth, predictorMatrix = pred,
                 maxit = 10, m = 5)
 
 savedimps_impPAS <- mice(NHANES, method = methPAS, predictorMatrix = pred,
                          maxit = 10, m = 5)
 
+savedimps_JointAI <- lm_imp(wgt ~ gender + bili + age * (chol + HDL) + hgt, data = NHANES,
+                            auxvars = c('educ', 'race', 'SBP', 'hypten', 'WC'),
+                            models = c(bili = 'lognorm'), refcats = 'largest',
+                            n.iter = 100, seed = 2019)
+
 save(savedimps_impJAV,
-     savedimps_impPAS, file = "www/imps_nonlin.RData")
+     savedimps_impPAS,
+     savedimps_JointAI, file = "www/imps_nonlin.RData")
 ```
 
 ## Imputation with **JointAI**
@@ -547,7 +552,7 @@ the following arguments:
 JointAIargs <- rbind(
   c("`formula`", "model formula"),
   c("`data`", "original, incomplete dataset"),
-  c("`family`", "for glm's: the distribution family of the outcome")
+  c("`family`", "for glm's: the distribution family of the outcome (e.g., binomial() for a logistic model)")
 ) %>% as.data.frame
 
 names(JointAIargs) <- c("", "")
@@ -556,44 +561,6 @@ JointAIargs %>% kable(format = 'html') %>%
   kable_styling(full_width = FALSE)
 ```
 
-### Specification of the imputation models {.tabset .tabset-fade .tabset-pills}
-Moreover, there are some arguments related to the imputation part of the model:
-```{r JointAIargs2, echo = FALSE}
-JointAIargs <- rbind(
-  c("`models`", paste0("vector of imputation methods. Implemented are `norm` ",
-                     "(normal model), `logit` (logistic model), `lognorm` ",
-                     "(linear with log-transformed outcome), `multilogit` ",
-                     "(multinomial logit model), `cumlogit` (cumulative logit model)")),
-  c("`auxvars`", paste0("vector of names of variables that are not part of the analysis",
-                        " model but should be used to predict missing values (optional)")),
-  c("`refcats`", "allows to specify which category of categorical variables is used as reference (optional)"),
-  c("`trunc`", "allows to truncate distributions of incomplete continuous covariates")
-) %>% as.data.frame
-
-names(JointAIargs) <- c("", "")
-
-JointAIargs %>% kable(format = 'html') %>%
-  kable_styling(full_width = FALSE)
-
-```
-
-### Specification of the MCMC settings {.tabset .tabset-fade .tabset-pills}
-Specification of the basic settings for the MCMC sampling can be achieved using
-the following arguments:
-```{r JointAIargs3, echo = FALSE}
-JointAIargs <- rbind(
-  c("`n.chains`", "number of MCMC chains"),
-  c("`n.adapt`", "number of iterations used in the adaptive phase (details see below)"),
-  c("`n.iter`", "number of iterations per MCMC chain in the sampling phase")
-) %>% as.data.frame
-
-names(JointAIargs) <- c("", "")
-
-JointAIargs %>% kable(format = 'html') %>%
-  kable_styling(full_width = FALSE)
-```
-
-There are more arguments, but we will focus on the ones given above.
 
 
 ```{r, eval = static, echo = FALSE}
@@ -604,20 +571,12 @@ asis_output("#### Task 1\\n")
 asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
 ```
 
-Fit the linear regression model using `lm_imp()`.
-
-* specify a non-normal distribution for `bili`
-* set the reference category to the highest values
-* use 100 iterations
-
+Specify the linear regression model with the model formula given above using `lm_imp()`.
+You need to specify the arguments `formula`, `data` and `n.iter`.
+Set `n.iter = 100` (we will learn about this argument further down).
 ```{r JointAIsetup, exercise = TRUE, exercise.timelimit = 500}
 lm1 <- ...
 ```
-
-```{r JointAIsetup-hint-1, include = !static}
-# To specify a different model for bili use the argument models
-```
-
 
 ```{r, eval = static, echo = FALSE}
 asis_output("</div>")
@@ -627,8 +586,360 @@ asis_output("#### Solution 1\\n")
 
 ```{r JointAIsetup-solution, cache = TRUE}
 lm1 <- lm_imp(wgt ~ gender + bili + age * (chol + HDL) + hgt, data = NHANES,
+               n.iter = 100)
+```
+
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 2\\n")
+```
+
+The result is an object of class `JointAI`, which contains  the original data (`data`),
+information on the type of model (`call`, `analysis_type`, `models`,
+`fixed`, `random`, `hyperpars`, `scale_pars`)
+and MCMC sampling (`mcmc_settings`),
+the JAGS model (`model`) and MCMC sample (`MCMC`; if a sample was 
+generated), the computational time (`time`)
+of the MCMC sampling, and some additional
+elements that are used by methods for objects of class `JointAI`
+but are typically not of interest for the user.
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+Check which imputation models were used in `lm1`.
+
+```{r lm1models, exercise = TRUE, exercise.setup = "JointAIsetup-solution"}
+
+```
+
+```{r lm1modelshint, eval = static, results = 'asis', echo = FALSE}
+cat('<button type="button" class="btn btn-info btn-sm" data-toggle="collapse" data-target="#lm1modelshint">Hint</button>
+<div id = "lm1modelshint" class="collapse" style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+The imputation model types are returned in the JointAI object under "models".
+</div>')
+```
+
+```{r lm1models-hint-1, include = !static, echo = FALSE}
+# The imputation model types are returned in the JointAI object under "models".
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 2\\n")
+```
+
+```{r lm1models-solution}
+lm1$models
+```
+
+### Specification of the imputation models {.tabset .tabset-fade .tabset-pills}
+Moreover, there are some arguments related to the imputation part of the model:
+```{r JointAIargs2, echo = FALSE}
+JointAIargs <- rbind(
+  c("`models`", paste0("vector of imputation methods (for details see below and",
+                       " the vignette on [Model Specification](https://nerler.github.io/JointAI/articles/ModelSpecification.html#meth))")),
+  c("`auxvars`", paste0("vector of names of variables that are not part of the analysis",
+                        " model but should be used to predict missing values (optional;",
+                        " for details see the vignette on [Model Specification](https://nerler.github.io/JointAI/articles/ModelSpecification.html#auxvars))")),
+  c("`refcats`", paste0("allows to specify which category of categorical variables is used as reference (optional;",
+                        " for details see the vignette on [Model Specification](https://nerler.github.io/JointAI/articles/ModelSpecification.html#reference-values-for-categorical-covariates))")),
+  c("`trunc`", paste0("allows to truncate distributions of incomplete continuous",
+   " covariates (for details see the vignette on [Model Specification](https://nerler.github.io/JointAI/articles/ModelSpecification.html#functions-with-restricted-support))"))
+) %>% as.data.frame
+
+names(JointAIargs) <- c("", "")
+
+JointAIargs %>% kable(format = 'html') %>%
+  kable_styling(full_width = FALSE)
+
+```
+
+Like in **mice** default imputation models are chosen based on the `class` of
+each of the incompete variables.
+The default choices for baseline (not time-varying) covariates are
+```{r, echo = FALSE}
+tab <- rbind(norm = c("linear regression", "continuous variables"),
+             logit = c("logistic regression", "factors with two levels"),
+             multilogit = c("multinomial logit model", "unordered factors with >2 levels"),
+             cumlogit = c("cumulative logit model", "ordered factors with >2 levels")
+)
+
+tab <- cbind(paste0("`", rownames(tab), "`"), tab)
+colnames(tab) <- c('name', 'model', 'variable type')
+
+knitr::kable(tab, row.names = FALSE, format = 'html') %>%
+  kable_styling(full_width = FALSE)
+```
+
+Alternative imputation methods are available for continuous baseline covariates:
+```{r, echo = FALSE}
+tab = rbind(lognorm = c("normal regression of the log-transformed variable",
+                        "right-skewed variables >0"),
+            gamma = c("Gamma regression (with log-link)",
+                        "right-skewed variables >0"),
+            beta = c("beta regression (with logit-link)",
+                     "continuous variables with values in [0, 1]")
+)
+tab <- cbind(paste0("`", rownames(tab), "`"), tab)
+colnames(tab) <- c('name', 'model', 'variable type')
+
+knitr::kable(tab, row.names = FALSE, format = 'html') %>%
+  kable_styling(full_width = FALSE)
+```
+
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 1\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+Re-fit the linear regression model, but now
+
+* specify a log-normal or a gamma distribution for `bili`
+* set the reference category to the largest group
+* use the other variables that are in the data as auxiliary variables
+
+```{r JointAIlm2, exercise = TRUE, exercise.timelimit = 500}
+lm2 <- ...
+```
+
+
+```{r lm2hints, eval = static, results = 'asis', echo = FALSE}
+cat('<button type="button" class="btn btn-info btn-sm" data-toggle="collapse" data-target="#lm2hint1">Hint 1</button>
+<div id = "lm2hint1" class="collapse" style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+To specify a non-default imputation method use the argument `models = c(bili = ...)`.
+</div>')
+cat('<button type="button" class="btn btn-info btn-sm" data-toggle="collapse" data-target="#lm2hint2">Hint 2</button>
+<div id = "lm2hint2" class="collapse" style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+To set the respective largest group as reference category for all categorical variables use the argument `refcats = "largest"`.
+</div>')
+cat('<button type="button" class="btn btn-info btn-sm" data-toggle="collapse" data-target="#lm2hint3">Hint 3</button>
+<div id = "lm2hint3" class="collapse" style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+Auxiliary variables need to be specified explicitely using the argument `auxvars`. It takes a vector of variable names (each of them in quotes).
+</div>')
+```
+
+```{r JointAIlm2-hint-1, include = !static}
+# To specify a non-default imputation method use the argument `models = c(bili = ...)`.
+```
+
+```{r JointAIlm2-hint-2, include = !static}
+# To set the respective largest group as reference category for all categorical variables use the argument `refcats = "largest"`.
+```
+
+```{r JointAIlm2-hint-3, include = !static}
+# Auxiliary variables need to be specified explicitely using the argument `auxvars`. It takes a vector of variable names (each of them in quotes).
+```
+
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution\\n")
+```
+
+```{r JointAIlm2-solution, cache = TRUE}
+lm2 <- lm_imp(wgt ~ gender + bili + age * (chol + HDL) + hgt, data = NHANES,
                auxvars = c('educ', 'race', 'SBP', 'hypten', 'WC'),
                models = c(bili = 'lognorm'), refcats = 'largest',
-               n.iter = 100, quiet = FALSE)
+               n.iter = 100)
+```
+
+
+### Specification of the MCMC settings {.tabset .tabset-fade .tabset-pills}
+Specification of the basic settings for the MCMC sampling can be achieved using
+the following arguments:
+```{r JointAIargs3, echo = FALSE}
+JointAIargs <- rbind(
+  c("`n.chains`", "number of MCMC chains"),
+  c("`n.adapt`", "number of iterations used in the adaptive phase"),
+  c("`n.iter`", "number of iterations per MCMC chain in the sampling phase")
+) %>% as.data.frame
+
+names(JointAIargs) <- c("", "")
+
+JointAIargs %>% kable(format = 'html') %>%
+  kable_styling(full_width = FALSE)
+```
+
+**JointAI** has more arguments than the ones given above, but in this practical
+we focus only on the most important. 
+You may find out more about all the arguments in the vignette on [MCMC Settings](https://nerler.github.io/JointAI/articles/MCMCsettings.html).
+
+By default, `n.chains = 3`, `n.adapt = 100` and `n.iter = 0`.
+
+It is usefull to use more than one chain to be able
+to evaluate convergence of the MCMC chains.
+
+Samples in the adaptive phase are not used for the final MCMC sample. They are
+needed to optimize the MCMC sampler. When the number provided via the argument
+`n.adapt` is insufficient for this optimization a warning message will be printed.
+In simple models (e.g., linear regression) usually the default value of `n.adapt = 100`
+can be used.
+
+The default value for `n.iter`, the number of iterations in the sampling phase
+is `0` (no MCMC sample will be created). The number of iterations that is needed
+depends on how complex the model and the data is and can range from somewhere
+as low as 100 up to several million.
+
+In the following we will look at some criteria to determine if the number of 
+MCMC samples that was used is sufficient.
+
+
+### Evaluation of the MCMC sample {.tabset .tabset-fade .tabset-pills}
+The first step after fitting a Bayesian model should be to confirm that
+the MCMC chains have converged. This can be done visually, using a traceplot
+(plotting the sampled values per parameter and chain accross iterations)
+or using the Gelman-Rubin criterion. 
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 1\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+Investigate convergence of `lm2` by creating a traceplot using the function `traceplot()`.
+
+The plot should show a horizontal band without trends or patterns and the 
+different chains should be mixed.
+
+```{r loadlm2, echo = FALSE}
+lm2 <- savedimps_JointAI
+```
+
+```{r lm2trace, exercise = TRUE, exercise.setup = "loadlm2"}
+
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 1\\n")
+```
+
+```{r lm2trace-solution, fig.width = 8, fig.height = 6, out.width = "100%"}
+traceplot(lm2)
+```
+
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 2\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+Investigate convergence of `lm2` using the Gelman-Rubin criterion, implemented
+in the function `GR_crit()`.
+
+The upper limit of the confidenceinterval should not be much larger than 1.
+```{r lm2GR, exercise = TRUE, exercise.setup = "loadlm2"}
+
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 2\\n")
+```
+
+```{r lm2GR-solution, fig.width = 7, fig.height = 5}
+GR_crit(lm2)
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Coninue\\n")
+```
+
+When we are satisfied with the convergence of the MCMC chains we can take a look
+at the MCMC sample is precise enough. We can do this by comparing the Monte Carlo
+error (which describes the error made since we have just a finite sample)
+to the estimated standard deviation.
+
+This is implemented in the function `MC_error()`.
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 3\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+Calculate the Monte Carlo error for `lm2`.
+
+```{r lm2MCE, exercise = TRUE, exercise.setup = "loadlm2"}
+
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 3\\n")
+```
+
+```{r lm2MCE-solution, fig.width = 7, fig.height = 5}
+MC_error(lm2)
+
+par(mar = c(3.2, 5, 1, 1), mgp = c(2, 0.6, 0))
+plot(MC_error(lm2))
+```
+
+### Results {.tabset .tabset-fade .tabset-pills}
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+Get the summary of the model using the function `summary()`.
+
+```{r lm2results, exercise = TRUE}
+
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution\\n")
+```
+
+```{r lm2results-solution, fig.width = 8, fig.height = 6, out.width = "100%"}
+summary(lm2)
+```
+
+
+```{r, fig.width = 8, fig.height = 6, out.width = "100%"}
+resdat <- lapply(list(
+  JAV = summary(pool(miraJAV), conf.int = TRUE)[, c('estimate', '2.5 %', '97.5 %')],
+  passive = summary(pool(miraPAS), conf.int = TRUE)[, c('estimate', '2.5 %', '97.5 %')],
+  JointAI = as.data.frame(summary(lm2)$stat[names(coef(lm2)), c(1, 3, 4)])
+), function(x) {
+  colnames(x) <- c('est', 'lo',  'up')
+  x$variable <- gsub(":", "", rownames(x))
+  x
+  })
+
+
+ggplot(reshape2::melt(resdat, id.vars = c('est', 'lo', 'up', 'variable')),
+       aes(x = L1, y = est)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = lo, ymax = up), width = 0.2) +
+  facet_wrap('variable', scales = 'free') +
+  xlab("") +
+  ylab("estimate & 95% CI")
+
 ```
 

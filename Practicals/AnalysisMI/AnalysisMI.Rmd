@@ -1,5 +1,5 @@
 ---
-title: "How to analyse data after multiple imputation"
+title: "How to Analyse Data after Multiple Imputation"
 output: 
   html_document:
     code_folding: show
@@ -13,9 +13,6 @@ output:
     includes:
       after_body: ../footer.html
     css: ../style.css
-    # pandoc_args: [
-    #   "--output=Practical_AnalyseMIData.html"
-    #   ]
 #   learnr::tutorial:
 #     progressive: true
 #     allow_skip: true
