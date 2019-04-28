@@ -134,3 +134,82 @@ DFexlong2_sub <- DFexlong2[DFexlong2$id %in% c(1, 2, 6, 15, 16), ]
 #
 # coefDFexlong22 <- as.data.frame(t(sapply(lapply(split(DFexlong2_orig, DFexlong2$id),
 #                                                 lm, formula = y ~ age + I(age^2)), coef)))
+
+
+
+# Survival example -------------------------------------------------------------
+
+library(MASS)
+library(splines)
+n <- 300 # number of subjects
+
+# parameters for the survival model
+phi <- 1.6458 # shape for the Weibull baseline hazard
+mean.Cens <- 12 # mean of the exponential distribution for the censoring mechanism
+
+################################################
+gammas <- c("(Intercept)" = -5.7296, "x2" = 2.4092, "x1" = -2, x3 = 0.2) # coefficients for baseline covariates
+
+set.seed(2019)
+x2 <- rep(0:1, each = n/2) # group indicator, i.e., '0' placebo, '1' active treatment
+x1 <- rnorm(n)
+x3 <- rnorm(n)
+
+# design matrix for the survival model
+W <- cbind("(Intercept)" = 1,
+           "x2" = x2,
+           "x1" = x1,
+           "x3" = x3)
+
+################################################
+
+# simulate event times
+eta.t <- as.vector(W %*% gammas)
+invS <- function(t, u, i) {
+  h <- function(s) {
+    x20 <- 1 - x2[i]
+    x21 <- x2[i]
+    exp(log(phi) + (phi - 1) * log(s) + eta.t[i])
+  }
+  integrate(h, lower = 0, upper = t)$value + log(u)
+}
+u <- runif(n)
+trueTimes <- numeric(n)
+for (i in 1:n) {
+  Up <- 50
+  tries <- 5
+  Root <- try(uniroot(invS, interval = c(1e-05, Up), u = u[i], i = i)$root, TRUE)
+  while (inherits(Root, "try-error") && tries > 0) {
+    tries <- tries - 1
+    Up <- Up + 200
+    Root <- try(uniroot(invS, interval = c(1e-05, Up), u = u[i], i = i)$root, TRUE)
+  }
+  trueTimes[i] <- if (!inherits(Root, "try-error")) Root else NA
+}
+na.ind <- !is.na(trueTimes)
+trueTimes <- trueTimes[na.ind]
+W <- W[na.ind, , drop = FALSE]
+
+n <- length(trueTimes)
+
+# simulate censoring times from an exponential distribution,
+# and calculate the observed event times, i.e., min(true event times, censoring times)
+Ctimes <- runif(n, 0, 2 * mean.Cens)
+Time <- pmin(trueTimes, Ctimes)
+event <- as.numeric(trueTimes <= Ctimes) # event indicator
+
+survdat_orig <- data.frame(Time = Time,
+                           event = event,
+                           x2 = x2[na.ind],
+                           x1 = x1[na.ind],
+                           x3 = x3[na.ind])
+
+
+
+survdat <- survdat_orig
+N = n
+survdat$x1[sample(1:N, N*0.3)] <- NA
+survdat$x3[sample(1:N, N*0.3)] <- NA
+survdat$x2[sample(1:N, N*0.3)] <- NA
+survdat$x2 <- factor(survdat$x2)
+survdat_orig$x2 <- factor(survdat_orig$x2)
