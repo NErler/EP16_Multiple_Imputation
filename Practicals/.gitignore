@@ -7,13 +7,26 @@ IncompleteData/IncompleteData_cache
 IncompleteData/IncompleteData_data
 IncompleteData/IncompleteData_files
 IncompleteData/rsconnect
-IncompleteData.html
 
 MImice/MImice_cache
 MImice/MImice_data
 MImice/MImice_files
 MImice/rsconnect
-MImice.html
+
+MIlong/MIlong_cache
+MIlong/MIlong_data
+MIlong/MIlong_files
+MIlong/rsconnect
+
+MIsurv/MIsurv_cache
+MIsurv/MIsurv_data
+MIsurv/MIsurv_files
+MIsurv/rsconnect
+
+MIcheck/MIcheck_cache
+MIcheck/MIcheck_data
+MIcheck/MIcheck_files
+MIcheck/rsconnect
 
 AnalysisMI/AnalysisMI_cache
 AnalysisMI/AnalysisMI_data
@@ -30,13 +43,7 @@ MIadvanced/MIadvanced_files
 MIadvanced/MCMCjomolmB.dll
 MIadvanced/jomolmB.dll
 
-MICE/MICE.html
-MICE/MICE_cache
-MICE/MICE_data
-MICE/MICE_files
-MICE/Practical_MICE.nb.html
-MICE/rsconnect
 
 MInonlin/MInonlin_data
 MInonlin/MInonlin_cache
-MInonlin/MInonlin.html
+Minonlin/MInonlin_files
