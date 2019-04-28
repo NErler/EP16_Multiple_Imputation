@@ -1,3 +1,8 @@
+<<include = FALSE>>=
+source('Rfcts/figures.R')
+@
+
+
 \begin{frame}{Outline of Part I}
 \setlength{\parskip}{0pt}
 \begin{multicols}{2}
@@ -208,123 +213,6 @@ imputed datasets}, and calculate summary measures.
 
 \section{Imputation step}
 \subsection{Univariate missing data}
-<<simdata1, echo = F, message = F>>=
-library(MASS)
-library(mice)
-library(RColorBrewer)
-
-set.seed(123)
-p = 2
-N = 30
-mu <- rnorm(p)
-# s <- rgamma(p*(p - 1)/2, 0.9, 8)
-s <- 0.1
-S <- diag(rgamma(p, 0.5, 1.5))
-S[lower.tri(S)] <- s
-S[upper.tri(S)] <- s
-S <- Matrix::nearPD(S)$mat
-X0 <- as.data.frame(mvrnorm(N, mu, S))
-
-X <- X0
-X$V2[sample.int(N, N/5)] <- NA
-
-
-m <- 5
-imps <- array(dim = c(sum(is.na(X$V2)), 4, m),
-               dimnames = list(sim = c(),
-                               method = c("pred", "nob", "norm", "boot"),
-                               c()))
-
-imps[, "pred", ] <- mice.impute.norm.predict(y = X$V2, ry = !is.na(X$V2), wy = is.na(X$V2),
-                         x = model.matrix(~V1, X), ridge = 1e-10)
-for (i in 1:m) {
-  imps[, "nob", i] <- mice.impute.norm.nob(y = X$V2, ry = !is.na(X$V2), wy = is.na(X$V2),
-                                 x = model.matrix(~V1, X))
-  imps[, "norm", i] <- mice.impute.norm(y = X$V2, ry = !is.na(X$V2), wy = is.na(X$V2),
-                                  x = model.matrix(~V1, X))
-  imps[, "boot", i] <- mice.impute.norm.boot(y = X$V2, ry = !is.na(X$V2), wy = is.na(X$V2),
-                                  x = model.matrix(~V1, X))
-}
-
-lm1 <- lm(V2 ~ ., X)
-x <- X$V1[is.na(X$V2)]
-
-
-sim1DF <- data.frame(x1 = X[, 1],
-                     x2 = X[, 2],
-                     ismis = is.na(X[, 2]))
-sim1DF$x2[sim1DF$ismis] <- -2.5
-
-
-set.seed(2018)
-add <- MASS::mvrnorm(5, c(0,0), vcov(lm1))
-
-coefs <- as.data.frame(t(coef(lm1) + t(add)))
-names(coefs) <- c("int", 'slope')
-
-reddots <- reshape2::melt(
-  as.data.frame(cbind(x1 = sim1DF$x1[sim1DF$ismis],
-                      t(as.matrix(coefs) %*% rbind(1, sim1DF$x1[sim1DF$ismis])))
-  ), id.var = "x1", value.name = 'x2')
-
-
-library(ggplot2)
-p0 <- ggplot(sim1DF, aes(x = x1, y = x2, color = ismis)) +
-  theme_light() +
-  theme(panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        axis.ticks = element_blank(),
-        axis.text = element_blank(),
-        axis.title = element_text(size = 16),
-        panel.border = element_blank(),
-        legend.position = c(0.12, 0.13),
-        legend.background = element_blank(),
-        legend.text = element_text(size = 14)) +
-  geom_rect(xmin = -3.3, xmax = 1.8, ymin = -2.5, ymax = 1.5,
-            fill = 'transparent', color = grey(0.7)) +
-  scale_y_continuous(limits = c(-2.57, 1.5), expand = c(0, 0)) +
-  scale_x_continuous(limits = c(-3.3, 1.8), expand = c(0, 0)) +
-  xlab(expression(X[1])) +
-  ylab(expression(X[2])) +
-  scale_color_manual(name = "",
-                     limits = c(FALSE, TRUE),
-                     values = c(1, 2),
-                     labels = c("observed", "missing")) +
-  scale_shape_manual(name = "",
-                     limits = c(FALSE, TRUE),
-                     values = c(19, 1),
-                     labels = c("observed", "missing"))
-
-
-p1 <- p0 +
-  geom_point(aes(shape = ismis), na.rm = T, size = 2, stroke = 1.2)
-
-pmod <- p1 +
-  geom_abline(intercept = coef(lm1)[1], slope = coef(lm1)[2], lwd = 1)
-# pmod
-
-# pmod +
-#   geom_point(data = data.frame(x1 = sim1DF$x1[sim1DF$ismis],
-#                                x2 = imps[, "pred", 1]),
-#              color = 2, shape = 19, size = 2
-#              ) +
-#   geom_line(data = data.frame(x1 = rep(sim1DF$x1[sim1DF$ismis], 2),
-#                               x2 = c(rep(-2.5, sum(sim1DF$ismis)), imps[, "pred", 1]),
-#                               group = rep(1:sum(sim1DF$ismis), 2)),
-#             aes(group = group), color = 2, lty = 2)
-#
-# p1 +
-#   geom_abline(data = coefs, aes(intercept = int, slope = slope), lty = 2)
-#
-#
-# p1 +
-#   geom_abline(data = coefs, aes(intercept = int, slope = slope), lty = 2) +
-#   geom_point(data = reddots, color = 2, size = 2)
-
-
-@
-
-
 \begin{frame}{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 \textbf{How can we actually get imputed values?}
@@ -365,53 +253,18 @@ $\hat x_{i2} = \hat\beta_0 + \hat\beta_1 x_{i1} + \hat\beta_2 x_{i3} + \hat\beta
 }
 \end{column}
 \begin{column}{0.45\textwidth}
-\only<1>{
-<<exampl1a, echo = F, fig.width = 5.25, fig.height = 3.5>>=
-par(mgp = c(1, 0.6, 0), mar = c(2, 2.5,0.5, 0.5))
-plot(X0, xaxt = "n", yaxt = "n",
-     ylab = "",
-     xlab = "", bty = "n",
-     xaxt = "n", yaxt = "n", cex.lab = 1.5, type = "n")
-@
-}
+
 \only<2>{
 <<exampl1b, echo = F, fig.width = 5.25, fig.height = 3.5>>=
-par(mgp = c(1, 0.6, 0), mar = c(2, 2.5,0.5, 0.5))
-plot(X,
-     pch = 19,
-     col = grey(0.2),
-     ylab = expression(X[2]),
-     xlab = expression(X[1]),
-     xaxt = "n", yaxt = "n", cex.lab = 1.5,
-     ylim = c(range(X0$V2, 0)))
-points(X0$V1[is.na(X$V2)], rep(par("usr")[3], sum(is.na(X$V2))),
-       xpd = T, col = 2, lwd = 1.5)
-legend("bottomleft", pch = c(1,19), legend = c("missing", "observed"),
-       bty = "n", col = c("red", grey(0.2)), cex = 1.3)
-abline(lm1, lwd = 2, col = grey(0.2))
+reglineplot
 @
 }\only<3>{
-<<example1c, echo = F, fig.width = 5.25, fig.height = 3.5>>=
-par(mgp = c(1, 0.6, 0), mar = c(2, 2.5,0.5, 0.5))
-plot(X,
-     pch = 19,
-     col = grey(0.2),
-     ylab = expression(X[2]),
-     xlab = expression(X[1]),
-     xaxt = "n", yaxt = "n", cex.lab = 1.5,
-     ylim = c(range(X0$V2, 0)))
-points(X0$V1[is.na(X$V2)], rep(par("usr")[3], sum(is.na(X$V2))),
-       xpd = T, col = 2, lwd = 1.5)
-legend("bottomleft", pch = c(1,19), legend = c("missing", "observed"),
-       bty = "n", col = c("red", grey(0.2)), cex = 1.3)
-abline(lm1, lwd = 2, col = grey(0.2))
-points(x, imps[, "pred", 1], pch = 19, col = 2, cex = 1)
-for (i in seq_along(which(is.na(X[, 2])))) {
-  lines(x = rep(x[i], 2), col = 2,
-        y = c(par("usr")[3], imps[i, "pred", 1]), lty = 2)
-}
+<<regimp_movie, fig.show='animate', interval=1/10, fig.width = 5.25, fig.height = 3.5, include = FALSE, cache = TRUE>>=
+regimp_movie
 
 @
+
+\animategraphics[loop, autoplay, width = \linewidth]{10}{figure/regimp_movie-}{1}{49}
 }
 \end{column}
 \end{columns}
@@ -428,7 +281,6 @@ for (i in seq_along(which(is.na(X[, 2])))) {
 \end{itemize}
 
 \bigskip
-
 
 \pause
 
@@ -468,70 +320,24 @@ model, we obtain \blue{slightly different regression lines}.
 
 \onslide<2>{
 With each set of coefficients, we also get slightly \blue{different predicted values}.
-% These samples of $p(\boldsymbol{\hat\beta})$ are then plugged into the
-% predictive model
-% $$\hat\beta_0 + \hat\beta_1 x_{i1} + \hat\beta_2 x_{i3} + \hat\beta_3 x_{i4},$$
-% giving different regression lines.
+
 }
 \end{column}
 \begin{column}{0.5\textwidth}
 \only<-1>{
-<<example1d, echo = F, fig.width = 5.25, fig.height = 3.5, eval = T>>=
-par(mgp = c(1, 0.6, 0), mar = c(2, 2.5,0.5, 0.5))
-plot(X,
-     pch = 19,
-     col = grey(0.2),
-     ylab = expression(X[2]),
-     xlab = expression(X[1]),
-     xaxt = "n", yaxt = "n", cex.lab = 1.5,
-     ylim = c(range(X0$V2, 0)))
-points(X0$V1[is.na(X$V2)], rep(par("usr")[3], sum(is.na(X$V2))),
-       xpd = T, col = 2, lwd = 1.5)
-legend("bottomleft", pch = c(1,19), legend = c("missing", "observed"),
-       bty = "n", col = c("red", grey(0.2)), cex = 1.3)
-# abline(lm1, lwd = 2, col = grey(0.2))
-set.seed(2018)
-add <- MASS::mvrnorm(5, c(0,0), vcov(lm1))
-
-for (i in 1:5) {
-  coef <- coef(lm1) + add[i, ]
-  abline(coef, lty = 2)
-}
-@
-
-<<echo = FALSE, fig.width = 5.25, fig.height = 3.5, eval = F>>=
-p1 +
-  geom_abline(data = coefs, aes(intercept = int, slope = slope), lty = 2) +
-  geom_point(data = reddots, color = 2, size = 2, stroke = 1.2)
+<<reglines_movie, fig.show='animate', interval=1/50, fig.width = 5.25, fig.height = 3.5, include = FALSE, cache = TRUE>>=
+reglines_movie
 
 @
 
-
+\animategraphics[loop, autoplay, width = \linewidth]{5}{figure/reglines_movie-}{1}{50}
 }
 \only<2->{
-<<example1e, echo = F, fig.width = 5.25, fig.height = 3.5>>=
-par(mgp = c(1, 0.6, 0), mar = c(2, 2.5,0.5, 0.5))
-plot(X,
-     pch = 19,
-     col = grey(0.2),
-     ylab = expression(X[2]),
-     xlab = expression(X[1]),
-     xaxt = "n", yaxt = "n", cex.lab = 1.5,
-     ylim = c(range(X0$V2, 0)))
-points(X0$V1[is.na(X$V2)], rep(par("usr")[3], sum(is.na(X$V2))),
-       xpd = T, col = 2, lwd = 1.5)
-legend("bottomleft", pch = c(1,19), legend = c("missing", "observed"),
-       bty = "n", col = c("red", grey(0.2)), cex = 1.3)
-set.seed(2018)
-add <- MASS::mvrnorm(5, c(0,0), vcov(lm1))
-
-for (i in 1:5) {
-  coef <- coef(lm1) + add[i, ]
-  abline(coef, lty = 2)
-  points(x, coef[1] + coef[2] * x, col = 2, pch = 19)
-}
-
+<<regimps_movie, fig.show='animate', interval=1/10, fig.width = 5.25, fig.height = 3.5, include = FALSE, cache = TRUE>>=
+regimps_movie
 @
+
+\animategraphics[loop, autoplay, width = \linewidth]{10}{figure/regimps_movie-}{1}{100}
 }
 \end{column}
 \end{columns}
@@ -554,220 +360,25 @@ We assume that the \blue{data have a distribution}, where
 \end{column}
 \begin{column}{0.5\textwidth}
 \only<1>{
-<<example1f, echo = F, fig.width = 5.25, fig.height = 3.5>>=
-par(mgp = c(1, 0.6, 0), mar = c(2, 2.5,0.5, 0.5))
-plot(X,
-     pch = 19,
-     col = grey(0.2),
-     ylab = expression(X[2]),
-     xlab = expression(X[1]),
-     xaxt = "n",
-     yaxt = "n",
-     cex.lab = 1.5,
-     ylim = c(range(X0$V2, -2.5, 2.4)))
-points(X0$V1[is.na(X$V2)], rep(par("usr")[3], sum(is.na(X$V2))),
-       xpd = T, col = 2, lwd = 1.5)
-legend("bottomleft", pch = c(1,19), legend = c("missing", "observed"),
-       bty = "n", col = c("red", grey(0.2)), cex = 1.3)
-
-set.seed(2018)
-add <- MASS::mvrnorm(5, c(0,0), vcov(lm1))
-
-for (i in 1) {
-  coef <- coef(lm1) + add[i, ]
-  abline(coef, lty = 2, col = brewer.pal(length(x), "Dark2")[i], lwd = 2)
-  pt <- cbind(1, x) %*% coef
-  points(x, pt, col = brewer.pal(length(x), "Dark2")[i], lwd = 2, cex = 1.3)
-}
+<<ranerrplot, echo = FALSE, fig.width = 5.25, fig.height = 3.75>>=
+ranerrplot
 @
 }
 \only<2>{
-<<example1g, echo = F, fig.width = 5.25, fig.height = 3.5>>=
-par(mgp = c(1, 0.6, 0), mar = c(2, 2.5,0.5, 0.5))
-plot(X,
-     pch = 19,
-     col = grey(0.2),
-     ylab = expression(X[2]),
-     xlab = expression(X[1]),
-     xaxt = "n",
-     yaxt = "n",
-     cex.lab = 1.5,
-     ylim = c(range(X0$V2, -2.5, 2.4)))
-points(X0$V1[is.na(X$V2)], rep(par("usr")[3], sum(is.na(X$V2))),
-       xpd = T, col = 2, lwd = 1.5)
-legend("bottomleft", pch = c(1,19), legend = c("missing", "observed"),
-       bty = "n", col = c("red", grey(0.2)), cex = 1.3)
-
-set.seed(2018)
-add <- MASS::mvrnorm(5, c(0,0), vcov(lm1))
-
-for (i in 1) {
-  coef <- coef(lm1) + add[i, ]
-  abline(coef, lty = 2, col = brewer.pal(length(x), "Dark2")[i], lwd = 2)
-  pt <- cbind(1, x) %*% coef
-  points(x, pt, col = brewer.pal(length(x), "Dark2")[i], cex = 1.3)
-
-  lo <- pt - 1.96 * summary(lm1)$sigma
-  hi <- pt + 1.96 * summary(lm1)$sigma
-  for (k in 1:length(x)) {
-    lines(rep(x[k] + 0.01*i, 2), c(lo[k], hi[k]), lty = 2,
-          col = brewer.pal(length(x), "Dark2")[i], lwd = 2)
-  }
-}
+<<ranerr_movie, fig.show='animate', interval=1/10, fig.width = 5.25, fig.height = 3.75, include = FALSE, cache = TRUE>>=
+ranerr_movie
 @
+\animategraphics[loop, autoplay, width = \linewidth]{1}{figure/ranerr_movie-}{1}{10}
 }
 \only<3>{
-<<example1h, echo = F, fig.width = 5.25, fig.height = 3.5>>=
-par(mgp = c(1, 0.6, 0), mar = c(2, 2.5,0.5, 0.5))
-plot(X,
-     pch = 19,
-     col = grey(0.2),
-     ylab = expression(X[2]),
-     xlab = expression(X[1]),
-     xaxt = "n",
-     yaxt = "n",
-     cex.lab = 1.5,
-     ylim = c(range(X0$V2, -2.5, 2.4)))
-points(X0$V1[is.na(X$V2)], rep(par("usr")[3], sum(is.na(X$V2))),
-       xpd = T, col = 2, lwd = 1.5)
-legend("bottomleft", pch = c(1,19), legend = c("missing", "observed"),
-       bty = "n", col = c("red", grey(0.2)), cex = 1.3)
-set.seed(2018)
-add <- MASS::mvrnorm(5, c(0,0), vcov(lm1))
-
-for (i in 1) {
-  coef <- coef(lm1) + add[i, ]
-  abline(coef, lty = 2, col = brewer.pal(length(x), "Dark2")[i], lwd = 2)
-  pt <- cbind(1, x) %*% coef
-  points(x, pt, col = brewer.pal(length(x), "Dark2")[i])
-
-  lo <- pt - 1.96 * summary(lm1)$sigma
-  hi <- pt + 1.96 * summary(lm1)$sigma
-  for (k in 1:length(x)) {
-    lines(rep(x[k] + 0.01*i, 2), c(lo[k], hi[k]), lty = 3,
-          col = brewer.pal(length(x), "Dark2")[i], lwd = 2)
-    points(x, imps[, "nob", i], col = brewer.pal(length(x), "Dark2")[i],
-           pch = 19,
-           cex = 1)
-  }
-}
+<<ranerrimpsplot, echo = FALSE, fig.width = 5.25, fig.height = 3.75>>=
+ranerrimpsplot
 @
 }
-\only<4>{
-<<example1i, echo = F, fig.width = 5.25, fig.height = 3.5>>=
-par(mgp = c(1, 0.6, 0), mar = c(2, 2.5,0.5, 0.5))
-plot(X,
-     pch = 19,
-     col = grey(0.2),
-     ylab = expression(X[2]),
-     xlab = expression(X[1]),
-     xaxt = "n",
-     yaxt = "n",
-     cex.lab = 1.5,
-     ylim = c(range(X0$V2, -2.5, 2.4)))
-points(X0$V1[is.na(X$V2)], rep(par("usr")[3], sum(is.na(X$V2))),
-       xpd = T, col = 2, lwd = 1.5)
-legend("bottomleft", pch = c(1,19), legend = c("missing", "observed"),
-       bty = "n", col = c("red", grey(0.2)), cex = 1.3)
 
-set.seed(2018)
-add <- MASS::mvrnorm(5, c(0,0), vcov(lm1))
-
-for (i in 1:2) {
-  coef <- coef(lm1) + add[i, ]
-  abline(coef, lty = 2, col = brewer.pal(length(x), "Dark2")[i])
-  pt <- cbind(1, x) %*% coef
-  points(x, pt, col = brewer.pal(length(x), "Dark2")[i])
-
-  lo <- pt - 1.96 * summary(lm1)$sigma
-  hi <- pt + 1.96 * summary(lm1)$sigma
-  for (k in 1:length(x)) {
-    lines(rep(x[k] + 0.01*i, 2), c(lo[k], hi[k]), lty = 3,
-          col = brewer.pal(length(x), "Dark2")[i], lwd = 2)
-    points(x, imps[, "nob", i], col = brewer.pal(length(x), "Dark2")[i],
-           pch = 19,
-           cex = 1)
-  }
-}
-@
-}
-\only<5>{
-<<example1j, echo = F, fig.width = 5.25, fig.height = 3.5>>=
-par(mgp = c(1, 0.6, 0), mar = c(2, 2.5,0.5, 0.5))
-plot(X,
-     pch = 19,
-     col = grey(0.2),
-     ylab = expression(X[2]),
-     xlab = expression(X[1]),
-     xaxt = "n",
-     yaxt = "n",
-     cex.lab = 1.5,
-     ylim = c(range(X0$V2, -2.5, 2.4)))
-points(X0$V1[is.na(X$V2)], rep(par("usr")[3], sum(is.na(X$V2))),
-       xpd = T, col = 2, lwd = 1.5)
-legend("bottomleft", pch = c(1,19), legend = c("missing", "observed"),
-       bty = "n", col = c("red", grey(0.2)), cex = 1.3)
-set.seed(2018)
-add <- MASS::mvrnorm(5, c(0,0), vcov(lm1))
-
-for (i in 1:3) {
-  coef <- coef(lm1) + add[i, ]
-  abline(coef, lty = 2, col = brewer.pal(length(x), "Dark2")[i])
-  pt <- cbind(1, x) %*% coef
-  points(x, pt, col = brewer.pal(length(x), "Dark2")[i], lwd = 2)
-
-  lo <- pt - 1.96 * summary(lm1)$sigma
-  hi <- pt + 1.96 * summary(lm1)$sigma
-  for (k in 1:length(x)) {
-    lines(rep(x[k] + 0.01*i, 2), c(lo[k], hi[k]), lty = 3,
-          col = brewer.pal(length(x), "Dark2")[i], lwd = 2)
-    points(x, imps[, "nob", i], col = brewer.pal(length(x), "Dark2")[i],
-           pch = 19,
-           cex = 1)
-  }
-}
-@
-}
-\only<6>{
-<<example1k, echo = F, fig.width = 5.25, fig.height = 3.5>>=
-par(mgp = c(1, 0.6, 0), mar = c(2, 2.5,0.5, 0.5))
-plot(X,
-     pch = 19,
-     col = grey(0.2),
-     ylab = expression(X[2]),
-     xlab = expression(X[1]),
-     xaxt = "n",
-     yaxt = "n",
-     cex.lab = 1.5,
-     ylim = c(range(X0$V2, -2.5, 2.4)))
-points(X0$V1[is.na(X$V2)], rep(par("usr")[3], sum(is.na(X$V2))),
-       xpd = T, col = 2, lwd = 1.5)
-legend("bottomleft", pch = c(1,19), legend = c("missing", "observed"),
-       bty = "n", col = c("red", grey(0.2)), cex = 1.3)
-set.seed(2018)
-add <- MASS::mvrnorm(5, c(0,0), vcov(lm1))
-
-for (i in 1:5) {
-  coef <- coef(lm1) + add[i, ]
-  abline(coef, lty = 2, col = brewer.pal(length(x), "Dark2")[i])
-  pt <- cbind(1, x) %*% coef
-  points(x, pt, col = brewer.pal(length(x), "Dark2")[i])
-
-  lo <- pt - 1.96 * summary(lm1)$sigma
-  hi <- pt + 1.96 * summary(lm1)$sigma
-  for (k in 1:length(x)) {
-    lines(rep(x[k] + 0.01*i, 2), c(lo[k], hi[k]), lty = 2,
-          col = brewer.pal(length(x), "Dark2")[i], lwd = 1)
-    points(x, imps[, "nob", i], col = brewer.pal(length(x), "Dark2")[i],
-           pch = 19,
-           cex = 1)
-  }
-}
-@
-}
 \end{column}
 \end{columns}
-\onslide<6> In the end, we obtain one imputed dataset for each color.
+\onslide<3> In the end, we obtain one imputed dataset for each color.
 \end{frame}
 
 
@@ -1237,9 +848,11 @@ for (i in 1:2000) {
 ggplot(melt(x[d:nrow(x), ]), aes(x = Var1, y = value,
                                  color = factor(Var2))) +
   geom_line() +
-  scale_color_brewer(palette = "Dark2", name = "", labels = paste("chain", 1:3)) +
+  scale_color_brewer(palette = "Dark2", name = "",
+                     labels = paste("chain", 1:3)) +
   theme_light() +
-  theme(legend.position = c(0.9, 0.15)) +
+  theme(legend.position = c(0.9, 0.15),
+        legend.background = element_rect(fill = 'transparent')) +
   xlab("iteration")
 @
 
@@ -1311,7 +924,8 @@ ggplot(dat, aes(x = it, y = y, color = imp)) +
   xlab("iteration") +
   ylab("imputed value") +
   scale_color_brewer(palette = "Dark2",
-                     name = "imputation number:")
+                     name = "imputation number:",
+                     labels = 1:3)
 @
 }
 \only<2>{
@@ -1519,7 +1133,7 @@ poolDF <- do.call(rbind, reslist)
 
 ppool0 <- ggplot(poolDF, aes(x = coef, y = imp)) +
   geom_point() +
-  geom_errorbarh(aes(xmin = lo, xmax = hi), height = 0.1) +
+  geom_errorbarh(aes(xmin = lo, xmax = hi), height = 0.2) +
   facet_grid(~var, scales = 'free') +
   theme_light() +
   theme(strip.text = element_text(size = 12, face = "bold")) +
@@ -1550,7 +1164,7 @@ ses <- ddply(seDF, "var", summarize, semean = mean(`Std. Error`))
 
 CIs <- ddply(poolDF, "var", summarize, himean = mean(hi), lomean = mean(lo))
 
-pooled <- as.data.frame(summary(pool(res, method = "standard"))[, c("est", "lo 95", "hi 95")])
+pooled <- as.data.frame(summary(pool(res), conf.int = TRUE)[, c("estimate", "2.5 %", "97.5 %")])
 pooled$imp <- "pooled"
 pooled$var <- rownames(reslist[[1]])
 @
@@ -1694,7 +1308,7 @@ CIDF <- data.frame(
 ggplot(poolDF, aes(x = coef, y = as.numeric(imp))) +
   geom_polygon(data = CIDF, aes(x = x, y = y), fill = "blue4", alpha = 0.2) +
   geom_point() +
-  geom_errorbarh(aes(xmin = lo, xmax = hi), height = 0.1) +
+  geom_errorbarh(aes(xmin = lo, xmax = hi), height = 0.2) +
   facet_grid(~var, scales = 'free') +
   theme_light() +
   theme(strip.text = element_text(size = 12, face = "bold")) +
