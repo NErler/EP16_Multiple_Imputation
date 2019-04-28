@@ -1,6 +1,5 @@
 \begin{frame}{Outline of Part II}
 \setlength{\parskip}{0pt}
-% \begin{multicols}{2}
 \vspace*{-6ex}
 \begin{columns}
 \begin{column}{0.45\linewidth}
@@ -8,11 +7,9 @@
 \end{column}
 \begin{column}{0.55\linewidth}
 \tableofcontents[part=2,sections={8-11}]
-% \vspace*{20ex}
 \end{column}
 \end{columns}
 \vspace*{-6ex}
-% \end{multicols}
 \end{frame}
 
 
@@ -32,7 +29,7 @@ There are several packages in \textsf{R} that provide functions to create and
 \blue{plot the missing data pattern}.\\\bigskip
 
 Examples are:\\
-\textbf{mice}, \textbf{VIM}, \textbf{Amelia}, \textbf{visdat}, \textbf{naniar}, \ldots\\[3ex]
+\textbf{mice}, \textbf{JointAI}, \textbf{VIM}, \textbf{Amelia}, \textbf{visdat}, \textbf{naniar}, \ldots\\[3ex]
 
 <<load NHANES prep, echo = F>>=
 datadir <- file.path(projdir, "data")
@@ -51,7 +48,7 @@ options("width" = 120)
 @
 
 <<mice_md.pattern, size = 'scriptsize'>>=
-mdp <- mice::md.pattern(NHANES)
+mdp <- mice::md.pattern(NHANES, plot = FALSE)
 head(mdp[, -c(7:14)]) # omit some columns to fit it on the slide
 tail(mdp[, -c(7:14)])
 @
@@ -65,7 +62,7 @@ options('width' = op)
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 <<JointAI_md_pattern, fig.width = 7, fig.height = 5, out.width = "80%", fig.keep = 'last'>>=
 par(mar = c(5, 0.5, 1, 3), mgp = c(2, 0.6, 0))
-JointAI::md_pattern(NHANES, print = F, printN = F, yaxis_pars = list(yaxt = 'n'))
+JointAI::md_pattern(NHANES)
 @
 \end{frame}
 
@@ -94,42 +91,34 @@ visdat::vis_miss(NHANES)
 
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
+We are also interested in the number and proportion of (in)complete cases ...
 <<NCC_calc, size = 'small'>>=
-# number and proportion of complete cases
-Ncc <- cbind(
-  "#" = table(complete.cases(NHANES)),
+cbind(
+  "#" = table(ifelse(complete.cases(NHANES), 'incompl.', 'complete')),
   "%" = round(100 * table(complete.cases(NHANES))/nrow(NHANES), 2)
 )
-rownames(Ncc) <- c("incompl.", "complete")
 @
 
-
-<<nmis, size = 'small'>>=
-# number and proportion of missing values per variable
-nmis <- cbind("# NA" = sort(colSums(is.na(NHANES))),
-              "% NA" = round(sort(colMeans(is.na(NHANES))) * 100, 2))
-@
 \end{frame}
 
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-\mode<presentation>{\vspace*{-1ex}}
-Number and proportion of (in)complete cases
-<<Ncc_print, echo = F>>=
-Ncc
+... and the proportion of missing values per variable:
+<<nmis, eval = FALSE>>=
+cbind("# NA" = sort(colSums(is.na(NHANES))),
+      "% NA" = round(sort(colMeans(is.na(NHANES))) * 100, 2))
 @
-Number and proportion of missing values per variable
 \mode<presentation>{\vspace*{-3ex}}
 \begin{columns}[t]
 \begin{column}{0.45\linewidth}
-<<nmis_print, echo = F>>=
+<<nmis_print, echo = FALSE>>=
+nmis <- cbind("# NA" = sort(colSums(is.na(NHANES))),
+              "% NA" = round(sort(colMeans(is.na(NHANES))) * 100, 2))
 nmis[1:ceiling(nrow(nmis)/2), ]
-# nmis[(1 + ceiling(nrow(nmis)/2)):nrow(nmis), ]
 @
 \end{column}
 \begin{column}{0.45\linewidth}
-<<nmis_print2, echo = F>>=
-# nmis[1:ceiling(nrow(nmis)/2), ]
+<<nmis_print2, echo = FALSE>>=
 nmis[(1 + ceiling(nrow(nmis)/2)):nrow(nmis), ]
 @
 \end{column}
@@ -140,57 +129,67 @@ nmis[(1 + ceiling(nrow(nmis)/2)):nrow(nmis), ]
 \subsection{Data distributions}
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-<<NHANEShistplot, fig.width = 8, fig.height = 5, out.width = "100%", echo = F>>=
-NHANESnum <- NHANES[, sapply(NHANES, is.numeric)]
-par(mfrow = c(3, 4), mar = c(2, 3.2, 2.5, 0.5), mgp = c(2, 0.6, 0))
-for (i in 1:ncol(NHANESnum)) {
-  hist(NHANESnum[, i], nclass = 30, xlab = "", cex.main = 1.4, cex.axis = 1.1,
-       main = paste0(names(NHANESnum)[i]," (",
-                     round(mean(is.na(NHANESnum[, i]))*100, 2), "% NA)"))
-}
+<<NHANESplotall, fig.width = 16, fig.height = 12, out.width = "100%">>=
+par(mgp = c(2, 0.6, 0))
+JointAI::plot_all(NHANES)
 @
 \end{frame}
 
 
-\begin{frame}[fragile]{\thesection. \insertsection}
-\framesubtitle{\thesection.\thesubsection. \insertsubsection}
-<<NHANEStabs, fig.width = 8, fig.height = 5, out.width = "100%", echo = F>>=
-NHANESfac <- NHANES[, sapply(NHANES, is.factor)]
-par(mfrow = c(3, 3), mar = c(3, 3.2, 2.5, 0.5), mgp = c(2, 0.6, 0))
-for (i in 1:ncol(NHANESfac)) {
-  tab <- table(NHANESfac[, i], exclude = NULL)
-  names(tab)[is.na(names(tab))] <- "NA"
-  barplot(tab, cex.main = 1.4, cex.names = 1.2,
-          main = paste0(names(NHANESfac)[i]," (",
-                        round(mean(is.na(NHANESfac[, i]))*100, 2), "% NA)"))
-}
-@
-\end{frame}
-
-\begin{frame}[fragile]{\thesection. \insertsection}
-\framesubtitle{\thesection.\thesubsection. \insertsubsection}
-<<hist, eval = F>>=
-# syntax for continuous variables
-NHANESnum <- NHANES[, sapply(NHANES, is.numeric)]
-par(mfrow = c(3, 4), mar = c(3, 3.2, 0.5, 0.5), mgp = c(2, 0.6, 0))
-for (i in 1:ncol(NHANESnum)) {
-  hist(NHANESnum[, i], nclass = 30, xlab = names(NHANESnum)[i], main = "")
-  legend("topright", bty = "n",
-         legend = paste0(round(mean(is.na(NHANESnum[, i]))*100, 2), "% NA"))
-}
-
-# syntax for factors
-NHANESfac <- NHANES[, sapply(NHANES, is.factor)]
-par(mfrow = c(3, 5), mar = c(3, 3.2, 2.5, 0.5), mgp = c(2, 0.6, 0))
-for (i in 1:ncol(NHANESfac)) {
-  tab <- table(NHANESfac[, i], exclude = NULL)
-  names(tab)[is.na(names(tab))] <- "NA"
-  barplot(tab, main = paste0(names(NHANESfac)[i]," (",
-                             round(mean(is.na(NHANESfac[, i]))*100,
-                                   2), "% NA)"))
-}
-@
-\end{frame}
+%
+% \begin{frame}[fragile]{\thesection. \insertsection}
+% \framesubtitle{\thesection.\thesubsection. \insertsubsection}
+% <<NHANEShistplot, fig.width = 8, fig.height = 5, out.width = "100%", echo = F>>=
+% NHANESnum <- NHANES[, sapply(NHANES, is.numeric)]
+% par(mfrow = c(3, 4), mar = c(2, 3.2, 2.5, 0.5), mgp = c(2, 0.6, 0))
+% for (i in 1:ncol(NHANESnum)) {
+%   hist(NHANESnum[, i], nclass = 30, xlab = "", cex.main = 1.4, cex.axis = 1.1,
+%        main = paste0(names(NHANESnum)[i]," (",
+%                      round(mean(is.na(NHANESnum[, i]))*100, 2), "% NA)"))
+% }
+% @
+% \end{frame}
+%
+%
+% \begin{frame}[fragile]{\thesection. \insertsection}
+% \framesubtitle{\thesection.\thesubsection. \insertsubsection}
+% <<NHANEStabs, fig.width = 8, fig.height = 5, out.width = "100%", echo = F>>=
+% NHANESfac <- NHANES[, sapply(NHANES, is.factor)]
+% par(mfrow = c(3, 3), mar = c(3, 3.2, 2.5, 0.5), mgp = c(2, 0.6, 0))
+% for (i in 1:ncol(NHANESfac)) {
+%   tab <- table(NHANESfac[, i], exclude = NULL)
+%   names(tab)[is.na(names(tab))] <- "NA"
+%   barplot(tab, cex.main = 1.4, cex.names = 1.2,
+%           main = paste0(names(NHANESfac)[i]," (",
+%                         round(mean(is.na(NHANESfac[, i]))*100, 2), "% NA)"))
+% }
+% @
+% \end{frame}
+%
+% \begin{frame}[fragile]{\thesection. \insertsection}
+% \framesubtitle{\thesection.\thesubsection. \insertsubsection}
+% <<hist, eval = F>>=
+% # syntax for continuous variables
+% NHANESnum <- NHANES[, sapply(NHANES, is.numeric)]
+% par(mfrow = c(3, 4), mar = c(3, 3.2, 0.5, 0.5), mgp = c(2, 0.6, 0))
+% for (i in 1:ncol(NHANESnum)) {
+%   hist(NHANESnum[, i], nclass = 30, xlab = names(NHANESnum)[i], main = "")
+%   legend("topright", bty = "n",
+%          legend = paste0(round(mean(is.na(NHANESnum[, i]))*100, 2), "% NA"))
+% }
+%
+% # syntax for factors
+% NHANESfac <- NHANES[, sapply(NHANES, is.factor)]
+% par(mfrow = c(3, 5), mar = c(3, 3.2, 2.5, 0.5), mgp = c(2, 0.6, 0))
+% for (i in 1:ncol(NHANESfac)) {
+%   tab <- table(NHANESfac[, i], exclude = NULL)
+%   names(tab)[is.na(names(tab))] <- "NA"
+%   barplot(tab, main = paste0(names(NHANESfac)[i]," (",
+%                              round(mean(is.na(NHANESfac[, i]))*100,
+%                                    2), "% NA)"))
+% }
+% @
+% \end{frame}
 
 \subsection{Correlations \& patterns}
 \begin{frame}[fragile]{\thesection. \insertsection}
@@ -263,6 +262,27 @@ Good auxiliary variables
 \end{frame}
 
 
+
+\begin{frame}
+\begin{beamercolorbox}[sep=8pt,center,wd=\textwidth]{part title}
+\usebeamerfont{part title}
+Practical
+\end{beamercolorbox}
+
+\vfill
+
+To practice the content of the previous section in an \textbf{interactive tutorial}
+go to
+\begin{block}{}
+\centering\url{https://emcbiostatistics.shinyapps.io/EP16_IncompleteData}
+\end{block}
+\vfill
+or find the \textbf{html version} of the practical here:
+\begin{block}{}
+\centering\url{https://nerler.github.io/EP16_Multiple_Imputation/practical/incompletedata/IncompleteData.html}
+\end{block}
+\end{frame}
+
 \section{Imputation with \texttt{mice()}}
 \subsection{Main function arguments}
 \begin{frame}{\thesection. \insertsection}
@@ -303,7 +323,7 @@ most commonly used ones are:
 Example: To use \texttt{\hlstr{norm}} instead of \texttt{\hlstr{pmm}} for all
 continuous incomplete variables, use:
 
-<<mice example, eval = F, size = 'small'>>=
+<<mice example, eval = FALSE, size = 'small'>>=
 mice(NHANES, defaultMethod = c("norm", "logreg", "polyreg", "polr"))
 @
 
@@ -365,7 +385,8 @@ head(imp0$predictorMatrix)[, 1:11]
 
 Variables \blue{not used as predictor} are (or have to be set to) \blue{zero}.\bigskip
 
-By \blue{default, all variables} (except the variable itself) \blue{are used} as predictor.\\
+By \blue{default, all variables} (except the variable itself) \blue{are used}
+as predictor.\\
 For complete variables all entries are 0.
 
 \end{frame}
@@ -398,7 +419,7 @@ automatically chosen imputation models are appropriate.
 
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-<<imp, eval = F, size = 'small'>>=
+<<imp, eval = FALSE, size = 'small'>>=
 library(mice)
 imp0 <- mice(NHANES, maxit = 0,
              defaultMethod = c("norm", "logreg", "polyreg", "polr"))
@@ -409,10 +430,10 @@ meth["HyperMed"] <- ""
 pred <- imp0$predictorMatrix
 pred[, "HyperMed"] <- 0
 imp <- mice(NHANES, method = meth, predictorMatrix = pred,
-            printFlag = F)
+            printFlag = FALSE)
 @
 
-<<imprun, echo = F, eval = F>>=
+<<imprun, echo = FALSE, eval = FALSE>>=
 library(mice)
 imp0 <- mice(NHANES, maxit = 0,
              defaultMethod = c("norm", "logreg", "polyreg", "polr"))
@@ -422,11 +443,12 @@ meth["HyperMed"] <- ""
 
 pred <- imp0$predictorMatrix
 pred[, "HyperMed"] <- 0
-imp <- mice(NHANES, method = meth, predictorMatrix = pred, printFlag = F)
+imp <- mice(NHANES, method = meth, predictorMatrix = pred, printFlag = FALSE,
+            seed = 2019)
 save(imp, file = file.path(projdir, "Slides/workspaces/imp.RData"))
 @
 
-<<impget, echo = F>>=
+<<impget, echo = FALSE>>=
 library(mice)
 imp0 <- mice(NHANES, maxit = 0,
              defaultMethod = c("norm", "logreg", "polyreg", "polr"))
@@ -556,7 +578,7 @@ plotDF <- reshape2::melt(cbind(orig = NHANES$creat,
                      ))
 
 p <- ggplot(plotDF, aes(x = value, fill = Var2, color = Var2)) +
-  geom_histogram(alpha = 0.3, bins = 200, position = "identity") +
+  geom_histogram(alpha = 0.3, bins = 200, position = "identity", na.rm = TRUE) +
   theme_light() +
   theme(legend.position = "bottom",
         legend.text = element_text(size = 16)) +
@@ -587,18 +609,18 @@ p
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 With the following syntax all imputed values of \Rstring{creat} that are
 outside the interval \texttt{c(0, 100)} will be \blue{set to those limiting values}.
-<<imp2, eval = F, size = 'small'>>=
+<<imp2, eval = FALSE, size = 'small'>>=
 post <- imp$post
 post["creat"] <- "imp[[j]][,i] <- squeeze(imp[[j]][,i], c(0, 100))"
 imp2 <- update(imp, post = post, maxit = 20, seed = 123)
 @
-<<imp2run, echo = F, eval = F>>=
+<<imp2run, echo = FALSE, eval = FALSE>>=
 post <- imp$post
 post["creat"] <- "imp[[j]][,i] <- squeeze(imp[[j]][,i], c(0, 100))"
 imp2 <- update(imp, post = post, maxit = 20, seed = 123)
 save(imp2, file = file.path(projdir, "Slides/workspaces/imp2.RData"))
 @
-<<imp2get, echo = F>>=
+<<imp2get, echo = FALSE>>=
 post <- imp$post
 post["creat"] <- "imp[[j]][,i] <- squeeze(imp[[j]][,i], c(0, 100))"
 load(file.path(projdir, "Slides/workspaces/imp2.RData"))
@@ -683,8 +705,8 @@ To get consistent values of these two variables, we need to change the
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 
 <<visitSeq2, size = 'small'>>=
-visitSeq <- c(visitSeq[-which(names(visitSeq) == "hypten")],
-              visitSeq["hypten"])
+visitSeq <- c(visitSeq[-which(visitSeq == "hypten")],
+              "hypten")
 visitSeq
 @
 
@@ -763,6 +785,24 @@ works}, so often some tailoring is needed.'' \cite[p. 124]{Buuren2012}
 \end{quote}
 \end{frame}
 
+\begin{frame}
+\begin{beamercolorbox}[sep=8pt,center,wd=\textwidth]{part title}
+\usebeamerfont{part title}
+Practical
+\end{beamercolorbox}
+
+\vfill
+
+To practice the content of the previous section in an \textbf{interactive tutorial} go to
+\begin{block}{}
+\centering\url{https://emcbiostatistics.shinyapps.io/EP16_MImice}
+\end{block}
+\vfill
+or find the \textbf{html version} of the practical here:\\
+\begin{block}{}
+\centering\url{https://nerler.github.io/EP16_Multiple_Imputation/practical/mimice/MImice.html}
+\end{block}
+\end{frame}
 
 \section{Convergence \& Diagnostics}
 \subsection{Logged events}
@@ -880,7 +920,8 @@ are assumed to be the same as the conditional distributions of the observed data
 \bigskip
 
 These functions create \href{https://stat.ethz.ch/R-manual/R-devel/library/lattice/html/Lattice.html}{lattice graphics},
-which can be modified analogous to their parent functions from the \textbf{lattice} package.
+which can be modified analogous to their parent functions from the
+\textbf{lattice} package.
 \end{frame}
 
 
@@ -904,7 +945,7 @@ In some cases differences in distributions can be explained by strata in the
 data, however, here, \Rstring{gender} does not explain the difference in
 observed and imputed values.
 <<densityplot2, fig.width = 9, fig.height = 5, out.width = "80%">>=
-densityplot(imp2, ~height|gender, plot.points = T)
+densityplot(imp2, ~height|gender, plot.points = TRUE)
 @
 \end{frame}
 
@@ -960,23 +1001,20 @@ category.
 \bigskip
 
 \textbf{mice} does not provide a function to do this, but we can write one
-ourselves, as for instance the function \Rfct{probplot}, for which the syntax
+ourselves, as for instance the function \Rfct{propplot}, for which the syntax
 can be found \href{https://gist.github.com/NErler/0d00375da460dd33839b98faeee2fdab}{here}.
 
-The function can be loaded into \textsf{R} using:
-<<load gist, message = F, eval = F, size = 'small'>>=
-devtools::source_gist("0d00375da460dd33839b98faeee2fdab",
-                      filename = "probplot.R")
-@
-<<load probplot, message = F, echo = F>>=
-source(file.path(projdir, "Slides", "Rfcts", "probplot.R"))
+The function can be downloaded from:
+\url{https://gist.github.com/NErler/0d00375da460dd33839b98faeee2fdab}
+<<load propplot, message = F, echo = F>>=
+source(file.path(projdir, "Slides", "Rfcts", "propplot.R"))
 @
 \end{frame}
 
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-<<probplot, warning = F, fig.width = 10, fig.height = 6, size = 'small'>>=
-probplot(imp2, strip.text = element_text(size = 14))
+<<propplot, warning = F, fig.width = 10, fig.height = 6, size = 'small'>>=
+propplot(imp2, strip.text = element_text(size = 14))
 @
 \end{frame}
 
@@ -1002,12 +1040,12 @@ for \Rstring{alc}, we can include those factors into the plot.
 
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-<<probplot_alc_print, eval = FALSE, size = 'small'>>=
-probplot(imp2, formula = alc ~ race + gender)
+<<propplot_alc_print, eval = FALSE, size = 'small'>>=
+propplot(imp2, formula = alc ~ race + gender)
 @
 
-<<probplot_alc, fig.width = 10, fig.height = 6, echo = FALSE>>=
-probplot(imp2, formula = alc ~ race + gender, strip.text = element_text(size = 12))
+<<propplot_alc, fig.width = 10, fig.height = 6, echo = FALSE>>=
+propplot(imp2, formula = alc ~ race + gender, strip.text = element_text(size = 12))
 @
 \end{frame}
 
@@ -1031,31 +1069,35 @@ without \Rstring{hypten}.
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 Plotting the proportions of observed and imputed \Rstring{hypten} separately
 per quartile of \Rstring{age}:
-<<probplot_hypten_print, fig.width = 10, fig.height = 4.5, eval = FALSE>>=
-probplot(imp2, formula = hypten ~ cut(age, quantile(age), include.lowest = T))
+<<propplot_hypten_print, fig.width = 10, fig.height = 4.5, eval = FALSE>>=
+propplot(imp2, formula = hypten ~ cut(age, quantile(age), include.lowest = T))
 @
 
-<<probplot_hypten, fig.width = 10, fig.height = 5, echo = FALSE>>=
-probplot(imp2, formula = hypten ~ cut(age, quantile(age), include.lowest = T),
+<<propplot_hypten, fig.width = 10, fig.height = 5, echo = FALSE>>=
+propplot(imp2, formula = hypten ~ cut(age, quantile(age), include.lowest = T),
          strip.text = element_text(size = 12))
 @
 \end{frame}
 
-% \begin{frame}[fragile]{\thesection. \insertsection}
-% \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-% For the first three quartiles of \Rstring{age} the distribution of the imputed
-% values is similar to the distribution of the observed values of \Rstring{hypten}.
-% <<hyptenagetab>>=
-% with(NHANES, table(age = cut(age, quantile(age), include.lowest = T),
-%                    hypten, exclude = NULL))
-% @
-% Since there are only
-% \Sexpr{with(NHANES, sum(is.na(hypten[age > quantile(age, 0.75)])))}
-% missing values for the last quartile, differences between observed and imputed
-% values are insignificant.
-% \end{frame}
 
+\begin{frame}
+\begin{beamercolorbox}[sep=8pt,center,wd=\textwidth]{part title}
+\usebeamerfont{part title}
+Practical
+\end{beamercolorbox}
 
+\vfill
+
+To practice the content of the previous section in an \textbf{interactive tutorial} go to
+\begin{block}{}
+\centering\url{https://emcbiostatistics.shinyapps.io/EP16_MIcheck}
+\end{block}
+\vfill
+or find the \textbf{html version} of the practical here:\\
+\begin{block}{}
+\centering\url{https://nerler.github.io/EP16_Multiple_Imputation/practical/micheck/MIcheck.html}
+\end{block}
+\end{frame}
 
 \section{Analyse \& pool the imputed data}
 \subsection{Analysing imputed data}
@@ -1194,7 +1236,7 @@ mice::complete(x, action = 1, include = FALSE)
                                   ordered by imputation)}
       \item \Rstring{"repeated"}: (like \Rstring{"broad"}, but ordered by variable)
       \end{itemize}
-\item \Rarg{include}: include the orginal data?\\
+\item \Rarg{include}: include the original data?\\
       (if \Rarg{action} is \Rstring{"long"}, \Rstring{"broad"} or \Rstring{"repeated"})
 \end{itemize}
 \end{frame}
@@ -1360,21 +1402,75 @@ under
 
 
 
-\begin{frame}
-\begin{beamercolorbox}[sep=8pt,center,wd=\textwidth]{part title}
-\usebeamerfont{part title}
-Practical
-\end{beamercolorbox}
+\section*{Summary of Part II}
+\begin{frame}[fragile, allowframebreaks]{\insertsection}
 
-\vfill
+\blue{6. Know your data}\\
+Check the
+\begin{itemize}
+\item missing data pattern
+\item distribution of observed values
+\item associations \& patterns in the observed values
+\end{itemize}
 
-To practice all that we have seen above, go to
-\begin{block}{}
-\centering\url{https://emcbiostatistics.shinyapps.io/MICourse_MICE}
-\end{block}
-or download the instructions and data for the practical from Canvas\\
-(Files $>$ Principal documents $>$ Multiple Imputation $>$ Practical MICE).
+\vspace*{3ex}
 
-\vfill
+\begin{itemize}
+\item Think about why values are missing. Is MAR reasonable?
+\item Is additional information available (auxiliary variables)?
+\end{itemize}
+
+\framebreak
+
+\blue{7. Imputation with mice}\\
+Specification of
+\begin{itemize}
+\item imputation method
+\item predictor matrix
+\item visit sequence
+\end{itemize}
+
+\vspace*{3ex}
+
+Further tailoring of the imputation using
+\begin{itemize}
+\item passive imputation
+\item post processing
+\end{itemize}
+
+\framebreak
+
+\blue{8. Convergence \& Diagnostics}
+\begin{itemize}
+\item Logged events
+\item convergence: traceplots
+\item distribution of observed and imputed values (conditional on other variables)\\
+\end{itemize}
+
+
+\blue{9. Analysis \& Pooling}
+\begin{itemize}
+\item \textbf{mice} functions \Rfct{with} and \Rfct{pool}
+\item alternative pooling using \textbf{mitools}
+\item additional functions in \textbf{mice}: \Rfct{pool.r.squared}, \Rfct{pool.compare}
+\item additional functions in other packages: \Rfct{miceadds::micombine.chisquare},
+\Rfct{miceadds::micombine.F}
+\end{itemize}
+
+\framebreak
+
+\blue{10. Additional functions in mice}
+\begin{itemize}
+\item \Rfct{complete}, \Rfct{mids2spss}
+\item \Rfct{ibind}, \Rfct{cbind.mids}
+\end{itemize}
+
+\vspace*{3ex}
+
+\blue{11. Multiple Imputation in SPSS}
+\begin{itemize}
+\item limited choices of settings
+\item pooling only for selected analysis methods
+\end{itemize}
 
 \end{frame}
