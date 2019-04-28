@@ -1,0 +1,382 @@
+---
+title: "Imputation of Longitudinal or Multi-level Data"
+output: 
+  html_document:
+    code_folding: show
+    df_print: paged
+    toc: true
+    toc_float:
+      collapsed: false
+    number_sections: false
+    theme: spacelab
+    highlight: tango
+    includes:
+      after_body: ../footer.html
+    css: ../style.css
+#   learnr::tutorial:
+#     progressive: true
+#     allow_skip: true
+# runtime: shiny_prerendered
+---
+
+```{r, include = FALSE}
+runimps <- TRUE
+
+if (names(rmarkdown::metadata$output) == "learnr::tutorial") {
+  library(learnr)
+  learnr::initialize_tutorial()
+  static <- FALSE
+}
+
+if (names(rmarkdown::metadata$output) == "html_document") {
+  knitr::opts_hooks$set(eval = function(opt) {
+    if (any(opt$exercise))
+      opt$eval <- opt$include <- FALSE
+    
+    opt
+  })
+  
+  static <- TRUE
+  
+  options(width = 100)
+}
+```
+
+
+```{r packages, include = FALSE}
+library(kableExtra)
+library(knitr)
+library(JointAI)
+library(ggplot2)
+library(nlme)
+library(lme4)
+```
+
+
+```{r load_data, context="data", include=FALSE}
+load("www/pbclong.RData")
+
+source("www/propplot.R")
+# load("www/imps_long.RData")
+
+library(mice)
+```
+
+
+## Preface {data-progressive=FALSE}
+### R packages
+
+```{r, eval = static, echo = FALSE, results = 'asis'}
+cat('In this practical, a number of R packages are used.
+If any of them are not installed you can still follow the practical
+but will not be able to run all of the code. The packages used (with versions
+that were used to generate the solutions) are:')
+```
+```{r, eval = !static, echo = FALSE, results = 'asis'}
+cat('In this practical, a number of R packages are used.
+    The names of the packages used (and their version numbers available on this platform) are:')
+```
+
+* `mice` (version: `r packageVersion("mice")`)
+* `nlme` (version: `r packageVersion("nlme")`)
+* `JointAI` (version: `r packageVersion("JointAI")`)
+* `ggplot2` (version: `r packageVersion("ggplot2")`)
+* `reshape2` (version: `r packageVersion("reshape2")`)
+
+
+### Help files
+You can find help files for any function by adding a `?` before the name of the 
+function.
+```{r, eval = !static, results = 'asis', echo = FALSE}
+cat("The files might look a bit funny when they are displayed as R output.")
+```
+
+Alternatively, you can look up the help pages online at 
+[https://www.rdocumentation.org/](https://www.rdocumentation.org/)
+or find the whole manual for a package at
+[https://cran.r-project.org/web/packages/available_packages_by_name.html](https://cran.r-project.org/web/packages/available_packages_by_name.html)
+
+
+### Dataset 
+
+### Data & Model of interest {.tabset .tabset-fade .tabset-pills}
+In this part of the practical, we will work with a different subset of the PBC data,
+omitting the longitudinal structure and focusing on the survival component.
+
+```{r, eval = static, echo = FALSE}
+asis_output('To get the **pbcdat** data, load the file `pbcdat.RData`.')
+```
+
+
+The variables contained in this subset (`pbcdat`) are:
+```{r, echo = FALSE}
+pbctab <- rbind(
+  c("time", "number of years between inclusion and death, transplantion, or 
+    end of follow-up"),
+  c("status", "status at `time` (censored, transplant, dead)"),
+  c("age", "patient's  age at intake"),
+  c("sex", "patient's sex"),
+  c("platelet", "platelet count"),
+  c("chol", "serum cholesterol"),
+  c("stage", "histologic stage of disease")
+) %>% as.data.frame
+
+names(pbctab) <- c("", "")
+
+pbctab %>% kable(format = 'html') %>%
+  kable_styling()
+```
+
+
+The variables in `pbcdat` dataset have the following distributions:
+```{r, echo = FALSE, fig.width = 9, fig.height = 4.5}
+nc <- 4
+nr <- 2
+
+par(mfrow = c(nr, nc), mgp = c(2, 0.6, 0), mar = c(2, 3, 3, 0.5))
+
+for (i in 1:ncol(pbcdat)) {
+  if (is.numeric(pbcdat[, i])) {
+    hist(pbcdat[, i], nclass = 50, xlab = "",
+         main = paste0(names(pbcdat[i]), " (",
+                       round(mean(is.na(pbcdat[, i])) * 100, 2), "% NA)")
+    )
+  } else {
+    cattab <- table(pbcdat[, i], exclude = NULL)
+    names(cattab)[is.na(names(cattab))] <- "NA"
+    barplot(cattab, ylab = "Frequency",
+            main = paste0(names(pbcdat[i]), " (",
+                          round(mean(is.na(pbcdat[, i])) * 100, 2), "% NA)"))
+  }
+}
+```
+
+The missing data pattern is
+
+```{r, echo = FALSE, fig.align = 'center'}
+par(mar = c(4, 1, 1, 3), mgp = c(2, 0.6, 0))
+md_pattern(pbcdat, yaxis_pars = list(yaxt = 'n'))
+```
+
+
+
+We are interested to determine predictor variables for patient survival, using
+the following Cox proportional hazards model:
+```{r, eval = FALSE}
+coxph(Surv(time, status == 'dead') ~ platelet + age + sex + chol + stage)
+```
+
+
+### Imputation with **mice** {.tabset .tabset-fade .tabset-pills}
+As we have seen in the lecture, the **mice** package provides the function 
+`nelsonaalen()` that calculates the Nelson-Aalen estimator with which the
+cumulative Hazard can be approximated.
+
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 1\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+Calculate the Nelson-Aalen estimate for patient survival in the pbc data and
+perform the usual setup steps for imputation using `mice()`.
+`nelsonaalen()` does not accept the `status == 'dead'` specification of the
+event, hence, we need to create a new event indicator `event`.
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("<br>")
+```
+
+
+<div style="border:1px; border-style:solid; padding: 1em; border-color:#D11450">
+**Note:**<br>
+`nelsonaalen()` uses the name `status` internally in such a way that it is 
+replaced by the covariate `status` of our dataset `pbcdat`, which leads to an 
+error. Since we do not need the column `status` for calculating the Nelson-Aalen
+estimate (we use `event` instead), we can exclude it from the data for just this step. 
+To do this, use `data = subset(pbcdat, select = -c(status))` inside the 
+`nelsonaalen()` function.
+</div>
+
+
+```{r micesurvprep, exercise = TRUE, exercise.timelimit = 200}
+pbcdat$event <- ...
+
+```
+
+```{r micesurvprep-hint-1, include = !static}
+pbcdat$event <- as.numeric(pbcdat$status == 'dead')
+
+pbcdat$na <- nelsonaalen(data = subset(pbcdat, select = -c(status)),
+                         timevar = "time", 
+                         statusvar = "event")
+```
+
+```{r micesurvprep-hint-2, include = !static}
+pbcdat$event <- as.numeric(pbcdat$status == 'dead')
+
+pbcdat$na <- nelsonaalen(data = subset(pbcdat, select = -c(status)),
+                         timevar = "time", 
+                         statusvar = "event")
+
+micesurv0 <- mice(pbcdat, maxit = 0)
+micesurvmeth <- micesurv0$meth
+micesurvpred <- micesurv0$pred
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Solution 1\\n")
+```
+
+```{r micesurvprep-solution}
+pbcdat$event <- as.numeric(pbcdat$status == 'dead')
+
+pbcdat$na <- nelsonaalen(data = subset(pbcdat, select = -c(status)),
+                         timevar = "time", 
+                         statusvar = "event")
+
+micesurv0 <- mice(pbcdat, maxit = 0)
+micesurvmeth <- micesurv0$meth
+micesurvpred <- micesurv0$pred
+
+micesurvmeth[c("chol")] <- "midastouch"
+micesurvmeth[c("platelet")] <- "norm"
+
+micesurvpred[, "event"] <- 0
+
+# check the method and predictorMatrix
+micesurvmeth
+micesurvpred
+
+```
+
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 2\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+Now run the imputation, and analyse the imputed data.
+```{r micesurvimp-setup, include = !static, eval = !static}
+pbcdat$event <- as.numeric(pbcdat$status == 'dead')
+
+pbcdat$na <- nelsonaalen(data = subset(pbcdat, select = -c(status)),
+                         timevar = "time", 
+                         statusvar = "event")
+
+micesurv0 <- mice(pbcdat, maxit = 0)
+
+micesurvmeth <- micesurv0$meth
+micesurvpred <- micesurv0$pred
+
+micesurvmeth[c("chol")] <- "midastouch"
+micesurvmeth[c("platelet")] <- "norm"
+
+micesurvpred[, "event"] <- 0
+
+```
+
+```{r micesurvimp, exercise = TRUE, exercise.timeimit = 200}
+
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 2\\n")
+```
+
+```{r micesurvimp-solution, cache = TRUE}
+micesurv <- mice(pbcdat, predictorMatrix = micesurvpred, maxit = 10, m = 5)
+micesurv_mira <- with(micesurv, coxph(Surv(time = time, event) ~ platelet + 
+                               age + sex + chol + stage))
+
+summary(pool(micesurv_mira))
+```
+
+```{r, include = static, echo = FALSE}
+asis_output("Again, we remove the added column from the dataset to use the original data in the subsequent imputations.")
+```
+
+```{r, include = static, eval = static}
+pbcdat <- subset(pbcdat, select = -c(na))
+```
+
+
+### Imputation with **JointAI** {.tabset .tabset-fade .tabset-pills}
+
+
+### Comparison of the results for the pbc survival data {.tabset .tabset-fade .tabset-pills}
+We have imputed the pbc survival data using three different approaches:
+
+* with **mice**, using the Nelson-Aalen approximation
+* with **JointAI**
+
+Here is how the pooled results from these imputations compare:
+```{r survres, fig.width = 9, fig.height = 7, echo = FALSE, warning = FALSE}
+opt <- getOption("contrasts")
+options(contrasts = rep("contr.treatment", 2))
+
+# complete case analysis -------------------------------------------------------
+survcc <- with(pbcdat, coxph(Surv(time, status == "dead") ~ platelet + 
+                                             age + sex + chol + stage))
+
+
+# mice -------------------------------------------------------------------------
+micesurv_mira <- with(micesurv, coxph(Surv(time = time, event) ~ platelet + 
+                               age + sex + chol + stage))
+
+# # smcfcs -----------------------------------------------------------------------
+# smcsurv_impList <- mitools::imputationList(smcsurv$impDatasets)
+# 
+# 
+# smcsurv_models <- with(smcsurv_impList, coxph(Surv(time = time, event) ~ platelet + 
+#                                age + sex + chol + stage))
+# 
+# smcsurv_mira <- as.mira(smcsurv_models)
+# 
+# # jomo -------------------------------------------------------------------------
+# jomosurv_mids <- as.mids(jomosurv,
+#                          .id = which(names(jomosurv) == "id"),
+#                          .imp = which(names(jomosurv) == "Imputation"))
+# 
+# jomosurv_mira <- with(jomosurv_mids, coxph(Surv(time, event) ~ platelet + 
+#                                              age + sex + chol + stage))
+
+options(contrasts = opt)
+
+
+
+survres <- list(
+  mice = summary(pool(micesurv_mira))[, c("est", "lo 95", "hi 95")]
+  # survcc = cbind(survcc$coefficients, confint(survcc)),
+  # smcfcs = summary(pool(smcsurv_mira))[, c("est", "lo 95", "hi 95")],
+  # jomo = summary(pool(jomosurv_mira))[, c("est", "lo 95", "hi 95")]
+)
+
+survres <- lapply(1:length(survres), function(i){
+  x <- as.data.frame(survres[[i]])
+  names(x) <- c("est", "lo", "hi")
+  x$method <- names(survres)[i]
+  x$name <- gsub("sex2", "sexf", rownames(x))
+  x
+})
+
+survresDF <- do.call(rbind, survres)
+
+ggplot(survresDF, aes(x = method, y = est)) +
+  geom_point() +
+  geom_errorbar(aes(min = lo, max = hi), width = 0.5) +
+  facet_wrap("name", scales = 'free') +
+  scale_x_discrete(limits = c("mice", "JointAI")) +
+  xlab("")
+
+```

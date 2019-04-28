@@ -1,0 +1,608 @@
+---
+title: "Checks after Multiple Imputation"
+output: 
+  html_document:
+    code_folding: show
+    df_print: paged
+    toc: true
+    toc_float:
+      collapsed: false
+    number_sections: false
+    theme: spacelab
+    highlight: tango
+    includes:
+      after_body: ../footer.html
+    css: ../style.css
+#   learnr::tutorial:
+#     progressive: true
+#     allow_skip: true
+# runtime: shiny_prerendered
+---
+
+```{r, include = F}
+if (names(rmarkdown::metadata$output) == "learnr::tutorial") {
+  library(learnr)
+  learnr::initialize_tutorial()
+  static <- FALSE
+}
+
+if (names(rmarkdown::metadata$output) == "html_document") {
+  knitr::opts_hooks$set(eval = function(opt) {
+    if (any(opt$exercise))
+      opt$eval <- opt$include <- FALSE
+    
+    opt
+  })
+  
+  static <- TRUE
+  
+  options(width = 100)
+}
+```
+
+
+```{r packages, include = FALSE}
+library(kableExtra)
+library(knitr)
+# library(JointAI)
+# library(reshape2)
+# library(plyr)
+library(RColorBrewer)
+library(ggplot2)
+```
+
+
+```{r load_data, context="data", include=FALSE}
+load("www/NHANES_for_practicals.RData")
+NHANES$educ <- as.ordered(NHANES$educ)
+
+source("www/propplot.R")
+load("www/imps.RData")
+
+library(mice)
+```
+
+
+## Preface {data-progressive=FALSE}
+### R packages
+
+```{r, eval = static, echo = FALSE, results = 'asis'}
+cat('In this practical, a number of R packages are used.
+If any of them are not installed you can still follow the practical
+but will not be able to run all of the code. The packages used (with versions
+that were used to generate the solutions) are:')
+```
+```{r, eval = !static, echo = FALSE, results = 'asis'}
+cat('In this practical, a number of R packages are used.
+    The names of the packages used (and their version numbers available on this platform) are:')
+```
+
+* `mice` (version: `r packageVersion("mice")`)
+* `RColorBrewer` (version: `r packageVersion("RColorBrewer")`)
+* `ggplot2` (version: `r packageVersion("RColorBrewer")`)
+
+
+### Help files
+You can find help files for any function by adding a `?` before the name of the 
+function.
+```{r, eval = !static, results = 'asis', echo = FALSE}
+cat("The files might look a bit funny when they are displayed as R output.")
+```
+
+Alternatively, you can look up the help pages online at 
+[https://www.rdocumentation.org/](https://www.rdocumentation.org/)
+or find the whole manual for a package at
+[https://cran.r-project.org/web/packages/available_packages_by_name.html](https://cran.r-project.org/web/packages/available_packages_by_name.html)
+
+
+### Dataset 
+
+For this practical, we will again use the **NHANES** dataset that we have seen in
+the previous practical.
+```{r, eval = !static, echo = FALSE, results = 'asis'}
+cat("In the interactive version of this practical, the data is already loaded
+    and the variable `educ` correctly coded as an ordered factor.")
+```
+```{r, eval = static, echo = FALSE, results = 'asis'}
+cat(
+'To load this dataset, you can use the command `file.choose()` which opens the
+explorer and allows you to navigate to the location of the file
+`NHANES_for_practicals.RData` on your computer.
+If you know the path to the file, you can also use `load("<path>/NHANES_for_practicals.RData")`.
+
+If you have not followed the first practical or if you re-loaded the NHANES data
+you need to re-code the variable `educ` again:'
+)
+```
+```{r, eval = FALSE, echo = static}
+NHANES$educ <- as.ordered(NHANES$educ)
+```
+
+
+### Imputed data
+The imputed data are stored in a `mids` object called `imp` that we created in
+the previous practical.
+```{r, eval = !static, echo = FALSE, results = 'asis'}
+cat("`imp` is already loaded in this interactive version of this practical.")
+```
+```{r, eval = static, echo = FALSE, results = 'asis'}
+cat(
+'You can load it into your workspace by clicking the object `imps.RData` 
+if you are using RStudio.
+Alternatively, you can load this workspace using `load("<path>/imps.RData")`.
+You then need to run:')
+```
+```{r, eval = TRUE, echo = static}
+imp <- savedimps_imp
+```
+
+The [help file](https://www.rdocumentation.org/packages/mice/versions/2.46.0/topics/mids-class) tells us that a `mids` object is a list with several elements:
+
+```{r, echo = FALSE}
+midsdf <- rbind(
+  c("`data`:", "Original (incomplete) data set."),
+  c("`imp`:",
+    paste0("The imputed values: A list of `ncol(data)` components, ",
+           "each list component is a matrix with `nmis[j]` rows and `m` columns.")),
+  c("`m`:",
+    "The number of imputations."),
+  c("`where`:", "The missingness indicator matrix."),
+ c("`blocks`", "The blocks argument of the `mice()` function."),  
+  c("`call`:", "The call that created the `mids` object."),
+  c("`nmis`:",
+    "The number of missing observations per variable."),
+  c("`method`:",
+    "The vector imputation methods."),
+  c("`predictorMatrix`:",
+    "The predictor matrix."),
+  c("`visitSequence`:", 
+    "The sequence in which columns are visited during imputation."),
+ c("`formulas`", "A named list of formulas corresponding the the imputed variables (blocks)."),
+  c("`post`:",
+    "A vector of strings of length `length(blocks)` with commands for post-processing."),
+ # c("`blots`", ""),
+  c("`seed`:",
+    "The seed value of the solution."),
+  c("`iteration`:", 
+    "The number of iterations."),
+  c("`lastSeedValue`:",
+    "The most recent seed value."),
+  c("`chainMean:`", 
+    paste0("The mean of imputed values per variable and iteration: ",
+           "a list of `m` components. Each component is a matrix with `maxit`",
+           "columns and `length(visitSequence)` rows.")),
+  c("`chainVar`:",
+    paste0("The variances of imputed values per variable and iteration" ,
+           "(same structure as `chainMean`).")),
+  c("`loggedEvents`:",
+    paste0("A `data.frame` with the record of automatic corrective actions and warnings; ",
+           "(`NULL` if no action was made).")),
+  # c("`pad`:",
+  #   paste0("A list containing the internally used version of the `data`,",
+  #          "`method`, `predictorMatrix`, `visitSequence`, `post` and dummy coding.")
+ c("`version`", "Version number of the **mice** package that created the object."),
+ c("`date`", "Date at which the object was created.")
+) %>% as.data.frame
+
+names(midsdf) <- c(" ", " ")
+
+midsdf %>% kable(format = 'html') %>%
+  kable_styling()
+  # row_spec(c(4:10, 12:16), background = "#f2f2f2")
+```
+
+
+
+**Details of the `loggedEvents`:**
+
+`mice()` does some pre-processing of the data:
+
+  * variables containing missing values, that are not imputed but used as
+    predictor are removed
+  * constant variables are removed
+  * collinear variables are removed
+  
+  
+Furthermore, during each iteration
+
+  * variables (or dummy variables) that are linearly dependent are removed
+  * `polr` imputation that does not converge is replaced by `polyreg`. 
+  
+The `data.frame` in `loggedEvents` has the following columns:
+```{r, echo = FALSE}
+rbind(
+  c("`it`", "iteration number"), 
+  c("`im`", "imputation number"),
+  c("`dep`", "name of the name of the variable being imputed"),
+  c("`meth`", "imputation method used"),
+  c("`out`", "character vector with names of altered/removed predictors")
+) %>%
+  kable(format = "html") %>%
+  kable_styling(full_width = FALSE)
+
+```
+
+## Evaluate the imputation
+### Checking the settings {.tabset .tabset-fade .tabset-pills}
+
+It is good practice to make sure that `mice()` has not done 
+any processing of the data that was not planned or that you are not aware of.
+This means checking that the correct `method`, `predictorMatrix` and
+`visitSequence` were used.
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+Do these checks for `imp`.
+
+```{r checkmids, exercise = TRUE, exercise.setup = "allimp"}
+
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution\\n")
+```
+
+```{r checkmids-solution, solution = TRUE}
+imp$method
+imp$predictorMatrix
+imp$visitSequence
+
+# you can also try
+# identical(imp$method, meth)
+# identical(imp$predictorMatrix, pred)
+# identical(imp$visitSequence, visSeq)
+```
+
+### Logged events {.tabset .tabset-fade .tabset-pills}
+Checkingt the `loggedEvent` shows us if `mice()` detected any problems during
+the imputation.
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 1\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+Check the `loggedEvents` for `imp`.
+
+```{r imploggedEvents, exercise = TRUE, exercise.setup = "allimp"}
+
+```
+
+```{r, eval = !static, echo = FALSE}
+asis_output("### \\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 1\\n")
+```
+
+```{r imploggedEvents-solution, solution = TRUE}
+imp$loggedEvents
+```
+
+There are no logged events, great!
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 2\\n")
+```
+
+```{r, echo = FALSE}
+impnaive <- savedimps_impnaive
+```
+
+Let's see what would have happened if we had not prepared the
+`predictorMatrix`, `method` and `visitSequence` before imputation.
+```{r, eval = !static, echo = FALSE}
+asis_output("The object `impnaive` contains the result of")
+```
+```{r, eval = FALSE, include = !static}
+impnaive <- mice(NHANES, m = 5, maxit = 30)
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+
+asis_output('Run the imputation without setting any additional arguments:<br>
+            `impnaive <- mice(NHANES, m = 5, maxit = 30)`')
+```
+
+Take a look at the `loggedEvents` of `impnaive`. 
+
+```{r impnaiveloggedEvents, exercise = TRUE, exercise.setup = "allimp"}
+
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 2\\n")
+```
+
+```{r impnaiveloggedEvents-solution, solution = TRUE}
+impnaive$loggedEvents
+```
+
+
+```{r, eval = !static, echo = FALSE}
+asis_output("### \\n")
+```
+
+
+The `loggedEvents` of the "naive" imputation show that the constant variable
+`cohort` was excluded before the imputation (as it should be).
+Furthermore, in the imputation model for `HyperMed`, the variable `hyptenyes`
+was excluded (`hyptenyes` is the dummy variable belonging to `hypten`).
+
+<br>
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 3\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+We did not change the `visitSequence` in `impnaive`. Find out how that
+affected the imputed values of `BMI`.
+
+```{r impnaiveVisSeq, exercise = TRUE, exercise.setup = "allimp"}
+
+```
+
+```{r impnaiveVisSeq-hint-1, include = !static, echo = FALSE}
+# You can get an imputed datasets from a mids object using the function complete().
+# Use ?complete for more information.
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 3\\n")
+```
+
+```{r, impnaiveVisSeq-solution, solution = TRUE}
+naiveDF1 <- complete(impnaive, 1)
+naivecalcBMI <- with(naiveDF1, wgt/hgt^2)
+
+impDF1 <- complete(imp, 1)
+impcalcBMI <- with(impDF1, wgt/hgt^2)
+
+cbind(naiveBMI = naiveDF1$BMI, naivecalcBMI,
+      impBMI = impDF1$BMI, impcalcBMI)[which(is.na(NHANES$BMI)), ]
+
+```
+
+When we compare the imputed and calculated values of `BMI` from `impnaive` we
+can see that the imputed `hgt` and `wgt` give a different `BMI` than is
+imputed. This is because `BMI` is imputed before `wgt`, which means that the
+most recent imputed value of `wgt` is from the previous iteration.
+
+Changing the `visitSequence` in `imp` prevented this inconsistency.
+
+
+### Convergence {.tabset .tabset-fade .tabset-pills}
+In order to obtain correct results, the MICE algorithm needs to have converged.
+This can be checked visually by plotting summaries of the imputed values
+accross the iterations.
+
+The mean and variance of the imputed values per iteration and variable is
+stored in the elements `chainMean` and `chainVar` of the `mids` object.
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+Plot them to see if our imputation `imp` has converged.
+
+```{r convergence, exercise = TRUE, exercise.setup = "allimp", fig.width = 9, fig.height = 7}
+
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution\\n")
+```
+
+```{r convergence-solution, solution = TRUE, fig.width = 8.5, fig.height = 7}
+# implemented plotting function (use layout to change the number of rows and columns)
+plot(imp, layout = c(6, 6))
+```
+
+```{r, eval = !static, echo = FALSE}
+asis_output("### \\n")
+```
+
+The chains in `imp` seem to have converged, however it is difficult to judge this
+based on only 10 iterations. In practice, more iterations should be done.
+
+
+To save you some time, I ran the imputation again with 30 iterations and the
+traceplots confirm convergence:
+```{r, echo = FALSE}
+imp30 <- savedimps_imp30
+impnaive <- savedimps_impnaive
+```
+
+```{r, fig.width = 9, fig.height = 7}
+plot(imp30, layout = c(6, 6))
+```
+
+
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Continue\\n")
+```
+
+In comparison, `impnaive` had some convergence problems:
+```{r, fig.width = 9, fig.height = 7}
+plot(impnaive, layout = c(6, 6))
+```
+
+
+`hgt`, and `wgt` show a clear trend and the chains do not mix well, i.e., there
+is more variation between the chains than within each chain.
+(the same is the case for `BMI`).
+
+These are clear signs that there is correlation or identification
+problems between these variables and some other variables (which is why we made
+adjustments to the `predictorMatrix` for `imp`).
+
+### Imputed values {.tabset .tabset-fade .tabset-pills}
+Now that we know that `imp` has converged, we can compare the distribution of
+the imputed values against the distribution of the observed values.
+When our imputation models fitted the data well, they should have similar
+distributions (conditional on the covariates used in the imputation model).
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 1 \\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+* Plot the distributions of the imputed variables (continuous and categorical).
+* Make sure the imputed values are realistic (e.g., height of 2.50m or weight of 10kg for adults).
+
+```{r, echo = FALSE, eval = !static}
+asis_output("**Note:** The function `propplot()` is already loaded. To use this
+            function on your own computer you can download it from
+            [https://gist.github.com/NErler/0d00375da460dd33839b98faeee2fdab](https://gist.github.com/NErler/0d00375da460dd33839b98faeee2fdab)")
+```
+
+```{r distrplot, exercise = TRUE, exercise.setup = "allimp", fig.width = 9, fig.height = 7}
+
+```
+
+```{r impdistrhint, eval = static, results = 'asis', echo = FALSE}
+cat('<button type="button" class="btn btn-info btn-sm" data-toggle="collapse" data-target="#impdistrhint">Hint 1</button>
+<div id = "impdistrhint" class="collapse" style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+You can use `densityplot()` and `propplot()` to get plots for all continuous and
+categorical variables.
+
+`propplot()` is not part of any package. Copy the following syntax that defines
+this function:
+
+<script src="https://gist.github.com/NErler/0d00375da460dd33839b98faeee2fdab.js"></script>
+
+</div>')
+cat('<button type="button" class="btn btn-info btn-sm" data-toggle="collapse" data-target="#impdistrhint2">Hint 2</button>
+<div id = "impdistrhint2" class="collapse" style="border:1px; border-style:solid; padding: 1em; border-color:#1F78B4">
+To check all imputed values you can either get a summary of the `imp` element
+of the `mids` object or create a complete dataset containing all imputations
+using the function `complete()` and get the summary of that.
+</div>')
+```
+
+```{r distrplot-hint-1, include = !static, echo = FALSE}
+# You can use "densityplot()" and "propplot()" to get plots for all continuous and
+# categorical variables.
+# 
+# The function "propplot() is not part of any package but can be found online:
+# https://gist.github.com/NErler/0d00375da460dd33839b98faeee2fdab
+# 
+# In this practical it is available automatically.
+# 
+# To check all imputed values you can either get a summary of the "imp" element
+# of the mids object or create a complete dataset containing all imputations
+# using the function "complete()" and get the summary of that.
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 1\\n")
+```
+
+
+```{r distrplot-solution, solution = TRUE, fig.width = 9, fig.height = 7, cache = TRUE}
+# plot densities of continuous variables
+densityplot(imp)
+
+
+# plot for all categorical variables
+propplot(imp)
+
+# get the summary of the "the" imputed values
+sapply(Filter(function(x) nrow(x) > 0, imp$imp),
+       function(x) summary(unlist(x))
+)
+```
+
+```{r, eval = !static, echo = FALSE}
+asis_output("### \\n")
+```
+
+Unfortunately, we have some negative imputed values for `bili`. Often, this
+would not result in bias in the analysis, but may be difficult to explain
+when providing a summary of the imputed data in a publication.
+In the present example we can see that the observed values have a slightly
+right-skewed distribution compared to the imputed values. Re-doing the
+imputation with `pmm` instead of `norm` for `bili` should fix this.
+(However, since the imputations seem fine overall, and there is little knowledge
+gain in re-doing the previous steps, we will skip this repetition 
+in this practical.)
+
+The distributions of the imputed values for `hgt` and `SBP` differ a bit
+from the distributions of the observed data.
+
+We also imputed a larger proportion than might have been expected in the 
+highest category of `alc`, and the distribution of values for `smoke`
+looks a bit weird (but `smoke` only has one missing value, which makes it difficult
+to judge the distribution of the imputed values).
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 2 \\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+
+Investigate if differences in the distributions of observed and imputed values,
+can be explained by other variables. Check this for
+
+* `SBP` conditional on `gender` and `hypten`
+* `hgt` conditional on `gender`
+* `alc` conditional on `gender` or `smoke`
+
+
+```{r distrplot2, exercise = TRUE, exercise.setup = "allimp", fig.width = 9, fig.height = 7}
+
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 2\\n")
+```
+
+
+```{r distrplot2-solution, solution = TRUE, fig.width = 8, fig.height = 6, cache = TRUE}
+densityplot(imp, ~SBP|hypten + gender)
+densityplot(imp, ~hgt|gender)
+
+propplot(imp, alc ~ gender + smoke)
+```
+
+

@@ -1,0 +1,374 @@
+---
+title: "Imputation of Longitudinal or Multi-level Data"
+output: 
+  html_document:
+    code_folding: show
+    df_print: paged
+    toc: true
+    toc_float:
+      collapsed: false
+    number_sections: false
+    theme: spacelab
+    highlight: tango
+    includes:
+      after_body: ../footer.html
+    css: ../style.css
+#   learnr::tutorial:
+#     progressive: true
+#     allow_skip: true
+# runtime: shiny_prerendered
+---
+
+```{r, include = FALSE}
+runimps <- TRUE
+
+if (names(rmarkdown::metadata$output) == "learnr::tutorial") {
+  library(learnr)
+  learnr::initialize_tutorial()
+  static <- FALSE
+}
+
+if (names(rmarkdown::metadata$output) == "html_document") {
+  knitr::opts_hooks$set(eval = function(opt) {
+    if (any(opt$exercise))
+      opt$eval <- opt$include <- FALSE
+    
+    opt
+  })
+  
+  static <- TRUE
+  
+  options(width = 100)
+}
+```
+
+
+```{r packages, include = FALSE}
+library(kableExtra)
+library(knitr)
+library(JointAI)
+library(ggplot2)
+library(nlme)
+library(lme4)
+```
+
+
+```{r load_data, context="data", include=FALSE}
+load("www/pbclong.RData")
+
+source("www/propplot.R")
+# load("www/imps_long.RData")
+
+library(mice)
+```
+
+
+## Preface {data-progressive=FALSE}
+### R packages
+
+```{r, eval = static, echo = FALSE, results = 'asis'}
+cat('In this practical, a number of R packages are used.
+If any of them are not installed you can still follow the practical
+but will not be able to run all of the code. The packages used (with versions
+that were used to generate the solutions) are:')
+```
+```{r, eval = !static, echo = FALSE, results = 'asis'}
+cat('In this practical, a number of R packages are used.
+    The names of the packages used (and their version numbers available on this platform) are:')
+```
+
+* `mice` (version: `r packageVersion("mice")`)
+* `nlme` (version: `r packageVersion("nlme")`)
+* `JointAI` (version: `r packageVersion("JointAI")`)
+* `ggplot2` (version: `r packageVersion("ggplot2")`)
+* `reshape2` (version: `r packageVersion("reshape2")`)
+
+
+### Help files
+You can find help files for any function by adding a `?` before the name of the 
+function.
+```{r, eval = !static, results = 'asis', echo = FALSE}
+cat("The files might look a bit funny when they are displayed as R output.")
+```
+
+Alternatively, you can look up the help pages online at 
+[https://www.rdocumentation.org/](https://www.rdocumentation.org/)
+or find the whole manual for a package at
+[https://cran.r-project.org/web/packages/available_packages_by_name.html](https://cran.r-project.org/web/packages/available_packages_by_name.html)
+
+
+### Dataset 
+
+In this part of the practical, we will work with data on a trial on primary 
+biliary cirrhosis (PBC) of the liver.
+
+```{r, eval = static, echo = FALSE}
+asis_output('To get the **pbclong** data, load the file `pbclong.RData`.')
+```
+
+
+The variables contained in the dataset `pbclong` are:
+
+```{r pbclongvars, echo = FALSE}
+pbclongvars <- rbind(
+  c("`id`", "patient identifier"),
+  c("`protime`", "blood clotting time (the longitudinal outcome)"),
+  c("`year`", "continuously measured year of follow-up time (the time variable)"),
+  c("`sex`", "patients' sex (f: female, m: male)"),
+  c("`trt`", "treatment group (0: D-penicillmain, 1: placebo)"),
+  c("`age`", "patients' age at intake"),
+  c("`ascites`", "presence of ascites at baseline (0:no, 1:yes)"),
+  c("`bili`", "serum bilirubin level at baseline"),
+  c("`chol`", "serum cholesterol level at baseline"),
+  c("`albumin`", "serum albumin level at follow-up (time-varying)")
+) %>% as.data.frame
+
+names(pbclongvars) <- c("", "")
+
+pbclongvars %>% kable(format = 'html') %>%
+  kable_styling()
+```
+
+The variables have the following distributions and proportions of missing values:
+```{r, echo = FALSE, fig.width = 8, fig.height = 8, out.width = "100%"}
+par(mgp = c(2,0.6, 0), mar = c(3,3,2,1))
+JointAI::plot_all(pbclong)
+```
+
+
+The missing data pattern is:
+
+```{r mdpatlong, echo = FALSE, fig.align = "center", fig.width = 6, fig.height = 4}
+md_pattern(pbclong)
+```
+
+<br>
+
+The longitudinal outcome `protime` shows relatively linear trajectories over time:
+```{r trajectoryplot, echo = FALSE, fig.width = 8, fig.height = 4.5}
+ggplot(pbclong, aes(x = year, y = protime, color = id, group = id)) +
+  geom_line() +
+  theme(legend.position = 'none')
+
+```
+
+To analyse the trajectories of `protime` we want to use the following linear
+mixed effects model with random intercept and slope
+(either using `lme`  from the package **nlme** or using `lmer` from the 
+package **lme4**):
+
+```{r longmodels, eval = FALSE, echo = TRUE}
+# using package nlme
+lme(protime ~ year + sex + trt + age + ascites + bili + chol + albumin, random = ~year|id)
+
+
+# using package lme4
+lmer(protime ~ year + sex + trt + age + ascites + bili + chol + albumin + (year|id))
+
+```
+
+
+### Imputation using  **mice** {.tabset .tabset-fade .tabset-pills}
+For imputation of longitudinal data, the **mice** package provides
+special imputation methods that take into account the two-level structure of
+the data.
+In the `pbclong` data missing values occur in baseline covariates only.
+For such variables, the imputation methods `2lonly.pmm` and `2lonly.norm`
+are available.
+The `predictorMatrix` requires some extra specification to identify the 
+id variable (set to -2) and the random effects structure (set to 2).
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 1\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+Run the setup imputation and perform the necessary changes in the imputation
+method and predictor matrix:
+
+```{r micelong0, exercise = TRUE}
+...
+
+meth_micelong <- ...
+pred_micelong <- ...
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 1\\n")
+```
+
+```{r micelong0-solution}
+micelong0 <- mice(pbclong, maxit = 0)
+meth_micelong <- micelong0$method
+pred_micelong <- micelong0$predictorMatrix
+
+
+meth_micelong[c("ascites", "bili", "chol")] <- "2lonly.pmm"
+
+
+pred_micelong[, "id"] <- -2
+pred_micelong[, "year"] <- 2
+
+# check the predictor matrix
+pred_micelong
+```
+
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 2\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+Now run the imputation with the adapted imputation method `meth_micelong` 
+and predictor matrix `pred_micelong`, analyse the imputed data and pool 
+the results.
+
+```{r micelong-setup, include = !static, eval = !static}
+micelong0 <- mice(pbclong, maxit = 0)
+meth_micelong <- micelong0$method
+pred_micelong <- micelong0$predictorMatrix
+
+
+meth_micelong[c("ascites", "bili", "chol")] <- "2lonly.pmm"
+
+
+pred_micelong[, "id"] <- -2
+pred_micelong[, "year"] <- 2
+```
+
+```{r micelong, exercise = TRUE, exercise.timelimit = 200}
+
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 2\\n")
+```
+
+```{r micelong-solution, eval = static, cache = TRUE}
+micelong <- mice(pbclong, meth = meth_micelong, pred = pred_micelong,
+                 maxit = 20, printFlag = FALSE)
+
+micelong_mira <- with(micelong, lme(protime ~ year + sex + trt + age + 
+                                      ascites + bili + chol + albumin,
+                                    random = ~year|id)
+)
+
+# alternative:
+micelong_mira <- with(micelong, lmer(protime ~ year + sex + trt + age + 
+                                      ascites + bili + chol + albumin + 
+                                    (year|id))
+)
+
+summary(pool(micelong_mira), conf.int = TRUE)
+```
+
+
+
+### Imputation using **JointAI** {.tabset .tabset-fade .tabset-pills}
+
+To analyse incomplete longitudinal data a linear mixed model,
+the function `lme_imp()` can be used. Its specification of the major model
+components is analogous to the function `lme()` from the **nlme** package.
+
+For the specification of the other arguments of `lme_imp()`, refer to the
+[help page](https://www.rdocumentation.org/packages/JointAI/versions/0.1.0/topics/model_imp)
+or to the details given in the previous part of this practical.
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+Run the imputation (start with `n.iter = 500`; this will take a few seconds)
+and check the `traceplot()`.
+If you are satisfied by convergence and mixing of the chains, get the
+model `summary()`.
+```{r runJoitAIlong, exercise = TRUE, fig.width = 9, fig.height = 5}
+JointAIlong <- ...
+...
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution\\n")
+```
+
+```{r runJoitAIlong-solution, cache = TRUE, fig.width = 9, fig.height = 5}
+library(JointAI)
+JointAIlong <- lme_imp(protime ~ year + sex + trt + age + ascites + bili + chol + albumin,
+    random = ~year|id, data = pbclong, n.iter = 1000)
+
+traceplot(JointAIlong)
+
+summary(JointAIlong)
+```
+
+
+### Comparison of the results for the longitudinal pbc data {.tabset .tabset-fade .tabset-pills}
+We have imputed the longitudinal pbc data using three different approaches:
+
+* with **mice**, using the 2-level imputation methods `2lonly.norm` and `2lonly.pmm`
+* with **JointAI**
+
+Here is how the pooled results from these imputations compare:
+
+```{r longres, echo = FALSE, fig.width = 9, fig.height = 7}
+opt <- getOption("contrasts")
+options(contrasts = rep("contr.treatment", 2))
+
+# mice -------------------------------------------------------------------------
+micelong_mira <- with(micelong, lme(protime ~ year + sex + trt + age + 
+                                      ascites + bili + chol + albumin,
+                                    random = ~year|id)
+)
+
+
+
+# complete case analysis --------------------------------------------------------
+longcc <- with(pbclong,
+               lmer(protime ~ year + sex + trt + age + ascites +
+                                     bili + chol + albumin +(year | id)))
+options(contrasts = opt)
+
+
+# combine the results ----------------------------------------------------------
+longres <- list(
+  mice = summary(pool(micelong_mira), conf.int = TRUE)[, c("estimate", "2.5 %", "97.5 %")],
+  # longcc = cbind(fixef(longcc), confint(longcc, parm = names(fixef(longcc)),
+  #                                       method = "Wald")),
+  JointAI = summary(JointAIlong)$stats[names(coef(JointAIlong)), c(1, 3:4)]
+)
+
+longres <- lapply(1:length(longres), function(i){
+  x <- as.data.frame(longres[[i]])
+  names(x) <- c("est", "lo", "hi")
+  x$method <- names(longres)[i]
+  x$name <- gsub("[[:digit:]]*", "", rownames(x))
+  x$name <- gsub("sexf", "sex", x$name)
+  x
+})
+
+longresDF <- do.call(rbind, longres)
+
+ggplot(longresDF, aes(x = method, y = est)) +
+  geom_point() +
+  geom_errorbar(aes(min = lo, max = hi), width = 0.5) +
+  facet_wrap("name", scales = 'free') +
+  scale_x_discrete(limits = c("mice", "JointAI")) +
+  xlab("")
+
+```
