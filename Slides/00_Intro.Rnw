@@ -13,7 +13,8 @@ How does multiple imputation work?
 How to perform MI with the \textbf{mice} package in R, from getting to know the
 data to the final results.
 \tcblower
-\blue{Practical:} Imputation with \textbf{mice}
+\blue{Practicals:} Visualizing Incomplete Data, Imputation with \textbf{mice},
+checking imputed data, analysis imputed data
 \end{tcolorbox}
 
 \framebreak
@@ -26,7 +27,8 @@ Introduction to
 \item alternative \textsf{R} packages
 \end{itemize}
 \tcblower
-\blue{Practical:} Imputation in complex settings
+\blue{Practicals:} Imputation with non-linear functional forms, imputation with
+longitudinal outcomes, imputation with survival outcomes
 \end{tcolorbox}
 
 \begin{tcolorbox}[title=Part IV: Multiple Imputation Strategies]
