@@ -422,10 +422,8 @@ observed data.
 \end{frame}
 
 
-\mode<article>{
 \section*{Summary of Part I}
-}
-\begin{frame}[allowframebreaks]{Summary of Part I}
+\begin{frame}[fragile, allowframebreaks]{\insertsection}
 \blue{1. What is Multiple Imputation?}\\
 \begin{itemize}
 \item Rubin's two \blue{ideas}:
