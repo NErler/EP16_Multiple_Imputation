@@ -5,22 +5,31 @@
 # x: mids object (from mice)
 # formula: formula describing which variables to plot
 # facet: either "wrap" for facet_wrap or "grid" for facet_grid
-# ...: additional prameters passed to theme()
+# ...: additional parameters passed to theme()
 #
 # Note: if the formula is not specified, all imputed categorical variables are
-# plottet. A formula has the structure
+# plottet.
+#
+# A formula has the structure:
 # categorical variables ~ faceting variables | color variable
-# By default, .imp (imputation set identifier) will be used as color variable
-probplot <- function(x, formula, facet = "wrap", ...) {
-  library(plyr)
-  library(RColorBrewer)
+#
+# By default, .imp (imputation set identifier) will be used as color variable.
+#
+# This function uses the following packages:
+# - mice
+# - reshape2
+# - RColorBrewer
+# - ggplot2
+
+propplot <- function(x, formula, facet = "wrap", ...) {
   library(ggplot2)
-  library(reshape2)
 
   cd <- data.frame(mice::complete(x, "long", include = TRUE))
+  cd$.imp <- factor(cd$.imp)
+
   r <- as.data.frame(is.na(x$data))
 
-  impcat <- imp$meth != "" & sapply(x$data, is.factor)
+  impcat <- x$meth != "" & sapply(x$data, is.factor)
   vnames <- names(impcat)[impcat]
 
   if (missing(formula)) {
@@ -58,16 +67,16 @@ probplot <- function(x, formula, facet = "wrap", ...) {
     cd[, wvars[i]] <- with(cd, eval(parse(text = wvars[i])))
   }
 
-  meltDF <- melt(cd[, c(wvars, svars, xnames)], id.vars = c(wvars, svars))
+  meltDF <- reshape2::melt(cd[, c(wvars, svars, xnames)], id.vars = c(wvars, svars))
   meltDF <- meltDF[!is.na(meltDF$value), ]
 
 
   wvars <- if (!is.null(wvars)) paste0("`", wvars, "`")
 
-  a <- ddply(meltDF, c(wvars, svars, "variable", "value"), summarize,
-             count = length(value))
-  b <- ddply(meltDF, c(wvars, svars, "variable"), summarize,
-             tot = length(value))
+  a <- plyr::ddply(meltDF, c(wvars, svars, "variable", "value"), plyr::summarize,
+                   count = length(value))
+  b <- plyr::ddply(meltDF, c(wvars, svars, "variable"), plyr::summarize,
+                   tot = length(value))
   mdf <- merge(a,b)
   mdf$prop <- mdf$count / mdf$tot
 
@@ -83,7 +92,7 @@ probplot <- function(x, formula, facet = "wrap", ...) {
     scale_fill_manual(name = "",
                       values = c("black",
                                  colorRampPalette(
-                                   brewer.pal(9, "Blues"))(imp$m + 3)[1:imp$m + 3])) +
+                                   RColorBrewer::brewer.pal(9, "Blues"))(x$m + 3)[1:x$m + 3])) +
     guides(fill = guide_legend(nrow = 1))
 
   if (facet == "wrap")
