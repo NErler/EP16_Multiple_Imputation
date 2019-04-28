@@ -24,7 +24,7 @@ but there are many more methods implemented.
 
 \bigskip
 
-Imputation methods implemented in the \textbf{mice} package:
+Imputation methods implemented in the \textbf{mice} package:\vspace*{-1ex}
 <<getmicemeths, echo = FALSE, warning = FALSE, results = 'asis'>>=
 used <- paste0("mice.impute.",
                 c("norm", "pmm", "midastouch", "logreg", "polyreg", "polr",
@@ -32,7 +32,7 @@ used <- paste0("mice.impute.",
 )
 
 mentioned <- paste0("mice.impute.",
-                c("2l.lmer", "2l.norm", "2l.pan", "2lonly.mean", "passive",
+                c("2l.lmer", "2l.bin", "2l.norm", "2l.pan", "2lonly.mean", "passive",
                   "logreg.boot", "norm.boot", "norm.predict")
 )
 
@@ -171,7 +171,7 @@ be handled adequately using MICE (or any other imputation method).
 
 \bigskip
 
-The amount of missingness that can be handeled \blue{depens on the information that
+The amount of missingness that can be handeled \blue{depends on the information that
 is available} to impute it.
 
 \begin{itemize}
@@ -327,6 +327,20 @@ dealing with missing data would still be to large to mention them all.
 only option to perform imputation!}
 \end{frame}
 
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+\blue{CRAN Task View on Missing Data:}
+
+\href{https://cran.r-project.org/web/views/MissingData.html}{https://cran.r-project.org/web/views/MissingData.html}
+
+\begin{itemize}
+\item Gives an overview on the available \textsf{R} packages for missing data / imputation
+\item Good point to start when searching a package with a particular functionality
+\end{itemize}
+
+\end{frame}
+
+
 \subsection{Imputation in other software}
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
@@ -363,7 +377,7 @@ package \textbf{jomo}).
 Furthermore,
 \begin{itemize}
 \item \blue{direct likelihood methods},
-\item \blue{fully Bayesian methods}(as implemented in \textbf{JointAI}), or
+\item \blue{fully Bayesian methods} (as implemented in \textbf{JointAI}), or
 \item \blue{weighted estimating equations}
 \end{itemize}
 are valid alternative approaches when data are incomplete.
