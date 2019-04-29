@@ -1,3 +1,13 @@
+<<load NHANES prep, echo = F>>=
+runimps <- FALSE
+
+datadir <- file.path(projdir, "data")
+load(file.path(datadir, "NHANES.RData"))
+NHANES <- subset(NHANES, select = -DBP)
+@
+
+
+
 \begin{frame}{Outline of Part II}
 \setlength{\parskip}{0pt}
 \vspace*{-6ex}
@@ -30,12 +40,6 @@ There are several packages in \textsf{R} that provide functions to create and
 
 Examples are:\\
 \textbf{mice}, \textbf{JointAI}, \textbf{VIM}, \textbf{Amelia}, \textbf{visdat}, \textbf{naniar}, \ldots\\[3ex]
-
-<<load NHANES prep, echo = F>>=
-datadir <- file.path(projdir, "data")
-load(file.path(datadir, "NHANES.RData"))
-NHANES <- subset(NHANES, select = -DBP)
-@
 \end{frame}
 
 
@@ -129,8 +133,12 @@ nmis[(1 + ceiling(nrow(nmis)/2)):nrow(nmis), ]
 \subsection{Data distributions}
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-<<NHANESplotall, fig.width = 16, fig.height = 12, out.width = "100%">>=
-par(mgp = c(2, 0.6, 0))
+<<eval = FALSE>>=
+JointAI::plot_all(NHANES)
+@
+
+<<NHANESplotall, fig.width = 8, fig.height = 4.5, out.width = "100%", echo = FALSE>>=
+par(mgp = c(2, 0.6, 0), mar = c(2, 3, 2.5, 0.5))
 JointAI::plot_all(NHANES)
 @
 \end{frame}
@@ -433,7 +441,7 @@ imp <- mice(NHANES, method = meth, predictorMatrix = pred,
             printFlag = FALSE)
 @
 
-<<imprun, echo = FALSE, eval = FALSE>>=
+<<imprun, echo = FALSE, eval = runimps>>=
 library(mice)
 imp0 <- mice(NHANES, maxit = 0,
              defaultMethod = c("norm", "logreg", "polyreg", "polr"))
@@ -614,7 +622,7 @@ post <- imp$post
 post["creat"] <- "imp[[j]][,i] <- squeeze(imp[[j]][,i], c(0, 100))"
 imp2 <- update(imp, post = post, maxit = 20, seed = 123)
 @
-<<imp2run, echo = FALSE, eval = FALSE>>=
+<<imp2run, echo = FALSE, eval = runimps>>=
 post <- imp$post
 post["creat"] <- "imp[[j]][,i] <- squeeze(imp[[j]][,i], c(0, 100))"
 imp2 <- update(imp, post = post, maxit = 20, seed = 123)
@@ -1004,8 +1012,6 @@ category.
 ourselves, as for instance the function \Rfct{propplot}, for which the syntax
 can be found \href{https://gist.github.com/NErler/0d00375da460dd33839b98faeee2fdab}{here}.
 
-The function can be downloaded from:
-\url{https://gist.github.com/NErler/0d00375da460dd33839b98faeee2fdab}
 <<load propplot, message = F, echo = F>>=
 source(file.path(projdir, "Slides", "Rfcts", "propplot.R"))
 @
@@ -1245,7 +1251,7 @@ mice::complete(x, action = 1, include = FALSE)
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 The function \Rfct{mids2spss} allows the \blue{export of imputed data} (\Robj{mids} objects)
 to \textsf{SPSS}.
-<<exporttospss, size = 'small'>>=
+<<exporttospss, size = 'small', eval = FALSE>>=
 mids2spss(imp2,
           filedat = "datafile.txt", # the file containing the data
           filesps = "importsyntax.sps", # syntax to get .sav from .txt
@@ -1269,7 +1275,7 @@ using \Rfct{ibind}.
 imp2b <- update(imp2, post = post, maxit = 20, seed = 456)
 imp2combi <- ibind(imp2, imp2b)
 @
-<<ibindrun, eval = F, echo = F>>=
+<<ibindrun, eval = runimps, echo = F>>=
 # same syntax as before, but different seed:
 imp2b <- update(imp2, post = post, maxit = 20, seed = 456)
 save(imp2b, file = file.path(projdir, "Slides", "workspaces/imp2b.RData"))
@@ -1345,27 +1351,80 @@ The \blue{procedure} itself is located in the menu\\
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 \begin{columns}
 \begin{column}{0.5\linewidth}
-\only<1>{\includegraphics[width = \linewidth]{graphics/spss/MI01.JPG}}
-\only<2>{\includegraphics[width = \linewidth]{graphics/spss/MI02.JPG}}
-\only<3>{\includegraphics[width = \linewidth]{graphics/spss/MI03.JPG}}
-\only<4>{\includegraphics[width = \linewidth]{graphics/spss/MI04.JPG}}
+\includegraphics[width = \linewidth]{graphics/spss/MI01.JPG}
 \end{column}
 \begin{column}{0.5\linewidth}
 \textsf{SPSS} lets you
 \begin{itemize}
-\item<1-> specify number of imputations
-\item<2-> specify number of iterations
-\item<2-> include interactions
-\item<2-> chose between lin. regression and pmm for continuous variables
-\item<3-> restrict variables to certain values
-\item<3-> select which variables to impute
-\item<3-> select which variables are used as predictors
-\item<4> save the iteration history
+\item specify number of imputations
 \end{itemize}
+\vfill
 \end{column}
 \end{columns}
 \end{frame}
 
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+\begin{columns}
+\begin{column}{0.5\linewidth}
+\includegraphics[width = \linewidth]{graphics/spss/MI02.JPG}
+\end{column}
+\begin{column}{0.5\linewidth}
+\textsf{SPSS} lets you
+\begin{itemize}
+\item specify number of imputations
+\item specify number of iterations
+\item include interactions
+\item chose between lin. regression and pmm for continuous variables
+\end{itemize}
+\vfill
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+\begin{columns}
+\begin{column}{0.5\linewidth}
+\includegraphics[width = \linewidth]{graphics/spss/MI03.JPG}
+\end{column}
+\begin{column}{0.5\linewidth}
+\textsf{SPSS} lets you
+\begin{itemize}
+\item specify number of imputations
+\item specify number of iterations
+\item include interactions
+\item chose between lin. regression and pmm for continuous variables
+\item restrict variables to certain values
+\item select which variables to impute
+\item select which variables are used as predictors
+\end{itemize}
+\vfill
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+\begin{columns}
+\begin{column}{0.5\linewidth}
+\includegraphics[width = \linewidth]{graphics/spss/MI04.JPG}
+\end{column}
+\begin{column}{0.5\linewidth}
+\textsf{SPSS} lets you
+\begin{itemize}
+\item specify number of imputations
+\item specify number of iterations
+\item include interactions
+\item chose between lin. regression and pmm for continuous variables
+\item restrict variables to certain values
+\item select which variables to impute
+\item select which variables are used as predictors
+\item save the iteration history
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
 
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
@@ -1402,9 +1461,7 @@ under
 
 
 
-\section*{Summary of Part II}
-\begin{frame}[fragile, allowframebreaks]{\insertsection}
-
+\begin{frame}[fragile, allowframebreaks]{Summary of Part II}
 \blue{6. Know your data}\\
 Check the
 \begin{itemize}
