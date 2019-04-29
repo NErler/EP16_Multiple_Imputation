@@ -1,0 +1,8 @@
+\documentclass[ignorenonframetext, aspectratio=141, handout]{beamer}
+
+\usepackage{pgfpages}
+
+<<child = 'MICourse_main.Rnw'>>=
+
+@
+

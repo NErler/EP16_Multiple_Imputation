@@ -1,8 +1,6 @@
 \documentclass[ignorenonframetext, aspectratio=141]{beamer}
 
 \usepackage{pgfpages}
-% \pgfpagesuselayout{4 on 1}[a4paper, landscape, border shrink=5mm]
-
 
 <<child = 'MICourse_main.Rnw'>>=
 
