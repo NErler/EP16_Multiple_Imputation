@@ -1,3 +1,18 @@
+# Quiz ---------------------------------------------
+if (!dir.exists("EP16website/static/practical/Quiz"))
+  dir.create("EP16website/static/practical/Quiz")
+
+file.copy('Practicals/Quiz_PartI/Quiz_PartI.html',
+          'EP16website/static/practical/Quiz', overwrite = TRUE)
+
+webshot::webshot('Practicals/Quiz_PartI/Quiz_PartI.html',
+                 'EP16website/static/practical/Quiz/image.png',
+                 vwidth = 800, vheight = 450,
+                 cliprect = 'viewport', zoom = 2)
+
+
+
+
 # Practical: Incomplete Data ---------------------------------------------------
 if (!dir.exists("EP16website/static/practical/IncompleteData"))
   dir.create("EP16website/static/practical/IncompleteData")
