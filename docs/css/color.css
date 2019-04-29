@@ -50,6 +50,6 @@
 
 .grid-container {
    display: grid;
-   grid-template-columns: repeat(auto-fit, minmax(300px, 35%));
+   grid-template-columns: repeat(auto-fit, minmax(300px, 33%));
    grid-gap: 5px;
 }

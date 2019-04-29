@@ -7,31 +7,85 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-uk</language>
     <copyright>&amp;copy; 2019. All rights reserved.</copyright>
-    <lastBuildDate>Wed, 13 Feb 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 28 Apr 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/EP16_Multiple_Imputation/practical/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title>03 - Analysis of imputed data</title>
-      <link>/EP16_Multiple_Imputation/practical/analysismi/</link>
-      <pubDate>Wed, 13 Feb 2019 00:00:00 +0000</pubDate>
+      <title>05 - Imputation with Non-linear Effects</title>
+      <link>/EP16_Multiple_Imputation/practical/minonlin/</link>
+      <pubDate>Sun, 28 Apr 2019 00:00:00 +0000</pubDate>
       
-      <guid>/EP16_Multiple_Imputation/practical/analysismi/</guid>
+      <guid>/EP16_Multiple_Imputation/practical/minonlin/</guid>
       <description></description>
     </item>
     
     <item>
-      <title>02 - Multiple imputation using mice</title>
+      <title>06 - Imputation of Longitudinal Data</title>
+      <link>/EP16_Multiple_Imputation/practical/milong/</link>
+      <pubDate>Sun, 28 Apr 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/EP16_Multiple_Imputation/practical/milong/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>07 - Imputation of Survival Data</title>
+      <link>/EP16_Multiple_Imputation/practical/misurv/</link>
+      <pubDate>Sun, 28 Apr 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/EP16_Multiple_Imputation/practical/misurv/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Quiz</title>
+      <link>/EP16_Multiple_Imputation/practical/quiz/</link>
+      <pubDate>Sun, 28 Apr 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/EP16_Multiple_Imputation/practical/quiz/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>02 - Multiple Imputation using MICE</title>
       <link>/EP16_Multiple_Imputation/practical/mimice/</link>
-      <pubDate>Sat, 09 Feb 2019 00:00:00 +0000</pubDate>
+      <pubDate>Wed, 24 Apr 2019 00:00:00 +0000</pubDate>
       
       <guid>/EP16_Multiple_Imputation/practical/mimice/</guid>
       <description></description>
     </item>
     
     <item>
-      <title>01 - Getting to know your incomplete data</title>
+      <title>03 - Checks after Multiple Imutation</title>
+      <link>/EP16_Multiple_Imputation/practical/micheck/</link>
+      <pubDate>Wed, 24 Apr 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/EP16_Multiple_Imputation/practical/micheck/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>04 - Analysis of Multiply Imputed Data</title>
+      <link>/EP16_Multiple_Imputation/practical/analysismi/</link>
+      <pubDate>Wed, 24 Apr 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/EP16_Multiple_Imputation/practical/analysismi/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Data</title>
+      <link>/EP16_Multiple_Imputation/practical/data/</link>
+      <pubDate>Wed, 24 Apr 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/EP16_Multiple_Imputation/practical/data/</guid>
+      <description> NHANES_for_practicals.RData NHANES_for_practicals_2.RData pbclong.RData pbcdat.RData  </description>
+    </item>
+    
+    <item>
+      <title>01 - Getting to Know Incomplete Data</title>
       <link>/EP16_Multiple_Imputation/practical/incompletedata/</link>
       <pubDate>Fri, 01 Feb 2019 00:00:00 +0000</pubDate>
       

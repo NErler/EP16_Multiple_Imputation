@@ -3,13 +3,43 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>/EP16_Multiple_Imputation/practical/analysismi/</loc>
-    <lastmod>2019-02-13T00:00:00+00:00</lastmod>
+    <loc>/EP16_Multiple_Imputation/practical/minonlin/</loc>
+    <lastmod>2019-04-28T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/EP16_Multiple_Imputation/practical/milong/</loc>
+    <lastmod>2019-04-28T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/EP16_Multiple_Imputation/practical/misurv/</loc>
+    <lastmod>2019-04-28T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/EP16_Multiple_Imputation/practical/quiz/</loc>
+    <lastmod>2019-04-28T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>/EP16_Multiple_Imputation/practical/mimice/</loc>
-    <lastmod>2019-02-09T00:00:00+00:00</lastmod>
+    <lastmod>2019-04-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/EP16_Multiple_Imputation/practical/micheck/</loc>
+    <lastmod>2019-04-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/EP16_Multiple_Imputation/practical/analysismi/</loc>
+    <lastmod>2019-04-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/EP16_Multiple_Imputation/practical/data/</loc>
+    <lastmod>2019-04-24T00:00:00+00:00</lastmod>
   </url>
   
   <url>
@@ -29,13 +59,13 @@
   
   <url>
     <loc>/EP16_Multiple_Imputation/</loc>
-    <lastmod>2019-02-13T00:00:00+00:00</lastmod>
+    <lastmod>2019-04-28T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/EP16_Multiple_Imputation/practical/</loc>
-    <lastmod>2019-02-13T00:00:00+00:00</lastmod>
+    <lastmod>2019-04-28T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
