@@ -1,5 +1,5 @@
 ---
-date: 2019-02-09
+date: 2019-04-29
 title: "EP16: Missing Values in Clinical Research"
 description: Multiple Imputation
 ---
@@ -19,13 +19,11 @@ The practicals require [R](https://cran.r-project.org/) and
 use the following R packages:
 (JAGS (and **rjags**) are only necessary for the parts of the practical that use the **JointAI** package.)
 
-* [mice](https://cran.r-project.org/web/packages/mice) (version 3.3.0)
-* [miceadds](https://cran.r-project.org/web/packages/miceadds) (version 3.0-16)
+* [mice](https://cran.r-project.org/web/packages/mice) (version 3.4.0)
+* [miceadds](https://cran.r-project.org/web/packages/miceadds) (version 3.2-48)
 * [mitools](https://cran.r-project.org/web/packages/mitools) (version 2.3)
-* [JointAI](https://cran.r-project.org/web/packages/JointAI) (version 0.4.0)
+* [JointAI](https://cran.r-project.org/web/packages/JointAI) (version 0.5.1)
 * [rjags](https://cran.r-project.org/web/packages/rjags) (version 4-8)
-* [smcfcs](https://cran.r-project.org/web/packages/smcfcs) (version 1.3.1)
-* [jomo](https://cran.r-project.org/web/packages/jomo) (version 2.6-7)
 
 For **JointAI** it is suggested to use the most recent version available on GitHub
 ```r
