@@ -1,5 +1,5 @@
 ---
-title: "Imputation of Longitudinal or Multi-level Data"
+title: "Imputation of Survival Data"
 output: 
   html_document:
     code_folding: show
@@ -48,13 +48,12 @@ library(kableExtra)
 library(knitr)
 library(JointAI)
 library(ggplot2)
-library(nlme)
-library(lme4)
+library(survival)
 ```
 
 
 ```{r load_data, context="data", include=FALSE}
-load("www/pbclong.RData")
+load("www/pbcdat.RData")
 
 source("www/propplot.R")
 # load("www/imps_long.RData")
@@ -78,7 +77,7 @@ cat('In this practical, a number of R packages are used.
 ```
 
 * `mice` (version: `r packageVersion("mice")`)
-* `nlme` (version: `r packageVersion("nlme")`)
+* `survival` (version: `r packageVersion("survival")`)
 * `JointAI` (version: `r packageVersion("JointAI")`)
 * `ggplot2` (version: `r packageVersion("ggplot2")`)
 * `reshape2` (version: `r packageVersion("reshape2")`)
@@ -356,7 +355,7 @@ options(contrasts = opt)
 
 
 survres <- list(
-  mice = summary(pool(micesurv_mira))[, c("est", "lo 95", "hi 95")]
+  mice = summary(pool(micesurv_mira), conf.int = TRUE)[, c("estimate", "2.5 %", "97.5 %")]
   # survcc = cbind(survcc$coefficients, confint(survcc)),
   # smcfcs = summary(pool(smcsurv_mira))[, c("est", "lo 95", "hi 95")],
   # jomo = summary(pool(jomosurv_mira))[, c("est", "lo 95", "hi 95")]
