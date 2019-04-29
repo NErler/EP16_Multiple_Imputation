@@ -253,12 +253,13 @@ $\hat x_{i2} = \hat\beta_0 + \hat\beta_1 x_{i1} + \hat\beta_2 x_{i3} + \hat\beta
 }
 \end{column}
 \begin{column}{0.45\textwidth}
-
+\only<beame>{
 \only<2>{
 <<exampl1b, echo = F, fig.width = 5.25, fig.height = 3.5>>=
 reglineplot
 @
-}\only<3>{
+}}
+\only<3>{
 <<regimp_movie, fig.show='animate', interval=1/10, fig.width = 5.25, fig.height = 3.5, include = FALSE, cache = TRUE>>=
 regimp_movie
 
@@ -320,10 +321,10 @@ model, we obtain \blue{slightly different regression lines}.
 
 \onslide<2>{
 With each set of coefficients, we also get slightly \blue{different predicted values}.
-
 }
 \end{column}
 \begin{column}{0.5\textwidth}
+\only<beamer>{
 \only<-1>{
 <<reglines_movie, fig.show='animate', interval=1/50, fig.width = 5.25, fig.height = 3.5, include = FALSE, cache = TRUE>>=
 reglines_movie
@@ -331,7 +332,7 @@ reglines_movie
 @
 
 \animategraphics[loop, autoplay, width = \linewidth]{5}{figure/reglines_movie-}{1}{50}
-}
+}}
 \only<2->{
 <<regimps_movie, fig.show='animate', interval=1/10, fig.width = 5.25, fig.height = 3.5, include = FALSE, cache = TRUE>>=
 regimps_movie
@@ -359,6 +360,7 @@ We assume that the \blue{data have a distribution}, where
 \end{itemize}
 \end{column}
 \begin{column}{0.5\textwidth}
+\only<beamer>{
 \only<1>{
 <<ranerrplot, echo = FALSE, fig.width = 5.25, fig.height = 3.75>>=
 ranerrplot
@@ -369,7 +371,7 @@ ranerrplot
 ranerr_movie
 @
 \animategraphics[loop, autoplay, width = \linewidth]{1}{figure/ranerr_movie-}{1}{10}
-}
+}}
 \only<3>{
 <<ranerrimpsplot, echo = FALSE, fig.width = 5.25, fig.height = 3.75>>=
 ranerrimpsplot
@@ -607,6 +609,7 @@ $X_1$ & $X_2$ & $X_3$ & $X_4$\\\hline
 \begin{frame}[label = micealgorithm]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 
+
 % Algorithm
 \begin{algorithm}[H]
 \caption{MICE algorithm \cite{Buuren2012} for \textbf{one} imputed dataset}
@@ -647,7 +650,6 @@ $X_1$ & $X_2$ & $X_3$ & $X_4$\\\hline
 
 \begin{frame}{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-
 % Algorithm
 \setcounter{algorithm}{0}
 \begin{algorithm}[H]
@@ -664,6 +666,7 @@ $X_1$ & $X_2$ & $X_3$ & $X_4$\\\hline
         from $X_j^{obs}$.}
 \EndFor
 \Statex
+\only<beamer>{
 \only<1>{%
 \For{\textcolor{darkred}{$t = 1$}:}\Comment{loop through \textcolor{darkred}{iterations}}
 \For{\textcolor{blue}{$j = 1$}:}\Comment{loop through \textcolor{blue}{variables}}
@@ -679,6 +682,7 @@ p(\theta_{\textcolor{blue}{1}}^{\textcolor{darkred}{1}} \mid X_{\textcolor{blue}
 \State Draw imputations $\dot X_{\textcolor{blue}{1}}^{\textcolor{darkred}{1}} \sim
 p(X_{\textcolor{blue}{1}}^{mis}\mid \dot X_{\textcolor{blue}{-1}}^{\textcolor{darkred}{1}}, R,
 \dot\theta_{\textcolor{blue}{1}}^{\textcolor{darkred}{1}})$.
+}
 }
 \only<2>{%
 \For{\textcolor{darkred}{$t = 1$}:}\Comment{loop through \textcolor{darkred}{iterations}}
@@ -696,6 +700,7 @@ p(\theta_{\textcolor{blue}{2}}^{\textcolor{darkred}{1}} \mid X_{\textcolor{blue}
 p(X_{\textcolor{blue}{2}}^{mis}\mid \dot X_{\textcolor{blue}{-2}}^{\textcolor{darkred}{1}}, R,
 \dot\theta_{\textcolor{blue}{2}}^{\textcolor{darkred}{1}})$.
 }
+\only<beamer>{
 \only<3>{%
 \For{\textcolor{darkred}{$t = 1$}:}\Comment{loop through \textcolor{darkred}{iterations}}
 \For{\textcolor{blue}{$j = 3$}:}\Comment{loop through \textcolor{blue}{variables}}
@@ -760,11 +765,13 @@ p(\theta_{\textcolor{blue}{2}}^{\textcolor{darkred}{2}} \mid X_{\textcolor{blue}
 p(X_{\textcolor{blue}{2}}^{mis}\mid \dot X_{\textcolor{blue}{-2}}^{\textcolor{darkred}{2}}, R,
 \dot\theta_{\textcolor{blue}{2}}^{\textcolor{darkred}{2}})$.
 }
+}
 \EndFor
 \EndFor
 \end{algorithmic}
 \end{algorithm}
 \end{frame}
+
 
 
 \begin{frame}{\thesection. \insertsection}
@@ -914,7 +921,6 @@ meandat <- ddply(dat, c("x", "imp", "it"), summarize, mean = mean(y))
 
 \begin{frame}[label = convergence_multiple]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-\only<1>{
 <<convplot1a, echo = F, fig.width = 7, fig.height = 4.5>>=
 library(ggplot2)
 ggplot(dat, aes(x = it, y = y, color = imp)) +
@@ -927,8 +933,13 @@ ggplot(dat, aes(x = it, y = y, color = imp)) +
                      name = "imputation number:",
                      labels = 1:3)
 @
-}
-\only<2>{
+\end{frame}
+
+\begin{frame}[label = convergence_multiple]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+
+\only<beamer>{
+\only<1>{
 <<convplot1b, echo = F, fig.width = 7.5, fig.height = 5>>=
 g2 <- ggplot(dat, aes(x = it, y = y, color = imp, group = id)) +
   facet_grid(imp ~ x, scales = 'free',
@@ -946,13 +957,17 @@ g2 + geom_line()
 
 @
 }
-\only<3>{
+}
+\only<2|handout:1>{
 <<convplot1c, echo = F, fig.width = 7.5, fig.height = 5>>=
 g2 + geom_line(alpha = 0.5) +
   geom_line(data = meandat, aes(x = it, y = mean, group = 1), lwd = 1)
 @
 }
-\only<4>{
+\end{frame}
+
+\begin{frame}[label = convergence_multiple]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
 <<convplot1d, echo = F, fig.width = 7.5, fig.height = 2.5>>=
 ggplot(meandat, aes(x = it, y = mean, color = imp)) +
   geom_line(lwd = 0.7) +
@@ -964,7 +979,6 @@ ggplot(meandat, aes(x = it, y = mean, color = imp)) +
                      name = "imputation number:",
                      labels = c(1:3))
 @
-}
 \end{frame}
 
 
@@ -1174,14 +1188,14 @@ pooled$var <- rownames(reslist[[1]])
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 To summarize the results, we can take the mean of the results from the separate
 analyses. This is the \blue{pooled point estimate}.
-
+\only<beamer>{
 \only<1>{
 <<poolplot1b, echo = F, fig.width = 6, fig.height = 1.5>>=
 ppool0 +
   geom_vline(data = ddply(poolDF, "var", summarize, coefmean = mean(coef)),
              aes(xintercept = coefmean), lty = 2)
 @
-}
+}}
 \only<2->{
 <<poolplot1c, echo = F, fig.width = 6, fig.height = 1.5>>=
 ppool0 +
@@ -1352,8 +1366,10 @@ quiz. An interactive version can be found at
 \begin{block}{}
 \centering\url{https://emcbiostatistics.shinyapps.io/MICourse_Quiz_PartI}
 \end{block}
-or you can download an html version from Canvas\\
-(Files $>$ Principal documents $>$ Multiple Imputation $>$ Quiz\_PartI\_static.html).
-
 \vfill
+or find the \textbf{html version} of the quiz here:\\
+\begin{block}{}
+\centering\url{https://nerler.github.io/EP16_Multiple_Imputation/practical/quiz/Quiz_PartI.html}
+\end{block}
 \end{frame}
+
