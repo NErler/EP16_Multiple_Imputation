@@ -65,12 +65,15 @@ pbclong <- subset(survival::pbcseq, select = c('id', 'trt', 'age', 'sex', 'day',
                                                'albumin'))
 
 set.seed(2019)
-a <- factor(survival::pbc$ascites)
+a <- factor(pbclong$ascites[match(unique(pbclong$id), pbclong$id)])
 a[sample(1:length(a), 50)] <- NA
 
-pbclong$ascites <- a[match(survival::pbcseq$id, survival::pbc$id)]
-pbclong$copper <-
-  survival::pbc$copper[match(survival::pbcseq$id, survival::pbc$id)]
+b <- survival::pbc$copper[match(unique(pbclong$id), survival::pbc$id)]
+b[sample(1:length(b), 30)] <- NA
+
+pbclong$ascites <- a[match(pbclong$id, unique(pbclong$id))]
+# pbclong$bili <- pbclong$bili[match(pbclong$id, unique(pbclong$id))]
+pbclong$copper <- b[match(pbclong$id, unique(pbclong$id))]
 
 ```
 
@@ -176,11 +179,11 @@ package **lme4**):
 
 ```{r longmodels, eval = FALSE, echo = TRUE}
 # using package nlme
-lme(albumin ~ ns(day, df = 3) + sex + trt + age + ascites + bili + copper, random = ~day|id)
+lme(albumin ~ day + sex + trt + age + ascites + bili + copper, random = ~day|id)
 
 
 # using package lme4
-lmer(albumin ~ ns(day, df = 3) + sex + trt + age + ascites + bili + copper + (day|id))
+lmer(albumin ~ day + sex + trt + age + ascites + bili + copper + (day|id))
 ```
 
 
@@ -247,12 +250,17 @@ micelong0 <- mice(pbclong, maxit = 0)
 meth_micelong <- micelong0$method
 pred_micelong <- micelong0$predictorMatrix
 
-meth_micelong[c("hepato")] <- ""
-meth_micelong[c("copper", "chol")] <- "2lonly.pmm"
+meth_micelong[c("hepato", "chol")] <- ""
+pred_micelong[, c("hepato", "chol")] <- 0
+
+meth_micelong[c("copper", "ascites")] <- "2lonly.pmm"
 
 pred_micelong[, "id"] <- -2
 pred_micelong[, "day"] <- 2
-pred_micelong[, "hepato"] <- 0
+
+
+# check the imputation method
+meth_micelong
 
 # check the predictor matrix
 pred_micelong
@@ -277,16 +285,18 @@ micelong0 <- mice(pbclong, maxit = 0)
 meth_micelong <- micelong0$method
 pred_micelong <- micelong0$predictorMatrix
 
-meth_micelong[c("hepato")] <- ""
-meth_micelong[c('ascites', "chol", "copper")] <- "2lonly.pmm"
-meth_micelong[c('ascites')]
+meth_micelong[c("hepato", "chol")] <- ""
+pred_micelong[, c("hepato", "chol")] <- 0
+
+meth_micelong[c("copper", "ascites")] <- "2lonly.pmm"
 
 pred_micelong[, "id"] <- -2
-# pred_micelong[, "day"] <- 2
-pred_micelong[, 'hepato'] <- 0
+pred_micelong[, "day"] <- 2
 
-# check the imputation methods
+
+# check the imputation method
 meth_micelong
+
 # check the predictor matrix
 pred_micelong
 ```
@@ -303,17 +313,17 @@ asis_output("#### Solution 2\\n")
 
 ```{r micelong-solution, eval = static, cache = TRUE}
 micelong <- mice(pbclong, meth = meth_micelong, pred = pred_micelong,
-                 maxit = 20, printFlag = T)
+                 maxit = 20, seed = 2019, printFlag = FALSE)
 
-micelong_mira <- with(micelong, lme(albumin ~ ns(day, df = 3) + sex + trt +
-                                      age + ascites + bili + chol,
-                                    random = ~day|id)
+library(nlme)
+micelong_mira <- with(micelong, lme(albumin ~ day + sex + trt + age + ascites + 
+                                      bili + copper, random = ~day|id)
 )
 
 # alternative:
-micelong_mira <- with(micelong, lmer(albumin ~ ns(day, df = 3) + sex + trt +
-                                       age + ascites + bili + chol +
-                                       (day|id))
+library(lme4)
+micelong_mira <- with(micelong, lmer(albumin ~ day + sex + trt + age + ascites +
+                                       bili + copper + (day|id))
 )
 
 summary(pool(micelong_mira), conf.int = TRUE)
@@ -361,11 +371,11 @@ asis_output("#### Solution\\n")
 
 ```{r runJoitAIlong-solution, cache = TRUE, fig.width = 9, fig.height = 5, message = FALSE}
 library(JointAI)
-JointAIlong <- lme_imp(albumin ~ day + sex + trt + age + ascites +
-                         bili + copper, random = ~ day|id,
+JointAIlong <- lme_imp(albumin ~ day + sex + trt + age + ascites + 
+                         bili + copper, random = ~day|id,
                        models = c(copper = 'lognorm', bili = 'glmm_gamma'),
-                       no_model = 'day', n.adapt = 500,
-                       data = pbclong, n.iter = 1000, seed = 2019)
+                       no_model = 'day', n.adapt = 5000,
+                       data = pbclong, n.iter = 0, seed = 2019)
 
 traceplot(JointAIlong)
 summary(JointAIlong)
@@ -388,6 +398,7 @@ ggplot() +
 
 
 ```{r}
+library(splines)
 JointAIlong2 <- glme_imp(hepato ~ ns(day, df = 3) + sex + trt + age + ascites +
                            bili + copper + chol, random = ~1|id, family = binomial(),
                          models = c(copper = 'lognorm', bili = 'glmm_gamma'),
@@ -448,16 +459,13 @@ micelong_mira <- with(micelong, lme(protime ~ day + sex + trt + age +
                                     random = ~day|id)
 )
 
-micelong_mira <- with(micelong, lmer(protime ~ day + sex + trt + age + 
-                                      ascites + bili + chol + albumin + (day|id))
-)
 
 
 
 # complete case analysis --------------------------------------------------------
 longcc <- with(pbclong,
-               lmer(protime ~ day + sex + trt + age + ascites +
-                                     bili + chol + albumin +(day | id)))
+               lmer(albumin ~ day + sex + trt + age + ascites +
+                                     bili + copper +(day | id)))
 options(contrasts = opt)
 
 
