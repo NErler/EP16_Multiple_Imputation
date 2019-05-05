@@ -67,7 +67,7 @@ library(mice)
 
 ```{r, eval = static, echo = FALSE, results = 'asis'}
 cat('In this practical, a number of R packages are used.
-If any of them are not installed you can still follow the practical
+If any of them are not installed you may be able to follow the practical
 but will not be able to run all of the code. The packages used (with versions
 that were used to generate the solutions) are:')
 ```
@@ -76,6 +76,7 @@ cat('In this practical, a number of R packages are used.
     The names of the packages used (and their version numbers available on this platform) are:')
 ```
 
+* `r R.version.string`
 * `mice` (version: `r packageVersion("mice")`)
 * `survival` (version: `r packageVersion("survival")`)
 * `JointAI` (version: `r packageVersion("JointAI")`)
@@ -99,11 +100,16 @@ or find the whole manual for a package at
 ### Dataset 
 
 ### Data & Model of interest {.tabset .tabset-fade .tabset-pills}
-In this part of the practical, we will work with a different subset of the PBC data,
+In this practical we will work with a different subset of the PBC data,
 omitting the longitudinal structure and focusing on the survival component.
 
 ```{r, eval = static, echo = FALSE}
-asis_output('To get the **pbcdat** data, load the file `pbcdat.RData`.')
+asis_output('To get the **pbcdat** data, load the file `pbcdat.RData`.
+            You can download it [here](https://nerler.github.io/EP16_Multiple_Imputation/practical/data/index.html).
+            To load this dataset, you can use the command `file.choose()` which opens the
+explorer and allows you to navigate to the location of the downloaded file on your computer.
+If you know the path to the file, you can also use `load("<path>/<pbcdat.RData")`.')
+
 ```
 
 

@@ -58,7 +58,7 @@ load("www/NHANES_for_practicals.RData")
 
 ```{r, eval = static, echo = FALSE, results = 'asis'}
 cat('In this practical, a number of R packages are used.
-If any of them are not installed you can still follow the practical
+If any of them are not installed you may be able to follow the practical
 but will not be able to run all of the code. The packages used (with versions
 that were used to generate the solutions) are:')
 ```
@@ -67,6 +67,7 @@ cat('In this practical, a number of R packages are used.
     The names of the packages used (and their version numbers available on this platform) are:')
 ```
 
+* `r R.version.string`
 * `mice` (version: `r packageVersion("mice")`)
 * `visdat` (version: `r packageVersion("visdat")`) 
 * `JointAI` (version: `r packageVersion("JointAI")`)

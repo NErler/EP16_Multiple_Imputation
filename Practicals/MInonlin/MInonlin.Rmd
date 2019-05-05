@@ -67,7 +67,7 @@ library(mice)
 
 ```{r, eval = static, echo = FALSE, results = 'asis'}
 cat('In this practical, a number of R packages are used.
-If any of them are not installed you can still follow the practical
+If any of them are not installed you may be able to follow the practical
 but will not be able to run all of the code. The packages used (with versions
 that were used to generate the solutions) are:')
 ```
@@ -76,6 +76,7 @@ cat('In this practical, a number of R packages are used.
     The names of the packages used (and their version numbers available on this platform) are:')
 ```
 
+* `r R.version.string`
 * `mice` (version: `r packageVersion("mice")`)
 * `JointAI` (version: `r packageVersion("JointAI")`)
 * `ggplot2` (version: `r packageVersion("ggplot2")`)
@@ -106,7 +107,8 @@ cat("In the interactive version of this practical, the data is already loaded
 ```
 ```{r, eval = static, echo = FALSE, results = 'asis'}
 cat(
-'To load this dataset, you can use the command `file.choose()` which opens the
+'Download the file `NHANES_for_practicals_2.RData` from [here](https://nerler.github.io/EP16_Multiple_Imputation/practical/data/index.html).
+To load this dataset, you can use the command `file.choose()` which opens the
 explorer and allows you to navigate to the location of the file
 `NHANES_for_practicals_2.RData` on your computer.
 If you know the path to the file, you can also use `load("<path>/NHANES_for_practicals_2.RData")`.'
