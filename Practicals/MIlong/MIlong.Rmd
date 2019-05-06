@@ -248,11 +248,15 @@ meth_micelong <- micelong0$method
 pred_micelong <- micelong0$predictorMatrix
 
 meth_micelong[c("hepato")] <- ""
-meth_micelong[c("copper", "chol")] <- "2lonly.pmm"
+meth_micelong[c("copper", "ascites")] <- "2lonly.pmm"
+meth_micelong[c('chol')] <- '2l.norm'
 
 pred_micelong[, "id"] <- -2
 pred_micelong[, "day"] <- 2
-pred_micelong[, "hepato"] <- 0
+
+
+# check the imputation method
+meth_micelong
 
 # check the predictor matrix
 pred_micelong
@@ -277,16 +281,16 @@ micelong0 <- mice(pbclong, maxit = 0)
 meth_micelong <- micelong0$method
 pred_micelong <- micelong0$predictorMatrix
 
-meth_micelong[c("hepato")] <- ""
-meth_micelong[c('ascites', "chol", "copper")] <- "2lonly.pmm"
-meth_micelong[c('ascites')]
+meth_micelong[c("hepato", "chol")] <- ""
+meth_micelong[c("copper", "ascites")] <- "2lonly.pmm"
 
 pred_micelong[, "id"] <- -2
-# pred_micelong[, "day"] <- 2
-pred_micelong[, 'hepato'] <- 0
+pred_micelong[, "day"] <- 2
 
-# check the imputation methods
+
+# check the imputation method
 meth_micelong
+
 # check the predictor matrix
 pred_micelong
 ```
@@ -303,7 +307,7 @@ asis_output("#### Solution 2\\n")
 
 ```{r micelong-solution, eval = static, cache = TRUE}
 micelong <- mice(pbclong, meth = meth_micelong, pred = pred_micelong,
-                 maxit = 20, printFlag = T)
+                 m = 3, maxit = 5, seed = 2019, printFlag = FALSE)
 
 micelong_mira <- with(micelong, lme(albumin ~ ns(day, df = 3) + sex + trt +
                                       age + ascites + bili + chol,
