@@ -6,18 +6,20 @@ This repository contains slides and materials for the Multiple Imputation part o
 This repo has a [website](https://nerler.github.io/EP16_Multiple_Imputation)
 where you can find slides and practicals.
 
+Practicals are available as html documents on this webpage and (will be available soon) as interactive
+[**learnr**](https://rstudio.github.io/learnr/) tutorials here:
+
+* [01 - Getting to Know Incomplete Data](https://emcbiostatistics.shinyapps.io/EP16_IncompleteData)
+* [02 - Multiple Imputation using MICE](https://emcbiostatistics.shinyapps.io/EP16_MImice)
+* [03 - Checks after Multiple Imputation](https://emcbiostatistics.shinyapps.io/EP16_MIcheck)
+* [04 - Analysis of Multiply Imputed Data](https://emcbiostatistics.shinyapps.io/EP16_AnalysisMI)
+* [05 - Imputation with Non-linear Effects](https://emcbiostatistics.shinyapps.io/EP16_MInonlin)
+* [06 - Imputation of Longitudinal Data](https://emcbiostatistics.shinyapps.io/EP16_MIlong)
+* [07 - Imputation of Survival Data](https://emcbiostatistics.shinyapps.io/EP16_MIsurv)
+
 The practicals require [R](https://cran.r-project.org/) and
-[JAGS](https://sourceforge.net/projects/mcmc-jags/files/) to be installed
-and use the following packages:
-(JAGS (and **rjags**) are only necessary for the parts of the practical that use the **JointAI** package.)
+[JAGS](https://sourceforge.net/projects/mcmc-jags/files/) (necessary for the parts of the practical that use the **JointAI** package) need to be installed.
 
-* [mice](https://cran.r-project.org/package=mice) (version 3.4.0)
-* [miceadds](https://cran.r-project.org/package=miceadds) (version 3.2-48)
-* [mitools](https://cran.r-project.org/package=mitools) (version 2.3)
-* [JointAI](https://cran.r-project.org/package=JointAI) (version 0.5.1)
-* [rjags](https://cran.r-project.org/package=rjags) (version 4-8)
+To download JAGS, go to [https://sourceforge.net/projects/mcmc-jags/files/](https://sourceforge.net/projects/mcmc-jags/files/).
 
-For **JointAI** it is suggested to use the most recent version available on GitHub
-```r
-devtools::install_github("NErler/JointAI")
-```
+The packages used are given at the beginning of each of the practicals.
