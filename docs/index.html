@@ -21,13 +21,13 @@
   <!--<![endif]-->
 
   <!--[if lte IE 8]>
-  <link rel="stylesheet" href="https://nerler.github.io/EP16_Multiple_Imputation/css/side-menu-old-ie.css">
+  <link rel="stylesheet" href="/EP16_Multiple_Imputation/css/side-menu-old-ie.css">
   <![endif]-->
   <!--[if gt IE 8]><!-->
-  <link rel="stylesheet" href="https://nerler.github.io/EP16_Multiple_Imputation/css/side-menu.css">
+  <link rel="stylesheet" href="/EP16_Multiple_Imputation/css/side-menu.css">
   <!--<![endif]-->
 
-  <link rel="stylesheet" href="https://nerler.github.io/EP16_Multiple_Imputation/css/blackburn.css">
+  <link rel="stylesheet" href="/EP16_Multiple_Imputation/css/blackburn.css">
 
   
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -40,7 +40,7 @@
 
  
   
-  <link rel="alternate" type="application/rss+xml" title="EP16: Missing Values in Clinical Research" href="https://nerler.github.io/EP16_Multiple_Imputation/index.xml" />
+  <link rel="alternate" type="application/rss+xml" title="EP16: Missing Values in Clinical Research" href="/EP16_Multiple_Imputation/EP16_Multiple_Imputation/index.xml" />
   
 
   
@@ -50,7 +50,7 @@
   <script>hljs.initHighlightingOnLoad();</script>
   
 
-  <link rel="shortcut icon" href="https://nerler.github.io/EP16_Multiple_Imputation/img/icon.png" type="image/x-icon" />
+  <link rel="shortcut icon" href="/EP16_Multiple_Imputation/EP16_Multiple_Imputation/img/icon.png" type="image/x-icon" />
 
 
   
@@ -70,7 +70,7 @@
 <div id="menu">
 
   
-  <a class="pure-menu-heading brand" href="https://nerler.github.io/EP16_Multiple_Imputation/">EP16: MI</a>
+  <a class="pure-menu-heading brand" href="/EP16_Multiple_Imputation/">EP16: MI</a>
 
 
   <div class="pure-menu">
@@ -78,19 +78,19 @@
       
       
         <li class="pure-menu-item">
-          <a class="pure-menu-link" href="https://nerler.github.io/EP16_Multiple_Imputation/home/"><i class='fa fa-home fa-fw'></i>Home</a>
+          <a class="pure-menu-link" href="/EP16_Multiple_Imputation/home/"><i class='fa fa-home fa-fw'></i>Home</a>
       
         </li>
       
       
         <li class="pure-menu-item">
-          <a class="pure-menu-link" href="https://nerler.github.io/EP16_Multiple_Imputation/slide/"><i class='fa fa-tv fa-fw'></i>Slides</a>
+          <a class="pure-menu-link" href="/EP16_Multiple_Imputation/slide/"><i class='fa fa-tv fa-fw'></i>Slides</a>
       
         </li>
       
       
         <li class="pure-menu-item">
-          <a class="pure-menu-link" href="https://nerler.github.io/EP16_Multiple_Imputation/practical/"><i class='fa fa-edit fa-fw'></i>Practicals</a>
+          <a class="pure-menu-link" href="/EP16_Multiple_Imputation/practical/"><i class='fa fa-edit fa-fw'></i>Practicals</a>
       
         </li>
       
@@ -228,26 +228,25 @@
 <p>This website contains slides and materials for the Multiple Imputation part of
 NIHES course <a href="https://www.nihes.com/course/ep16_missing_values_in_clinical_research/">Missing Values in Clinical Research (EP16)</a>.</p>
 
-<p>Practicals are available as interactive <a href="https://rstudio.github.io/learnr/">learnr</a>
-tutorials (links will follow) as well as in a static html version.</p>
-
-<p>The practicals require <a href="https://cran.r-project.org/">R</a> and
-<a href="https://sourceforge.net/projects/mcmc-jags/files/">JAGS</a> to be installed and
-use the following R packages:
-(JAGS (and <strong>rjags</strong>) are only necessary for the parts of the practical that use the <strong>JointAI</strong> package.)</p>
+<p>Practicals are available as html documents on this webpage and (will be available soon) as interactive
+<a href="https://rstudio.github.io/learnr/"><strong>learnr</strong></a> tutorials here:</p>
 
 <ul>
-<li><a href="https://cran.r-project.org/package=mice">mice</a> (version 3.4.0)</li>
-<li><a href="https://cran.r-project.org/package=miceadds">miceadds</a> (version 3.2-48)</li>
-<li><a href="https://cran.r-project.org/package=mitools">mitools</a> (version 2.3)</li>
-<li><a href="https://cran.r-project.org/package=JointAI">JointAI</a> (version 0.5.1)</li>
-<li><a href="https://cran.r-project.org/package=rjags">rjags</a> (version 4-8)</li>
+<li><a href="https://emcbiostatistics.shinyapps.io/EP16_IncompleteData">01 - Getting to Know Incomplete Data</a></li>
+<li><a href="https://emcbiostatistics.shinyapps.io/EP16_MImice">02 - Multiple Imputation using MICE</a></li>
+<li><a href="https://emcbiostatistics.shinyapps.io/EP16_MIcheck">03 - Checks after Multiple Imputation</a></li>
+<li><a href="https://emcbiostatistics.shinyapps.io/EP16_AnalysisMI">04 - Analysis of Multiply Imputed Data</a></li>
+<li><a href="https://emcbiostatistics.shinyapps.io/EP16_MInonlin">05 - Imputation with Non-linear Effects</a></li>
+<li><a href="https://emcbiostatistics.shinyapps.io/EP16_MIlong">06 - Imputation of Longitudinal Data</a></li>
+<li><a href="https://emcbiostatistics.shinyapps.io/EP16_MIsurv">07 - Imputation of Survival Data</a></li>
 </ul>
 
-<p>For <strong>JointAI</strong> it is suggested to use the most recent version available on GitHub</p>
+<p>The practicals require <a href="https://cran.r-project.org/">R</a> and
+<a href="https://sourceforge.net/projects/mcmc-jags/files/">JAGS</a> (necessary for the parts of the practical that use the <strong>JointAI</strong> package) need to be installed.</p>
 
-<pre><code class="language-r">devtools::install_github(&quot;NErler/JointAI&quot;)
-</code></pre>
+<p>To download JAGS, go to <a href="https://sourceforge.net/projects/mcmc-jags/files/">https://sourceforge.net/projects/mcmc-jags/files/</a>.</p>
+
+<p>The packages used are given at the beginning of each of the practicals.</p>
 
   
 
@@ -265,8 +264,8 @@ use the following R packages:
 
 </div>
 </div>
-<script src="https://nerler.github.io/EP16_Multiple_Imputation/js/ui.js"></script>
-<script src="https://nerler.github.io/EP16_Multiple_Imputation/js/menus.js"></script>
+<script src="/EP16_Multiple_Imputation/EP16_Multiple_Imputation/js/ui.js"></script>
+<script src="/EP16_Multiple_Imputation/EP16_Multiple_Imputation/js/menus.js"></script>
 
 
 <script>
