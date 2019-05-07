@@ -1042,7 +1042,7 @@ obtained directly
 \subsection{R package smcfcs}
 \begin{frame}{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-\href{https://cran.r-project.org/web/packages/smcfcs/index.html}{\blue{Substantive Model Compatible Fully Conditional Specification}},\\
+\href{https://cran.r-project.org/package=smcfcs}{\blue{Substantive Model Compatible Fully Conditional Specification}},\\
 a hybrid approach between FCS and sequential factorization \cite{Bartlett2015}
 
 \bigskip
@@ -1071,7 +1071,7 @@ while ensuring compatibility between analysis model and imputation models.
 \bigskip
 
 For more information see the help files and the
-\href{https://cran.r-project.org/web/packages/smcfcs/vignettes/smcfcs-vignette.html}%
+\href{https://cran.r-project.org/package=smcfcs/vignettes/smcfcs-vignette.html}%
 {vignette}.
 \end{frame}
 
@@ -1146,7 +1146,7 @@ For more information see the help files and the
 \subsection{R package jomo}
 \begin{frame}{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-\href{https://cran.r-project.org/web/packages/jomo/index.html}{\blue{JOint MOdel imputation}} using the multivariate normal approach,\\
+\href{https://cran.r-project.org/package=jomo}{\blue{JOint MOdel imputation}} using the multivariate normal approach,\\
 with \blue{extensions to assure compatibility} between analysis and imputation models. \cite{Carpenter2012}
 
 \bigskip
@@ -1162,7 +1162,7 @@ with \blue{extensions to assure compatibility} between analysis and imputation m
 \item Cox proportional hazards models.
 \end{itemize}
 
-For more info see the \href{https://cran.r-project.org/web/packages/jomo/jomo.pdf}{help file}.
+For more info see the \href{https://cran.r-project.org/package=jomo}{help file}.
 \end{frame}
 
 
@@ -1243,7 +1243,7 @@ For more info see the \href{https://cran.r-project.org/web/packages/jomo/jomo.pd
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 
-\href{https://cran.r-project.org/web/packages/JointAI/index.html}{\blue{Joint Analysis and Imputation}}, \\
+\href{https://cran.r-project.org/package=JointAI}{\blue{Joint Analysis and Imputation}}, \\
 uses the \blue{sequential factorization approach} to perform
 simultaneous analysis and imputation. \cite{Erler2016, Erler2017}
 
