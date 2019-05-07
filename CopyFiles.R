@@ -17,10 +17,10 @@ webshot::webshot('Practicals/Quiz_PartI/Quiz_PartI.html',
 if (!dir.exists("EP16website/static/practical/IncompleteData"))
   dir.create("EP16website/static/practical/IncompleteData")
 
-file.copy('Practicals/IncompleteData/IncompleteData.html',
+file.copy('Practicals/IncompleteData/EP16_IncompleteData.html',
           'EP16website/static/practical/IncompleteData', overwrite = TRUE)
 
-webshot::webshot('Practicals/IncompleteData/IncompleteData.html',
+webshot::webshot('Practicals/IncompleteData/EP16_IncompleteData.html',
                  'EP16website/static/practical/IncompleteData/image.png',
                  vwidth = 800, vheight = 450,
                  cliprect = 'viewport', zoom = 2)
@@ -29,10 +29,10 @@ webshot::webshot('Practicals/IncompleteData/IncompleteData.html',
 if (!dir.exists("EP16website/static/practical/MImice"))
   dir.create("EP16website/static/practical/MImice")
 
-file.copy('Practicals/MImice/MImice.html',
+file.copy('Practicals/MImice/EP16_MImice.html',
           'EP16website/static/practical/MImice', overwrite = TRUE)
 
-webshot::webshot('Practicals/MImice/MImice.html',
+webshot::webshot('Practicals/MImice/EP16_MImice.html',
                  'EP16website/static/practical/MImice/image.png',
                  vwidth = 800, vheight = 450,
                  cliprect = 'viewport', zoom = 2)
@@ -43,10 +43,10 @@ webshot::webshot('Practicals/MImice/MImice.html',
 if (!dir.exists("EP16website/static/practical/MIcheck"))
   dir.create("EP16website/static/practical/MIcheck")
 
-file.copy('Practicals/MIcheck/MIcheck.html',
+file.copy('Practicals/MIcheck/EP16_MIcheck.html',
           'EP16website/static/practical/MIcheck', overwrite = TRUE)
 
-webshot::webshot('Practicals/MIcheck/MIcheck.html',
+webshot::webshot('Practicals/MIcheck/EP16_MIcheck.html',
                  'EP16website/static/practical/MIcheck/image.png',
                  vwidth = 800, vheight = 450,
                  cliprect = 'viewport', zoom = 2)
@@ -56,10 +56,10 @@ webshot::webshot('Practicals/MIcheck/MIcheck.html',
 if (!dir.exists("EP16website/static/practical/AnalysisMI"))
   dir.create("EP16website/static/practical/AnalysisMI")
 
-file.copy('Practicals/AnalysisMI/AnalysisMI.html',
+file.copy('Practicals/AnalysisMI/EP16_AnalysisMI.html',
           'EP16website/static/practical/AnalysisMI', overwrite = TRUE)
 
-webshot::webshot('Practicals/AnalysisMI/AnalysisMI.html',
+webshot::webshot('Practicals/AnalysisMI/EP16_AnalysisMI.html',
                  'EP16website/static/practical/AnalysisMI/image.png',
                  vwidth = 800, vheight = 450,
                  cliprect = 'viewport', zoom = 2)
@@ -68,10 +68,10 @@ webshot::webshot('Practicals/AnalysisMI/AnalysisMI.html',
 if (!dir.exists("EP16website/static/practical/MInonlin"))
   dir.create("EP16website/static/practical/MInonlin")
 
-file.copy('Practicals/MInonlin/MInonlin.html',
+file.copy('Practicals/MInonlin/EP16_MInonlin.html',
           'EP16website/static/practical/MInonlin', overwrite = TRUE)
 
-webshot::webshot('Practicals/MInonlin/MInonlin.html',
+webshot::webshot('Practicals/MInonlin/EP16_MInonlin.html',
                  'EP16website/static/practical/MInonlin/image.png',
                  vwidth = 800, vheight = 450,
                  cliprect = 'viewport', zoom = 2)
@@ -81,10 +81,10 @@ webshot::webshot('Practicals/MInonlin/MInonlin.html',
 if (!dir.exists("EP16website/static/practical/MIlong"))
   dir.create("EP16website/static/practical/MIlong")
 
-file.copy('Practicals/MIlong/MIlong.html',
+file.copy('Practicals/MIlong/EP16_MIlong.html',
           'EP16website/static/practical/MIlong', overwrite = TRUE)
 
-webshot::webshot('Practicals/MIlong/MIlong.html',
+webshot::webshot('Practicals/MIlong/EP16_MIlong.html',
                  'EP16website/static/practical/MIlong/image.png',
                  vwidth = 800, vheight = 450,
                  cliprect = 'viewport', zoom = 2)
@@ -94,10 +94,10 @@ webshot::webshot('Practicals/MIlong/MIlong.html',
 if (!dir.exists("EP16website/static/practical/MIsurv"))
   dir.create("EP16website/static/practical/MIsurv")
 
-file.copy('Practicals/MIsurv/MIsurv.html',
+file.copy('Practicals/MIsurv/EP16_MIsurv.html',
           'EP16website/static/practical/MIsurv', overwrite = TRUE)
 
-webshot::webshot('Practicals/MIsurv/MIsurv.html',
+webshot::webshot('Practicals/MIsurv/EP16_MIsurv.html',
                  'EP16website/static/practical/MIsurv/image.png',
                  vwidth = 800, vheight = 450,
                  cliprect = 'viewport', zoom = 2)
@@ -110,3 +110,22 @@ if (!dir.exists("EP16website/static/slide/lecture"))
 
 file.copy('Slides/MICourse_Slides.pdf',
           'EP16website/static/slide/lecture', overwrite = TRUE)
+
+
+
+
+
+# run all practicals -----------------------------------------------------------
+# need to check first that html version is chosen!!!!
+#
+files <- c("IncompleteData", 'MImice', "MIcheck", "AnalysisMI", "MInonlin", "MIlong", "MIsurv")
+
+for (i in files) {
+  unlink(paste0('Practicals/', i, '/', i, '_cache'), recursive = TRUE)
+}
+
+
+for (i in files) {
+  rmarkdown::render(input = paste0('Practicals/', i, '/', i, '.Rmd'))
+}
+

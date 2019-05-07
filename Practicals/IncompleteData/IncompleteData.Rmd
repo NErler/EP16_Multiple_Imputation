@@ -1,6 +1,6 @@
 ---
 title: "Getting to Know Your Incomplete Data"
-output: 
+output:
   html_document:
     code_folding: show
     df_print: paged
@@ -13,6 +13,9 @@ output:
     includes:
       after_body: ../footer.html
     css: ../style.css
+    pandoc_args: [
+      "--output=EP16_IncompleteData.html"
+      ]
 #   learnr::tutorial:
 #     progressive: true
 #     allow_skip: true
@@ -74,6 +77,7 @@ cat('In this practical, a number of R packages are used.
 * `VIM` (version: `r packageVersion("VIM")`)
 * `plyr` (version: `r packageVersion("plyr")`)
 * `corrplot` (version: `r packageVersion("corrplot")`)
+* `ggplot2` (version: `r packageVersion("ggplot2")`)
 
 
 ### Help files
@@ -95,9 +99,9 @@ or find the whole manual for a package at
 For this example, we will use the **NHANES** dataset.
 ```{r, eval = static, echo = FALSE, results = 'asis'}
 cat(
-'To load this dataset, you can use the command `file.choose()` which opens the
-explorer and allows you to navigate to the location of the file
-`NHANES_for_practicals.RData` on your computer.
+'To get the **NHANES** data, load the file `NHANES_for_practicals.RData`.
+You can download it [here](https://nerler.github.io/EP16_Multiple_Imputation/practical/data/index.html). To load this dataset into R, you can use the command `file.choose()` which opens the
+explorer and allows you to navigate to the location of the file on your computer.
 If you know the path to the file, you can also use `load("<path>/NHANES_for_practicals.RData")`.'
 )
 ```
@@ -205,7 +209,7 @@ asis_output("Explore the missing data pattern of the NHANES data.")
 ```
 
 
-```{r md-pattern, exercise = TRUE, exercise.setup = "educrecode"}
+```{r md-pattern, exercise = TRUE, exercise.setup = "educrecode", fig.height = 10, fig.width = 7}
 
 ```
 
@@ -225,10 +229,6 @@ MDP
 
 # or
 VIM::aggr(NHANES)
-```
-
-```{r, eval = !static, echo=FALSE}
-asis_output("### \\n")
 ```
 
 ```{r md-pattern-solution-mice, solution = TRUE, fig.width = 7, fig.height = 10, include = static}
@@ -409,6 +409,7 @@ We might expect that medication is only prescribed for patients with hypertensio
 
 * Make a table of the two variables to confirm our expectation.
 * Make sure that missing values are also displayed in that table!
+
 ```{r hyptentab, exercise = TRUE}
 
 ```
@@ -490,7 +491,7 @@ cormat <- cor(dat_num, use = 'pair', method = 'spearman')
 corrplot::corrplot(cormat, method = 'square', type = 'lower')
 ```
 
-Note: Correlations involving categorical variables are not usually done!
+**Note:** Correlations involving categorical variables are not usually done!
 We only use this as a quick-and-dirty method for visualization of relationships.
 
 ```{r, eval = !static, echo = FALSE}

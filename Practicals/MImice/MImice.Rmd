@@ -13,6 +13,9 @@ output:
     includes:
       after_body: ../footer.html
     css: ../style.css
+    pandoc_args: [
+      "--output=EP16_MImice.html"
+      ]
 #   learnr::tutorial:
 #     progressive: true
 #     allow_skip: true
@@ -44,11 +47,6 @@ if (names(rmarkdown::metadata$output) == "html_document") {
 ```{r packages, include = FALSE}
 library(kableExtra)
 library(knitr)
-library(JointAI)
-library(reshape2)
-library(plyr)
-library(RColorBrewer)
-library(ggplot2)
 ```
 
 
@@ -56,7 +54,6 @@ library(ggplot2)
 load("www/NHANES_for_practicals.RData")
 NHANES$educ <- as.ordered(NHANES$educ)
 
-source("www/propplot.R")
 load("www/imps.RData")
 
 library(mice)
@@ -79,10 +76,6 @@ cat('In this practical, a number of R packages are used.
 
 * `r R.version.string`
 * `mice` (version: `r packageVersion("mice")`)
-* `JointAI` (version: `r packageVersion("JointAI")`)
-* `reshape2` (version: `r packageVersion("reshape2")`)
-* `RColorBrewer` (version: `r packageVersion("RColorBrewer")`)
-* `ggplot2` (version: `r packageVersion("RColorBrewer")`)
 
 
 ### Help files

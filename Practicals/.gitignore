@@ -1,37 +1,49 @@
 PMM
-
-MICE/MICE_cache
-MICE/MICE_files
+old
 
 IncompleteData/IncompleteData_cache
 IncompleteData/IncompleteData_data
 IncompleteData/IncompleteData_files
 IncompleteData/rsconnect
+IncompleteData/IncompleteData.html
 
 MImice/MImice_cache
 MImice/MImice_data
 MImice/MImice_files
 MImice/rsconnect
-
-MIlong/MIlong_cache
-MIlong/MIlong_data
-MIlong/MIlong_files
-MIlong/rsconnect
-
-MIsurv/MIsurv_cache
-MIsurv/MIsurv_data
-MIsurv/MIsurv_files
-MIsurv/rsconnect
+MImice/MImice.html
 
 MIcheck/MIcheck_cache
 MIcheck/MIcheck_data
 MIcheck/MIcheck_files
 MIcheck/rsconnect
+MIcheck/MIcheck.html
 
 AnalysisMI/AnalysisMI_cache
 AnalysisMI/AnalysisMI_data
 AnalysisMI/AnalysisMI_files
 AnalysisMI/rsconnect
+AnalysisMI/AnalysisMI.html
+
+
+MInonlin/MInonlin_cache
+MInonlin/MInonlin_data
+MInonlin/MInonlin_files
+MInonlin/rsconnect
+MInonlin/MInonlin.html
+
+
+MIlong/MIlong_cache
+MIlong/MIlong_data
+MIlong/MIlong_files
+MIlong/rsconnect
+MIlong/MIlong.html
+
+MIsurv/MIsurv_cache
+MIsurv/MIsurv_data
+MIsurv/MIsurv_files
+MIsurv/rsconnect
+MIsurv/MIsurv.html
 
 Quiz_PartI/rsconnect
 
@@ -44,6 +56,3 @@ MIadvanced/MCMCjomolmB.dll
 MIadvanced/jomolmB.dll
 
 
-MInonlin/MInonlin_data
-MInonlin/MInonlin_cache
-Minonlin/MInonlin_files

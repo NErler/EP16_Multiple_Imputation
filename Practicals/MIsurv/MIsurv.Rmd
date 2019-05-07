@@ -13,6 +13,9 @@ output:
     includes:
       after_body: ../footer.html
     css: ../style.css
+    pandoc_args: [
+      "--output=EP16_MIsurv.html"
+      ]
 #   learnr::tutorial:
 #     progressive: true
 #     allow_skip: true
@@ -20,7 +23,7 @@ output:
 ---
 
 ```{r, include = FALSE}
-runimps <- TRUE
+runimps <- FALSE
 
 if (names(rmarkdown::metadata$output) == "learnr::tutorial") {
   library(learnr)
@@ -53,8 +56,24 @@ library(survival)
 
 
 ```{r load_data, context="data", include=FALSE}
-load("www/pbcdat.RData")
+# pbcdat <- subset(survival::pbc, select = c("time", "status", "platelet", "age",
+#                                            "sex", "chol", "stage"))
+# 
+# pbcdat <- pbcdat[unique(c(which(is.na(pbcdat$platelet)),
+#                           which(is.na(pbcdat$stage)),
+#                           which(pbcdat$status > 0 & is.na(pbcdat$chol)),
+#                           which(pbcdat$status == 0)[1:75],
+#                           100:150
+# )), ]
+# 
+# pbcdat$time <- round(pbcdat$time / 10)*10
+# pbcdat$status <- factor(pbcdat$status, levels = 0:2, labels = c('censored', 'transplant', 'dead'))
+# pbcdat$stage <- factor(pbcdat$stage, ordered = TRUE)
+# 
+# save(pbcdat, file = "Practicals/MIsurv/www/pbcdat.RData")
 
+load("www/pbcdat.RData")
+load("www/survimps.RData")
 source("www/propplot.R")
 # load("www/imps_long.RData")
 
@@ -78,10 +97,9 @@ cat('In this practical, a number of R packages are used.
 
 * `r R.version.string`
 * `mice` (version: `r packageVersion("mice")`)
-* `survival` (version: `r packageVersion("survival")`)
+* `survival` (version: `r packageVersion("survival")`; note: in versions 2.44-1 and 2.44-1.1 `confint()` returns `NA`)
 * `JointAI` (version: `r packageVersion("JointAI")`)
 * `ggplot2` (version: `r packageVersion("ggplot2")`)
-* `reshape2` (version: `r packageVersion("reshape2")`)
 
 
 ### Help files
@@ -134,26 +152,9 @@ pbctab %>% kable(format = 'html') %>%
 
 
 The variables in `pbcdat` dataset have the following distributions:
-```{r, echo = FALSE, fig.width = 9, fig.height = 4.5}
-nc <- 4
-nr <- 2
-
-par(mfrow = c(nr, nc), mgp = c(2, 0.6, 0), mar = c(2, 3, 3, 0.5))
-
-for (i in 1:ncol(pbcdat)) {
-  if (is.numeric(pbcdat[, i])) {
-    hist(pbcdat[, i], nclass = 50, xlab = "",
-         main = paste0(names(pbcdat[i]), " (",
-                       round(mean(is.na(pbcdat[, i])) * 100, 2), "% NA)")
-    )
-  } else {
-    cattab <- table(pbcdat[, i], exclude = NULL)
-    names(cattab)[is.na(names(cattab))] <- "NA"
-    barplot(cattab, ylab = "Frequency",
-            main = paste0(names(pbcdat[i]), " (",
-                          round(mean(is.na(pbcdat[, i])) * 100, 2), "% NA)"))
-  }
-}
+```{r, echo = FALSE, fig.width = 9, fig.height = 5.5}
+par(mgp = c(2, 0.6, 0), mar = c(3, 3, 2.5, 1))
+plot_all(pbcdat)
 ```
 
 The missing data pattern is
@@ -172,7 +173,7 @@ coxph(Surv(time, status == 'dead') ~ platelet + age + sex + chol + stage)
 ```
 
 
-### Imputation with **mice** {.tabset .tabset-fade .tabset-pills}
+## Imputation with **mice** {.tabset .tabset-fade .tabset-pills}
 As we have seen in the lecture, the **mice** package provides the function 
 `nelsonaalen()` that calculates the Nelson-Aalen estimator with which the
 cumulative Hazard can be approximated.
@@ -186,8 +187,10 @@ asis_output("#### Task 1\\n")
 asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
 ```
 
-Calculate the Nelson-Aalen estimate for patient survival in the pbc data and
-perform the usual setup steps for imputation using `mice()`.
+* Calculate the Nelson-Aalen estimate for patient survival in the pbc data and
+* perform the usual setup steps for imputation using `mice()`.
+
+**Note:**<br>
 `nelsonaalen()` does not accept the `status == 'dead'` specification of the
 event, hence, we need to create a new event indicator `event`.
 
@@ -198,36 +201,21 @@ asis_output("<br>")
 ```
 
 
-<div style="border:1px; border-style:solid; padding: 1em; border-color:#D11450">
-**Note:**<br>
-`nelsonaalen()` uses the name `status` internally in such a way that it is 
-replaced by the covariate `status` of our dataset `pbcdat`, which leads to an 
-error. Since we do not need the column `status` for calculating the Nelson-Aalen
-estimate (we use `event` instead), we can exclude it from the data for just this step. 
-To do this, use `data = subset(pbcdat, select = -c(status))` inside the 
-`nelsonaalen()` function.
-</div>
-
-
 ```{r micesurvprep, exercise = TRUE, exercise.timelimit = 200}
 pbcdat$event <- ...
 
 ```
 
 ```{r micesurvprep-hint-1, include = !static}
-pbcdat$event <- as.numeric(pbcdat$status == 'dead')
+pbcdat$event <- pbcdat$status == 'dead'
 
-pbcdat$na <- nelsonaalen(data = subset(pbcdat, select = -c(status)),
-                         timevar = "time", 
-                         statusvar = "event")
+pbcdat$na <- nelsonaalen(data = pbcdat, timevar = "time",  statusvar = "event")
 ```
 
 ```{r micesurvprep-hint-2, include = !static}
-pbcdat$event <- as.numeric(pbcdat$status == 'dead')
+pbcdat$event <- pbcdat$status == 'dead'
 
-pbcdat$na <- nelsonaalen(data = subset(pbcdat, select = -c(status)),
-                         timevar = "time", 
-                         statusvar = "event")
+pbcdat$na <- nelsonaalen(data = pbcdat, timevar = "time",  statusvar = "event")
 
 micesurv0 <- mice(pbcdat, maxit = 0)
 micesurvmeth <- micesurv0$meth
@@ -239,11 +227,8 @@ asis_output("#### Solution 1\\n")
 ```
 
 ```{r micesurvprep-solution}
-pbcdat$event <- as.numeric(pbcdat$status == 'dead')
-
-pbcdat$na <- nelsonaalen(data = subset(pbcdat, select = -c(status)),
-                         timevar = "time", 
-                         statusvar = "event")
+pbcdat$event <- pbcdat$status == 'dead'
+pbcdat$na <- nelsonaalen(data = pbcdat, timevar = "time",  statusvar = "event")
 
 micesurv0 <- mice(pbcdat, maxit = 0)
 micesurvmeth <- micesurv0$meth
@@ -257,6 +242,48 @@ micesurvpred[, "event"] <- 0
 # check the method and predictorMatrix
 micesurvmeth
 micesurvpred
+```
+
+
+```{r, eval = runimps, include = FALSE}
+library(survival)
+pbcdat$event <- pbcdat$status == 'dead'
+
+pbcdat$na <- nelsonaalen(data = pbcdat,
+                         timevar = "time", 
+                         statusvar = "event")
+
+micesurv0 <- mice(pbcdat, maxit = 0)
+
+micesurvmeth <- micesurv0$meth
+micesurvpred <- micesurv0$pred
+
+micesurvmeth[c("chol")] <- "midastouch"
+micesurvmeth[c("platelet")] <- "norm"
+
+micesurvpred[, "event"] <- 0
+
+micesurv <- mice(pbcdat, predictorMatrix = micesurvpred, maxit = 10, m = 5,
+                 printFlag = FALSE)
+
+
+library(JointAI)
+JointAIcox <- coxph_imp(Surv(time = time, event) ~ platelet + 
+                           age + sex + chol + stage, data = pbcdat,
+                         n.iter = 500)
+
+
+JointAIsurv <- survreg_imp(Surv(time = time, event) ~ platelet + 
+                              age + sex + chol + stage, data = pbcdat,
+                            n.iter = 500, seed = 2019)
+
+
+JointAIsurv2 <- survreg_imp(Surv(time = time, event) ~ platelet + 
+                              age + sex + chol + stage, data = pbcdat,
+                            n.iter = 500, seed = 2019, refcats = 'largest')
+
+save(micesurv, JointAIcox, JointAIsurv, JointAIsurv2, 
+     file = 'www/survimps.RData')
 
 ```
 
@@ -269,11 +296,12 @@ asis_output("#### Task 2\\n")
 asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
 ```
 
-Now run the imputation, and analyse the imputed data.
-```{r micesurvimp-setup, include = !static, eval = !static}
-pbcdat$event <- as.numeric(pbcdat$status == 'dead')
+Run the imputation and analyse the imputed data.
 
-pbcdat$na <- nelsonaalen(data = subset(pbcdat, select = -c(status)),
+```{r micesurvimp-setup, include = !static, eval = !static}
+pbcdat$event <- pbcdat$status == 'dead'
+
+pbcdat$na <- nelsonaalen(data = pbcdat,
                          timevar = "time", 
                          statusvar = "event")
 
@@ -299,89 +327,196 @@ asis_output("</div>")
 asis_output("#### Solution 2\\n")
 ```
 
-```{r micesurvimp-solution, cache = TRUE}
-micesurv <- mice(pbcdat, predictorMatrix = micesurvpred, maxit = 10, m = 5)
+```{r, echo = FALSE, eval = static}
+load("www/survimps.RData")
+```
+
+```{r micesurvimp-solution, cache = TRUE, warning = FALSE, eval = !static}
+micesurv <- mice(pbcdat, predictorMatrix = micesurvpred, maxit = 10, m = 5,
+                 printFlag = FALSE)
+
 micesurv_mira <- with(micesurv, coxph(Surv(time = time, event) ~ platelet + 
-                               age + sex + chol + stage))
+                               age + sex + chol + factor(stage)))
 
-summary(pool(micesurv_mira))
+summary(pool(micesurv_mira), conf.int = TRUE)
 ```
 
-```{r, include = static, echo = FALSE}
-asis_output("Again, we remove the added column from the dataset to use the original data in the subsequent imputations.")
-```
-
-```{r, include = static, eval = static}
-pbcdat <- subset(pbcdat, select = -c(na))
-```
-
-
-### Imputation with **JointAI** {.tabset .tabset-fade .tabset-pills}
-
-
-### Comparison of the results for the pbc survival data {.tabset .tabset-fade .tabset-pills}
-We have imputed the pbc survival data using three different approaches:
-
-* with **mice**, using the Nelson-Aalen approximation
-* with **JointAI**
-
-Here is how the pooled results from these imputations compare:
-```{r survres, fig.width = 9, fig.height = 7, echo = FALSE, warning = FALSE}
-opt <- getOption("contrasts")
-options(contrasts = rep("contr.treatment", 2))
-
-# complete case analysis -------------------------------------------------------
-survcc <- with(pbcdat, coxph(Surv(time, status == "dead") ~ platelet + 
-                                             age + sex + chol + stage))
-
-
-# mice -------------------------------------------------------------------------
+```{r, echo = FALSE, eval = static}
 micesurv_mira <- with(micesurv, coxph(Surv(time = time, event) ~ platelet + 
-                               age + sex + chol + stage))
+                               age + sex + chol + factor(stage)))
 
-# # smcfcs -----------------------------------------------------------------------
-# smcsurv_impList <- mitools::imputationList(smcsurv$impDatasets)
-# 
-# 
-# smcsurv_models <- with(smcsurv_impList, coxph(Surv(time = time, event) ~ platelet + 
-#                                age + sex + chol + stage))
-# 
-# smcsurv_mira <- as.mira(smcsurv_models)
-# 
-# # jomo -------------------------------------------------------------------------
-# jomosurv_mids <- as.mids(jomosurv,
-#                          .id = which(names(jomosurv) == "id"),
-#                          .imp = which(names(jomosurv) == "Imputation"))
-# 
-# jomosurv_mira <- with(jomosurv_mids, coxph(Surv(time, event) ~ platelet + 
-#                                              age + sex + chol + stage))
-
-options(contrasts = opt)
+summary(pool(micesurv_mira), conf.int = TRUE)
+```
 
 
+## Imputation with **JointAI** {.tabset .tabset-fade .tabset-pills}
 
-survres <- list(
-  mice = summary(pool(micesurv_mira), conf.int = TRUE)[, c("estimate", "2.5 %", "97.5 %")]
-  # survcc = cbind(survcc$coefficients, confint(survcc)),
-  # smcfcs = summary(pool(smcsurv_mira))[, c("est", "lo 95", "hi 95")],
-  # jomo = summary(pool(jomosurv_mira))[, c("est", "lo 95", "hi 95")]
-)
+Analysis of a Cox proportional hazards model using **JointAI** works analogous
+to the function `coxph()` from packages survival.
 
-survres <- lapply(1:length(survres), function(i){
-  x <- as.data.frame(survres[[i]])
-  names(x) <- c("est", "lo", "hi")
-  x$method <- names(survres)[i]
-  x$name <- gsub("sex2", "sexf", rownames(x))
-  x
-})
 
-survresDF <- do.call(rbind, survres)
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task\\n")
+```
 
-ggplot(survresDF, aes(x = method, y = est)) +
-  geom_point() +
-  geom_errorbar(aes(min = lo, max = hi), width = 0.5) +
-  facet_wrap("name", scales = 'free') +
-  scale_x_discrete(limits = c("mice", "JointAI")) +
-  xlab("")
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+* Fit the Cox model given above using the function `coxph_imp()` (and 500 iterations).
+* Check the traceplot to confirm convergence.
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution\\n")
+```
+
+
+```{r coxph_imp, exercise = TRUE, exercise.setup = 'micesurvimp-setup',  exercise.timelimit = 1500}
+...
 
 ```
+
+
+```{r coxph_imp-solution, eval = FALSE}
+library(survival)
+JointAIcox <- coxph_imp(Surv(time = time, event) ~ platelet + 
+                          age + sex + chol + stage, data = pbcdat,
+                        n.iter = 500, seed = 2019)
+traceplot(JointAIcox)
+```
+
+```{r, echo = FALSE, eval = static}
+traceplot(JointAIcox)
+```
+
+
+```{r, eval = !static, echo=FALSE}
+asis_output("### \\n")
+```
+
+The mixing of the parameters for `stage` is not great. We would have to increase
+the number of iterations and/or the number of chains to get better results.
+
+In the following section we will see a trick that can sometimes help to improve
+problems with convergence or mixing.
+
+## Additional Excercise JointAI {.tabset .tabset-fade .tabset-pills}
+
+For larger datasets with many different event times the Cox model implemented 
+in **JointAI** can become quite slow.
+This is because it has to use the counting process notation which requires
+to loop over all event times in each iteration of the MCMC sampler.
+
+A parametric survival model, e.g. assuming a Weibull distribution
+(see Section 4.2 of the [slides of EP03: Biostatistical Methods II: Survival Analysis](http://www.drizopoulos.com/courses/EMC/EP03.pdf)),
+is often faster.
+This is implemented in the function `survreg_imp()`.
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 1\\n")
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+* Fit a Weibull survival model using the model structure of the Cox model.
+* Investigate convergence using the `traceplot()` and the Gelman-Rubin criterion (`GR_crit()`).
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 1\\n")
+```
+
+```{r survregimp, exercise = TRUE, exercise.setup = 'micesurvimp-setup',  exercise.timelimit = 1500}
+...
+
+```
+
+```{r, eval = !static, echo=FALSE}
+asis_output("### \\n")
+```
+
+```{r survregimp-solution, solution = TRUE}
+JointAIsurv <- survreg_imp(Surv(time = time, event) ~ platelet + 
+                             age + sex + chol + stage, data = pbcdat,
+                           n.iter = 500, seed = 2019)
+
+traceplot(JointAIsurv)
+GR_crit(JointAIsurv)
+```
+
+```{r, eval = !static, echo=FALSE}
+asis_output("### \\n")
+```
+
+```{r, echo = FALSE, eval = static}
+traceplot(JointAIsurv)
+GR_crit(JointAIsurv)
+
+```
+
+Both the traceplot and the Gelman-Rubin criterion show that the parameters for
+`stage` don't converge well. There are clear patterns visible in the plots and
+the upper limit of the confidence intverval of the Gelman-Rubin criterion
+is much larger than one.
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 2\\n")
+```
+
+In some cases, convergence of coefficients for categorical variables can be 
+improved by changing the reference category. Especially when the categories
+are very unbalanced, convergence it better when the largest (or a large)
+category is chosen as the reference.
+
+The plot of the distribution of the variables in the `pbcdat` data at the beginning
+of this practical shows that there are few patients with stage 1.
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+* Re-run the Weibull survival model with the most frequent category of `stage` as
+reference (using the argument `refcats`).
+
+Check out the [help file](https://nerler.github.io/JointAI/reference/model_imp.html) 
+and the vignette on [Model Specification](https://nerler.github.io/JointAI/articles/ModelSpecification.html#reference-values-for-categorical-covariates) for more details on how to use the argument
+`refcats`.
+
+* Then look at the `traceplot()` and `GR_crit()` to see if the change in reference
+category improved convergence.
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 2\\n")
+```
+
+```{r survreg2, exercise = TRUE, exercise.setup = 'micesurvimp-setup',  exercise.timelimit = 1500}
+
+```
+
+```{r survreg2-solution, eval = FALSE}
+JointAIsurv2 <- survreg_imp(Surv(time = time, event) ~ platelet + 
+                              age + sex + chol + stage, data = pbcdat,
+                            n.iter = 500, seed = 2019, refcats = 'largest')
+
+traceplot(JointAIsurv2)
+GR_crit(JointAIsurv2)
+```
+
+```{r, echo = FALSE, eval = static}
+traceplot(JointAIsurv2)
+GR_crit(JointAIsurv2)
+```
+
+```{r, eval = !static, echo=FALSE}
+asis_output("### \\n")
+```
+
+The traceplots look a lot better and the Gelman-Rubin criterion has improved.
+Nevertheless, more iterations or chaines would be necessary to obtain more
+reliable results.

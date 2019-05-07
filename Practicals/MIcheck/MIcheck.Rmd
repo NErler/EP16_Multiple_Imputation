@@ -13,6 +13,9 @@ output:
     includes:
       after_body: ../footer.html
     css: ../style.css
+    pandoc_args: [
+      "--output=EP16_MIcheck.html"
+      ]
 #   learnr::tutorial:
 #     progressive: true
 #     allow_skip: true
@@ -45,9 +48,9 @@ if (names(rmarkdown::metadata$output) == "html_document") {
 library(kableExtra)
 library(knitr)
 # library(JointAI)
-# library(reshape2)
+library(reshape2) # for propplot
 # library(plyr)
-library(RColorBrewer)
+library(RColorBrewer) # for propplot
 library(ggplot2)
 ```
 
@@ -80,7 +83,8 @@ cat('In this practical, a number of R packages are used.
 * `r R.version.string`
 * `mice` (version: `r packageVersion("mice")`)
 * `RColorBrewer` (version: `r packageVersion("RColorBrewer")`)
-* `ggplot2` (version: `r packageVersion("RColorBrewer")`)
+* `reshape2` (version: `r packageVersion("reshape2")`)
+* `ggplot2` (version: `r packageVersion("ggplot2")`)
 
 
 ### Help files
@@ -385,6 +389,10 @@ impcalcBMI <- with(impDF1, wgt/hgt^2)
 cbind(naiveBMI = naiveDF1$BMI, naivecalcBMI,
       impBMI = impDF1$BMI, impcalcBMI)[which(is.na(NHANES$BMI)), ]
 
+```
+
+```{r, eval = !static, echo = FALSE}
+asis_output("### \\n")
 ```
 
 When we compare the imputed and calculated values of `BMI` from `impnaive` we

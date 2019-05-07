@@ -13,6 +13,9 @@ output:
     includes:
       after_body: ../footer.html
     css: ../style.css
+    pandoc_args: [
+      "--output=EP16_AnalysisMI.html"
+      ]
 #   learnr::tutorial:
 #     progressive: true
 #     allow_skip: true
@@ -79,6 +82,7 @@ cat('In this practical, a number of R packages are used.
     The names of the packages used (and their version numbers available on this platform) are:')
 ```
 
+* `r R.version.string`
 * `mice` (version: `r packageVersion("mice")`)
 
 ### Help files
