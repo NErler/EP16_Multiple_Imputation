@@ -4,14 +4,11 @@ title: "EP16: Missing Values in Clinical Research"
 description: Multiple Imputation
 ---
 
-<div style="color:red;">
-<h3>[This website is currently under construction]</h3>
-</div>
 
 This website contains slides and materials for the Multiple Imputation part of
 NIHES course [Missing Values in Clinical Research (EP16)](https://www.nihes.com/course/ep16_missing_values_in_clinical_research/).
 
-Practicals are available as html documents on this webpage and (will be available soon) as interactive
+Practicals are available as html documents on this webpage and as interactive
 [**learnr**](https://rstudio.github.io/learnr/) tutorials here:
 
 * [01 - Getting to Know Incomplete Data](https://emcbiostatistics.shinyapps.io/EP16_IncompleteData)

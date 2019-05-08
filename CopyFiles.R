@@ -129,3 +129,18 @@ for (i in files) {
   rmarkdown::render(input = paste0('Practicals/', i, '/', i, '.Rmd'))
 }
 
+# shiny version
+for (i in files) {
+  unlink(paste0('Practicals/', i, '/', i, '_cache'), recursive = TRUE)
+  rmarkdown::shiny_prerendered_clean(paste0('Practicals/', i, '/', i, '.Rmd'))
+}
+
+i <- files[7]
+rmarkdown::run(file = paste0('Practicals/', i, '/', i, '.Rmd'))
+
+rsconnect::deployApp(appDir = file.path('Practicals', i),
+                     appFiles = c(paste0(i, '.Rmd'), 'www'),
+                     appName = paste0('EP16_', i),
+                     account = 'emcbiostatistics',
+                     server = 'shinyapps.io',
+                     forceUpdate = TRUE)

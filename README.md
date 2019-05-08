@@ -6,7 +6,7 @@ This repository contains slides and materials for the Multiple Imputation part o
 This repo has a [website](https://nerler.github.io/EP16_Multiple_Imputation)
 where you can find slides and practicals.
 
-Practicals are available as html documents on this webpage and (will be available soon) as interactive
+Practicals are available as html documents on this webpage and as interactive
 [**learnr**](https://rstudio.github.io/learnr/) tutorials here:
 
 * [01 - Getting to Know Incomplete Data](https://emcbiostatistics.shinyapps.io/EP16_IncompleteData)

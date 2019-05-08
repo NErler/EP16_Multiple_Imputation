@@ -1,25 +1,25 @@
 ---
 title: "Imputation of Longitudinal or Multi-level Data"
 output: 
-  html_document:
-    code_folding: show
-    df_print: paged
-    toc: true
-    toc_float:
-      collapsed: false
-    number_sections: false
-    theme: spacelab
-    highlight: tango
-    includes:
-      after_body: ../footer.html
-    css: ../style.css
-    pandoc_args: [
-      "--output=EP16_MIlong.html"
-      ]
-#   learnr::tutorial:
-#     progressive: true
-#     allow_skip: true
-# runtime: shiny_prerendered
+  # html_document:
+  #   code_folding: show
+  #   df_print: paged
+  #   toc: true
+  #   toc_float:
+  #     collapsed: false
+  #   number_sections: false
+  #   theme: spacelab
+  #   highlight: tango
+  #   includes:
+  #     after_body: ../footer.html
+  #   css: ../style.css
+  #   pandoc_args: [
+  #     "--output=EP16_MIlong.html"
+  #     ]
+  learnr::tutorial:
+    progressive: true
+    allow_skip: true
+runtime: shiny_prerendered
 ---
 
 ```{r, include = FALSE}

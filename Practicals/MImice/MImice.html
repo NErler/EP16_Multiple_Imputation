@@ -51,7 +51,7 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 <p>In this practical, a number of R packages are used. The names of the packages used (and their version numbers available on this platform) are:</p>
 <ul>
 <li>R version 3.6.0 (2019-04-26)</li>
-<li><code>mice</code> (version: 3.4.0) <!-- * `JointAI` (version: 0.5.1) --> <!-- * `reshape2` (version: 1.4.3) --> <!-- * `RColorBrewer` (version: 1.1.2) --> <!-- * `ggplot2` (version: 1.1.2) --></li>
+<li><code>mice</code> (version: 3.4.0)</li>
 </ul>
 </div>
 <div id="section-help-files" class="section level3">
@@ -652,7 +652,6 @@ learnr:::register_http_handlers(session, metadata = NULL)
 load("www/NHANES_for_practicals.RData")
 NHANES$educ <- as.ordered(NHANES$educ)
 
-# source("www/propplot.R")
 load("www/imps.RData")
 
 library(mice)
