@@ -17,8 +17,8 @@ Practicals are available as html documents on this webpage and as interactive
 * [06 - Imputation of Longitudinal Data](https://emcbiostatistics.shinyapps.io/EP16_MIlong)
 * [07 - Imputation of Survival Data](https://emcbiostatistics.shinyapps.io/EP16_MIsurv)
 
-The practicals require [R](https://cran.r-project.org/) and
-[JAGS](https://sourceforge.net/projects/mcmc-jags/files/) (necessary for the parts of the practical that use the **JointAI** package) need to be installed.
+The practicals require [R](https://cran.r-project.org/), and
+[JAGS](https://sourceforge.net/projects/mcmc-jags/files/) (necessary for the parts of the practical that use the **JointAI** package) needs to be installed.
 
 To download JAGS, go to [https://sourceforge.net/projects/mcmc-jags/files/](https://sourceforge.net/projects/mcmc-jags/files/).
 

@@ -18,9 +18,9 @@
       <pubDate>Mon, 29 Apr 2019 00:00:00 +0000</pubDate>
       
       <guid>/EP16_Multiple_Imputation/home/</guid>
-      <description>[This website is currently under construction]  This website contains slides and materials for the Multiple Imputation part of NIHES course Missing Values in Clinical Research (EP16).
-Practicals are available as html documents on this webpage and (will be available soon) as interactive learnr tutorials here:
- 01 - Getting to Know Incomplete Data 02 - Multiple Imputation using MICE 03 - Checks after Multiple Imputation 04 - Analysis of Multiply Imputed Data 05 - Imputation with Non-linear Effects 06 - Imputation of Longitudinal Data 07 - Imputation of Survival Data  The practicals require R and JAGS (necessary for the parts of the practical that use the JointAI package) need to be installed.</description>
+      <description>This website contains slides and materials for the Multiple Imputation part of NIHES course Missing Values in Clinical Research (EP16).
+Practicals are available as html documents on this webpage and as interactive learnr tutorials here:
+ 01 - Getting to Know Incomplete Data 02 - Multiple Imputation using MICE 03 - Checks after Multiple Imputation 04 - Analysis of Multiply Imputed Data 05 - Imputation with Non-linear Effects 06 - Imputation of Longitudinal Data 07 - Imputation of Survival Data  The practicals require R, and JAGS (necessary for the parts of the practical that use the JointAI package) needs to be installed.</description>
     </item>
     
     <item>
