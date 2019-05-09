@@ -1,25 +1,25 @@
 ---
 title: "Checks after Multiple Imputation"
 output: 
-  # html_document:
-  #   code_folding: show
-  #   df_print: paged
-  #   toc: true
-  #   toc_float:
-  #     collapsed: false
-  #   number_sections: false
-  #   theme: spacelab
-  #   highlight: tango
-  #   includes:
-  #     after_body: ../footer.html
-  #   css: ../style.css
-  #   pandoc_args: [
-  #     "--output=EP16_MIcheck.html"
-  #     ]
-  learnr::tutorial:
-    progressive: true
-    allow_skip: true
-runtime: shiny_prerendered
+  html_document:
+    code_folding: show
+    df_print: paged
+    toc: true
+    toc_float:
+      collapsed: false
+    number_sections: false
+    theme: spacelab
+    highlight: tango
+    includes:
+      after_body: ../footer.html
+    css: ../style.css
+    pandoc_args: [
+      "--output=EP16_MIcheck.html"
+      ]
+#   learnr::tutorial:
+#     progressive: true
+#     allow_skip: true
+# runtime: shiny_prerendered
 ---
 
 ```{r, include = F}
@@ -267,7 +267,7 @@ imp$visitSequence
 ```
 
 ### Logged events {.tabset .tabset-fade .tabset-pills}
-Checkingt the `loggedEvent` shows us if `mice()` detected any problems during
+Checking the `loggedEvent` shows us if `mice()` detected any problems during
 the imputation.
 
 ```{r, eval = static, echo = FALSE}
@@ -408,7 +408,7 @@ In order to obtain correct results, the MICE algorithm needs to have converged.
 This can be checked visually by plotting summaries of the imputed values
 accross the iterations.
 
-The mean and variance of the imputed values per iteration and variable is
+The mean and variance of the imputed values per iteration and variable are
 stored in the elements `chainMean` and `chainVar` of the `mids` object.
 
 ```{r, eval = static, echo = FALSE}
@@ -478,7 +478,7 @@ adjustments to the `predictorMatrix` for `imp`).
 ### Imputed values {.tabset .tabset-fade .tabset-pills}
 Now that we know that `imp` has converged, we can compare the distribution of
 the imputed values against the distribution of the observed values.
-When our imputation models fitted the data well, they should have similar
+When our imputation models fit the data well, they should have similar
 distributions (conditional on the covariates used in the imputation model).
 
 ```{r, eval = static, echo = FALSE}

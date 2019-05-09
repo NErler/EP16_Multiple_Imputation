@@ -120,7 +120,7 @@ or find the whole manual for a package at
 
 ### Dataset 
 
-In this practical we will work with data on from a trial on primary 
+In this practical we will work with data from a trial on primary 
 biliary cirrhosis (PBC) of the liver.
 
 ```{r, eval = static, echo = FALSE}
@@ -382,7 +382,7 @@ summary(pool(micelong_mira), conf.int = TRUE)
 
 ## Imputation using **JointAI** {.tabset .tabset-fade .tabset-pills}
 
-To analyse incomplete longitudinal data a linear mixed model the R package
+To analyse incomplete longitudinal data using a linear mixed model the R package
 **JointAI** provides the function `lme_imp()`. 
 The specification of the main model components is analogous to the function
 `lme()` from the **nlme** package.

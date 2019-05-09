@@ -407,7 +407,7 @@ problems with convergence or mixing.
 For larger datasets with many different event times the Cox model implemented 
 in **JointAI** can become quite slow.
 This is because it has to use the counting process notation which requires
-to loop over all event times in each iteration of the MCMC sampler.
+a loop over all event times in each iteration of the MCMC sampler.
 
 A parametric survival model, e.g. assuming a Weibull distribution
 (see Section 4.2 of the [slides of EP03: Biostatistical Methods II: Survival Analysis](http://www.drizopoulos.com/courses/EMC/EP03.pdf)),

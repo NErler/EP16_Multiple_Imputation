@@ -1,25 +1,25 @@
 ---
 title: "Imputation of Data with Non-linear Associations"
 output: 
-  # html_document:
-  #   code_folding: show
-  #   df_print: paged
-  #   toc: true
-  #   toc_float:
-  #     collapsed: false
-  #   number_sections: false
-  #   theme: spacelab
-  #   highlight: tango
-  #   includes:
-  #     after_body: ../footer.html
-  #   css: ../style.css
-  #   pandoc_args: [
-  #     "--output=EP16_MInonlin.html"
-  #     ]
-  learnr::tutorial:
-    progressive: true
-    allow_skip: true
-runtime: shiny_prerendered
+  html_document:
+    code_folding: show
+    df_print: paged
+    toc: true
+    toc_float:
+      collapsed: false
+    number_sections: false
+    theme: spacelab
+    highlight: tango
+    includes:
+      after_body: ../footer.html
+    css: ../style.css
+    pandoc_args: [
+      "--output=EP16_MInonlin.html"
+      ]
+#   learnr::tutorial:
+#     progressive: true
+#     allow_skip: true
+# runtime: shiny_prerendered
 ---
 
 ```{r, include = FALSE}
@@ -247,8 +247,8 @@ pred <- imp0$predictorMatrix
 # change imputation for "bili" to pmm (to prevent negative values)
 meth["bili"] <- 'pmm'
  
-# changes in predictor matrix to prevent that the original variables are
-# imputed based on the interaction terms
+# changes in predictor matrix to prevent original variables being imputer based 
+# on the interaction terms
 pred["chol", "agechol"] <- 0
 pred["HDL", "ageHDL"] <- 0
 
@@ -278,8 +278,8 @@ pred <- imp0$predictorMatrix
 # change imputation for "bili" to pmm (to prevent negative values)
 meth["bili"] <- 'pmm'
  
-# changes in predictor matrix to prevent that the original variables are
-# imputed based on the interaction terms
+# changes in predictor matrix to prevent original variables being imputer based 
+# on the interaction terms
 pred["chol", "agechol"] <- 0
 pred["HDL", "ageHDL"] <- 0
 ```
@@ -316,7 +316,7 @@ asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-co
 
 We skip the more detailed evaluation of the imputed values.
 With the settings given in the solution the chains have converged and distributions
-of the imputed values match the distributions of the observed data close enough.
+of the imputed values match the distributions of the observed data closely enough.
 
 * Analyse the imputed data and pool the results.
 
@@ -397,8 +397,8 @@ pred <- imp0$predictorMatrix
 # change imputation for "bili" to pmm (to prevent negative values)
 meth["bili"] <- 'pmm'
  
-# changes in predictor matrix to prevent that the original variables are
-# imputed based on the interaction terms
+# changes in predictor matrix to prevent original variables being imputer based 
+# on the interaction terms
 pred["chol", "agechol"] <- 0
 pred["HDL", "ageHDL"] <- 0
 ```
@@ -448,8 +448,8 @@ pred <- imp0$predictorMatrix
 # change imputation for "bili" to pmm (to prevent negative values)
 meth["bili"] <- 'pmm'
  
-# changes in predictor matrix to prevent that the original variables are
-# imputed based on the interaction terms
+# changes in predictor matrix to prevent original variables being imputer based 
+# on the interaction terms
 pred["chol", "agechol"] <- 0
 pred["HDL", "ageHDL"] <- 0
 
@@ -573,7 +573,7 @@ save(savedimps_impJAV,
 ```
 
 ## Imputation with **JointAI**
-**JointAI** provides functions that allow to fit Bayesian regression models
+**JointAI** provides functions that allow us to fit Bayesian regression models
 with incomplete covariates. The main functions are designed to resemble the 
 standard functions to fit regression models with complete data.
 
@@ -696,9 +696,9 @@ JointAIargs <- rbind(
   c("`auxvars`", paste0("vector of names of variables that are not part of the analysis",
                         " model but should be used to predict missing values (optional;",
                         " for details see the vignette on [Model Specification](https://nerler.github.io/JointAI/articles/ModelSpecification.html#auxvars))")),
-  c("`refcats`", paste0("allows to specify which category of categorical variables is used as reference (optional;",
+  c("`refcats`", paste0("allows specification of which category of categorical variables is used as reference (optional;",
                         " for details see the vignette on [Model Specification](https://nerler.github.io/JointAI/articles/ModelSpecification.html#reference-values-for-categorical-covariates))")),
-  c("`trunc`", paste0("allows to truncate distributions of incomplete continuous",
+  c("`trunc`", paste0("allow truncation of distributions of incomplete continuous",
    " covariates (for details see the vignette on [Model Specification](https://nerler.github.io/JointAI/articles/ModelSpecification.html#functions-with-restricted-support))"))
 ) %>% as.data.frame
 
@@ -915,7 +915,7 @@ asis_output("### \\n")
 
 
 ```{r, eval = static, echo = FALSE}
-asis_output("#### Coninue\\n")
+asis_output("#### Continue\\n")
 ```
 
 When we are satisfied with the convergence of the MCMC chains we can take a look
@@ -1033,7 +1033,7 @@ getMIdatargs <- rbind(
   c("`object`", "an object of class `JointAI`"),
   c("`m`", "number of imputed datasets"),
   c("`include`", "should the original, incomplete data be included? (default is `TRUE`)"),
-  c("`start`", "first iteration of interest; allows to discard burn-in iterations"),
+  c("`start`", "first iteration of interest; allows discarding burn-in iterations"),
   c("`minspace`", "minimum number of iterations between iterations chosen as imputed values (default is 50)"),
   c("`seed`", "optional seed value"),
   c("`export_to_SPSS`", "logical; should the completed data be exported to SPSS?"),
@@ -1099,7 +1099,7 @@ to a `mids` object, so that they can be treated as if they had been imputed
 with `mice()`.
 
 The **mice** package proves the function `as.mids()` to convert a long-format
-dataset (with original and multiple imputed datasets staced onto each other)
+dataset (with original and multiple imputed datasets stacked onto each other)
 to a `mids` object.
 
 

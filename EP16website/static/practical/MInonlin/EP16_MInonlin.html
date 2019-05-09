@@ -3091,8 +3091,8 @@ Hint
 <a class="sourceLine" id="cb4-4" title="4"><span class="co"># change imputation for &quot;bili&quot; to pmm (to prevent negative values)</span></a>
 <a class="sourceLine" id="cb4-5" title="5">meth[<span class="st">&quot;bili&quot;</span>] &lt;-<span class="st"> &#39;pmm&#39;</span></a>
 <a class="sourceLine" id="cb4-6" title="6"> </a>
-<a class="sourceLine" id="cb4-7" title="7"><span class="co"># changes in predictor matrix to prevent that the original variables are</span></a>
-<a class="sourceLine" id="cb4-8" title="8"><span class="co"># imputed based on the interaction terms</span></a>
+<a class="sourceLine" id="cb4-7" title="7"><span class="co"># changes in predictor matrix to prevent original variables being imputer based </span></a>
+<a class="sourceLine" id="cb4-8" title="8"><span class="co"># on the interaction terms</span></a>
 <a class="sourceLine" id="cb4-9" title="9">pred[<span class="st">&quot;chol&quot;</span>, <span class="st">&quot;agechol&quot;</span>] &lt;-<span class="st"> </span><span class="dv">0</span></a>
 <a class="sourceLine" id="cb4-10" title="10">pred[<span class="st">&quot;HDL&quot;</span>, <span class="st">&quot;ageHDL&quot;</span>] &lt;-<span class="st"> </span><span class="dv">0</span></a>
 <a class="sourceLine" id="cb4-11" title="11"></a>
@@ -3135,7 +3135,7 @@ Hint
 <div id="task-4" class="section level4">
 <h4>Task 4</h4>
 <div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">
-<p>We skip the more detailed evaluation of the imputed values. With the settings given in the solution the chains have converged and distributions of the imputed values match the distributions of the observed data close enough.</p>
+<p>We skip the more detailed evaluation of the imputed values. With the settings given in the solution the chains have converged and distributions of the imputed values match the distributions of the observed data closely enough.</p>
 <ul>
 <li>Analyse the imputed data and pool the results.</li>
 </ul>
@@ -3213,7 +3213,7 @@ Hint
 </div>
 <div id="imputation-with-jointai" class="section level2">
 <h2>Imputation with <strong>JointAI</strong></h2>
-<p><strong>JointAI</strong> provides functions that allow to fit Bayesian regression models with incomplete covariates. The main functions are designed to resemble the standard functions to fit regression models with complete data.</p>
+<p><strong>JointAI</strong> provides functions that allow us to fit Bayesian regression models with incomplete covariates. The main functions are designed to resemble the standard functions to fit regression models with complete data.</p>
 <p>For univariate outcomes the following functions are available:</p>
 <ul>
 <li><code>lm_imp()</code>: for linear regression</li>
@@ -3331,7 +3331,7 @@ vector of names of variables that are not part of the analysis model but should 
 <code>refcats</code>
 </td>
 <td style="text-align:left;">
-allows to specify which category of categorical variables is used as reference (optional; for details see the vignette on <a href="https://nerler.github.io/JointAI/articles/ModelSpecification.html#reference-values-for-categorical-covariates">Model Specification</a>)
+allows specification of which category of categorical variables is used as reference (optional; for details see the vignette on <a href="https://nerler.github.io/JointAI/articles/ModelSpecification.html#reference-values-for-categorical-covariates">Model Specification</a>)
 </td>
 </tr>
 <tr>
@@ -3339,7 +3339,7 @@ allows to specify which category of categorical variables is used as reference (
 <code>trunc</code>
 </td>
 <td style="text-align:left;">
-allows to truncate distributions of incomplete continuous covariates (for details see the vignette on <a href="https://nerler.github.io/JointAI/articles/ModelSpecification.html#functions-with-restricted-support">Model Specification</a>)
+allow truncation of distributions of incomplete continuous covariates (for details see the vignette on <a href="https://nerler.github.io/JointAI/articles/ModelSpecification.html#functions-with-restricted-support">Model Specification</a>)
 </td>
 </tr>
 </tbody>
@@ -3687,8 +3687,8 @@ number of iterations per MCMC chain in the sampling phase
 ## 
 ## 1.03</code></pre>
 </div>
-<div id="coninue" class="section level4">
-<h4>Coninue</h4>
+<div id="continue" class="section level4">
+<h4>Continue</h4>
 <p>When we are satisfied with the convergence of the MCMC chains we can take a look at the MCMC sample is precise enough. We can do this by comparing the Monte Carlo error (which describes the error made since we have just a finite sample) to the estimated standard deviation. This is implemented in the function <code>MC_error()</code>.</p>
 </div>
 <div id="task-3-2" class="section level4">
@@ -3828,7 +3828,7 @@ should the original, incomplete data be included? (default is <code>TRUE</code>)
 <code>start</code>
 </td>
 <td style="text-align:left;">
-first iteration of interest; allows to discard burn-in iterations
+first iteration of interest; allows discarding burn-in iterations
 </td>
 </tr>
 <tr>
@@ -3894,27 +3894,27 @@ optional file name (for export to SPSS)
 </div>
 <div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" title="1"><span class="kw">summary</span>(MIdat3)</a></code></pre></div>
 <pre><code>##   Imputation_       wgt            gender          bili             age             chol       
-##  Min.   :0.0   Min.   : 39.01   male  :1512   Min.   :0.2000   Min.   :20.00   Min.   : 2.070  
+##  Min.   :0.0   Min.   : 39.01   male  :1512   Min.   :0.2000   Min.   :20.00   Min.   : 1.618  
 ##  1st Qu.:1.0   1st Qu.: 65.20   female:1488   1st Qu.:0.6000   1st Qu.:31.00   1st Qu.: 4.270  
-##  Median :2.5   Median : 76.20                 Median :0.7000   Median :43.00   Median : 4.860  
-##  Mean   :2.5   Mean   : 78.25                 Mean   :0.7425   Mean   :45.02   Mean   : 4.992  
+##  Median :2.5   Median : 76.20                 Median :0.7000   Median :43.00   Median : 4.890  
+##  Mean   :2.5   Mean   : 78.25                 Mean   :0.7431   Mean   :45.02   Mean   : 5.005  
 ##  3rd Qu.:4.0   3rd Qu.: 86.41                 3rd Qu.:0.9000   3rd Qu.:58.00   3rd Qu.: 5.640  
 ##  Max.   :5.0   Max.   :167.38                 Max.   :2.9000   Max.   :79.00   Max.   :10.680  
 ##                                               NA&#39;s   :47                       NA&#39;s   :41      
-##       HDL               hgt                          educ                     race     
-##  Min.   :0.02278   Min.   :1.397   Less than 9th grade :187   Mexican American  : 312  
-##  1st Qu.:1.11000   1st Qu.:1.626   9-11th grade        :414   Other Hispanic    : 348  
-##  Median :1.33679   Median :1.676   High school graduate:691   Non-Hispanic White:1092  
-##  Mean   :1.39547   Mean   :1.686   some college        :890   Non-Hispanic Black: 672  
-##  3rd Qu.:1.60000   3rd Qu.:1.753   College or above    :817   other             : 576  
-##  Max.   :3.13000   Max.   :1.930   NA&#39;s                :  1                            
-##  NA&#39;s   :41        NA&#39;s   :11                                                          
+##       HDL              hgt                          educ                     race     
+##  Min.   :0.1565   Min.   :1.378   Less than 9th grade :187   Mexican American  : 312  
+##  1st Qu.:1.1276   1st Qu.:1.626   9-11th grade        :414   Other Hispanic    : 348  
+##  Median :1.3400   Median :1.676   High school graduate:692   Non-Hispanic White:1092  
+##  Mean   :1.3968   Mean   :1.685   some college        :889   Non-Hispanic Black: 672  
+##  3rd Qu.:1.6000   3rd Qu.:1.753   College or above    :817   other             : 576  
+##  Max.   :3.1300   Max.   :1.930   NA&#39;s                :  1                            
+##  NA&#39;s   :41       NA&#39;s   :11                                                          
 ##       SBP          hypten           WC            agechol           ageHDL           .rownr     
-##  Min.   : 81.33   no  :2213   Min.   : 60.35   Min.   : 45.54   Min.   :  7.92   Min.   :  1.0  
-##  1st Qu.:108.67   yes : 766   1st Qu.: 85.00   1st Qu.:140.16   1st Qu.: 39.37   1st Qu.:125.8  
+##  Min.   : 79.16   no  :2207   Min.   : 57.77   Min.   : 45.54   Min.   :  7.92   Min.   :  1.0  
+##  1st Qu.:109.33   yes : 772   1st Qu.: 85.00   1st Qu.:140.16   1st Qu.: 39.37   1st Qu.:125.8  
 ##  Median :118.67   NA&#39;s:  21   Median : 95.40   Median :222.31   Median : 57.40   Median :250.5  
-##  Mean   :120.26               Mean   : 96.32   Mean   :227.71   Mean   : 63.14   Mean   :250.5  
-##  3rd Qu.:128.67               3rd Qu.:105.10   3rd Qu.:296.40   3rd Qu.: 80.04   3rd Qu.:375.2  
+##  Mean   :120.32               Mean   : 96.30   Mean   :227.71   Mean   : 63.14   Mean   :250.5  
+##  3rd Qu.:128.92               3rd Qu.:105.10   3rd Qu.:296.40   3rd Qu.: 80.04   3rd Qu.:375.2  
 ##  Max.   :202.00               Max.   :154.70   Max.   :725.90   Max.   :171.36   Max.   :500.0  
 ##  NA&#39;s   :29                   NA&#39;s   :23       NA&#39;s   :246      NA&#39;s   :246                     
 ##       .id       
@@ -3936,7 +3936,7 @@ optional file name (for export to SPSS)
 <div id="transforming-imputed-data-to-a-mids-object" class="section level3 tabset tabset-fade tabset-pills">
 <h3>Transforming imputed data to a mids object</h3>
 <p>To perform standard analyses on the imputed data it is usefull to convert them to a <code>mids</code> object, so that they can be treated as if they had been imputed with <code>mice()</code>.</p>
-<p>The <strong>mice</strong> package proves the function <code>as.mids()</code> to convert a long-format dataset (with original and multiple imputed datasets staced onto each other) to a <code>mids</code> object.</p>
+<p>The <strong>mice</strong> package proves the function <code>as.mids()</code> to convert a long-format dataset (with original and multiple imputed datasets stacked onto each other) to a <code>mids</code> object.</p>
 <div id="task-8" class="section level4">
 <h4>Task</h4>
 <div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">

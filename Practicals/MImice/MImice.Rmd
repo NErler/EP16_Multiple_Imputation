@@ -1,25 +1,25 @@
 ---
 title: 'Multiple Imputation with the "mice" Package'
 output: 
-  # html_document:
-  #   code_folding: show
-  #   df_print: paged
-  #   toc: true
-  #   toc_float:
-  #     collapsed: false
-  #   number_sections: false
-  #   theme: spacelab
-  #   highlight: tango
-  #   includes:
-  #     after_body: ../footer.html
-  #   css: ../style.css
-  #   pandoc_args: [
-  #     "--output=EP16_MImice.html"
-  #     ]
-  learnr::tutorial:
-    progressive: true
-    allow_skip: true
-runtime: shiny_prerendered
+  html_document:
+    code_folding: show
+    df_print: paged
+    toc: true
+    toc_float:
+      collapsed: false
+    number_sections: false
+    theme: spacelab
+    highlight: tango
+    includes:
+      after_body: ../footer.html
+    css: ../style.css
+    pandoc_args: [
+      "--output=EP16_MImice.html"
+      ]
+#   learnr::tutorial:
+#     progressive: true
+#     allow_skip: true
+# runtime: shiny_prerendered
 ---
 
 ```{r, include = F}
@@ -475,9 +475,9 @@ visSeq <- imp0$visitSequence
 # the lazy version:
 visSeq <- c(visSeq[-2], visSeq[2])
 
-# the save version:
+# the safe version:
 # To make sure you still do the correct thing if the order of the columns in 
-# NHANES would change
+# NHANES were to change
 which_BMI <- match("BMI", visSeq)
 visSeq <- c(visSeq[-which_BMI], visSeq[which_BMI])
 ```
