@@ -1,25 +1,25 @@
 ---
 title: "Imputation of Survival Data"
 output: 
-  # html_document:
-  #   code_folding: show
-  #   df_print: paged
-  #   toc: true
-  #   toc_float:
-  #     collapsed: false
-  #   number_sections: false
-  #   theme: spacelab
-  #   highlight: tango
-  #   includes:
-  #     after_body: ../footer.html
-  #   css: ../style.css
-  #   pandoc_args: [
-  #     "--output=EP16_MIsurv.html"
-  #     ]
-  learnr::tutorial:
-    progressive: true
-    allow_skip: true
-runtime: shiny_prerendered
+  html_document:
+    code_folding: show
+    df_print: paged
+    toc: true
+    toc_float:
+      collapsed: false
+    number_sections: false
+    theme: spacelab
+    highlight: tango
+    includes:
+      after_body: ../footer.html
+    css: ../style.css
+    pandoc_args: [
+      "--output=EP16_MIsurv.html"
+      ]
+#   learnr::tutorial:
+#     progressive: true
+#     allow_skip: true
+# runtime: shiny_prerendered
 ---
 
 ```{r, include = FALSE}
@@ -180,7 +180,7 @@ cumulative Hazard can be approximated.
 
 
 ```{r, eval = static, echo = FALSE}
-asis_output("#### Task 1\\n")
+asis_output("### Task 1\\n")
 ```
 
 ```{r, eval = static, echo = FALSE}
@@ -223,7 +223,7 @@ micesurvpred <- micesurv0$pred
 ```
 
 ```{r, eval = static, echo = FALSE}
-asis_output("#### Solution 1\\n")
+asis_output("### Solution 1\\n")
 ```
 
 ```{r micesurvprep-solution}
@@ -289,7 +289,7 @@ save(micesurv, JointAIcox, JointAIsurv, JointAIsurv2,
 
 
 ```{r, eval = static, echo = FALSE}
-asis_output("#### Task 2\\n")
+asis_output("### Task 2\\n")
 ```
 
 ```{r, eval = static, echo = FALSE}
@@ -324,7 +324,7 @@ micesurvpred[, "event"] <- 0
 ```{r, eval = static, echo = FALSE}
 asis_output("</div>")
 
-asis_output("#### Solution 2\\n")
+asis_output("### Solution 2\\n")
 ```
 
 ```{r, echo = FALSE, eval = static}
@@ -356,7 +356,7 @@ to the function `coxph()` from packages survival.
 
 
 ```{r, eval = static, echo = FALSE}
-asis_output("#### Task\\n")
+asis_output("### Task\\n")
 ```
 
 ```{r, eval = static, echo = FALSE}
@@ -369,7 +369,7 @@ asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-co
 ```{r, eval = static, echo = FALSE}
 asis_output("</div>")
 
-asis_output("#### Solution\\n")
+asis_output("### Solution\\n")
 ```
 
 
@@ -415,7 +415,7 @@ is often faster.
 This is implemented in the function `survreg_imp()`.
 
 ```{r, eval = static, echo = FALSE}
-asis_output("#### Task 1\\n")
+asis_output("### Task 1\\n")
 ```
 
 ```{r, eval = static, echo = FALSE}
@@ -428,7 +428,7 @@ asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-co
 ```{r, eval = static, echo = FALSE}
 asis_output("</div>")
 
-asis_output("#### Solution 1\\n")
+asis_output("### Solution 1\\n")
 ```
 
 ```{r survregimp, exercise = TRUE, exercise.setup = 'micesurvimp-setup',  exercise.timelimit = 1500}
@@ -465,7 +465,7 @@ the upper limit of the confidence intverval of the Gelman-Rubin criterion
 is much larger than one.
 
 ```{r, eval = static, echo = FALSE}
-asis_output("#### Task 2\\n")
+asis_output("### Task 2\\n")
 ```
 
 In some cases, convergence of coefficients for categorical variables can be 
@@ -492,7 +492,7 @@ category improved convergence.
 ```{r, eval = static, echo = FALSE}
 asis_output("</div>")
 
-asis_output("#### Solution 2\\n")
+asis_output("### Solution 2\\n")
 ```
 
 ```{r survreg2, exercise = TRUE, exercise.setup = 'micesurvimp-setup',  exercise.timelimit = 1500}

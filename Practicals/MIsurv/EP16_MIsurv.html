@@ -3101,8 +3101,8 @@ histologic stage of disease
 <div id="imputation-with-mice" class="section level2 tabset tabset-fade tabset-pills">
 <h2>Imputation with <strong>mice</strong></h2>
 <p>As we have seen in the lecture, the <strong>mice</strong> package provides the function <code>nelsonaalen()</code> that calculates the Nelson-Aalen estimator with which the cumulative Hazard can be approximated.</p>
-<div id="task-1" class="section level4">
-<h4>Task 1</h4>
+<div id="task-1" class="section level3">
+<h3>Task 1</h3>
 <div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">
 <ul>
 <li>Calculate the Nelson-Aalen estimate for patient survival in the pbc data and</li>
@@ -3112,8 +3112,8 @@ histologic stage of disease
 </div>
 <p><br></p>
 </div>
-<div id="solution-1" class="section level4">
-<h4>Solution 1</h4>
+<div id="solution-1" class="section level3">
+<h3>Solution 1</h3>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1">pbcdat<span class="op">$</span>event &lt;-<span class="st"> </span>pbcdat<span class="op">$</span>status <span class="op">==</span><span class="st"> &#39;dead&#39;</span></a>
 <a class="sourceLine" id="cb2-2" title="2">pbcdat<span class="op">$</span>na &lt;-<span class="st"> </span><span class="kw">nelsonaalen</span>(<span class="dt">data =</span> pbcdat, <span class="dt">timevar =</span> <span class="st">&quot;time&quot;</span>,  <span class="dt">statusvar =</span> <span class="st">&quot;event&quot;</span>)</a>
 <a class="sourceLine" id="cb2-3" title="3"></a>
@@ -3144,14 +3144,14 @@ histologic stage of disease
 ## event       1      1        1   1   1    1     1     0  1
 ## na          1      1        1   1   1    1     1     0  0</code></pre>
 </div>
-<div id="task-2" class="section level4">
-<h4>Task 2</h4>
+<div id="task-2" class="section level3">
+<h3>Task 2</h3>
 <div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">
 <p>Run the imputation and analyse the imputed data.</p>
 </div>
 </div>
-<div id="solution-2" class="section level4">
-<h4>Solution 2</h4>
+<div id="solution-2" class="section level3">
+<h3>Solution 2</h3>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1">micesurv &lt;-<span class="st"> </span><span class="kw">mice</span>(pbcdat, <span class="dt">predictorMatrix =</span> micesurvpred, <span class="dt">maxit =</span> <span class="dv">10</span>, <span class="dt">m =</span> <span class="dv">5</span>,</a>
 <a class="sourceLine" id="cb6-2" title="2">                 <span class="dt">printFlag =</span> <span class="ot">FALSE</span>)</a>
 <a class="sourceLine" id="cb6-3" title="3"></a>
@@ -3171,8 +3171,8 @@ histologic stage of disease
 <div id="imputation-with-jointai" class="section level2 tabset tabset-fade tabset-pills">
 <h2>Imputation with <strong>JointAI</strong></h2>
 <p>Analysis of a Cox proportional hazards model using <strong>JointAI</strong> works analogous to the function <code>coxph()</code> from packages survival.</p>
-<div id="task" class="section level4">
-<h4>Task</h4>
+<div id="task" class="section level3">
+<h3>Task</h3>
 <div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">
 <ul>
 <li>Fit the Cox model given above using the function <code>coxph_imp()</code> (and 500 iterations).</li>
@@ -3180,8 +3180,8 @@ histologic stage of disease
 </ul>
 </div>
 </div>
-<div id="solution" class="section level4">
-<h4>Solution</h4>
+<div id="solution" class="section level3">
+<h3>Solution</h3>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">library</span>(survival)</a>
 <a class="sourceLine" id="cb9-2" title="2">JointAIcox &lt;-<span class="st"> </span><span class="kw">coxph_imp</span>(<span class="kw">Surv</span>(<span class="dt">time =</span> time, event) <span class="op">~</span><span class="st"> </span>platelet <span class="op">+</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb9-3" title="3"><span class="st">                          </span>age <span class="op">+</span><span class="st"> </span>sex <span class="op">+</span><span class="st"> </span>chol <span class="op">+</span><span class="st"> </span>stage, <span class="dt">data =</span> pbcdat,</a>
@@ -3196,8 +3196,8 @@ histologic stage of disease
 <h2>Additional Excercise JointAI</h2>
 <p>For larger datasets with many different event times the Cox model implemented in <strong>JointAI</strong> can become quite slow. This is because it has to use the counting process notation which requires to loop over all event times in each iteration of the MCMC sampler.</p>
 <p>A parametric survival model, e.g. assuming a Weibull distribution (see Section 4.2 of the <a href="http://www.drizopoulos.com/courses/EMC/EP03.pdf">slides of EP03: Biostatistical Methods II: Survival Analysis</a>), is often faster. This is implemented in the function <code>survreg_imp()</code>.</p>
-<div id="task-1-1" class="section level4">
-<h4>Task 1</h4>
+<div id="task-1-1" class="section level3">
+<h3>Task 1</h3>
 <div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">
 <ul>
 <li>Fit a Weibull survival model using the model structure of the Cox model.</li>
@@ -3205,8 +3205,8 @@ histologic stage of disease
 </ul>
 </div>
 </div>
-<div id="solution-1-1" class="section level4">
-<h4>Solution 1</h4>
+<div id="solution-1-1" class="section level3">
+<h3>Solution 1</h3>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1">JointAIsurv &lt;-<span class="st"> </span><span class="kw">survreg_imp</span>(<span class="kw">Surv</span>(<span class="dt">time =</span> time, event) <span class="op">~</span><span class="st"> </span>platelet <span class="op">+</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb10-2" title="2"><span class="st">                             </span>age <span class="op">+</span><span class="st"> </span>sex <span class="op">+</span><span class="st"> </span>chol <span class="op">+</span><span class="st"> </span>stage, <span class="dt">data =</span> pbcdat,</a>
 <a class="sourceLine" id="cb10-3" title="3">                           <span class="dt">n.iter =</span> <span class="dv">500</span>, <span class="dt">seed =</span> <span class="dv">2019</span>)</a></code></pre></div>
@@ -3251,8 +3251,8 @@ histologic stage of disease
 ## 1.78</code></pre>
 <p>Both the traceplot and the Gelman-Rubin criterion show that the parameters for <code>stage</code> don’t converge well. There are clear patterns visible in the plots and the upper limit of the confidence intverval of the Gelman-Rubin criterion is much larger than one.</p>
 </div>
-<div id="task-2-1" class="section level4">
-<h4>Task 2</h4>
+<div id="task-2-1" class="section level3">
+<h3>Task 2</h3>
 <p>In some cases, convergence of coefficients for categorical variables can be improved by changing the reference category. Especially when the categories are very unbalanced, convergence it better when the largest (or a large) category is chosen as the reference.</p>
 The plot of the distribution of the variables in the <code>pbcdat</code> data at the beginning of this practical shows that there are few patients with stage 1.
 <div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">
@@ -3265,8 +3265,8 @@ The plot of the distribution of the variables in the <code>pbcdat</code> data at
 </ul>
 </div>
 </div>
-<div id="solution-2-1" class="section level4">
-<h4>Solution 2</h4>
+<div id="solution-2-1" class="section level3">
+<h3>Solution 2</h3>
 <div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" title="1">JointAIsurv2 &lt;-<span class="st"> </span><span class="kw">survreg_imp</span>(<span class="kw">Surv</span>(<span class="dt">time =</span> time, event) <span class="op">~</span><span class="st"> </span>platelet <span class="op">+</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb18-2" title="2"><span class="st">                              </span>age <span class="op">+</span><span class="st"> </span>sex <span class="op">+</span><span class="st"> </span>chol <span class="op">+</span><span class="st"> </span>stage, <span class="dt">data =</span> pbcdat,</a>
 <a class="sourceLine" id="cb18-3" title="3">                            <span class="dt">n.iter =</span> <span class="dv">500</span>, <span class="dt">seed =</span> <span class="dv">2019</span>, <span class="dt">refcats =</span> <span class="st">&#39;largest&#39;</span>)</a>

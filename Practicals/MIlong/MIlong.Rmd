@@ -1,25 +1,25 @@
 ---
 title: "Imputation of Longitudinal or Multi-level Data"
 output: 
-  # html_document:
-  #   code_folding: show
-  #   df_print: paged
-  #   toc: true
-  #   toc_float:
-  #     collapsed: false
-  #   number_sections: false
-  #   theme: spacelab
-  #   highlight: tango
-  #   includes:
-  #     after_body: ../footer.html
-  #   css: ../style.css
-  #   pandoc_args: [
-  #     "--output=EP16_MIlong.html"
-  #     ]
-  learnr::tutorial:
-    progressive: true
-    allow_skip: true
-runtime: shiny_prerendered
+  html_document:
+    code_folding: show
+    df_print: paged
+    toc: true
+    toc_float:
+      collapsed: false
+    number_sections: false
+    theme: spacelab
+    highlight: tango
+    includes:
+      after_body: ../footer.html
+    css: ../style.css
+    pandoc_args: [
+      "--output=EP16_MIlong.html"
+      ]
+#   learnr::tutorial:
+#     progressive: true
+#     allow_skip: true
+# runtime: shiny_prerendered
 ---
 
 ```{r, include = FALSE}
@@ -215,7 +215,7 @@ The `predictorMatrix` requires some extra specification to identify the
 "id" variable (set to -2) and the random effects structure (set to 2).
 
 ```{r, eval = static, echo = FALSE}
-asis_output("#### Task 1\\n")
+asis_output("### Task 1\\n")
 ```
 
 ```{r, eval = static, echo = FALSE}
@@ -253,7 +253,7 @@ pred_micelong <- ...
 ```{r, eval = static, echo = FALSE}
 asis_output("</div>")
 
-asis_output("#### Solution 1\\n")
+asis_output("### Solution 1\\n")
 ```
 
 ```{r micelong0-solution}
@@ -281,7 +281,7 @@ pred_micelong
 
 
 ```{r, eval = static, echo = FALSE}
-asis_output("#### Task 2\\n")
+asis_output("### Task 2\\n")
 ```
 
 ```{r, eval = static, echo = FALSE}
@@ -347,7 +347,7 @@ save(savedimps_micelong,
 ```{r, eval = static, echo = FALSE}
 asis_output("</div>")
 
-asis_output("#### Solution 2\\n")
+asis_output("### Solution 2\\n")
 ```
 
 ```{r micelong-solution, eval = FALSE}
@@ -431,7 +431,7 @@ For the specification of the other arguments of `lme_imp()`, refer to
 [Imputation with Non-linear Associations](https://nerler.github.io/EP16_Multiple_Imputation/practical/minonlin/MInonlin.html)
 
 ```{r, eval = static, echo = FALSE}
-asis_output("#### Task\\n")
+asis_output("### Task\\n")
 ```
 
 ```{r, eval = static, echo = FALSE}
@@ -453,7 +453,7 @@ JointAIlong <- ...
 ```{r, eval = static, echo = FALSE}
 asis_output("</div>")
 
-asis_output("#### Solution\\n")
+asis_output("### Solution\\n")
 ```
 
 ```{r runJoitAIlong-solution, eval = FALSE, fig.width = 9, fig.height = 5, message = FALSE}
@@ -480,7 +480,7 @@ We want to fit a logistic mixed model for the variable `hepato` and explore
 if the association is non-linear over time.
 
 ```{r, eval = static, echo = FALSE}
-asis_output("#### Task 1\\n")
+asis_output("### Task 1\\n")
 ```
 
 ```{r, eval = static, echo = FALSE}
@@ -513,7 +513,7 @@ JointAIlong2 <- ...
 ```{r, eval = static, echo = FALSE}
 asis_output("</div>")
 
-asis_output("#### Solution 1\\n")
+asis_output("### Solution 1\\n")
 ```
 
 ```{r JointAIlong2-solution, eval = FALSE}
@@ -539,7 +539,7 @@ asis_output("### \\n")
 
 
 ```{r, eval = static, echo = FALSE}
-asis_output("#### Task 2\\n")
+asis_output("### Task 2\\n")
 ```
 When the model has converged, we want to visualize the potentially non-linear
 association of `day`. To do that, we can create a new dataset containing information
@@ -561,7 +561,7 @@ Use `predDF()` to create a dataset that allows visualization of the effect of
 ```{r, eval = static, echo = FALSE}
 asis_output("</div>")
 
-asis_output("#### Solution 2\\n")
+asis_output("### Solution 2\\n")
 ```
 
 ```{r getJointAIlong2, echo = FALSE}
@@ -586,7 +586,7 @@ asis_output("### \\n")
 
 
 ```{r, eval = static, echo = FALSE}
-asis_output("#### Task 3\\n")
+asis_output("### Task 3\\n")
 ```
 
 We can now predict the outcome of our model for our "average" subject using the
@@ -612,7 +612,7 @@ asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-co
 ```{r, eval = static, echo = FALSE}
 asis_output("</div>")
 
-asis_output("#### Solution 3\\n")
+asis_output("### Solution 3\\n")
 ```
 
 
