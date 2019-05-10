@@ -1,0 +1,151 @@
+---
+title: "\\textbf{Assignment II for\\\\[1ex]EP16: Missing Values in Clinical Research}"
+subtitle: "\\LARGE\\textbf{Multiple Imputation}"
+date: "\\textbf{13 -- 17 May, 2019}"
+output:
+  pdf_document:
+    includes:
+      in_header: header.tex
+params:
+  year: NA
+  theseed: NA
+---
+
+```{r, echo = FALSE}
+datatype <- 2
+year <- params$year
+theseed <- params$theseed
+
+load(paste0('../data/MIdat', datatype, theseed, '_', year, '.RData'))
+datname <- paste0('MIdat', datatype, theseed)
+dat <- get(datname)
+
+```
+
+# Data {-}
+The **`r datname`** data comprise data of 1016 liver transplant patients
+that are followed up after receiving the transplant, from a multi-center
+study.
+
+
+The dataset contains the following variables:
+
+```{r, echo = FALSE, results = 'asis'}
+
+vars <- c("ID" = "patient identifier",
+          "outcome" = "survival outcome",
+          "time" = "event time",
+          "bg_don" = "blood group of the organ donor",
+          "year" = "year the transplant was performed",
+          "sex" = "sex of the recipient (patient)",
+          "bg_rec" = "blood group of the recipient (patient)",
+          "graft" = "type of graft (HF: heart beating donor, full liver;
+                                HP: heart beating donor, partial liver;
+                                DF: domino transplant, full liver;
+                                LL: living donor, split liver;
+                                NF: non-heart beating donor, full liver;
+                                HR: heart beating donor, reduced liver;
+                                NP: non-heart beating donor; partial liver)",
+          "center" = "study center identifier",
+          "isc_time" = "ischemic time (time the organ was outside the body)",
+          "age_don" = "age of the donor",
+          "bg_match" = 'are the blood groups of donor and recipient equal? (\\texttt{"factor(bg\\_don == bg\\_rec)"})',
+          "age_rec" = "age of the recipient (patient)",
+          "birth" = "year of birth of the recipient (patient)",
+          "origin" = "patient's place of origin"
+)
+
+
+# if (theseed == 1) {
+#   vars['birthwgt'] <- 'birthweight (SD-score)'
+#   vars['length'] <- "child's length at time of DXA scan in centimeters"
+# }
+# 
+# if (theseed == 3) {
+#   vars['sun'] <- 'average sun light duration in hours/day in the month before blood sampling'
+#   vars['length'] <- "child's length at time of DXA scan in centimeters"
+# }
+
+if (any(!names(dat) %in% names(vars))) {
+  n <- names(dat)[which(!names(dat) %in% names(vars))]
+  print(paste0("\\textcolor{red}{", n, "not described!!!}"))
+}
+
+vars <- vars[match(names(dat), names(vars))]
+
+names(vars) <- gsub('_', '\\_', names(vars), fixed = TRUE)
+
+cat(
+  paste0('\\begin{table}[!ht]
+          \\centering
+          \\begin{tabular}{lp{13cm}}\\toprule
+         variable & explanation\\\\\\midrule',
+  paste0("\\texttt{", names(vars), "} & ", vars, collapse = '\\\\\n'),
+  '\\\\\\bottomrule
+\\end{tabular}
+\\end{table}'
+))
+```
+
+```{r, echo = FALSE}
+time <- 'time'
+out <- 'outcome'
+
+covars <- c("year", "bg_match", "isc_time", "age_don", "age_rec", "sex")
+
+# if (theseed == 1) {
+#   covars <- gsub('ancestry', 'ethn', covars)
+#   covars <- gsub('gender', 'sex', covars)
+# }
+# 
+# if (theseed == 3) {
+#   covars <- gsub('ancestry', 'ethn', covars)
+# }
+
+covstring <- paste(paste0(paste0('`', covars[-length(covars)], '`'), collapse = ', '),
+                   'and', paste0('`', covars[length(covars)], '`'))
+
+if (any(!covars %in% names(dat))) {
+  n <- covars[!covars %in% names(dat)]
+  print(paste0("\\textcolor{red}{", n, "not in data!!!}"))
+}
+
+```
+
+
+# Analysis model of interest {-}
+The analysis model of interest is a time-to-event model with
+event time `r time` and event indicator `r out`
+and covariates `r covstring`.
+
+```{r, eval = FALSE, echo = FALSE}
+for(theseed in 1:3) {
+  rmarkdown::render('Assignment/instructions/template02.Rmd',
+                    output_file = paste0('MIdat2', theseed, '_2019_documentation.pdf'), 
+                    params = list(year = 2019, theseed = theseed))
+  
+  file.remove(paste0("Assignment/instructions/MIdat2", theseed, "_2019_documentation.tex"))
+}
+
+file.show("Assignment/instructions/MIdat21_2019_documentation.pdf")
+file.show("Assignment/instructions/MIdat22_2019_documentation.pdf")
+file.show("Assignment/instructions/MIdat23_2019_documentation.pdf")
+
+
+
+load('Assignment/data/MIdat21_2019.RData')
+load('Assignment/data/MIdat22_2019.RData')
+load('Assignment/data/MIdat23_2019.RData')
+
+summary(MIdat21[, intersect(names(MIdat21), names(MIdat22))])
+summary(MIdat22[, intersect(names(MIdat21), names(MIdat22))])
+
+summary(MIdat21[, intersect(names(MIdat21), names(MIdat23))])
+summary(MIdat23[, intersect(names(MIdat21), names(MIdat23))])
+
+
+summary(MIdat22[, intersect(names(MIdat22), names(MIdat23))])
+summary(MIdat23[, intersect(names(MIdat22), names(MIdat23))])
+
+```
+

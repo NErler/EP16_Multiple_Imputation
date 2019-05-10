@@ -1,0 +1,151 @@
+---
+title: "\\textbf{Assignment II for\\\\[1ex]EP16: Missing Values in Clinical Research}"
+subtitle: "\\LARGE\\textbf{Multiple Imputation}"
+date: "\\textbf{13 -- 17 May, 2019}"
+output:
+  pdf_document:
+    includes:
+      in_header: header.tex
+params:
+  year: NA
+  theseed: NA
+---
+
+```{r, echo = FALSE}
+datatype <- 1
+year <- params$year
+theseed <- params$theseed
+
+load(paste0('../data/MIdat', datatype, theseed, '_', year, '.RData'))
+datname <- paste0('MIdat', datatype, theseed)
+dat <- get(datname)
+
+```
+
+# Data {-}
+The **`r datname`** data comprise `r nrow(dat)` observations of `r length(unique(dat$ID))` mothers measured repeatedly
+before and during pregnancy. All women were scheduled to have their weight measured
+once each trimester and were asked for their pre-pregnancy weight and BMI.
+
+The dataset contains the following variables:
+
+```{r, echo = FALSE, results = 'asis'}
+vars <- c("ID" = "subject identifier",
+          "gender" = "gender of the child",
+          "sex" = "sex of the child",
+          "sun_birth" = "average sun light duration in the month before birth in hours/day",
+          "bdate" = "child'd birth date",
+          "birth" = "date of birth",
+          "lean" = "lean mass in kg",
+          "length" = "child's length at time of DXA scan in meters",
+          "ancestry" = "child's ancestry",
+          "ethn" = "child's ethnicity",
+          "singleton" = "is the child a singleton birth?",
+          "sun" = "average sun light duration in minutes/day in the month before blood sampling",
+          "birthwgt" = "birthweight in kg",
+          "BMC" = "bone mineral content of the child in grams, determined by DXA scan",
+          "weight" = "child's total weight in kg at DXA scan",
+          "gravidity" = "number of times the mother has been pregnant
+         (primigravida: this was the first pregnancy,
+          multigravida: the mother had previous pregnancies)",
+         "leanfrac" = "proportion of child's lean mass (lean mass/total mass; lean mass = total mass - fat mass)",
+         "vitD" = "mother's serum vitamin D concentrations in 10 nmol/L",
+         "season" = "season of blood sampling",
+         "sports" = "does the child do sports regularily?",
+         "parity" = "number of pregnancies of more than 20 weeks the mother had (nulliparity: this was
+the first pregnancy, multiparity: mother had previous pregnancies)"
+)
+
+
+if (theseed == 1) {
+  vars['birthwgt'] <- 'birthweight (SD-score)'
+  vars['length'] <- "child's length at time of DXA scan in centimeters"
+}
+
+if (theseed == 3) {
+  vars['sun'] <- 'average sun light duration in hours/day in the month before blood sampling'
+  vars['length'] <- "child's length at time of DXA scan in centimeters"
+}
+
+if (any(!names(dat) %in% names(vars))) {
+  n <- names(dat)[which(!names(dat) %in% names(vars))]
+  print(paste0("\\textcolor{red}{", n, "not described!!!}"))
+}
+
+vars <- vars[match(names(dat), names(vars))]
+
+names(vars) <- gsub('_', '\\_', names(vars), fixed = TRUE)
+
+cat(
+  paste0('\\begin{table}[!ht]
+          \\centering
+          \\begin{tabular}{lp{13cm}}\\toprule
+         variable & explanation\\\\\\midrule',
+  paste0("\\texttt{", names(vars), "} & ", vars, collapse = '\\\\\n'),
+  '\\\\\\bottomrule
+\\end{tabular}
+\\end{table}'
+))
+```
+
+```{r, echo = FALSE}
+out <- 'BMC'
+covars <- c('vitD', 'ancestry', 'gender', 'leanfrac', 'sports', 'sun', 'season', 'length', 'weight')
+
+if (theseed == 1) {
+  covars <- gsub('ancestry', 'ethn', covars)
+  covars <- gsub('gender', 'sex', covars)
+}
+
+if (theseed == 3) {
+  covars <- gsub('ancestry', 'ethn', covars)
+}
+
+covstring <- paste(paste0(paste0('`', covars[-length(covars)], '`'), collapse = ', '),
+                   'and', paste0('`', covars[length(covars)], '`'))
+
+if (any(!covars %in% names(dat))) {
+  n <- covars[!covars %in% names(dat)]
+  print(paste0("\\textcolor{red}{", n, "not in data!!!}"))
+}
+
+```
+
+
+# Analysis model of interest {-}
+The analysis model of interest is a linear regression with outcome `r out`,
+and covariates `r covstring`.
+
+
+We assume that `vitD` has a non-linear (quadratic) effect.
+
+```{r, eval = FALSE, echo = FALSE}
+for(theseed in 1:3) {
+  rmarkdown::render('Assignment/instructions/template01.Rmd',
+                    output_file = paste0('MIdat1', theseed, '_2019_documentation.pdf'), 
+                    params = list(year = 2019, theseed = theseed))
+  
+  file.remove(paste0("Assignment/instructions/MIdat1", theseed, "_2019_documentation.tex"))
+}
+
+file.show("Assignment/instructions/MIdat11_2019_documentation.pdf")
+file.show("Assignment/instructions/MIdat12_2019_documentation.pdf")
+file.show("Assignment/instructions/MIdat13_2019_documentation.pdf")
+
+
+load('Assignment/data/MIdat11_2019.RData')
+load('Assignment/data/MIdat12_2019.RData')
+load('Assignment/data/MIdat13_2019.RData')
+
+
+summary(MIdat11[, intersect(names(MIdat11), names(MIdat12))])
+summary(MIdat12[, intersect(names(MIdat11), names(MIdat12))])
+
+summary(MIdat11[, intersect(names(MIdat11), names(MIdat13))])
+summary(MIdat13[, intersect(names(MIdat11), names(MIdat13))])
+
+
+summary(MIdat12[, intersect(names(MIdat12), names(MIdat13))])
+summary(MIdat13[, intersect(names(MIdat12), names(MIdat13))])
+```
+

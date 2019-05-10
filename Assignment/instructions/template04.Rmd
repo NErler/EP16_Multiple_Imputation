@@ -1,0 +1,149 @@
+---
+title: "\\textbf{Assignment II for\\\\[1ex]EP16: Missing Values in Clinical Research}"
+subtitle: "\\LARGE\\textbf{Multiple Imputation}"
+date: "\\textbf{13 -- 17 May, 2019}"
+output:
+  pdf_document:
+    includes:
+      in_header: header.tex
+geometry: margin = 2.2cm
+params:
+  year: NA
+  theseed: NA
+---
+
+```{r, echo = FALSE}
+datatype <- 4
+year <- params$year
+theseed <- params$theseed
+
+load(paste0('../data/MIdat', datatype, theseed, '_', year, '.RData'))
+datname <- paste0('MIdat', datatype, theseed)
+dat <- get(datname)
+
+```
+
+# Data {-}
+The **`r datname`** data comprise information of `r nrow(dat)` participants of an observational
+study on the effects of testosterone on heart rate.
+
+The dataset contains the following variables:
+
+```{r, echo = FALSE, results = 'asis'}
+
+vars <- c(
+"ID" = "subject identifier",
+"Gender" = "participant's gender",
+"Income" = "Household income",
+"HR" = "heart rate",
+"sleep" = "hours of sleep per night",
+"PA" = "number of days per week on which physical activity is performed",
+"alc" = "number of alcoholic drinks consumed per week",
+"smoke" = "smoking status",
+"PC" = "number of hours spent using a computer per day",
+"TV" = "number of hours spent watching television per day",
+"height" = "participant's height in cm",
+"weight" = "participant's weight in kg",
+"BMI" = "participant's BMI",
+"Age" = "participant's Age",
+"Testosterone" = "participant's testosterone level in ng/dL",
+"PhysActive" = "Does the participant perform physical activity regularily?",
+"Pregnant" = 'Was the participant pregnant when the measurements were taken?',
+"diab" = 'Does the participant have diabetes?'
+)
+
+
+# 
+# if (theseed == 1) {
+#   vars['birthwgt'] <- 'birthweight (SD-score)'
+#   vars['length'] <- "child's length at time of DXA scan in centimeters"
+# }
+# 
+# if (theseed == 3) {
+#   vars['sun'] <- 'average sun light duration in hours/day in the month before blood sampling'
+#   vars['length'] <- "child's length at time of DXA scan in centimeters"
+# }
+
+if (any(!names(dat) %in% names(vars))) {
+  n <- names(dat)[which(!names(dat) %in% names(vars))]
+  print(paste0("\\textcolor{red}{", n, "not described!!!}"))
+}
+
+vars <- vars[match(names(dat), names(vars))]
+
+names(vars) <- gsub('_', '\\_', names(vars), fixed = TRUE)
+
+cat(
+  paste0('\\begin{table}[!ht]
+          \\centering
+          \\begin{tabular}{lp{13cm}}\\toprule
+         variable & explanation\\\\\\midrule',
+  paste0("\\texttt{", names(vars), "} & ", vars, collapse = '\\\\\n'),
+  '\\\\\\bottomrule
+\\end{tabular}
+\\end{table}'
+))
+```
+
+```{r, echo = FALSE}
+out <- 'HR'
+covars <- c("Testosterone", "Gender", "Age", "smoke", "sleep", "PA", "PC", "BMI", "alc")
+
+# if (theseed == 1) {
+#   covars <- gsub('ancestry', 'ethn', covars)
+#   covars <- gsub('gender', 'sex', covars)
+# }
+# 
+# if (theseed == 3) {
+#   covars <- gsub('smoke', 'alc', covars)
+# }
+
+covstring <- paste(paste0(paste0('`', covars[-length(covars)], '`'), collapse = ', '),
+                   'and', paste0('`', covars[length(covars)], '`'))
+
+if (any(!covars %in% names(dat))) {
+  n <- covars[!covars %in% names(dat)]
+  print(paste0("\\textcolor{red}{", n, "not in data!!!}"))
+}
+
+```
+
+
+# Analysis model of interest {-}
+The analysis model of interest is a linear regression with outcome `r out` 
+and covariates `r covstring`.
+
+We assume that there are interaction effects between `Testosterone`
+and `Gender` as well as between `Age` and `smoke`.
+
+
+```{r, eval = FALSE, echo = FALSE}
+for(theseed in 1:3) {
+  rmarkdown::render('Assignment/instructions/template04.Rmd',
+                    output_file = paste0('MIdat4', theseed, '_2019_documentation.pdf'), 
+                    params = list(year = 2019, theseed = theseed))
+  
+  file.remove(paste0("Assignment/instructions/MIdat4", theseed, "_2019_documentation.tex"))
+}
+
+file.show("Assignment/instructions/MIdat41_2019_documentation.pdf")
+file.show("Assignment/instructions/MIdat42_2019_documentation.pdf")
+file.show("Assignment/instructions/MIdat43_2019_documentation.pdf")
+
+
+load('Assignment/data/MIdat41_2019.RData')
+load('Assignment/data/MIdat42_2019.RData')
+load('Assignment/data/MIdat43_2019.RData')
+
+
+summary(MIdat41[, intersect(names(MIdat41), names(MIdat42))])
+summary(MIdat42[, intersect(names(MIdat41), names(MIdat42))])
+
+summary(MIdat41[, intersect(names(MIdat41), names(MIdat43))])
+summary(MIdat43[, intersect(names(MIdat41), names(MIdat43))])
+
+
+summary(MIdat42[, intersect(names(MIdat42), names(MIdat43))])
+summary(MIdat43[, intersect(names(MIdat42), names(MIdat43))])
+```
+
