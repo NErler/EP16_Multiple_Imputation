@@ -15,7 +15,7 @@
 \begin{document}
 \begin{center}
 {\huge%
-  \textbf{Assignment for\\[1ex]EP16: Missing Values in Clinical Research}
+  \textbf{Assignment II for\\[1ex]EP16: Missing Values in Clinical Research}
 }
 
 \vspace*{1cm}
@@ -24,14 +24,14 @@
 
 \vspace*{1cm}
 
-\textbf{\large 14 -- 18 May, 2018}
+\textbf{\large 13 -- 17 May, 2019}
 \end{center}
 
 
 \vspace*{1cm}
 
 \section*{Data}
-The \textbf{MIdat11} data comprise data of 816 children and their mothers on
+The \textbf{MIdat11} data comprise data of 604 children and their mothers on
 vitamin D exposure of the mother during pregnancy and child bone health,
 measured by \href{https://en.wikipedia.org/wiki/Dual-energy_X-ray_absorptiometry}{DXA scan}, at 6 years
 of age. Maternal serum samples were taken in the third trimester of pregnancy.
@@ -45,20 +45,20 @@ The dataset contains the following variables:
 variable & explanation\\\midrule
 \texttt{ID} & subject identifier\\
 \texttt{sex} & child's sex\\
-\texttt{vitD} & mother's serum vitamin D concentrations in 10 nmol/L\\
-\texttt{weight} & child's total weight in kg at DXA scan\\
-\texttt{BMC} & bone mineral content of the child in grams, determined by DXA scan\\
-\texttt{season} & season of blood sampling\\
-\texttt{bdate} & child'd birth date\\
-\texttt{singleton} & is the child a singleton birth?\\
+\texttt{lean} & lean mass in kg\\
 \texttt{length} & child's length in cm at time of DXA scan\\
+\texttt{bdate} & child'd birth date\\
+\texttt{BMC} & bone mineral content of the child in grams, determined by DXA scan\\
+\texttt{birthwgt} & birthweight (standard deviation score)\\
+\texttt{season} & season of blood sampling\\
+\texttt{singleton} & is the child a singleton birth?\\
+\texttt{sports} & does the child play sports regularily?\\
+\texttt{weight} & child's total weight in kg at DXA scan\\
 \texttt{sun} & average sun light duration in minutes/day in the month before blood sampling\\
 \texttt{sun\_birth} & average sun light duration in the month before birth in hours/day\\
-\texttt{sports} & does the child play sports regularily?\\
 \texttt{leanfrac} & proportion of lean mass (lean mass/total mass; lean mass = total mass - fat mass)\\
-\texttt{birthwgt} & birthweight (standard deviation score)\\
 \texttt{ethn} & child's ethnicity\\
-\texttt{lean} & lean mass in kg\\
+\texttt{vitD} & mother's serum vitamin D concentrations in 10 nmol/L\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -74,8 +74,9 @@ and covariates \texttt{vitD}, \texttt{ethn}, \texttt{sex}, \texttt{leanfrac},
 We assume that \texttt{vitD} has a non-linear (quadratic) effect.
 
 <<echo = FALSE, eval = FALSE>>=
-knit2pdf("Assignment/MIdat11_documentation.Rnw",
+knitr::knit2pdf("Assignment/MIdat11_documentation.Rnw",
          output = "Assignment/instructions/MIdat11_documentation.tex")
 file.remove("Assignment/instructions/MIdat11_documentation.tex")
+file.show('Assignment/instructions/MIdat11_documentation.pdf')
 @
 \end{document}

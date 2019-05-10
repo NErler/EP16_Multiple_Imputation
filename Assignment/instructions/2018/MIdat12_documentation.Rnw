@@ -15,7 +15,7 @@
 \begin{document}
 \begin{center}
 {\huge%
-  \textbf{Assignment for\\[1ex]EP16: Missing Values in Clinical Research}
+  \textbf{Assignment II for\\[1ex]EP16: Missing Values in Clinical Research}
 }
 
 \vspace*{1cm}
@@ -24,14 +24,14 @@
 
 \vspace*{1cm}
 
-\textbf{\large 14 -- 18 May, 2018}
+\textbf{\large 13 -- 17 May, 2019}
 \end{center}
 
 
 \vspace*{1cm}
 
 \section*{Data}
-The \textbf{MIdat12} data comprise data of 796 children and their mothers on
+The \textbf{MIdat12} data comprise data of 588 children and their mothers on
 vitamin D exposure of the mother during pregnancy and child bone health,
 measured by \href{https://en.wikipedia.org/wiki/Dual-energy_X-ray_absorptiometry}{DXA scan}, at 6 years
 of age. Maternal serum samples were taken in the third trimester of pregnancy.
@@ -45,21 +45,22 @@ The dataset contains the following variables:
 variable & explanation\\\midrule
 \texttt{ID} & subject identifier\\
 \texttt{gender} & gender of the child\\
-\texttt{season} & season of blood sampling\\
+\texttt{sun\_birth} & average sun light duration in the month before birth in hours/day\\
+\texttt{bdate} & child'd birth date\\
+\texttt{lean} & lean mass in kg\\
+\texttt{length} & child's length at time of DXA scan in meters\\
+\texttt{ancestry} & child's ancestry\\
+\texttt{sun} & average sun light duration in minutes/day in the month before blood sampling\\
+\texttt{birthwgt} & birthweight in kg\\
+\texttt{BMC} & bone mineral content of the child in grams, determined by DXA scan\\
+\texttt{weight} & child's total weight in kg at DXA scan\\
 \texttt{gravidity} & number of times the mother has been pregnant
          (primigravida: this was the first pregnancy,
           multigravida: the mother had previous pregnancies)\\
-\texttt{bdate} & child'd birth date\\
-\texttt{weight} & child's total weight in kg at DXA scan\\
-\texttt{sun} & average sun light duration in minutes/day in the month before blood sampling\\
 \texttt{leanfrac} & proportion of child's lean mass (lean mass/total mass; lean mass = total mass - fat mass)\\
-\texttt{sun\_birth} & average sun light duration in the month before birth in hours/day\\
-\texttt{birthwgt} & birthweight in kg\\
-\texttt{length} & child's length at time of DXA scan in meters\\
 \texttt{vitD} & mother's serum vitamin D concentrations in 10 nmol/L\\
-\texttt{BMC} & bone mineral content of the child in grams, determined by DXA scan\\
+\texttt{season} & season of blood sampling\\
 \texttt{sports} & does the child do sports regularily?\\
-\texttt{ancestry} & child's ancestry\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -75,9 +76,10 @@ and covariates \texttt{vitD}, \texttt{ancestry}, \texttt{gender}, \texttt{leanfr
 We assume that \texttt{vitD} has a non-linear (quadratic) effect.
 
 <<echo = FALSE, eval = FALSE>>=
-knit2pdf("Assignment/MIdat12_documentation.Rnw",
+knitr::knit2pdf("Assignment/MIdat12_documentation.Rnw",
          output = "Assignment/instructions/MIdat12_documentation.tex")
 file.remove("Assignment/instructions/MIdat12_documentation.tex")
+file.show("Assignment/instructions/MIdat12_documentation.pdf")
 @
 \end{document}
 
