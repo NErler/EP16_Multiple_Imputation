@@ -68,6 +68,21 @@ methtab2 %>%
 @
 \end{frame}
 
+\begin{frame}[fragile]{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+Imputation methods implemented in the \textbf{micemd} package:
+<<getmicemdmeths, echo = FALSE, warning = FALSE>>=
+micemdmeth <- sort(grep("mice.impute", getNamespaceExports("micemd"), value = TRUE))
+methtab2 <- matrix(data = c(micemdmeth, rep(NA, length(micemdmeth) %% 2)),
+                   ncol = 2)
+
+
+methtab2 %>%
+  kable(format = "latex", booktabs = TRUE, linesep = "", escape = F) %>%
+  kable_styling(position = "center")
+@
+\end{frame}
+
 
 \subsection{Tips \& Tricks}
 \begin{frame}[fragile]{\thesection. \insertsection}
@@ -80,11 +95,12 @@ In complex settings, variables may need to be \blue{re-calculated} or
       to a \Robj{data.frame}.
 \item Perform the necessary calculations.
 \item Convert the changed \Robj{data.frame} back to a \Robj{mids} object
-      using the functions from the flow-diagram in the second practical
-      (e.g., \Rfct{as.mids}, \Rfct{datalist2mids}, \Rfct{imputationList}, \ldots)
+      using the functions such as \Rfct{as.mids}, \Rfct{miceadds::datalist2mids},
+      \Rfct{mitools::imputationList}, \ldots
 \end{itemize}
 
 \vfill
+\pause
 
 Not just in imputation: Set a \blue{seed value} to create reproducible results.
 \begin{itemize}
@@ -134,15 +150,26 @@ it can increase the efficiency and reproducibility of the results.
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 In imputation, generally the \blue{advice is to include as much information as possible}
-in the imputation models. Using a large number of predictor variables makes the
-\blue{MAR assumption more plausible} (and, hence, reduces bias due to MNAR missingness)
-and can \blue{reduce uncertainty} about the missing values.
+in the imputation models.
 
 \bigskip
 
+Using a large number of predictor variables
+\begin{itemize}
+\item makes the \blue{MAR assumption more plausible} (and, hence, reduces bias due to MNAR missingness)
+\item can \blue{reduce uncertainty} about the missing values
+\end{itemize}
+
+\bigskip
+\pause
+
 This can \blue{work well in small or medium sized datasets}
 (20 -- 30 separate variables, i.e. without interactions, variables derived
-from others, \ldots) however, \blue{in large datasets} (contain hundreds or thousands of
+from others, \ldots)
+
+\bigskip
+
+However, \blue{in large datasets} (contain hundreds or thousands of
 variables) this is \blue{not feasible}.\cite{Buuren2012}
 \end{frame}
 
@@ -185,9 +212,9 @@ is available} to impute it.
 \pause
 \textbf{Example:}
 \begin{itemize}
-\item In a set of $N = 50$ cases, 50\% missing values leave 25 cases to
+\item In a set of $N = 50$ cases, 50\% missing values leaves 25 cases to
       estimate the parameters of the predictive distribution.
-\item In a large set of $N = 5000$ subjects, 50\% missing cases leave 2500
+\item In a large set of $N = 5000$ subjects, 50\% missing cases leaves 2500
       observed cases to estimate parameters.
 \end{itemize}
 \end{frame}
@@ -208,6 +235,7 @@ When there are no auxiliary variables, imputation and analysis model are equal.
 \end{itemize}
 
 \bigskip
+\pause
 
 \textbf{Exception:}
 \begin{itemize}
@@ -303,21 +331,21 @@ res2 <- lapply(lapply(res, unlist), unique)
 
 @
 
-In Part III of this course (and the second practical) we have worked with some
+In Part III of this course we have seen some
 \textsf{R} packages that perform imputation or provide functionality for
 missing data other than \textbf{mice}.
 
 \bigskip
 
 Currently, there are \blue{\Sexpr{length(res2$missing)} packages} available on CRAN that
-\blue{use the word ``missing''} in either the titel or description of the package,
+use the word \blue{``missing''} in either the title or description of the package,
 \blue{\Sexpr{length(unique(c(res2$impute, res2$imputation)))}} that
-\blue{use either ``impute'' or ``imputation''} and
-\blue{\Sexpr{length(res2$incomplete)}} that \blue{use the word ``incomplete''}.
+use either \blue{``impute'' or ``imputation''} and
+\blue{\Sexpr{length(res2$incomplete)}} that use the word \blue{``incomplete''}.
 
 \bigskip
 
-Not all of these packages perform imputation or are usefull for our purposes,
+Not all of these packages perform imputation or are useful for our purposes,
 but even if we excluded those packages, the number of useful packages for
 dealing with missing data would still be to large to mention them all.
 
@@ -334,8 +362,8 @@ only option to perform imputation!}
 \href{https://cran.r-project.org/web/views/MissingData.html}{https://cran.r-project.org/web/views/MissingData.html}
 
 \begin{itemize}
-\item Gives an overview on the available \textsf{R} packages for missing data / imputation
-\item Good point to start when searching a package with a particular functionality
+\item gives an overview on the available \textsf{R} packages for missing data / imputation
+\item good point to start when searching for a package with a particular functionality
 \end{itemize}
 
 \end{frame}

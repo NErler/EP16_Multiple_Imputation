@@ -1,13 +1,11 @@
 \section{A closer look at the imputation step}
-\subsection{Bayesian multiple imputation}
 
 \begin{frame}{\thesection. \insertsection}
-\framesubtitle{\thesection.\thesubsection. \insertsubsection}
 The imputation step consists itself of two (or three) steps:
 \begin{enumerate} \setcounter{enumi}{-1}
-\item Specification of the imputation model,
-\item \blue{estimation} or sampling \blue{of the parameters}, and
-\item \blue{drawing imputed values} from the predictive distribution.
+\item specification of the imputation model
+\item \blue{estimation} / sampling \blue{of the parameters}
+\item \blue{drawing imputed values} from the predictive distribution
 \end{enumerate}
 
 \bigskip
@@ -52,36 +50,42 @@ $$
 \end{frame}
 
 
+\subsection{Bayesian multiple imputation}
+
 \begin{frame}{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 
-In the \blue{Bayesian framework}, \blue{everything unknown} or unobserved is considered as
-a \blue{random variable}.
-Here, this includes for example regression coefficients $\bmath\beta$, residual variance
-$\sigma^2$ and missing values $\bmath y_{mis}$ and $\bmath X_{mis}$.
+In the \blue{Bayesian framework:}\\
+\blue{everything unknown} or unobserved is considered a \blue{random variable}\\
+(for example regression coefficients $\bmath\beta$, residual variance
+$\sigma^2$ and missing values $\bmath y_{mis}$ and $\bmath X_{mis}$).
 
 \bigskip
 
 \pause
-Random variables have a \blue{probability distribution}. The \blue{expectation}
-of that distribution quantifies where which \blue{values} of the random
-variable are \blue{most likely}, the \blue{variance} is a measure of the
-\blue{uncertainty} about the values.
+Random variables have a \blue{probability distribution}.
+\begin{itemize}
+\item The \blue{expectation} of that distribution quantifies which \blue{values} of the random
+variable are \blue{most likely}.
+\item The \blue{variance} is a measure of the \blue{uncertainty} about the values.
+\end{itemize}
 
 \bigskip
 
 \pause
-In \blue{Bayesian imputation}, the \blue{information obtained from the observed data}
-is used to \blue{estimate the probability distributions} for the missing values and unknown
-parameters, and values are \blue{imputed by draws} from that posterior (=~after having seen the data)
+In \blue{Bayesian imputation}:
+\begin{itemize}
+\item \blue{information obtained from the observed data} is used to \blue{estimate the probability distributions} for the missing values and unknown parameters
+\item values are \blue{imputed by draws} from that posterior (=~after having seen the data)
 distribution.
+\end{itemize}
 \end{frame}
 
 
 \begin{frame}{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-To determine the \blue{expectation} of the posterior distribution of the missing values,
-usually a \blue{regression model} is used, that depends on the unknown coefficients $\bmath \beta$.
+To determine the \blue{expectation} of the posterior distribution of the missing values
+usually a \blue{regression model} is used, which depends on unknown coefficients $\bmath \beta$.
 $$\mathbb E(\bmath y_{mis}\mid \bmath X, \bmath \beta) = f(\bmath X_{mis}\bmath \beta)$$
 
 \bigskip
@@ -125,28 +129,6 @@ is a normal distribution and we can
 This is actually the approach we have seen previously on
 Slides~\ref{BayesianImputationI}/\ref{BayesianImputationII} and \ref{micealgorithm}.
 \end{frame}
-
-
-% \begin{frame}{\thesection. \insertsection}
-% \framesubtitle{\thesection.\thesubsection. \insertsubsection}In \blue{Bayesian imputation} (the approach seen on slides
-% \ref{BayesianImputationI}/\ref{BayesianImputationII} and \ref{micealgorithm})
-% the parameters (regression coefficients
-% $\bmath\beta$ and residual variance $\sigma$) are sampled from their respective
-% posterior distributions (step 1).
-%
-% \bigskip
-%
-% Imputed values are drawn from $p(\bmath y_{mis} \mid \bmath X_{mis}, \bmath{\hat\beta}, \hat\sigma)$.
-%
-% \bigskip
-%
-% For a normal imputation model $p()$ is the normal distribution and
-% $$\bmath y_{mis} = \bmath X_{mis} \hat{\bmath\beta} + \bmath{\hat{\varepsilon}}$$
-% where
-% $\bmath{\hat\varepsilon} = (\hat\varepsilon_{n}, \ldots, \hat\varepsilon_{q+1})^T$
-% is drawn independently from $N(0, \hat\sigma)$ (step 2).
-% \end{frame}
-
 
 \subsection{Bootstrap multiple imputation}
 
@@ -239,7 +221,7 @@ $p(\bmath y_{mis} \mid \bmath X_{mis}, \bmath{\hat\beta}, \hat\sigma)$ (step 2).
 \pause
 Analogous to Bayesian multiple imputation, for a normal imputation model,
 $p()$ is the normal distribution and
-$$\bmath{\tilde y}_{mis} = \bmath X_{mis} \bmath{\hat\beta} + \tilde\varepsilon$$
+$$\bmath{\tilde y}_{mis} = \bmath X_{mis} \bmath{\hat\beta} + \tilde\varepsilon,$$
 where $\bmath{\tilde\varepsilon}$ is drawn independently from $N(0, \hat\sigma^2)$.
 \end{frame}
 
@@ -272,15 +254,22 @@ hist(x, nclass = 50, xlab = "", main = "")
 
 \begin{frame}{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-\blue{Predictive Mean Matching (PMM)} was developed to provide a semi-parametric
-approach to imputation for settings where the normal distribution is not a
+\blue{Predictive Mean Matching (PMM)}
+\begin{itemize}
+\item semi-parametric approach to imputation
+\item developed for settings where the normal distribution is not a
 good choice for the predictive distribution.\cite{Little1988, Rubin1986}
+\end{itemize}
 
 \bigskip
 
-The idea is to \blue{find cases in the observed data that are similar to the
-cases with missing values} and to fill in the missing value with the observed
-value from one of those cases.
+\pause
+
+Idea:
+\begin{itemize}
+\item find cases in the observed data that are similar to the cases with missing values
+\item fill in the missing value with the observed value from one of those cases
+\end{itemize}
 
 \bigskip
 
@@ -296,9 +285,9 @@ are compared.
 \blue{The steps in PMM:}
 \begin{enumerate}
 \item Obtain parameter estimates for $\bmath{\hat\beta}$ and $\hat\sigma$ (see later)
-\item Calculate the predicted values for the observed data
+\item Calculate the predicted values for the observed cases
       $$\bmath{\hat y}_{obs} = \bmath{X}_{obs} \bmath{\hat\beta}$$
-\item Calculate the predicted value for the incomplete data
+\item Calculate the predicted value for the missing cases
       $$\bmath{\hat y}_{mis} = \bmath{X}_{mis} \bmath{\hat\beta}$$
 \item For each missing value, find $d$ donor candidates that fulfill a given
       criterium (details on the next slide).
@@ -358,26 +347,25 @@ different approaches have been introduced in the literature:
 \bigskip
 
 \begin{tabular}{lp{11cm}}
-Type-0 & point estimates $\hat\beta$ are used in both prediction models
-         (least squares or maximum likelihood)\\[2ex]
-Type-I & $\hat\beta$ to predict $\hat y_{obs}$; $\tilde\beta$ to predict $\hat y_{mis}$
-         is sampled from the posterior distribution of $\beta$ (Bayesian) or
-         bootstrapped\\[2ex]
+Type-0 & $\hat\beta_{LS/ML}$ (least squares or maximum likelihood) are used in
+          both prediction models\\[2ex]
+Type-I & $\hat\beta_{LS/ML}$ to predict $\hat y_{obs}$;
+          $\tilde\beta_{B/BS}$ (Bayesian or bootstrapped) to predict $\hat y_{mis}$\\[2ex]
 Type-II & $\tilde\beta$ to predict $\hat y_{obs}$ as well as $\hat y_{mis}$\\[2ex]
-Type-III & different draws $\tilde\beta^{(1)}$ and $\tilde\beta^{(2)}$ to
-           predict $\hat y_{obs}$ and $\hat y_{mis}$, respectively
+Type-III & different draws $\tilde\beta^{(1)}_{B/BS}$ and $\tilde\beta^{(2)}_{B/BS}$
+           to predict $\hat y_{obs}$ and $\hat y_{mis}$, respectively
 \end{tabular}
 
 \bigskip
 
-The use of point estimates (Type-0 and Type-I matching) \blue{underestimates the
-uncertainty} about the regression parameters.
+The use of Type-0 and Type-I matching \blue{underestimates the uncertainty} about
+the regression parameters.
 \end{frame}
 
 \begin{frame}{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-Another point of consideration is the \blue{choice of the set of data used to train
-the prediction models}.
+Another point to consider: the \blue{choice of the set of data used to train
+the prediction models}
 
 \bigskip
 
@@ -392,9 +380,12 @@ and, hence, \blue{variation will be underestimated}.
 
 \bigskip
 
-As an alternative, the \blue{model could be trained on the whole data}
-(using previously imputed values) or to use a \blue{leave-one-out approach} on the
-observed data.
+Alternatives:
+\begin{itemize}
+\item the \blue{model could be trained on the whole data}
+(using previously imputed values)
+\item use a \blue{leave-one-out approach} on the observed data
+\end{itemize}
 \end{frame}
 
 
@@ -425,7 +416,7 @@ observed data.
 \begin{frame}[fragile, allowframebreaks]{Summary of Part I}
 \blue{1. What is Multiple Imputation?}\\
 \begin{itemize}
-\item Rubin's two \blue{ideas}:
+\item Rubin's \blue{idea}:
       \begin{itemize}
       \item Missing values need to be represented by \blue{multiple imputed values}.
       \item A \blue{model is necessary} to obtain good imputations.
@@ -433,7 +424,7 @@ observed data.
 \item Imputed values are obtained from the \blue{predictive distribution} of the missing data,
 given the observed data.
 \item Multiple completed datasets are created from the multiple imputed values.
-\item Multiple imputation has \blue{three steps: Imputation, analysis, pooling}
+\item Multiple imputation has \blue{three steps: imputation, analysis, pooling}
 \end{itemize}
 
 \framebreak
@@ -453,7 +444,7 @@ given the observed data.
 \item The MICE algorithm re-uses univariate imputation models by iterating
       through all incomplete variables, multiple times (\blue{iterations})
 \item \blue{Multiple runs} through the algorithm are necessary to create multiple
-      imputed dataset
+      imputed datasets
 \item The \blue{convergence of the chains} needs to be checked.
 \end{itemize}
 
@@ -469,10 +460,11 @@ given the observed data.
 \begin{itemize}
 \item Results from analyses of multiple imputed datasets can be summarized
       by taking the \blue{average of the regression coefficients}
-\item For the total variance, \blue{two sources of variation} need to be considered:
+\item For the total variance, \blue{three sources of variation} need to be considered:
       \begin{itemize}
       \item \blue{within imputation variance}
       \item \blue{between imputation variance}
+      \item uncertainty due to finite number of imputations
       \end{itemize}
 \end{itemize}
 

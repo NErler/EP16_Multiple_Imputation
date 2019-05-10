@@ -72,9 +72,9 @@ JointAI::md_pattern(NHANES)
 
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-<<VIM_aggr, fig.width = 10, fig.height = 5, out.width = "95%", cache = T>>=
+<<VIM_aggr, fig.width = 10, fig.height = 5, out.width = "95%", cache = T, message = FALSE, warning = FALSE>>=
 par(mar = c(6, 3, 2, 1))
-VIM::aggr(NHANES, prop = T, numbers = FALSE)
+VIM::aggr(NHANES, prop = TRUE, numbers = FALSE)
 @
 \end{frame}
 
@@ -134,70 +134,15 @@ nmis[(1 + ceiling(nrow(nmis)/2)):nrow(nmis), ]
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 <<eval = FALSE>>=
-JointAI::plot_all(NHANES)
+JointAI::plot_all(NHANES, nclass = 30)
 @
 
-<<NHANESplotall, fig.width = 8, fig.height = 4.5, out.width = "100%", echo = FALSE>>=
+<<NHANESplotall, fig.width = 8.5, fig.height = 4.78, out.width = "100%", echo = FALSE>>=
 par(mgp = c(2, 0.6, 0), mar = c(2, 3, 2.5, 0.5))
-JointAI::plot_all(NHANES)
+JointAI::plot_all(NHANES, nclass = 30)
 @
 \end{frame}
 
-
-%
-% \begin{frame}[fragile]{\thesection. \insertsection}
-% \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-% <<NHANEShistplot, fig.width = 8, fig.height = 5, out.width = "100%", echo = F>>=
-% NHANESnum <- NHANES[, sapply(NHANES, is.numeric)]
-% par(mfrow = c(3, 4), mar = c(2, 3.2, 2.5, 0.5), mgp = c(2, 0.6, 0))
-% for (i in 1:ncol(NHANESnum)) {
-%   hist(NHANESnum[, i], nclass = 30, xlab = "", cex.main = 1.4, cex.axis = 1.1,
-%        main = paste0(names(NHANESnum)[i]," (",
-%                      round(mean(is.na(NHANESnum[, i]))*100, 2), "% NA)"))
-% }
-% @
-% \end{frame}
-%
-%
-% \begin{frame}[fragile]{\thesection. \insertsection}
-% \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-% <<NHANEStabs, fig.width = 8, fig.height = 5, out.width = "100%", echo = F>>=
-% NHANESfac <- NHANES[, sapply(NHANES, is.factor)]
-% par(mfrow = c(3, 3), mar = c(3, 3.2, 2.5, 0.5), mgp = c(2, 0.6, 0))
-% for (i in 1:ncol(NHANESfac)) {
-%   tab <- table(NHANESfac[, i], exclude = NULL)
-%   names(tab)[is.na(names(tab))] <- "NA"
-%   barplot(tab, cex.main = 1.4, cex.names = 1.2,
-%           main = paste0(names(NHANESfac)[i]," (",
-%                         round(mean(is.na(NHANESfac[, i]))*100, 2), "% NA)"))
-% }
-% @
-% \end{frame}
-%
-% \begin{frame}[fragile]{\thesection. \insertsection}
-% \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-% <<hist, eval = F>>=
-% # syntax for continuous variables
-% NHANESnum <- NHANES[, sapply(NHANES, is.numeric)]
-% par(mfrow = c(3, 4), mar = c(3, 3.2, 0.5, 0.5), mgp = c(2, 0.6, 0))
-% for (i in 1:ncol(NHANESnum)) {
-%   hist(NHANESnum[, i], nclass = 30, xlab = names(NHANESnum)[i], main = "")
-%   legend("topright", bty = "n",
-%          legend = paste0(round(mean(is.na(NHANESnum[, i]))*100, 2), "% NA"))
-% }
-%
-% # syntax for factors
-% NHANESfac <- NHANES[, sapply(NHANES, is.factor)]
-% par(mfrow = c(3, 5), mar = c(3, 3.2, 2.5, 0.5), mgp = c(2, 0.6, 0))
-% for (i in 1:ncol(NHANESfac)) {
-%   tab <- table(NHANESfac[, i], exclude = NULL)
-%   names(tab)[is.na(names(tab))] <- "NA"
-%   barplot(tab, main = paste0(names(NHANESfac)[i]," (",
-%                              round(mean(is.na(NHANESfac[, i]))*100,
-%                                    2), "% NA)"))
-% }
-% @
-% \end{frame}
 
 \subsection{Correlations \& patterns}
 \begin{frame}[fragile]{\thesection. \insertsection}
@@ -214,7 +159,7 @@ corrplot::corrplot(Corr, method = "square", type = "upper",
                    tl.col = "black")
 @
 \blue{Note:} \parbox[t]{0.9\linewidth}{
-We only use the correlation coefficient for categorical variables in this\\
+We only use the correlation coefficient for categorical variables for\\
 visualization, not as a statistical result!
 }
 \end{frame}
@@ -242,7 +187,7 @@ table(hypertension = NHANES$hypten,
 \subsection{Why are values missing?}
 \begin{frame}{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-Knowing your data also means to be able to answer these questions:
+Knowing your data also means being able to answer these questions:
 \begin{itemize}
 \item Do missing values in multiple variables always \blue{occur together}?\\
       (e.g. blood measurements)
@@ -287,7 +232,7 @@ go to
 \vfill
 or find the \textbf{html version} of the practical here:
 \begin{block}{}
-\centering\url{https://nerler.github.io/EP16_Multiple_Imputation/practical/incompletedata/IncompleteData.html}
+\centering\url{https://nerler.github.io/EP16_Multiple_Imputation/practical/incompletedata/EP16_IncompleteData.html}
 \end{block}
 \end{frame}
 
@@ -394,23 +339,24 @@ head(imp0$predictorMatrix)[, 1:11]
 Variables \blue{not used as predictor} are (or have to be set to) \blue{zero}.\bigskip
 
 By \blue{default, all variables} (except the variable itself) \blue{are used}
-as predictor.\\
-For complete variables all entries are 0.
-
+as predictors.
 \end{frame}
 
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 
 \blue{Important:}\\
-A variable that has \blue{missing values needs to be imputed} in order to be used as
+A variable that has \blue{missing values needs to be imputed} in order to be used as a
 predictor for other imputation models!!!
 
 \bigskip
 
 \blue{Note:}\\
 By default, \blue{ALL} variables with missing values are imputed and \blue{ALL}
-variables are used as predictor variables.\\
+variables are used as predictor variables.
+
+\bigskip
+
 \blue{\ding{225}} Make sure to adjust the \Rarg{predictorMatrix} and \Rarg{method}
 to avoid using ID variables or other columns of the data that should not be part
 of the imputation.
@@ -429,14 +375,20 @@ automatically chosen imputation models are appropriate.
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 <<imp, eval = FALSE, size = 'small'>>=
 library(mice)
+# setup-run
 imp0 <- mice(NHANES, maxit = 0,
              defaultMethod = c("norm", "logreg", "polyreg", "polr"))
+
+# adjust imputation methods
 meth <- imp0$method
 meth["educ"] <- "polr"
 meth["HyperMed"] <- ""
 
+# adjust predictor matrix
 pred <- imp0$predictorMatrix
 pred[, "HyperMed"] <- 0
+
+# run imputation with adjusted settings
 imp <- mice(NHANES, method = meth, predictorMatrix = pred,
             printFlag = FALSE)
 @
@@ -547,7 +499,7 @@ Which one to use may differ between imputation models.
 
 \blue{Passive imputation} can also be useful in settings where
 \begin{itemize}
-\item imputation models include an \blue{interaction terms} between incomplete variables
+\item imputation models include \blue{interaction terms} between incomplete variables
 (see \cite[p. 133]{Buuren2012} for an example), or when
 \item a number of covariates is used to form a \blue{sum score}. The sum score, instead
 of all single elements, can then be used as predictor in other imputation models.
@@ -567,6 +519,7 @@ Helpful functions are
 \end{itemize}
 
 \vfill
+\pause
 
 \textbf{Example:}\\
 When inspecting the imputed values from \Robj{imp}, we find that some imputed
@@ -660,7 +613,7 @@ post["hypten"] <- "imp[[j]][p$data[where[, j], 'SBP'] > 140, i] <- 'yes'"
 
 
 This also allows for (some) \blue{MNAR scenarios}, for example, by multiplying or adding
-a constant to the imputed values or to re-impute values, depending on their
+a constant to the imputed values, or to re-impute values depending on their
 current value.
 \end{frame}
 
@@ -727,7 +680,7 @@ during one iteration. All incomplete variables must be visited at least once.
 \Rarg{visitSequence} can also be specified using one of the keywords
 \Rstring{"roman"} (left to right), \Rstring{"arabic"} (right to left),
 \Rstring{"monotone"} (sorted in increasing amount of missingness),
-\Rstring{"revmonotone"} (reverse of monotone)
+\Rstring{"revmonotone"} (reverse of monotone).
 \end{frame}
 
 
@@ -736,7 +689,7 @@ during one iteration. All incomplete variables must be visited at least once.
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 \Rfct{mice} performs some \blue{pre-processing} and \blue{removes}
 \begin{itemize}
-\item incomplete variables that are not imputed but are specified as predictor,
+\item incomplete variables that are not imputed but are specified as predictors,
 \item constant variables, and
 \item collinear variables.
 \end{itemize}
@@ -808,36 +761,53 @@ To practice the content of the previous section in an \textbf{interactive tutori
 \vfill
 or find the \textbf{html version} of the practical here:\\
 \begin{block}{}
-\centering\url{https://nerler.github.io/EP16_Multiple_Imputation/practical/mimice/MImice.html}
+\centering\url{https://nerler.github.io/EP16_Multiple_Imputation/practical/mimice/EP16_MImice.html}
 \end{block}
 \end{frame}
 
-\section{Convergence \& Diagnostics}
+\section{Convergence \& diagnostics}
 \subsection{Logged events}
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 \mode<presentation>{
-The log of the automatic changes (slide~\ref{goodtoknow}) is returned
-as part of the \Robj{mids} object:
+The log of the automatic changes is returned as part of the \Robj{mids} object:
 }
 \mode<article>{
-The log of the automatic changes (Section~\ref{subsec:goodtoknow}) is returned
-as part of the \Robj{mids} object:
+The log of the automatic changes is returned as part of the \Robj{mids} object:
 }
 \begin{columns}[onlytextwidth]
-\begin{column}{0.45\linewidth}
-<<headloggedEvents, size = 'small'>>=
+\begin{column}{0.60\linewidth}
+<<size = 'small', eval = FALSE>>=
+demo <- NHANES[, 1:5]
+demo$dupl <- demo[, 4]
+demo$const <- 1
+demo$age[demo$gender == 'male'] <- NA
+
+demoimp <- mice(demo)
+head(demoimp$loggedEvents)
+@
+\begin{small}\vspace*{-3ex}
+<<echo = FALSE, cache = TRUE, size = 'small'>>=
+demodat <- NHANES[, 1:5]
+demodat$dupl <- demodat[, 4]
+demodat$const <- 1
+demodat$age[demodat$gender == 'male'] <- NA
+
+demoimp <- mice(demodat, printFlag = FALSE, maxit = 2, m = 3)
+head(demoimp$loggedEvents)
+@
+\end{small}
+<<headloggedEvents, size = 'small', echo = F, eval = F>>=
 head(imp2$loggedEvents)
 @
 \end{column}
 \hfill
-\begin{column}{0.45\linewidth}
+\begin{column}{0.35\linewidth}
 With columns\\[2ex]
 
-\begin{tabular}{lp{12em}}
+\begin{tabular}{lp{8em}}
 \Rstring{it} & iteration number\\
 \Rstring{im} & imputation number\\
-\Rstring{co} & column number in the data\\
 \Rstring{dep} & dependent variable\\
 \Rstring{meth} & imputation method used\\
 \Rstring{out} & names of altered or removed predictors
@@ -865,7 +835,7 @@ iterations may not be samples from the ``correct'' distributions.
 \blue{Traceplots} can be used to visually assess \blue{convergence}.\bigskip
 
 
-In \textbf{mice} the
+In \textbf{mice}, the
 function \Rfct{plot} produces traceplots of the  mean and standard deviation
 (across subjects) per incomplete variable (see slide~\ref{convergence_multiple}).
 \end{frame}
@@ -879,10 +849,10 @@ plot(imp2, layout = c(6, 3))
 
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-The traceplots show that the imputations for \Rstring{chol} and \Rstring{hypchol}
-have an upward trend.
-
-\bigskip
+% The traceplots show that the imputations for \Rstring{chol} and \Rstring{hypchol}
+% have an upward trend.
+%
+% \bigskip
 
 \blue{Strong trends} and traces that show \blue{correlation} between variables
 indicate \blue{problems of feedback}.
@@ -928,7 +898,7 @@ are assumed to be the same as the conditional distributions of the observed data
 \bigskip
 
 These functions create \href{https://stat.ethz.ch/R-manual/R-devel/library/lattice/html/Lattice.html}{lattice graphics},
-which can be modified analogous to their parent functions from the
+which can be modified analogously to their parent functions from the
 \textbf{lattice} package.
 \end{frame}
 
@@ -1003,6 +973,8 @@ xyplot(imp2, height ~ chol|gender, pch = c(1,20))
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 All of the above graphs displayed only continuous imputed variables.
+
+
 For categorical variables we can compare the proportion of values in each
 category.
 
@@ -1010,7 +982,7 @@ category.
 
 \textbf{mice} does not provide a function to do this, but we can write one
 ourselves, as for instance the function \Rfct{propplot}, for which the syntax
-can be found \href{https://gist.github.com/NErler/0d00375da460dd33839b98faeee2fdab}{here}.
+can be found here: \href{https://gist.github.com/NErler/0d00375da460dd33839b98faeee2fdab}{https://gist.github.com/NErler/0d00375da460dd33839b98faeee2fdab}
 
 <<load propplot, message = F, echo = F>>=
 source(file.path(projdir, "Slides", "Rfcts", "propplot.R"))
@@ -1033,10 +1005,12 @@ and imputed data for those variables.
 
 \bigskip
 
-For \Rstring{alc}, missing values are imputed by the lower consumption categories
-more often than we would expect from the observed data,
-\Rstring{hypten} is less frequent and
-\Rstring{hypchol} a bit more frequent, in the imputed data compared to the observed.
+\begin{itemize}
+\item \Rstring{alc}: missing values are imputed in the lower consumption categories
+more often than we would expect from the observed data
+\item \Rstring{hypten} is less frequent and
+\item \Rstring{hypchol} a bit more frequent, in the imputed data compared to the observed.
+\end{itemize}
 
 \bigskip
 
@@ -1101,7 +1075,7 @@ To practice the content of the previous section in an \textbf{interactive tutori
 \vfill
 or find the \textbf{html version} of the practical here:\\
 \begin{block}{}
-\centering\url{https://nerler.github.io/EP16_Multiple_Imputation/practical/micheck/MIcheck.html}
+\centering\url{https://nerler.github.io/EP16_Multiple_Imputation/practical/micheck/EP16_MIcheck.html}
 \end{block}
 \end{frame}
 
@@ -1117,6 +1091,8 @@ For example, we might be interested in the following logistic regression model:
 glm(DM ~ age + gender + hypchol + BMI + smoke + alc,
     family = "binomial")
 @
+
+\pause
 
 To fit the model on each of the imputed datasets, we do not need to extract
 the data from the \Robj{mids} object, but can use \Rfct{with}.
@@ -1135,7 +1111,7 @@ mod1 <- with(imp2, glm(DM ~ age + gender + hypchol + BMI + smoke + alc,
 Pooled results can be obtained using \Rfct{pool} and its summary.
 <<pooled, size = "scriptsize">>=
 options(width = 90)
-res1 <- summary(pool(mod1))
+res1 <- summary(pool(mod1), conf.int = TRUE)
 round(res1, 3)
 @
 \end{frame}
@@ -1144,9 +1120,14 @@ round(res1, 3)
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 \blue{Pooling} with \Rfct{mice::pool} is available for most types of models.\bigskip
 
-Generally, it works for models for which the functions \Rfct{coef} and
-\Rfct{vcov} can extract the (fixed effects) \blue{coefficients and variance-covariance
-matrix} of these coefficients.
+% Generally, it works for models for which the functions \Rfct{coef} and
+% \Rfct{vcov} can extract the (fixed effects) \blue{coefficients and variance-covariance
+% matrix} of these coefficients.
+
+It extracts the model coefficients and variance-covariance matrices using \Rfct{tidy}
+from the package \textbf{broom}.
+Hence, pooling using the \Rfct{pool} function from \textbf{mice} only works for
+models of classes for which a method \Rfct{tidy} exists.
 
 \bigskip
 
@@ -1162,7 +1143,7 @@ fit / model comparison
 
 \bigskip
 For \blue{linear} regression models the pooled $R^2$ can be calculated
-using \Rfct{pool.r.squared}
+using \Rfct{pool.r.squared}.
 <<poolrsquared, size = 'small'>>=
 mod2 <- with(imp2, lm(SBP ~ DM + age + hypten))
 pool.r.squared(mod2, adjusted = TRUE)
@@ -1176,7 +1157,7 @@ standard $R^2$ is returned.
 
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-The function \Rfct{pool.compare} allows to compare \blue{nested models}
+The function \Rfct{pool.compare} allows comparison of \blue{nested models}
 (i.e., models where one is a special case of the other, with some parameters
 fixed to zero) using a \blue{Wald test}.
 
@@ -1192,6 +1173,8 @@ mod3 <- with(imp2, glm(DM ~ age + gender + hypchol + BMI + alc,
 # Wald test
 pool.compare(mod1, mod3)$pvalue
 @
+
+\Rfct{anova} allows comparison of multiple nested models
 \end{frame}
 
 
@@ -1222,22 +1205,43 @@ miceadds::micombine.cov(mi.res, ...)
 These functions take \Robj{mids} objects as input.
 \end{frame}
 
+\begin{frame}
+\begin{beamercolorbox}[sep=8pt,center,wd=\textwidth]{part title}
+\usebeamerfont{part title}
+Practical
+\end{beamercolorbox}
+
+\vfill
+
+To practice the content of the previous section in an \textbf{interactive tutorial}
+go to
+\begin{block}{}
+\centering\url{https://emcbiostatistics.shinyapps.io/EP16_AnalysisMI}
+\end{block}
+\vfill
+or find the \textbf{html version} of the practical here:
+\begin{block}{}
+\centering\url{https://nerler.github.io/EP16_Multiple_Imputation/practical/analysismi/EP16_AnalysisMI.html}
+\end{block}
+\end{frame}
+
+
 \section{Additional functions in \texttt{mice()}}
 \subsection{Extract \& export imputed data}
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 The function \Rfct{complete} allows \blue{extraction of the imputed data} from a \Robj{mids} object:
 <<completedata, eval = FALSE, size = 'small'>>=
-mice::complete(x, action = 1, include = FALSE)
+mice::complete(data, action = 1, include = FALSE, ...)
 @
 
 \begin{itemize}
-\item \Robj{x}: the \Robj{mids} object
+\item \Robj{data}: the \Robj{mids} object
 \item \Rarg{action}:
       \begin{itemize}
       \item \Rval{1}, \ldots, \Rval{m} (single imputed dataset)
       \item \Rstring{"long"}: long format (imputed data stacked vertically)
-      \item \Rstring{"broad"}: \parbox[t]{0.6\linewidth}{
+      \item \Rstring{"broad"}: \parbox[t]{0.65\linewidth}{
                                   wide format (imputed data combined horizontally;
                                   ordered by imputation)}
       \item \Rstring{"repeated"}: (like \Rstring{"broad"}, but ordered by variable)
@@ -1255,7 +1259,7 @@ to \textsf{SPSS}.
 mids2spss(imp2,
           filedat = "datafile.txt", # the file containing the data
           filesps = "importsyntax.sps", # syntax to get .sav from .txt
-          silent = TRUE
+          silent = TRUE, ...
 )
 @
 
@@ -1295,7 +1299,7 @@ imp2combi$m
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 
-The function \Rfct{cbind.mids} allows to \blue{add columns} to a \Robj{mids} object.
+The function \Rfct{cbind.mids} allows us to \blue{add columns} to a \Robj{mids} object.
 The extra columns can either be a \Robj{data.frame}, \Robj{matrix}, \Robj{vector}
 or \Robj{factor} or another \Robj{mids} object.\bigskip
 
@@ -1311,11 +1315,11 @@ impextra <- mice:::cbind.mids(x = imp2, extravar = extravar)
 \blue{Note:}
 \Rfct{cbind} just adds columns to the data, you need to make sure they are
 \blue{sorted correctly} so that the rows of the new data are from the same subjects
-as the corresponding rows in the impute data.
+as the corresponding rows in the imputed data.
 \end{frame}
 
 
-\section{Multiple Imputation in SPSS}
+\section{Multiple imputation in SPSS}
 \subsection{Where to get help}
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
@@ -1375,7 +1379,7 @@ The \blue{procedure} itself is located in the menu\\
 \item specify number of imputations
 \item specify number of iterations
 \item include interactions
-\item chose between lin. regression and pmm for continuous variables
+\item choose between lin. regression and pmm for continuous variables
 \end{itemize}
 \vfill
 \end{column}
@@ -1394,7 +1398,7 @@ The \blue{procedure} itself is located in the menu\\
 \item specify number of imputations
 \item specify number of iterations
 \item include interactions
-\item chose between lin. regression and pmm for continuous variables
+\item choose between lin. regression and pmm for continuous variables
 \item restrict variables to certain values
 \item select which variables to impute
 \item select which variables are used as predictors
@@ -1416,7 +1420,7 @@ The \blue{procedure} itself is located in the menu\\
 \item specify number of imputations
 \item specify number of iterations
 \item include interactions
-\item chose between lin. regression and pmm for continuous variables
+\item choose between lin. regression and pmm for continuous variables
 \item restrict variables to certain values
 \item select which variables to impute
 \item select which variables are used as predictors
@@ -1434,7 +1438,7 @@ The \blue{procedure} itself is located in the menu\\
       (only jointly for all variables)
 \item use more than \blue{one donor} in predictive mean matching
 \item use anything but logistic regression for categorical variables
-\item chose per imputation model which variables should be used as predictors
+\item choose per imputation model which variables should be used as predictors
 \item re-calculate variables during the iterations
 \item \ldots
 \end{itemize}
@@ -1497,7 +1501,7 @@ Further tailoring of the imputation using
 
 \framebreak
 
-\blue{8. Convergence \& Diagnostics}
+\blue{8. Convergence \& diagnostics}
 \begin{itemize}
 \item Logged events
 \item convergence: traceplots
@@ -1505,7 +1509,7 @@ Further tailoring of the imputation using
 \end{itemize}
 
 
-\blue{9. Analysis \& Pooling}
+\blue{9. Analysis \& pooling}
 \begin{itemize}
 \item \textbf{mice} functions \Rfct{with} and \Rfct{pool}
 \item alternative pooling using \textbf{mitools}
@@ -1524,7 +1528,7 @@ Further tailoring of the imputation using
 
 \vspace*{3ex}
 
-\blue{11. Multiple Imputation in SPSS}
+\blue{11. Multiple imputation in SPSS}
 \begin{itemize}
 \item limited choices of settings
 \item pooling only for selected analysis methods

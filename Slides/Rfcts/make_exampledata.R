@@ -102,7 +102,7 @@ Z <- model.matrix(~1 + time, DFexlong2_orig)
 betas <- c(Intercept = 15,
            time1 = -0.7, time2 = 0.3, time3 = 0.8,
            matage = 0.3,
-           gender = -0.9,
+           gender = -0.3,
            educ2 = -0.4, educ3 = -0.9,
            gestbir = 0.01)
 

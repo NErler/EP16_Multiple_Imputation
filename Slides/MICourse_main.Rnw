@@ -134,6 +134,7 @@
 \usepackage{float}
 \usepackage[many]{tcolorbox}
 \usepackage{animate}
+\usepackage{setspace}
 
 \usepackage{tikz}
 \usetikzlibrary{fadings,shapes.arrows,shadows}

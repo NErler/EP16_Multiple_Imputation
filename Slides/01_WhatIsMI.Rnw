@@ -5,10 +5,21 @@ source('Rfcts/figures.R')
 
 \begin{frame}{Outline of Part I}
 \setlength{\parskip}{0pt}
-\begin{multicols}{2}
-\tableofcontents[part=1]
-\vspace*{16ex}
-\end{multicols}
+% \begin{multicols}{2}
+% \begin{spacing}{1.3}
+% \tableofcontents[part=1]
+% \end{spacing}
+% \vspace*{16ex}
+% \end{multicols}
+\begin{columns}
+\begin{column}{0.5\linewidth}
+\tableofcontents[part=1,sections={1-3}]
+\end{column}
+\begin{column}{0.5\linewidth}
+\tableofcontents[part=1,sections={4-5}]
+\end{column}
+\end{columns}
+
 \end{frame}
 
 
@@ -19,9 +30,9 @@ source('Rfcts/figures.R')
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 % \framesubtitle{What is Multiple Imputation?}
 \begin{itemize}
-\item Developed by \blue{Donald B. Rubin} in the 1970s,
-\item to handle missing values in \blue{public use databases},\\
-      e.g., census data provided by the government,
+\item Developed by \blue{Donald B. Rubin} in the 1970s
+\item to handle missing values in \blue{public use databases}\\
+      (e.g., census data provided by the government),
 \item motivated by the \blue{increase in missing values}, and
 \item increased \blue{availability of computers}.
 \end{itemize}
@@ -29,7 +40,7 @@ source('Rfcts/figures.R')
 \bigskip
 
 \pause
-Such data should be usable by \cite{Rubin1996}
+Goal: data should be usable by \cite{Rubin1996}
 \begin{itemize}
 \item a \blue{large number of analysts}, who commonly have to rely on
 \item standard \blue{software that can only handle complete data}, and usually
@@ -105,35 +116,17 @@ Such data should be usable by \cite{Rubin1996}
 \end{columns}
 
 \begin{block}{}
-What we want to impute is the\\
+What we want is the\\
 \blue{`predictive distribution' of the missing values given the observed values.}
 \end{block}
 \end{frame}
 
 
-% \begin{frame}[fragile]{\thesection. \insertsection}
-% \framesubtitle{\thesection.\thesubsection. \insertsubsection}
-% This focus on imputed values (and not estimated parameters) is a Bayesian notion.
-% Following the Bayesian context: \cite{Rubin2004}
-% \begin{quote}
-% \begin{enumerate}[(I)]
-% \item The \blue{missing data has a distribution} given the observed data
-%       (the predictive distribution).
-% \item This \blue{distribution depends on assumptions} that have been made about the model.
-% \end{enumerate}
-% \end{quote}
-%
-% \bigskip
-%
-% \blue{\ding{225}} What we really want to impute is the \blue{`predictive distribution' of the missing
-% values given the observed values}\ldots \cite{Rubin2004}
-%
-% \end{frame}
-
-
 \begin{frame}[fragile]{\thesection. \insertsection}
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 \textbf{How to obtain that predictive distribution?}\\
+
+\pause
 
 Rubin suggests to
 \begin{itemize}
@@ -143,7 +136,7 @@ Rubin suggests to
 \end{itemize}
 
 \blue{\ding{225}} We assume nonrespondents are just like respondents, and
-obtain the predictive distribution from the model of the respondents data.
+obtain the predictive distribution from the model of the respondents' data.
 
 \vfill
 
@@ -218,7 +211,7 @@ imputed datasets}, and calculate summary measures.
 \textbf{How can we actually get imputed values?}
 \begin{columns}[onlytextwidth]
 \begin{column}{0.65\textwidth}
-For now: assume only one continuous variable has missing values (\blue{univariate missing data})
+For now: assume only one continuous variable has missing values (\blue{univariate missing data}).
 \end{column}
 %
 \begin{column}{0.35\textwidth}
@@ -253,7 +246,7 @@ $\hat x_{i2} = \hat\beta_0 + \hat\beta_1 x_{i1} + \hat\beta_2 x_{i3} + \hat\beta
 }
 \end{column}
 \begin{column}{0.45\textwidth}
-\only<beame>{
+\only<beamer>{
 \only<2>{
 <<exampl1b, echo = F, fig.width = 5.25, fig.height = 3.5>>=
 reglineplot
@@ -443,20 +436,18 @@ conditioning on unobserved values.
 \framesubtitle{\thesection.\thesubsection. \insertsubsection}
 There are \blue{two popular approaches} for the imputation step in
 \blue{multivariate non-monotone} missing data:
-% \begin{columns}[T, onlytextwidth]
-% \begin{column}{0.4\textwidth}
-\begin{block}{Fully conditional specification}
+\begin{block}{Fully Conditional Specification}
 \begin{itemize}
 \item Multiple Imputation using Chained Equations (\blue{MICE})
 \item sometimes also: sequential regression
-\item Implemented in SPSS, R, Stata, SAS, \ldots
+\item implemented in SPSS, R, Stata, SAS, \ldots
 \item our focus here
 \end{itemize}
 \end{block}
 
 
 \pause
-\begin{block}{Joint model imputation}
+\begin{block}{Joint Model Imputation}
 (more details later)
 \end{block}
 % \end{column}
@@ -469,33 +460,6 @@ There are \blue{two popular approaches} for the imputation step in
 % \end{flushright}
 % \end{column}
 % \end{columns}
-\end{frame}
-
-
-\begin{frame}{\thesection. \insertsection}
-\framesubtitle{\thesection.\thesubsection. \insertsubsection}
-% Iterative procedure:
-% \begin{itemize}
-% \item draw starting values from observed data
-% \item impute each variable conditional on all others
-% \item repeat until convergence
-% \end{itemize}
-
-\blue{Markov Chain Monte Carlo}\\
-is a technique to \blue{draw samples from a complex probability distribution} by
-creating a chain of random variables (a Markov Chain). The distribution each
-element in the chain is sampled from depends on the value of the previous element.
-When certain conditions are met, the chain eventually stabilizes and by
-continuing to sample elements of the chain a sample from the complex distribution
-of interest can be obtained.
-
-\bigskip
-
-\pause
-\blue{Gibbs sampling}\\
-is an MCMC method where a \blue{sample from a multivariate distribution} is obtained
-by repeatedly drawing from each of the univariate full conditional distributions
-instead.
 \end{frame}
 
 
@@ -532,6 +496,31 @@ Moreover, MICE/FCS is
 \end{itemize}
 \end{frame}
 
+
+\begin{frame}{\thesection. \insertsection}
+\framesubtitle{\thesection.\thesubsection. \insertsubsection}
+
+\blue{Markov Chain Monte Carlo}
+\begin{itemize}
+\item a technique to \blue{draw samples from a complex probability distribution}
+\item works via creating a chain of random variables (a Markov chain)\\
+      \ding{225} The distribution that each element in the chain is sampled from
+      depends on the value of the previous element.
+\item When certain conditions are met, the chain eventually stabilizes
+\item samples of the chain are then a sample from the complex distribution
+of interest
+\end{itemize}
+
+\bigskip
+
+\pause
+\blue{Gibbs sampling}
+\begin{itemize}
+\item a MCMC method to obtain a \blue{sample from a multivariate distribution}
+\item the multivariate distribution is split into a set of univariate full conditional distributions
+\item a sample from the multivariate distribution can be obtained by repeatedly drawing from each of the univariate distributions
+\end{itemize}
+\end{frame}
 
 % \subsection{The MICE algorithm}
 
@@ -795,9 +784,11 @@ One run through the algorithm \blue{\ding{225}} one imputed dataset.
 \bigskip
 
 \pause
-We refer to the \blue{sequence of imputations} for one missing value, from
-starting value to final iteration, as a \blue{chain}.
-Each run through the MICE algorithm produces one chain per missing value.
+\begin{itemize}
+\item the \blue{sequence of imputations} for one missing value (from
+starting value to final iteration) is called a \blue{chain}
+\item Each run through the MICE algorithm produces one chain per missing value.
+\end{itemize}
 \end{frame}
 
 
@@ -883,12 +874,11 @@ In imputation we have
 \item several missing \blue{values} in each of these variables
 \item $m$ \blue{chains} for each missing value
 \end{itemize}
-\blue{\ding{225}} possibly a large number of MCMC chain
+\blue{\ding{225}} possibly a large number of MCMC chains
 
 \bigskip
 
-To check all chains separately could be very time consuming in large datasets
-(and storing all iterations from all imputed values is inefficient).
+To check all chains separately could be very time consuming in large datasets.
 
 \bigskip
 
@@ -1147,7 +1137,7 @@ poolDF <- do.call(rbind, reslist)
 
 ppool0 <- ggplot(poolDF, aes(x = coef, y = imp)) +
   geom_point() +
-  geom_errorbarh(aes(xmin = lo, xmax = hi), height = 0.2) +
+  geom_errorbarh(aes(xmin = lo, xmax = hi), height = 0.25) +
   facet_grid(~var, scales = 'free') +
   theme_light() +
   theme(strip.text = element_text(size = 12, face = "bold")) +
@@ -1189,14 +1179,14 @@ pooled$var <- rownames(reslist[[1]])
 To summarize the results, we can take the mean of the results from the separate
 analyses. This is the \blue{pooled point estimate}.
 \only<beamer>{
-\only<1>{
+\only<1-2>{
 <<poolplot1b, echo = F, fig.width = 6, fig.height = 1.5>>=
 ppool0 +
   geom_vline(data = ddply(poolDF, "var", summarize, coefmean = mean(coef)),
              aes(xintercept = coefmean), lty = 2)
 @
 }}
-\only<2->{
+\only<3->{
 <<poolplot1c, echo = F, fig.width = 6, fig.height = 1.5>>=
 ppool0 +
   geom_vline(data = ddply(poolDF, "var", summarize, coefmean = mean(coef)),
@@ -1206,7 +1196,7 @@ ppool0 +
 @
 }
 \onslide<2->{%
-But does the same work for the std. error (or bounds of the CIs)?
+But does the same work for the standard error (or bounds of the CIs)?
 }
 
 \bigskip
@@ -1322,7 +1312,7 @@ CIDF <- data.frame(
 ggplot(poolDF, aes(x = coef, y = as.numeric(imp))) +
   geom_polygon(data = CIDF, aes(x = x, y = y), fill = "blue4", alpha = 0.2) +
   geom_point() +
-  geom_errorbarh(aes(xmin = lo, xmax = hi), height = 0.2) +
+  geom_errorbarh(aes(xmin = lo, xmax = hi), height = 0.25) +
   facet_grid(~var, scales = 'free') +
   theme_light() +
   theme(strip.text = element_text(size = 12, face = "bold")) +
