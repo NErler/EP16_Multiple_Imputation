@@ -51,6 +51,7 @@ if (names(rmarkdown::metadata$output) == "html_document") {
 library(kableExtra)
 library(knitr)
 library(JointAI)
+library(ggpubr)
 library(ggplot2) # for propplot & JointAI
 library(RColorBrewer) # for propplot
 library(reshape2) # for propplot
@@ -86,6 +87,7 @@ cat('In this practical, a number of R packages are used.
 * `JointAI` (version: `r packageVersion("JointAI")`)
 * `ggplot2` (version: `r packageVersion("ggplot2")`)
 * `reshape2` (version: `r packageVersion("reshape2")`)
+* `ggpubr` (version: `r packageVersion("ggpubr")`)
 
 
 ### Help files
@@ -798,7 +800,7 @@ asis_output("</div>")
 asis_output("#### Solution\\n")
 ```
 
-```{r JointAIlm2-solution, cache = TRUE}
+```{r JointAIlm2-solution, eval = FALSE}
 lm2 <- lm_imp(wgt ~ gender + bili + age * (chol + HDL) + hgt, data = NHANES,
                auxvars = c('educ', 'race', 'SBP', 'hypten', 'WC'),
                models = c(bili = 'lognorm'), refcats = 'largest',
@@ -963,7 +965,7 @@ asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-co
 
 Get the summary of the model using the function `summary()`.
 
-```{r lm2results, exercise = TRUE}
+```{r lm2results, exercise = TRUE, exercise.setup = "loadlm2"}
 
 ```
 
@@ -977,7 +979,7 @@ asis_output("#### Solution\\n")
 summary(lm2)
 ```
 
-## Additional Excercise JointAI
+## Additional excercise JointAI
 ### Monitoring imputed values {.tabset .tabset-fade .tabset-pills}
 **JointAI** also allows us to extract imputed values to generate multiple 
 imputed datasets that can, for instance, be used for a secondary analysis.
@@ -1049,7 +1051,7 @@ getMIdatargs %>% kable(format = 'html') %>%
 
 
 ```{r, eval = static, echo = FALSE}
-asis_output("#### Task\\n")
+asis_output("#### Task 1\\n")
 ```
 
 ```{r, eval = static, echo = FALSE}
@@ -1070,7 +1072,7 @@ MIdat3 <- ...
 ```{r, eval = static, echo = FALSE}
 asis_output("</div>")
 
-asis_output("#### Solution\\n")
+asis_output("#### Solution 1\\n")
 ```
 
 ```{r MIdatlm3-solution, eval = static}
@@ -1091,6 +1093,59 @@ We see that some columns were added to the data:
 * `Imputation_` identifies the imputation number
 * `.id` is the subject ID
 * `.rownr` refers to the row number of the original data
+
+
+```{r, eval = static, echo = FALSE}
+asis_output("#### Task 2\\n")
+```
+
+Similar to the functions `densplot()` from the **mice** package and `propplot()`,
+the function `plot_imp_distr()` from **JointAI** allows us to plot the distribution
+of the observed and imputed values for the incomplete variables.
+
+It takes the following arguments
+
+```{r, echo = FALSE}
+tab <- rbind(
+  c("`data`", "a data.frame in long format containing multiple imputations (and the original incomplete data)"),
+  c("`imp`", "the name of the variable specifying the imputation indicator"),
+  c("`id`", "the name of the variable specifying the subject indicator"),
+  c("`rownr`", "the name of a variable identifying which rows correspond to the same observation in the original (unimputed) data"),
+  c("`ncol`, `nrow`", "optional number of rows and columns in the plot layout; automatically chosen if unspecified")
+) %>% as.data.frame
+
+names(tab) <- c("", "")
+
+tab %>% kable(format = 'html') %>%
+  kable_styling(full_width = FALSE)
+```
+
+
+```{r, eval = static, echo = FALSE}
+asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">')
+```
+
+
+Check the imputed values in  `MIdat3` using `plot_imp_distr()`.
+
+```{r getimps, echo = FALSE}
+lm3 <- savedimps_lm3
+MIdat3 <- get_MIdat(lm3, m = 5)
+```
+
+```{r plotimps, exercise = TRUE, exercise.timelimit = 500, exercise.setup = 'getimps', fig.width = 8, fig.height = 6}
+
+```
+
+```{r, eval = static, echo = FALSE}
+asis_output("</div>")
+
+asis_output("#### Solution 2\\n")
+```
+
+```{r plotimps-solution, eval = static, fig.width = 8, fig.height = 7}
+plot_imp_distr(MIdat3)
+```
 
 ### Transforming imputed data to a mids object {.tabset .tabset-fade .tabset-pills}
 
