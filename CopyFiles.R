@@ -136,7 +136,7 @@ file.copy('Slides/MICourse_Slides.pdf',
 # run all practicals -----------------------------------------------------------
 # need to check first that html version is chosen!!!!
 #
-files <- c("IncompleteData", 'MImice', "MIcheck", "AnalysisMI", "MInonlin", "MIlong", "MIsurv")
+files <- c("IncompleteData", 'MImice', "MIcheck", "AnalysisMI", "MInonlin", "MIlong", "MIsurv", "MIconvert")
 
 for (i in files) {
   unlink(paste0('Practicals/', i, '/', i, '_cache'), recursive = TRUE)
