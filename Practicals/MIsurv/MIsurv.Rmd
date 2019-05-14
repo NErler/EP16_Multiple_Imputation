@@ -387,7 +387,7 @@ JointAIcox <- coxph_imp(Surv(time = time, event) ~ platelet +
 traceplot(JointAIcox)
 ```
 
-```{r, echo = FALSE, eval = static}
+```{r, echo = FALSE, eval = static, fig.width = 8, fig.height = 5}
 traceplot(JointAIcox)
 ```
 
@@ -402,7 +402,7 @@ the number of iterations and/or the number of chains to get better results.
 In the following section we will see a trick that can sometimes help to improve
 problems with convergence or mixing.
 
-## Additional Excercise JointAI {.tabset .tabset-fade .tabset-pills}
+## Additional excercise JointAI {.tabset .tabset-fade .tabset-pills}
 
 For larger datasets with many different event times the Cox model implemented 
 in **JointAI** can become quite slow.
@@ -440,7 +440,7 @@ asis_output("### Solution 1\\n")
 asis_output("### \\n")
 ```
 
-```{r survregimp-solution, solution = TRUE}
+```{r survregimp-solution, solution = TRUE, eval = FALSE}
 JointAIsurv <- survreg_imp(Surv(time = time, event) ~ platelet + 
                              age + sex + chol + stage, data = pbcdat,
                            n.iter = 500, seed = 2019)
@@ -453,7 +453,7 @@ GR_crit(JointAIsurv)
 asis_output("### \\n")
 ```
 
-```{r, echo = FALSE, eval = static}
+```{r, echo = FALSE, eval = static, fig.width = 8, fig.height = 5}
 traceplot(JointAIsurv)
 GR_crit(JointAIsurv)
 
@@ -508,7 +508,7 @@ traceplot(JointAIsurv2)
 GR_crit(JointAIsurv2)
 ```
 
-```{r, echo = FALSE, eval = static}
+```{r, echo = FALSE, eval = static, fig.width = 8, fig.height = 5}
 traceplot(JointAIsurv2)
 GR_crit(JointAIsurv2)
 ```

@@ -467,7 +467,7 @@ traceplot(JointAIlong)
 summary(JointAIlong)
 ```
 
-```{r, echo = FALSE, eval = static}
+```{r, echo = FALSE, eval = static, fig.width = 8, fig.height = 6}
 JointAIlong <- savedimps_JointAIlong
 
 traceplot(JointAIlong)
@@ -475,7 +475,7 @@ summary(JointAIlong)
 ```
 
 
-## Additional Exercise JointAI {.tabset .tabset-fade .tabset-pills}
+## Additional exercise JointAI {.tabset .tabset-fade .tabset-pills}
 We want to fit a logistic mixed model for the variable `hepato` and explore
 if the association is non-linear over time.
 
@@ -528,7 +528,7 @@ traceplot(JointAIlong2)
 ```
 
 
-```{r, echo = FALSE, eval = static}
+```{r, echo = FALSE, eval = static, fig.width = 8, fig.height = 6}
 JointAIlong2 <- savedimps_JointAIlong2
 traceplot(JointAIlong2)
 ```
