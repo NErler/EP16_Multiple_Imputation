@@ -103,6 +103,24 @@ webshot::webshot('Practicals/MIsurv/EP16_MIsurv.html',
                  cliprect = 'viewport', zoom = 2)
 
 
+# Practical: Convert MI --------------------------------------------------------
+if (!dir.exists("EP16website/static/practical/MIconvert"))
+  dir.create("EP16website/static/practical/MIconvert")
+
+file.copy('Practicals/MIconvert/EP16_MIconvert.html',
+          'EP16website/static/practical/MIconvert', overwrite = TRUE)
+
+webshot::webshot('Practicals/MIconvert/EP16_MIconvert.html',
+                 'EP16website/static/practical/MIconvert/image.png',
+                 vwidth = 800, vheight = 450,
+                 cliprect = 'viewport', zoom = 2)
+
+
+# Data -------------------------------------------------------------------------
+# imps from MImice
+file.copy('Practicals/MIcheck/www/imps.RData',
+          'EP16website/static/practical/data/imps.RData')
+
 
 # Slides -----------------------------------------------------------------------
 if (!dir.exists("EP16website/static/slide/lecture"))
