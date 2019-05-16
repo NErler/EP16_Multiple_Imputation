@@ -3345,7 +3345,7 @@ allow truncation of distributions of incomplete continuous covariates (for detai
 </tr>
 </tbody>
 </table>
-Like in <strong>mice</strong> default imputation models are chosen based on the <code>class</code> of each of the incompete variables. The default choices for baseline (not time-varying) covariates are
+Like in <strong>mice</strong> default imputation models are chosen based on the <code>class</code> of each of the incomplete variables. The default choices for baseline (not time-varying) covariates are
 <table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
@@ -3536,14 +3536,14 @@ number of iterations per MCMC chain in the sampling phase
 </table>
 <p><strong>JointAI</strong> has more arguments than the ones given above, but in this practical we focus only on the most important. You may find out more about all the arguments in the vignette on <a href="https://nerler.github.io/JointAI/articles/MCMCsettings.html">MCMC Settings</a>.</p>
 <p>By default, <code>n.chains = 3</code>, <code>n.adapt = 100</code> and <code>n.iter = 0</code>.</p>
-<p>It is usefull to use more than one chain to be able to evaluate convergence of the MCMC chains.</p>
+<p>It is useful to use more than one chain to be able to evaluate convergence of the MCMC chains.</p>
 <p>Samples in the adaptive phase are not used for the final MCMC sample. They are needed to optimize the MCMC sampler. When the number provided via the argument <code>n.adapt</code> is insufficient for this optimization a warning message will be printed. In simple models (e.g., linear regression) usually the default value of <code>n.adapt = 100</code> can be used.</p>
 <p>The default value for <code>n.iter</code>, the number of iterations in the sampling phase is <code>0</code> (no MCMC sample will be created). The number of iterations that is needed depends on how complex the model and the data is and can range from somewhere as low as 100 up to several million.</p>
 <p>In the following we will look at some criteria to determine if the number of MCMC samples that was used is sufficient.</p>
 </div>
 <div id="evaluation-of-the-mcmc-sample" class="section level3 tabset tabset-fade tabset-pills">
 <h3>Evaluation of the MCMC sample</h3>
-<p>The first step after fitting a Bayesian model should be to confirm that the MCMC chains have converged. This can be done visually, using a traceplot (plotting the sampled values per parameter and chain accross iterations) or using the Gelman-Rubin criterion.</p>
+<p>The first step after fitting a Bayesian model should be to confirm that the MCMC chains have converged. This can be done visually, using a traceplot (plotting the sampled values per parameter and chain across iterations) or using the Gelman-Rubin criterion.</p>
 <div id="task-1-3" class="section level4">
 <h4>Task 1</h4>
 <div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">
@@ -3559,7 +3559,7 @@ number of iterations per MCMC chain in the sampling phase
 <h4>Task 2</h4>
 <div style="border:2px; border-style:solid; padding: 1em; border-color:#446E9B">
 <p>Investigate convergence of <code>lm2</code> using the Gelman-Rubin criterion, implemented in the function <code>GR_crit()</code>.</p>
-<p>The upper limit of the confidenceinterval should not be much larger than 1.</p>
+<p>The upper limit of the confidence interval should not be much larger than 1.</p>
 </div>
 </div>
 <div id="solution-2-3" class="section level4">
@@ -3659,8 +3659,8 @@ number of iterations per MCMC chain in the sampling phase
 </div>
 </div>
 </div>
-<div id="additional-excercise-jointai" class="section level2">
-<h2>Additional excercise JointAI</h2>
+<div id="additional-exercise-jointai" class="section level2">
+<h2>Additional exercise JointAI</h2>
 <div id="monitoring-imputed-values" class="section level3 tabset tabset-fade tabset-pills">
 <h3>Monitoring imputed values</h3>
 <p><strong>JointAI</strong> also allows us to extract imputed values to generate multiple imputed datasets that can, for instance, be used for a secondary analysis.</p>

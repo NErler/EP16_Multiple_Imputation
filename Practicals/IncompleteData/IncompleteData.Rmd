@@ -260,7 +260,7 @@ MDP
 
 The function `md_pattern()` from package **JointAI** gives a matrix very
 similar to the one obtained from `mice::md.pattern()`.
-Hovever, here, the number of rows in the data that have a particular missing
+However, here, the number of rows in the data that have a particular missing
 data pattern are given in the last column.
 
 For more information on how to customize the visualization by `md_pattern()`
@@ -336,7 +336,7 @@ asis_output("#### Solution\\n")
 # number and proportion of complete cases
 cbind(
   "#" = table(ifelse(complete.cases(NHANES), 'complete', 'incomplete')),
-  "%" = round(100 * table(complete.cases(NHANES))/nrow(NHANES), 2)
+  "%" = round(100 * table(!complete.cases(NHANES))/nrow(NHANES), 2)
 )
 
 # number and proportion of missing values per variable
@@ -433,7 +433,7 @@ asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-co
 ```
 
 Furthermore, we can expect a systematic relationship between the variables
-`hypchol` (Hypercholesterolemia) and `chol` (serum cholesterol).
+`hypchol` (hypercholesterolemia) and `chol` (serum cholesterol).
 Find out how these two variables are related.
 
 ```{r hypchol, exercise = TRUE}
@@ -498,7 +498,7 @@ We only use this as a quick-and-dirty method for visualization of relationships.
 asis_output("### \\n")
 ```
 
-The questionmaks in the plot indicate that no correlation
+The question marks in the plot indicate that no correlation
 could be calculated for `cohort` (because `cohort` is the same for all subjects)
 and neither between `HyperMed` and `hypten` (but we already knew that).
 

@@ -1,25 +1,25 @@
 ---
 title: "Imputation of Data with Non-linear Associations"
 output: 
-  html_document:
-    code_folding: show
-    df_print: paged
-    toc: true
-    toc_float:
-      collapsed: false
-    number_sections: false
-    theme: spacelab
-    highlight: tango
-    includes:
-      after_body: ../footer.html
-    css: ../style.css
-    pandoc_args: [
-      "--output=EP16_MInonlin.html"
-      ]
-#   learnr::tutorial:
-#     progressive: true
-#     allow_skip: true
-# runtime: shiny_prerendered
+  # html_document:
+  #   code_folding: show
+  #   df_print: paged
+  #   toc: true
+  #   toc_float:
+  #     collapsed: false
+  #   number_sections: false
+  #   theme: spacelab
+  #   highlight: tango
+  #   includes:
+  #     after_body: ../footer.html
+  #   css: ../style.css
+  #   pandoc_args: [
+  #     "--output=EP16_MInonlin.html"
+  #     ]
+  learnr::tutorial:
+    progressive: true
+    allow_skip: true
+runtime: shiny_prerendered
 ---
 
 ```{r, include = FALSE}
@@ -664,7 +664,11 @@ asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-co
 
 Check which imputation models were used in `lm1`.
 
-```{r lm1models, exercise = TRUE, exercise.setup = "JointAIsetup-solution"}
+```{r getlm1, echo = FALSE}
+lm1 <- savedimps_lm1
+```
+
+```{r lm1models, exercise = TRUE, exercise.setup = "getlm1"}
 
 ```
 
@@ -712,7 +716,7 @@ JointAIargs %>% kable(format = 'html') %>%
 ```
 
 Like in **mice** default imputation models are chosen based on the `class` of
-each of the incompete variables.
+each of the incomplete variables.
 The default choices for baseline (not time-varying) covariates are
 ```{r, echo = FALSE}
 tab <- rbind(norm = c("linear regression", "continuous variables"),
@@ -830,7 +834,7 @@ You may find out more about all the arguments in the vignette on [MCMC Settings]
 
 By default, `n.chains = 3`, `n.adapt = 100` and `n.iter = 0`.
 
-It is usefull to use more than one chain to be able
+It is useful to use more than one chain to be able
 to evaluate convergence of the MCMC chains.
 
 Samples in the adaptive phase are not used for the final MCMC sample. They are
@@ -851,7 +855,7 @@ MCMC samples that was used is sufficient.
 ### Evaluation of the MCMC sample {.tabset .tabset-fade .tabset-pills}
 The first step after fitting a Bayesian model should be to confirm that
 the MCMC chains have converged. This can be done visually, using a traceplot
-(plotting the sampled values per parameter and chain accross iterations)
+(plotting the sampled values per parameter and chain across iterations)
 or using the Gelman-Rubin criterion. 
 
 ```{r, eval = static, echo = FALSE}
@@ -896,7 +900,7 @@ asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-co
 Investigate convergence of `lm2` using the Gelman-Rubin criterion, implemented
 in the function `GR_crit()`.
 
-The upper limit of the confidenceinterval should not be much larger than 1.
+The upper limit of the confidence interval should not be much larger than 1.
 ```{r lm2GR, exercise = TRUE, exercise.setup = "loadlm2"}
 
 ```
@@ -979,7 +983,7 @@ asis_output("#### Solution\\n")
 summary(lm2)
 ```
 
-## Additional excercise JointAI
+## Additional exercise JointAI
 ### Monitoring imputed values {.tabset .tabset-fade .tabset-pills}
 **JointAI** also allows us to extract imputed values to generate multiple 
 imputed datasets that can, for instance, be used for a secondary analysis.

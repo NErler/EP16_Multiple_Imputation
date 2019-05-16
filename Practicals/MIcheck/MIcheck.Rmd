@@ -61,6 +61,7 @@ NHANES$educ <- as.ordered(NHANES$educ)
 
 source("www/propplot.R")
 load("www/imps.RData")
+imps <- saved_imps$imp
 
 library(mice)
 ```
