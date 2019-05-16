@@ -136,7 +136,13 @@ file.copy('Slides/MICourse_Slides.pdf',
 # run all practicals -----------------------------------------------------------
 # need to check first that html version is chosen!!!!
 #
-files <- c("IncompleteData", 'MImice', "MIcheck", "AnalysisMI", "MInonlin", "MIlong", "MIsurv", "MIconvert")
+files <- c("IncompleteData",
+           'MImice',
+           "MIcheck",
+           "AnalysisMI",
+           "MInonlin", #5
+           "MIlong", # 6
+           "MIsurv", "MIconvert")
 
 for (i in files) {
   unlink(paste0('Practicals/', i, '/', i, '_cache'), recursive = TRUE)
@@ -153,7 +159,7 @@ for (i in files) {
   rmarkdown::shiny_prerendered_clean(paste0('Practicals/', i, '/', i, '.Rmd'))
 }
 
-i <- files[5]
+i <- files[6]
 rmarkdown::run(file = paste0('Practicals/', i, '/', i, '.Rmd'))
 
 rsconnect::deployApp(appDir = file.path('Practicals', i),
