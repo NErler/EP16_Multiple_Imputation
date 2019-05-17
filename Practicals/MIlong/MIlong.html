@@ -65,7 +65,7 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 </div>
 <div id="section-dataset" class="section level3">
 <h3>Dataset</h3>
-<p>In this practical we will work with data on from a trial on primary biliary cirrhosis (PBC) of the liver.</p>
+<p>In this practical we will work with data from a trial on primary biliary cirrhosis (PBC) of the liver.</p>
 <p>The variables contained in the dataset <code>pbclong</code> are:</p>
 <table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
@@ -270,7 +270,7 @@ summary(pool(micelong_mira), conf.int = TRUE)</code></pre>
 </div>
 <div id="section-imputation-using-jointai" class="section level2 tabset tabset-fade tabset-pills">
 <h2>Imputation using <strong>JointAI</strong></h2>
-<p>To analyse incomplete longitudinal data a linear mixed model the R package <strong>JointAI</strong> provides the function <code>lme_imp()</code>. The specification of the main model components is analogous to the function <code>lme()</code> from the <strong>nlme</strong> package.</p>
+<p>To analyse incomplete longitudinal data using a linear mixed model the R package <strong>JointAI</strong> provides the function <code>lme_imp()</code>. The specification of the main model components is analogous to the function <code>lme()</code> from the <strong>nlme</strong> package.</p>
 <p><strong>Specification of longitudinal models:</strong><br> When imputing variables in a longitudinal (or other multi-level) model and there are missing values in baseline (level-2) covariates, models need to be specified for all longitudinal covariates, even if they do not have missing values. Specifying no model would imply that the incomplete baseline covariates are independent of the complete longitudinal variable (see also <a href="https://nerler.github.io/JointAI/articles/ModelSpecification.html#why-do-we-need-models-for-completely-observed-longitudinal-covariates">here</a>). Therefore, <strong>JointAI</strong> automatically specifies models for all longitudinal covariates in such a setting.</p>
 <p>An exception may be the time variable: it is often reasonable to assume that the baseline covariates are independent of the measurement times of the outcome and longitudinal covariates. To tell <strong>JointAI</strong> not to specify a model for the time variable, the argument <code>no_model</code> can be used.</p>
 <strong>Model types for longitudinal covariates:</strong><br> For longitudinal covariates the following model types are implemented:
@@ -362,7 +362,7 @@ ordered factors with &gt;2 levels
 <div class="tutorial-exercise" data-label="runJoitAIlong" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
 <pre class="text"><code>JointAIlong &lt;- ...
 ...</code></pre>
-<script type="application/json" data-opts-chunk="1">{"fig.width":9,"fig.height":5,"fig.retina":2,"fig.align":"default","fig.keep":"high","fig.show":"asis","out.width":864,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.checker":"NULL"}</script>
+<script type="application/json" data-opts-chunk="1">{"fig.width":9,"fig.height":5,"fig.retina":2,"fig.align":"default","fig.keep":"high","fig.show":"asis","out.width":864,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.timelimit":500,"exercise.checker":"NULL"}</script>
 </div>
 <div class="tutorial-exercise-support" data-label="runJoitAIlong-solution" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
 <pre class="text"><code>library(JointAI)
@@ -376,7 +376,7 @@ summary(JointAIlong)</code></pre>
 </div>
 </div>
 <div id="section-additional-exercise-jointai" class="section level2 tabset tabset-fade tabset-pills">
-<h2>Additional Exercise JointAI</h2>
+<h2>Additional exercise JointAI</h2>
 <p>We want to fit a logistic mixed model for the variable <code>hepato</code> and explore if the association is non-linear over time.</p>
 <ul>
 <li>Fit a logistic mixed model using the function <code>glme_imp</code> using the same covariates as before.</li>

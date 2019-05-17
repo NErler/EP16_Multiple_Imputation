@@ -2,31 +2,31 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>EP16: Missing Values in Clinical Research</title>
-    <link>https://nerler.github.io/EP16_Multiple_Imputation/</link>
+    <link>/EP16_Multiple_Imputation/</link>
     <description>Recent content on EP16: Missing Values in Clinical Research</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-uk</language>
     <copyright>&amp;copy; 2019. All rights reserved.</copyright>
     <lastBuildDate>Tue, 14 May 2019 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="https://nerler.github.io/EP16_Multiple_Imputation/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="/EP16_Multiple_Imputation/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Work with Multiply Imputed Data in Different Formats</title>
-      <link>https://nerler.github.io/EP16_Multiple_Imputation/practical/miconvert/</link>
+      <link>/EP16_Multiple_Imputation/practical/miconvert/</link>
       <pubDate>Tue, 14 May 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://nerler.github.io/EP16_Multiple_Imputation/practical/miconvert/</guid>
+      <guid>/EP16_Multiple_Imputation/practical/miconvert/</guid>
       <description></description>
     </item>
     
     <item>
       <title>EP16: Missing Values in Clinical Research</title>
-      <link>https://nerler.github.io/EP16_Multiple_Imputation/home/</link>
+      <link>/EP16_Multiple_Imputation/home/</link>
       <pubDate>Mon, 29 Apr 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://nerler.github.io/EP16_Multiple_Imputation/home/</guid>
+      <guid>/EP16_Multiple_Imputation/home/</guid>
       <description>This website contains slides and materials for the Multiple Imputation part of NIHES course Missing Values in Clinical Research (EP16).
 Practicals are available as html documents on this webpage and as interactive learnr tutorials here:
  01 - Getting to Know Incomplete Data 02 - Multiple Imputation using MICE 03 - Checks after Multiple Imputation 04 - Analysis of Multiply Imputed Data 05 - Imputation with Non-linear Effects 06 - Imputation of Longitudinal Data 07 - Imputation of Survival Data  The practicals require R, and JAGS (necessary for the parts of the practical that use the JointAI package) needs to be installed.</description>
@@ -34,82 +34,91 @@ Practicals are available as html documents on this webpage and as interactive le
     
     <item>
       <title>05 - Imputation with Non-linear Effects</title>
-      <link>https://nerler.github.io/EP16_Multiple_Imputation/practical/minonlin/</link>
+      <link>/EP16_Multiple_Imputation/practical/minonlin/</link>
       <pubDate>Sun, 28 Apr 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://nerler.github.io/EP16_Multiple_Imputation/practical/minonlin/</guid>
+      <guid>/EP16_Multiple_Imputation/practical/minonlin/</guid>
       <description></description>
     </item>
     
     <item>
       <title>06 - Imputation of Longitudinal Data</title>
-      <link>https://nerler.github.io/EP16_Multiple_Imputation/practical/milong/</link>
+      <link>/EP16_Multiple_Imputation/practical/milong/</link>
       <pubDate>Sun, 28 Apr 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://nerler.github.io/EP16_Multiple_Imputation/practical/milong/</guid>
+      <guid>/EP16_Multiple_Imputation/practical/milong/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>07 - Imputation of Survival Data</title>
+      <link>/EP16_Multiple_Imputation/practical/misurv/</link>
+      <pubDate>Sun, 28 Apr 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/EP16_Multiple_Imputation/practical/misurv/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Quiz</title>
-      <link>https://nerler.github.io/EP16_Multiple_Imputation/practical/quiz/</link>
+      <link>/EP16_Multiple_Imputation/practical/quiz/</link>
       <pubDate>Sun, 28 Apr 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://nerler.github.io/EP16_Multiple_Imputation/practical/quiz/</guid>
+      <guid>/EP16_Multiple_Imputation/practical/quiz/</guid>
       <description></description>
     </item>
     
     <item>
       <title>02 - Multiple Imputation using MICE</title>
-      <link>https://nerler.github.io/EP16_Multiple_Imputation/practical/mimice/</link>
+      <link>/EP16_Multiple_Imputation/practical/mimice/</link>
       <pubDate>Wed, 24 Apr 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://nerler.github.io/EP16_Multiple_Imputation/practical/mimice/</guid>
+      <guid>/EP16_Multiple_Imputation/practical/mimice/</guid>
       <description></description>
     </item>
     
     <item>
       <title>03 - Checks after Multiple Imputation</title>
-      <link>https://nerler.github.io/EP16_Multiple_Imputation/practical/micheck/</link>
+      <link>/EP16_Multiple_Imputation/practical/micheck/</link>
       <pubDate>Wed, 24 Apr 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://nerler.github.io/EP16_Multiple_Imputation/practical/micheck/</guid>
+      <guid>/EP16_Multiple_Imputation/practical/micheck/</guid>
       <description></description>
     </item>
     
     <item>
       <title>04 - Analysis of Multiply Imputed Data</title>
-      <link>https://nerler.github.io/EP16_Multiple_Imputation/practical/analysismi/</link>
+      <link>/EP16_Multiple_Imputation/practical/analysismi/</link>
       <pubDate>Wed, 24 Apr 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://nerler.github.io/EP16_Multiple_Imputation/practical/analysismi/</guid>
+      <guid>/EP16_Multiple_Imputation/practical/analysismi/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Data</title>
-      <link>https://nerler.github.io/EP16_Multiple_Imputation/practical/data/</link>
+      <link>/EP16_Multiple_Imputation/practical/data/</link>
       <pubDate>Wed, 24 Apr 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://nerler.github.io/EP16_Multiple_Imputation/practical/data/</guid>
+      <guid>/EP16_Multiple_Imputation/practical/data/</guid>
       <description> NHANES_for_practicals.RData NHANES_for_practicals_2.RData pbclong.RData pbcdat.RData  </description>
     </item>
     
     <item>
       <title>Lecture slides</title>
-      <link>https://nerler.github.io/EP16_Multiple_Imputation/slide/lecture/</link>
+      <link>/EP16_Multiple_Imputation/slide/lecture/</link>
       <pubDate>Sat, 09 Feb 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://nerler.github.io/EP16_Multiple_Imputation/slide/lecture/</guid>
+      <guid>/EP16_Multiple_Imputation/slide/lecture/</guid>
       <description></description>
     </item>
     
     <item>
       <title>01 - Getting to Know Incomplete Data</title>
-      <link>https://nerler.github.io/EP16_Multiple_Imputation/practical/incompletedata/</link>
+      <link>/EP16_Multiple_Imputation/practical/incompletedata/</link>
       <pubDate>Fri, 01 Feb 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://nerler.github.io/EP16_Multiple_Imputation/practical/incompletedata/</guid>
+      <guid>/EP16_Multiple_Imputation/practical/incompletedata/</guid>
       <description></description>
     </item>
     
