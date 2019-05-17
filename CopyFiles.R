@@ -119,7 +119,19 @@ webshot::webshot('Practicals/MIconvert/EP16_MIconvert.html',
 # Data -------------------------------------------------------------------------
 # imps from MImice
 file.copy('Practicals/MIcheck/www/imps.RData',
-          'EP16website/static/practical/data/imps.RData')
+          'EP16website/static/practical/data/imps.RData', overwrite = TRUE)
+
+file.copy('Practicals/MIcheck/www/NHANES_for_practicals.RData',
+          'EP16website/static/practical/data/NHANES_for_practicals.RData', overwrite = TRUE)
+
+file.copy('Practicals/MInonlin/www/NHANES_for_practicals_2.RData',
+          'EP16website/static/practical/data/NHANES_for_practicals_2.RData', overwrite = TRUE)
+
+file.copy('Practicals/MIlong/www/pbclong.RData',
+          'EP16website/static/practical/data/pbclong.RData', overwrite = TRUE)
+
+file.copy('Practicals/MIsurv/www/pbcdat.RData',
+          'EP16website/static/practical/data/pbcdat.RData', overwrite = TRUE)
 
 
 # Slides -----------------------------------------------------------------------
@@ -128,8 +140,6 @@ if (!dir.exists("EP16website/static/slide/lecture"))
 
 file.copy('Slides/MICourse_Slides.pdf',
           'EP16website/static/slide/lecture', overwrite = TRUE)
-
-
 
 
 
@@ -142,7 +152,8 @@ files <- c("IncompleteData",
            "AnalysisMI",
            "MInonlin", #5
            "MIlong", # 6
-           "MIsurv", "MIconvert")
+           "MIsurv",
+           "MIconvert")
 
 for (i in files) {
   unlink(paste0('Practicals/', i, '/', i, '_cache'), recursive = TRUE)

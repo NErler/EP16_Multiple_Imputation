@@ -472,12 +472,6 @@ asis_output("#### Solution\\n")
 ```{r changevisseq-solution, solution = TRUE}
 visSeq <- imp0$visitSequence
 
-# the lazy version:
-visSeq <- c(visSeq[-2], visSeq[2])
-
-# the safe version:
-# To make sure you still do the correct thing if the order of the columns in 
-# NHANES were to change
 which_BMI <- match("BMI", visSeq)
 visSeq <- c(visSeq[-which_BMI], visSeq[which_BMI])
 ```

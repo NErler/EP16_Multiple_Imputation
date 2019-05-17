@@ -237,7 +237,7 @@ micesurvpred <- micesurv0$pred
 micesurvmeth[c("chol")] <- "midastouch"
 micesurvmeth[c("platelet")] <- "norm"
 
-micesurvpred[, "event"] <- 0
+micesurvpred[, "time"] <- 0
 
 # check the method and predictorMatrix
 micesurvmeth
