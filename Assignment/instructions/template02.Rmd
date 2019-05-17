@@ -23,7 +23,7 @@ dat <- get(datname)
 ```
 
 # Data {-}
-The **`r datname`** data comprise data of 1016 liver transplant patients
+The **`r datname`** data comprise data of `r nrow(dat)` liver transplant patients
 that are followed up after receiving the transplant, from a multi-center
 study.
 

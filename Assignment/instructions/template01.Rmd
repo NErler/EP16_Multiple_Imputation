@@ -23,9 +23,10 @@ dat <- get(datname)
 ```
 
 # Data {-}
-The **`r datname`** data comprise `r nrow(dat)` observations of `r length(unique(dat$ID))` mothers measured repeatedly
-before and during pregnancy. All women were scheduled to have their weight measured
-once each trimester and were asked for their pre-pregnancy weight and BMI.
+The **`r datname`** data comprise data of `r nrow(dat)` children and
+their mothers on vitamin D exposure of the mother during pregnancy and child
+bone health, measured by DXA scan, at 6 years of age. Maternal
+serum samples were taken in the third trimester of pregnancy.
 
 The dataset contains the following variables:
 
