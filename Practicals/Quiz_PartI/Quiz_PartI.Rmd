@@ -1,7 +1,7 @@
 ---
 title: "What Is Multiple Imputation?"
 output: 
-  html_document:
+  # html_document:
   learnr::tutorial:
     progressive: true
     allow_skip: true
