@@ -8,7 +8,7 @@
 # ...: additional parameters passed to theme()
 #
 # Note: if the formula is not specified, all imputed categorical variables are
-# plottet.
+# plotted.
 #
 # A formula has the structure:
 # categorical variables ~ faceting variables | color variable
