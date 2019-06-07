@@ -159,7 +159,7 @@ for (i in files) {
   rmarkdown::shiny_prerendered_clean(paste0('Practicals/', i, '/', i, '.Rmd'))
 }
 
-i <- files[6]
+i <- files[2]
 rmarkdown::run(file = paste0('Practicals/', i, '/', i, '.Rmd'))
 
 rsconnect::deployApp(appDir = file.path('Practicals', i),

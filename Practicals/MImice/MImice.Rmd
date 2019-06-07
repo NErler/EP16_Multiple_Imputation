@@ -1,25 +1,25 @@
 ---
 title: 'Multiple Imputation with the "mice" Package'
 output: 
-  html_document:
-    code_folding: show
-    df_print: paged
-    toc: true
-    toc_float:
-      collapsed: false
-    number_sections: false
-    theme: spacelab
-    highlight: tango
-    includes:
-      after_body: ../footer.html
-    css: ../style.css
-    pandoc_args: [
-      "--output=EP16_MImice.html"
-      ]
-#   learnr::tutorial:
-#     progressive: true
-#     allow_skip: true
-# runtime: shiny_prerendered
+  # html_document:
+  #   code_folding: show
+  #   df_print: paged
+  #   toc: true
+  #   toc_float:
+  #     collapsed: false
+  #   number_sections: false
+  #   theme: spacelab
+  #   highlight: tango
+  #   includes:
+  #     after_body: ../footer.html
+  #   css: ../style.css
+  #   pandoc_args: [
+  #     "--output=EP16_MImice.html"
+  #     ]
+  learnr::tutorial:
+    progressive: true
+    allow_skip: true
+runtime: shiny_prerendered
 ---
 
 ```{r, include = F}
@@ -135,7 +135,7 @@ asis_output('<div style="border:2px; border-style:solid; padding: 1em; border-co
 Do the set-up run of `mice()` with the NHANES data without any iterations (`maxit = 0`).
 
 ```{r imp0, exercise = TRUE, exercise.setup = "educrecode"}
-imp0 <- 
+imp0 <- ...
 ```
 
 ```{r, eval = static, echo = FALSE}
