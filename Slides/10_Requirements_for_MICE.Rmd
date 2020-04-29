@@ -99,11 +99,12 @@ The imputation model is compatible with the analysis model.
 
 ## Some Conditions and Definitions
 \blue{Important requirements} for MICE to work well include:
-\begin{itemize}
+\begin{itemize}[<+->]
 \item Compatibility
 \item Congeniality
 \item MAR or MCAR (in the standard implementations)
-\item \blue{All relevant variables} need to be included. (Omission might result in MNAR.)
+\item \blue{All relevant variables} need to be included.\
+      (Omission might result in MNAR.)
 \item \textbf{\textcolor{red}{The outcome needs to be included}} as predictor variable\\
       (but we usually do not impute missing outcome values).
 \item The imputation models (and analysis model) need to be \blue{correctly specified}
@@ -150,9 +151,8 @@ instead of specifying them directly.
 \bigskip
 
 \pause
-\blue{Problem:}\\
+\blue{Problem:}\
 The joint distribution may not be of any known form:
-
 \begin{eqnarray*}
 \begin{array}{c}
 x_1 \sim N(\mu_1, \sigma_1^2)\\
@@ -191,28 +191,29 @@ x_2 \sim Bin(\mu_2)\\
 
 
 ## Alternatives to MICE
-Possible approaches:\\\bigskip
-
-Approach 1: \blue{Multivariate Normal Model}\\
-Approximate the joint distribution by a known multivariate distribution
-
-(usually the normal distribution; this is the approach mentioned in Part I
-on slide~\ref{jointmodelimp}).
+Possible approaches:
 
 \bigskip
 
-Approach 2: \blue{Sequential Factorization}\\
+Approach 1: \blue{Multivariate Normal Model}\
+Approximate the joint distribution by a known multivariate distribution.
+
+(usually the normal distribution; this is the approach mentioned in Section 01)
+
+\bigskip
+
+Approach 2: \blue{Sequential Factorization}\
 Factorize the joint distribution into a (sequence of) conditional and a marginal
 distributions.
 
 
 ## Multivariate Normal Model
-\blue{Assumption:}\\
+\blue{Assumption:}\
 The outcome and incomplete variables follow a \blue{joint multivariate normal
 distribution}, conditional on the completely observed covariates $\mathbf X_c$,
 parameters $\boldsymbol\theta$ and, possibly, random effects, $\mathbf b$:
 $$ p(\mathbf y, \mathbf x_1,\ldots, \mathbf x_p \mid \mathbf X_c, \boldsymbol\theta,
-     \mathbf b) \sim N(\mathbf \mu, \mathbf \Sigma)$$
+     \mathbf b) \sim N(\mathbf \mu, \boldsymbol\Sigma)$$
 
 \bigskip
 
@@ -229,9 +230,10 @@ $$ p(\mathbf y, \mathbf x_1,\ldots, \mathbf x_p \mid \mathbf X_c, \boldsymbol\th
 ## Multivariate Normal Model
 \textbf{1. Latent normal assumption:}\vspace*{-3ex}
 $$\text{e.g.: } \mathbf x_k \text{ binary }
-  \rightarrow \text{ latent } \mathbf{\hat x}_k \text{ is standard normal: }
+  \rightarrow \text{ latent } \boldsymbol{\hat{\mathbf{x}}_k} \text{ is standard normal: }
   \left\{\begin{array}{c} \mathbf x_k = 1\\ \mathbf x_k = 0\end{array}\right.
-  \text{ if } \begin{array}{c} \mathbf{\hat x_k}\geq 0\\ \mathbf{\hat x_k} < 0\end{array}
+  \text{ if } \begin{array}{c} \boldsymbol{\hat{\mathbf{x}}_k}\geq 0\\
+  \boldsymbol{\hat{\mathbf{x}}_k} < 0\end{array}
 $$
 
 ```{r, echo = F, fig.width = 6, fig.height = 3, out.width = "70%"}
@@ -251,7 +253,7 @@ text(x = 1, y = 0.05, label = bquote(x[k] == 1), cex = 1.5)
 ## Multivariate Normal Model
 \only<1>{\textbf{2. Specify models:}\\}
 \only<2>{\textbf{2. Specify models / 3. Connect random effects \& error terms:}\\}
-\begin{picture}(200, 120)
+\begin{picture}(200, 120)(-20, 0)
 \onslide<1->{
 \put(3, 60){
     $\addtolength\arraycolsep{-.8ex}\def\arraystretch{1.5}
@@ -260,24 +262,24 @@ text(x = 1, y = 0.05, label = bquote(x[k] == 1), cex = 1.5)
     \textcolor{black!30}{\mathbf w} &=& \textcolor{black!30}{\mathbf X_c \boldsymbol{\beta}_w}
                                    &+& \textcolor{black!30}{\mathbf{ Z_w} \,\mathbf{ b_w}}
                                    &+& \textcolor{black!30}{\boldsymbol{ \varepsilon_w}}\\
-    \mathbf{\hat x}_1 &=& \mathbf X_c \boldsymbol{\beta}_{x_1} &+& \phantom{\mathbf Z_w\,} \boldsymbol{ \varepsilon_{x_1}}      &&\\[-1ex]
+    \boldsymbol{\hat{\mathbf{x}}}_1 &=& \mathbf X_c \boldsymbol{\beta}_{x_1} &+& \phantom{\mathbf Z_w\,} \boldsymbol{ \varepsilon_{x_1}}      &&\\[-1ex]
                & \vdots&                                & & \phantom{\mathbf Z_w\;} \vdots                                &&\\[-1ex]
-    \mathbf{\hat x}_p &=& \mathbf X_c \boldsymbol{\beta}_{x_p} &+& \phantom{\mathbf Z_w\,} \boldsymbol{ \varepsilon_{x_p}}      &&
+    \boldsymbol{\hat{\mathbf{x}}}_p &=& \mathbf X_c \boldsymbol{\beta}_{x_p} &+& \phantom{\mathbf Z_w\,} \boldsymbol{ \varepsilon_{x_p}}      &&
     \end{array}
     $
     }
 }
 \thicklines
 \onslide<2>{
-\put(124, 87){\color{red} \oval(15, 35)}
-\put(96, 62.5){\color{red} \oval(18, 93)}
+\put(112, 87){\color{red} \oval(15, 35)}
+\put(88, 62.5){\color{red} \oval(18, 93)}
 \put(97, 15){\line(0,-1){12}}
 \put(97, 3){\vector(1, 0){10}}
 \put(110, 0.5){multivariate normal}
 %
-\put(125, 67){\line(0,-1){17}}
-\put(125, 50){\vector(1, 0){10}}
-\put(137.5, 47.5){multivariate normal (optional, but suggested)}
+\put(120, 67){\line(0,-1){17}}
+\put(120, 50){\vector(1, 0){10}}
+\put(132.5, 47.5){multivariate normal (optional)}
 }
 \end{picture}
 
@@ -332,23 +334,25 @@ completely observed covariates.
 
 
 ## Sequential Factorization
-The analysis model is part of the specification of the joint distribution.
+The \blue{analysis model} is part of the specification of the joint distribution.
 
-\blue{\ding{225}} Advantages:
-\begin{itemize}
-\item<1-> The outcome is \blue{automatically included in the imputation} procedure.
-\item<1-> The outcome does not appear in any of the predictors of the imputation
-      models:
-      \begin{itemize}
-      \item \blue{no need to approximate} complex outcomes,
-      \item \blue{no need to summarize} complex outcomes.
-      \end{itemize}
-\item<2-> The parameters of interest are obtained directly\\
-      \blue{\ding{225}}
-      imputation and analysis in one step
-\item<3-> \blue{Non-linear associations} or interactions involving incomplete covariates
-      are specified in the analysis model and thereby
-      \blue{automatically taken into account}
+
+\begin{itemize}\itemsep3ex
+\item[\blue{\ding{225}}] The \blue{outcome}
+        \begin{itemize}
+        \item<1-> is \blue{automatically included in the imputation} procedure
+        \item<1-> does not appear in any of the predictors of the imputation models:
+        \end{itemize}
+        \blue{\ding{225}} \blue{no need to approximate/summarize} complex outcomes!
+
+\item[\blue{\ding{225}}]<2-> The \blue{parameters of interest} are obtained directly\\
+      \blue{\ding{225}} Imputation and analysis in one step!
+
+\item[\blue{\ding{225}}]<3-> \blue{Non-linear associations / interactions}
+        \begin{itemize}
+        \item specified in the analysis model
+        \end{itemize}
+        \blue{\ding{225} automatically taken into account!}
 \end{itemize}
 
 
@@ -363,19 +367,20 @@ is used to estimate parameters and sample imputed values.}
 \begin{column}{0.55\linewidth}
 \blue{Advantages:}
 \begin{itemize}
-\item \blue{flexible} with regards to outcome type
-\item univariate conditional distributions of incomplete covariates can be chosen
-according to \blue{type of variable}
-\item \blue{non-linear associations} and interactions can be taken into account
-\item assures \blue{congeniality and compatible imputation models}
+\item \blue{flexible:}
+        \begin{itemize}
+        \item any outcome type
+        \item separate imputation models per variable
+        \end{itemize}
+\item can handle \blue{non-linear associations} and interactions
+\item assures \blue{congeniality and compatibility}
 \end{itemize}
 \end{column}
 \begin{column}{0.45\linewidth}
 \blue{Disadvantages:}
 \begin{itemize}
-\item separate models need to be specified per incomplete variable: \blue{takes more time
-and consideration}
-\item the joint distribution is of unknown form and sampling may be more \blue{computationally intensive}
+\item specification takes requires time and consideration
+\item sampling may be more \blue{computationally intensive}
 \end{itemize}
 \end{column}
 \end{columns}
@@ -396,15 +401,15 @@ For example the \textsf{R} packages \blue{JointAI}, \blue{smcfcs} and \blue{jomo
 \item<4-> \blue{JointAI} works \blue{fully Bayesian}
       \begin{itemize}
       \item performs analysis and imputation simultaneously
-      \item \blue{\ding{225}} results from the analysis model of interest are
+      \item[\blue{\ding{225}}] results from the analysis model of interest are
 obtained directly
       \end{itemize}
 \end{itemize}
 
 
 ## R package smcfcs
-\href{https://cran.r-project.org/package=smcfcs}{\blue{Substantive Model Compatible Fully Conditional Specification}},\\
-a hybrid approach between FCS and sequential factorization \cite{Bartlett2015}
+\href{https://cran.r-project.org/package=smcfcs}{\blue{Substantive Model Compatible Fully Conditional Specification}},\
+a hybrid approach between FCS and sequential factorization [@Bartlett2015]
 
 \bigskip
 \textbf{smcfcs} (version 1.4.0) can impute incomplete covariates in
@@ -438,12 +443,12 @@ For more information see the help files and the
 
 
 ## R Package jomo
-\href{https://cran.r-project.org/package=jomo}{\blue{JOint MOdel imputation}} using the multivariate normal approach,\\
-with \blue{extensions to assure compatibility} between analysis and imputation models. \cite{Carpenter2012}
+\href{https://cran.r-project.org/package=jomo}{\blue{JOint MOdel imputation}} using the multivariate normal approach,\
+with \blue{extensions to assure compatibility} between analysis and imputation models. [@Carpenter2012]
 
 \bigskip
 
-\textbf{jomo} (version 2.6-7) can handle
+\textbf{jomo} (version 2.6-10) can handle
 \begin{itemize}
 \item linear regression
 \item generalized linear regression
@@ -461,13 +466,13 @@ For more info see the \href{https://cran.r-project.org/package=jomo}{help file}.
 
 ## R Package JointAI
 
-\href{https://cran.r-project.org/package=JointAI}{\blue{Joint Analysis and Imputation}}, \\
+\href{https://cran.r-project.org/package=JointAI}{\blue{Joint Analysis and Imputation}}, \
 uses the \blue{sequential factorization approach} to perform
-simultaneous analysis and imputation. \cite{Erler2016, Erler2017}
+simultaneous analysis and imputation. [@Erler2016; @Erler2017]
 
 \bigskip
 
-\textbf{JointAI} (version 0.5.1) can analyse incomplete data using
+\textbf{JointAI} (version 0.6.1) can analyse incomplete data using
 
 \begin{columns}
 \begin{column}{0.4\linewidth}
@@ -514,4 +519,4 @@ details on
 \href{https://nerler.github.io/JointAI/articles/ModelSpecification.html}{Model Specification},
 \href{https://nerler.github.io/JointAI/articles/}{etc.}
 
-
+## References {.allowframebreaks}
