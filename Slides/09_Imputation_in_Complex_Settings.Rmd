@@ -40,7 +40,9 @@ i.e., $y$ has a \blue{quadratic relationship} with $x$, and $x$ is incomplete.
 \end{center}
 \end{column}
 \begin{column}{0.4\linewidth}
+\hfill\parbox{0.85\linewidth}{
 The original data show a curved pattern.
+}
 \end{column}
 \end{columns}
 
@@ -55,7 +57,9 @@ i.e., a \blue{linear relation} between $x$ and $y$ is assumed.
 \end{center}
 \end{column}
 \begin{column}{0.4\linewidth}
+\hfill\parbox{0.85\linewidth}{
 The imputed values \blue{distort the curved pattern} of the original data.
+}
 \end{column}
 \end{columns}
 
@@ -71,7 +75,7 @@ non-linear shape of the curve has almost completely disappeared.
 
 
 
-## Interaction effect
+## Interaction Effect
 Another example: consider the analysis model (again, assumed to be true)
 $$y = \beta_0 + \beta_x x + \beta_z z + {\color{EMCdark}\boldsymbol{\mathbf{\beta_{xz} xz}}} + \ldots,$$
 i.e., $y$ has a \blue{non-linear relationship} with $x$ due to the
@@ -85,12 +89,14 @@ i.e., $y$ has a \blue{non-linear relationship} with $x$ due to the
 \end{center}
 \end{column}
 \begin{column}{0.4\linewidth}
+\hfill\parbox{0.85\linewidth}{
 The original data shows a ``$<$'' shaped pattern.
+}
 \end{column}
 \end{columns}
 
 
-## Interaction effect
+## Interaction Effect
 The model used to impute $x$ when using MICE (naively) is
 $$x = \theta_{10} + \theta_{11} y + \theta_{12} z + \ldots,$$
 i.e., a linear relation between $x$ and $y$ is assumed.
@@ -101,12 +107,14 @@ i.e., a linear relation between $x$ and $y$ is assumed.
 \end{center}
 \end{column}
 \begin{column}{0.4\linewidth}
+\hfill\parbox{0.85\linewidth}{
 The ``$<$'' shaped pattern of the true data is \blue{distorted by the imputed values}.
+}
 \end{column}
 \end{columns}
 
 
-## Interaction effect
+## Interaction Effect
 And the analysis on these naively imputed values leads to \blue{severely biased estimates}.
 
 \vfill
@@ -118,7 +126,7 @@ And the analysis on these naively imputed values leads to \blue{severely biased 
 
 
 
-## Longitudinal outcome
+## Longitudinal Outcome
 \begin{columns}[onlytextwidth]
 \begin{column}{0.54\linewidth}
 \includegraphics[width = \linewidth]{graphics/Section09/plong1_1.pdf}
@@ -147,33 +155,31 @@ longdatatab
 ```
 \end{column}
 \end{columns}
-Here, $x_1, \ldots, x_4$ are baseline covariates, i.e., not measured repeatedly
-(e.g. age at baseline, gender, education level, \ldots
-
-
-```{r fake_imp, echo = F}
-
-```
+\small
+($x_1, \ldots, x_4$ are baseline covariates, i.e., not measured repeatedly,
+e.g. age at baseline, gender, education level, \ldots)
 
 
 
-## Longitudinal outcome
+## Longitudinal Outcome
 ```{r, results='asis', echo = FALSE}
 cat(paste0("\\definecolor{colvec", seq_along(colvec), "}{HTML}{", gsub("#", '', colvec), "}"))
 ```
 
-\begin{columns}[onlytextwidth]
-\begin{column}{0.5\linewidth}
-If we use MICE in the data in this (long) format,
-each row would be regarded as independent,
-which may cause bias and \blue{inconsistent imputations}.
+\begincols[onlytextwidth]
+\begincol{0.5\linewidth}
+
+For data in long format:
+
+* each row would be regarded as independent
+* \blue{\ding{225}} bias and \blue{inconsistent imputations}
 
 \bigskip
 
 Imputed values of baseline covariates are imputed with different values,
 creating data that could not have been observed.
-\end{column}
-\begin{column}{0.45\linewidth}
+\endcol
+\begincol{0.45\linewidth}
 \scriptsize
 ```{r imptablong, echo = FALSE}
 colvec30 <- paste0("colvec", seq_along(colvec), "!30")
@@ -202,12 +208,12 @@ ltDFexlong2 <- longDF1_tab2 %>%
 
 gsub("\\\\\n\\bottomrule", "", ltDFexlong2, fixe = T)
 ```
-\end{column}
-\end{columns}
+\endcol
+\endcols
 
 
 
-## Longitudinal outcome
+## Longitudinal Outcome
 \begin{columns}[onlytextwidth]
 \begin{column}{0.7\linewidth}
 \includegraphics[width = \linewidth]{graphics/Section09/gglongex1.pdf}
@@ -221,7 +227,7 @@ Estimates can be severely biased.
 
 
 
-## Longitudinal outcome
+## Longitudinal Outcome
 In some settings \blue{imputation in wide format} may be possible.
 
 \bigskip
@@ -245,27 +251,29 @@ longdatatab
 
 
 
-## Longitudinal outcome
-\footnotesize
-```{r impwidedat2, size = 'scriptsize', echo = F}
+## Longitudinal Outcome
+\scriptsize
+\begin{center}
+```{r impwidedat2, echo = FALSE}
 subset(wideDF1, subset = id < 5, select = c('id', grep('\\.', names(wideDF1), value = T))) %>%
-  round(2) %>%
+  round(1) %>%
   rbind(., rep("\\vdots", 11)) %>%
   cbind(., '\\ldots' = c(rep("\\ldots", 4), "$\\ddots$")) %>%
   kable(format = 'latex', row.names = FALSE, booktabs = T, escape = F, digits = 1)
 ```
 \normalsize
+\end{center}
 
 \bigskip
 
-In this \blue{wide format data} frame, missing values in the outcome and measurement times
-need to be imputed (to be able to use them as predictors to impute covariates),
-even though we would not need to impute them for the analysis
-(mixed model is valid when outcome measurements are M(C)AR).
+In \blue{wide format:}
+
+* missing values in outcome and measurement times need to be imputed\
+  (to be able to use them as predictors to impute covariates)
+* \blue{inefficient!} (we would not need to impute them for the analysis)
 
 
-
-## Longitudinal outcome
+## Longitudinal Outcome
 \begin{columns}
 \begin{column}{0.7\linewidth}
 \includegraphics[width = \linewidth]{graphics/Section09/gg_wideex1.pdf}
@@ -278,18 +286,23 @@ Better, but large confidence intervals.
 \vspace*{-2ex}
 
 
-## Longitudinal outcome
-\begin{columns}
-\begin{column}{0.7\linewidth}
+## Longitudinal Outcome
+\begin{columns}[onlytextwidth]
+\begin{column}{0.6\linewidth}
+
 \includegraphics[width = \linewidth]{graphics/Section09/plong2_1}
+
 \end{column}
-\begin{column}{0.3\linewidth}
-When the data is very \blue{unbalanced}, transformation to wide format is not possible.
+
+\begin{column}{0.4\linewidth}
+\hfill\parbox{0.85\linewidth}{
+Very \blue{unbalanced} data: transformation to wide format not possible.
 
 \bigskip
 
-(Or at least transformation to wide format leads to variables with high proportions
-of missing values.)
+(Or requires summary measures)
+}
+
 \end{column}
 \end{columns}
 
@@ -297,13 +310,14 @@ of missing values.)
 
 
 
-## Longitudinal outcome
+## Longitudinal Outcome
 \begin{columns}
 \begin{column}{0.5\linewidth}
 \includegraphics[width = \linewidth]{graphics/Section09/plong2_2}
 \onslide<2->{
 \includegraphics[width = \linewidth]{graphics/Section09/plong2_3}
-}\vspace*{-1ex}
+}
+\vspace*{-4ex}
 \end{column}
 \begin{column}{0.4\linewidth}
 Naive approaches that are sometimes used are to
@@ -314,8 +328,14 @@ Naive approaches that are sometimes used are to
 
 \bigskip
 
-\onslide<3>{However, \blue{important information may be lost},
-resulting in invalid imputations and biased results.}
+\onslide<3>{
+
+\begin{itemize}
+\item[\blue{\ding{225}}] Important information may be lost!
+\item[\blue{\ding{225}}] invalid imputations and biased results
+\end{itemize}
+
+}
 
 \end{column}
 \end{columns}
@@ -324,29 +344,26 @@ resulting in invalid imputations and biased results.}
 
 
 ## Survival Data
-In \blue{survival analysis}, the aim is to estimate the effect of covariates on
-the \blue{time until an event} of interest happens.
-
-\bigskip
-
-\pause
-Commonly used method: \blue{Cox proportional hazards model}
+\blue{Cox proportional hazards model}
 
 $$h(t) = h_0(t) \exp(x \beta_x + z\beta_z),$$
 
 \begin{itemize}
-\item $h(t)$: hazard = the instantaneous risk of an event at time $t$,
+\item $h(t)$: \blue{hazard} = the instantaneous risk of an event at time $t$,
       given that the event has not occurred until time $t$
-\item $h_0(t)$: unspecified baseline hazard
-\item \blue{$x$} and \blue{$z$}: \blue{incomplete} and \blue{complete}
-covariates, respectively
+\item $h_0(t)$: unspecified \blue{baseline hazard}
+\item \blue{$x$} and \blue{$z$}: \blue{incomplete} and \blue{complete
+covariates}, respectively
 \end{itemize}
 
 \bigskip
 
 \pause
-\blue{Survival outcomes} are usually represented by the \blue{observed event
-time $T$} and the \blue{event indicator $D$} ($D = 1$: event, $D = 0$: censored).
+\blue{Survival outcome} representation:
+
+* \blue{observed event time $T$}
+* \blue{event indicator $D$} ($D = 1$: event, $D = 0$: censored).
+
 
 
 ## Survival Data

@@ -472,7 +472,7 @@ plong2_2 <- plong2_1 +
   theme(axis.title = element_text(size = 16))
 
 ggsave(plong2_2, file = file.path(projdir, 'Slides/graphics/Section09/plong2_2.pdf'),
-       width = 6, height = 3.3)
+       width = 6, height = 3.2)
 
 
 plong2_3 <- plong2_0 +
@@ -484,7 +484,7 @@ plong2_3 <- plong2_0 +
   theme(axis.title = element_text(size = 16))
 
 ggsave(plong2_3, file = file.path(projdir, 'Slides/graphics/Section09/plong2_3.pdf'),
-       width = 6, height = 3.3)
+       width = 6, height = 3.2)
 
 
 
