@@ -1,0 +1,16 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+Videos
+
+Practicals/*_cache/
+Practicals/*_files/
+
+Slides/test.*
+
+Slides/workspaces/JointAI_surv.RData
+Slides/workspaces/JointAI_nonlin.RData
+Slides/workspaces/JointAI_long.RData
+
+Slides/data/SAS/

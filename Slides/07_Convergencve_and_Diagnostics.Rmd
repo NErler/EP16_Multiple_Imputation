@@ -1,0 +1,529 @@
+---
+title: "EP16: Missing Values in Clinical Research: Multiple Imputation"
+subtitle: "7. Convergence & Diagnostics"
+author: "Nicole Erler"
+institute: "Department of Biostatistics, Erasmus Medical Center"
+date: ""
+email: "n.erler@erasmusmc.nl"
+output:
+  beamer_presentation:
+    keep_tex: false
+    template: mytemplate.latex
+    includes:
+      in_header: [SlideTemplate.tex, defs.tex]
+    incremental: false
+classoption: [aspectratio=169]
+bibliography: references.bib
+---
+
+```{r setup, include = FALSE, purl = FALSE}
+projdir <- gsub("/Slides", "", getwd())
+
+runimps <- FALSE
+  
+knitr::knit_hooks$set(
+  nospace = function(before, options, envir) {
+    if (before) {
+      knitr::asis_output("\\vspace*{-1.5ex}")
+    }
+  }
+)
+
+knitr::opts_chunk$set(echo = TRUE, nospace = TRUE, nospaceafter = TRUE,
+                      fig.align = 'center', out.width = "100%",
+                      opts.label = 'nopurl', purl = FALSE)
+
+knitr::knit_hooks$set(purl = knitr::hook_purl)
+knitr::opts_template$set(nopurl = list(purl = FALSE))
+knitr::opts_template$set(dopurl = list(purl = TRUE))
+
+
+options(width = 120)
+
+suppressPackageStartupMessages(library(mice))
+
+load(file.path(projdir, "Slides/data", "NHANES.RData"))
+NHANES <- subset(NHANES, select = -DBP)
+NHANES <- NHANES[, c(which(names(NHANES) != 'BMI')[1:7],
+                     which(names(NHANES) == 'BMI'),
+                     which(names(NHANES) != 'BMI')[-c(1:7)])]
+
+
+load(file.path(projdir, "Slides/workspaces/imp3.RData"))
+load(file.path(projdir, "Slides/workspaces/imp4.RData"))
+```
+
+
+## Setting
+In this section, we use imputed data from the following set-up:
+\small
+```{r, opts.label = "dopurl"}
+library("mice")
+imp0 <- mice(NHANES, maxit = 0,
+             defaultMethod = c("norm", "logreg", "polyreg", "polr"))
+
+meth <- imp0$method
+meth["HyperMed"] <- ""
+meth["BMI"] <- "~I(weight/height^2)"
+
+pred <- imp0$predictorMatrix
+pred[, "HyperMed"] <- 0
+
+post <- imp0$post
+post["creat"] <- "imp[[j]][,i] <- squeeze(imp[[j]][,i], c(0, 100))"
+```
+
+## Setting
+Knowing that we "forgot" to change the predictor matrix to prevent feedback from 
+\Rstring{BMI} to \Rstring{height} and \Rstring{weight}, we use the resulting
+`mids` object \Robj{imp3} for demonstratin purposes:
+\small
+```{r, eval = FALSE}
+imp3 <- mice(NHANES, method = meth, predictorMatrix = pred, post = post)
+```
+```{r, eval = runimps, ref.label="imp3", echo = FALSE}
+```
+```{r, echo = FALSE, eval = runimps}
+save(imp3, file = file.path(projdir, "Slides/workspaces/imp3.RData"))
+```
+\normalsize
+
+\pause\bigskip
+
+Additionally, we work with the improved imputation using the following additional
+settings:
+\small
+```{r, opts.label = "dopurl"}
+pred[c("weight", "height"), "BMI"] <- 0
+```
+```{r imp4, eval = FALSE}
+imp4 <- mice(NHANES, method = meth, predictorMatrix = pred, post = post,
+             maxit = 30)
+```
+```{r, eval = runimps, ref.label="imp4", echo = FALSE}
+```
+```{r, echo = FALSE, eval = runimps}
+save(imp4, file = file.path(projdir, "Slides/workspaces/imp4.RData"))
+```
+\normalsize
+
+
+## Logged Events
+
+Information on the automatic changes that were done by **mice** is returned as
+`loggedEvents`, which is part of the `mids` object.
+
+`loggedEvents` is a `data.frame` and has the following columns:
+
+\begin{tabular}{lp{20em}}
+\Rstring{it} & iteration number\\
+\Rstring{im} & imputation number\\
+\Rstring{dep} & dependent variable\\
+\Rstring{meth} & imputation method used\\
+\Rstring{out} & names of altered or removed predictors
+\end{tabular}
+
+\bigskip
+
+It can be obtained as
+\small
+```{r, eval = FALSE}
+imp3$loggedEvents
+```
+\normalsize
+
+## Logged Events
+Neither `imp3` nor `imp4` had any logged events.
+
+\medskip
+
+To demonstrate `loggedEvents` we create a small dataset with some
+"mistakes" in it:
+\small
+```{r demoimp}
+demo <- NHANES[, 1:5]                  # first 5 variables from NHANES
+demo$dupl <- demo[, 4]                 # create a duplicate variable
+demo$const <- 1                        # create a constant variable
+demo$age[demo$gender == 'male'] <- NA  # set age missing for all males
+```
+```{r, eval = FALSE}
+demoimp <- mice(demo)
+```
+\vspace*{-2ex}
+```{r, echo = FALSE}
+demoimp <- mice(demo, printFlag = FALSE, maxit = 2, m = 3, seed = 123)
+```
+
+
+## Logged Events
+\small
+```{r, eval = FALSE}
+head(demoimp$loggedEvents)
+```
+\normalsize
+\begincols[onlytextwidth, T]
+\begincol{0.5\linewidth}
+\small
+```{r, echo = FALSE}
+head(demoimp$loggedEvents)
+```
+\endcol
+\begincol{0.48\linewidth}
+Before imputation (iteration 0):
+
+* the constant variable was removed
+* the duplicate variable was identified as collinear and removed.
+
+During imputation:
+
+* gender was removed from the model for age
+
+\endcol
+\endcols
+
+## Convergence
+
+From a previous section of this course we know that
+\textbf{mice} uses an \blue{iterative algorithm} and imputations from the first few
+iterations may not be samples from the ``correct'' distributions.
+
+\bigskip\pause
+
+\blue{Traceplots} can be used to visually assess \blue{convergence}.\bigskip
+
+
+In \textbf{mice}, the
+function \Rfct{plot} produces traceplots of the  mean and standard deviation
+(across subjects) per incomplete variable.
+
+
+## Convergence
+\small
+```{r convergence_imp3, eval = FALSE}
+plot(imp3, layout = c(8, 4))
+```
+\vspace*{-5ex}
+```{r, fig.width = 12, fig.height = 6, fig.keep = "first", eval = TRUE, ref.label="convergence_imp3", echo = FALSE, out.width = "103%"}
+```
+\vspace*{-2ex}
+\normalsize
+
+
+## Convergence
+\small
+```{r convergence_imp4, eval = FALSE}
+plot(imp4, layout = c(8, 4))
+```
+\vspace*{-5ex}
+```{r, fig.width = 12, fig.height = 6, fig.keep = "first", eval = TRUE, ref.label="convergence_imp4", echo = FALSE, out.width = "103%"}
+```
+\vspace*{-2ex}
+\normalsize
+
+## Convergence
+
+\blue{Strong trends} and traces that show \blue{correlation} between variables
+indicate \blue{problems of feedback}.
+This needs to be investigated and resolved in the specification of
+the \Rarg{predictorMatrix}.\bigskip
+
+\blue{Weak trends} may be artefacts that often disappear when the imputation is
+performed with more iterations.
+
+
+## Diagnostics
+When MCMC chains have converged, the \blue{distributions of the imputed and observed
+values} can be compared to investigate differences between observed and imputed
+data.
+
+\bigskip
+
+\blue{Note:}\
+Plots usually show the \blue{marginal} distributions of observed and imputed values,
+which do not have do be identical under MAR.
+
+\bigskip
+
+\blue{But:}\
+The \blue{conditional} distributions
+(given all the other variables in the imputation model) of the imputed values
+are assumed to be the same as the conditional distributions of the observed data.
+
+
+
+## Diagnostics
+\textbf{mice} provides several functions for visual diagnosis of imputed values:
+\begin{itemize}
+\item \Rfct{densityplot} (for large datasets and variables with many NAs)
+\item \Rfct{stripplot} (for smaller datasets and/or variables with few NAs)
+\item \Rfct{bwplot}
+\item \Rfct{xyplot}
+\end{itemize}
+
+\bigskip
+
+These functions create \href{https://stat.ethz.ch/R-manual/R-devel/library/lattice/html/Lattice.html}{lattice graphics},
+which can be modified analogously to their parent functions from the
+\textbf{lattice} package.
+
+
+## Diagnostics
+\small
+```{r densityplot1, eval = FALSE}
+densityplot(imp4)
+```
+\normalsize\vspace*{-2ex}
+```{r, fig.width = 9, fig.height = 4.5, echo = FALSE, eval = TRUE, ref.label='densityplot1'}
+```
+\vspace*{-2ex}
+
+## Diagnostics
+\begincols[onlytextwidth]
+\begincol{0.5\linewidth}
+```{r denszoom, eval = FALSE}
+densityplot(imp4, ~ height + creat,
+            layout = c(1, 2))
+```
+
+\bigskip
+
+The `densityplot()`{.R} shows that 
+
+* imputed values of \Rstring{height} are smaller than the observed values
+* the distribution of the imputed values of \Rstring{creat} is wider than the 
+  distribution of the observed values
+
+\endcol
+\begincol{0.5\linewidth}
+```{r, ref.label="denszoom", eval = TRUE, fig.width = 5, fig.height = 5.5, echo = FALSE}
+```
+\endcol
+\endcols
+
+
+## Diagnostics
+\begincols[onlytextwidth]
+\begincol{0.5\linewidth}
+In some cases \blue{differences} in distributions \blue{can be explained by 
+strata} in the data, however, here, \Rstring{gender} does not explain the
+difference in observed and imputed values.
+```{r densityplot2, eval = FALSE}
+densityplot(imp4, ~height|gender,
+            layout = c(1, 2))
+```
+\endcol
+\begincol{0.5\linewidth}
+\small\vspace*{-2ex}
+```{r, fig.width = 5, fig.height = 5.5, eval = TRUE, echo = FALSE, out.width = "102%", ref.label = 'densityplot2'}
+```
+\endcol
+\endcols
+
+```{r, echo = FALSE}
+op <- getOption("width")
+options(width = 60)
+
+wrap.simpleError <- function(x, options) {
+  # x is an error object, with components "call" and "message".  Ignore
+  # the call, but wrap the result like code:
+  paste0("```\n## Error: ", x$message, "\n```")
+}
+```
+
+## Diagnostics
+As an alternative, we might consider \Rstring{race} to explain the differences
+\small
+```{r densityplot fail, fig.width = 9, fig.height = 5, eval = FALSE}
+densityplot(imp4, ~height|race)
+```
+\vspace*{-3ex}
+```{r, ref.label="densityplot fail", error = TRUE, eval = TRUE, echo = FALSE}
+```
+\normalsize
+\pause
+```{r densityplot fail2, eval = FALSE}
+with(NHANES, table(race = race, "height missing" = is.na(height)))
+```
+\begincols[onlytextwidth]
+\begincol{0.6\linewidth}
+```{r, ref.label="densityplot fail2", echo = FALSE, eval = TRUE}
+```
+\endcol
+\begincol{0.4\linewidth}
+There are not enough missing values of \Rstring{height} per
+categories of \Rstring{race} to estimate densities.
+\endcol
+\endcols
+
+## Diagnostics
+\begincols[onlytextwidth]
+\begincol{0.58\linewidth}
+In that case, a \Rfct{stripplot} may be better suited.
+
+\medskip
+
+\small
+```{r stripplot1, eval = FALSE}
+stripplot(imp4, height ~ race|gender,
+          pch = c(1, 20), layout = c(1, 2),
+          scales = list(x = list(rot = 45)))
+```
+\endcol
+\begincol{0.4\linewidth}
+\vspace*{-3ex}
+```{r, ref.label='stripplot1', crop = TRUE, eval = TRUE, echo = FALSE, fig.width = 4.5, fig.height = 6, out.width = "108%"}
+
+```
+\endcol
+\endcols
+
+## Diagnostics
+Alternatively, observed and imputed data can be represented by box-and-whisker plots:
+\vspace*{2ex}
+\small
+```{r bwplot, eval = FALSE}
+bwplot(imp4, height + weight + bili + chol ~.imp)
+```
+\vspace*{-3ex}
+```{r, ref.label="bwplot", eval = TRUE, fig.width = 10, fig.height = 4, echo = FALSE}
+```
+
+
+## Diagnostics
+The function \Rfct{xyplot} allows multivariate investigation of the imputed
+versus observed values.
+\vspace*{2ex}
+\small
+```{r xyplot, eval = FALSE}
+xyplot(imp4, height ~ weight | gender, pch = c(1, 20))
+```
+\vspace*{-3ex}
+```{r, fig.width = 10, fig.height = 4.8, out.width = "95%", eval = TRUE, echo = FALSE, ref.label="xyplot"}
+```
+
+## Diagnostics
+All of the above graphs displayed only continuous imputed variables.
+
+
+For categorical variables we can compare the proportion of values in each
+category.
+
+\bigskip
+
+\textbf{mice} does not provide a function to do this, but we can write one
+ourselves, as for instance the function \Rfct{propplot}, for which the syntax
+can be found here: \href{https://gist.github.com/NErler/0d00375da460dd33839b98faeee2fdab}{https://gist.github.com/NErler/0d00375da460dd33839b98faeee2fdab}
+
+```{r load propplot, message = F, echo = F}
+source(file.path(projdir, "Slides", "Rfcts", "propplot.R"))
+```
+
+
+## Diagnostics
+\small
+```{r propplot, eval = FALSE}
+propplot(imp4)
+```
+\vspace*{-2ex}
+```{r, echo = FALSE, warning = FALSE, fig.width = 10, fig.height = 4.5}
+propplot(imp4, strip.text = element_text(size = 14),
+         legend.position = c(0.83, 0.2))
+
+```
+
+## Diagnostics
+\Rstring{smoke} and \Rstring{educ} have \blue{very few missing values}
+(`r sum(is.na(NHANES$smoke))` and  `r sum(is.na(NHANES$educ))`)\
+\blue{\ding{225}} no need to worry about differences
+
+\bigskip\pause
+
+\begincols[onlytextwidth]
+\begincol{0.5\linewidth}
+\Rstring{alc}: missing values are imputed in the category "\<=1"
+more often than we would expect from the observed data
+
+\bigskip
+
+\onslide<3->{
+If we expect that \Rstring{gender} and \Rstring{race} might explain the differences
+for \Rstring{alc}, we can include those factors into the plot.
+}
+\endcol
+\begincol{0.5\linewidth}
+```{r, fig.width = 5, fig.height = 4.5, echo = FALSE}
+propplot(imp4, alc ~ 1, legend.position = 'none', strip.text = element_text(size = 14))
+```
+\endcol
+\endcols
+
+
+## Diagnostics
+\small
+```{r propplot_alc_print, eval = FALSE}
+propplot(imp4, formula = alc ~ race + gender)
+```
+\vspace*{-2ex}
+```{r propplot_alc, fig.width = 10, fig.height = 5.2, echo = FALSE}
+propplot(imp4, formula = alc ~ race + gender, nrow = 2, ncol = 5,
+         strip.text = element_text(size = 12), legend.position = 'bottom')
+``` 
+\vspace*{-2ex}
+
+## Diagnostics
+\begincols[onlytextwidth]
+\begincol{0.5\linewidth}
+We also see that
+
+* \Rstring{hypten} is less frequent and
+* \Rstring{hypchol} a bit more frequent, in the imputed data compared to the observed.
+
+\endcol
+\begincol{0.5\linewidth}
+```{r, fig.width = 5, fig.height = 5.2, echo = FALSE}
+propplot(imp4, hypten + hypchol ~ 1, ncol = 1, nrow = 2,
+         legend.position = 'none', strip.text = element_text(size = 14))
+```
+\endcol
+\endcols
+
+
+## Diagnostics
+Since hypertension is more common in older individuals, we may want to
+investigate if \Rstring{age} can explain the differences in imputed values of
+\Rstring{hypten}.
+\small
+```{r hypten_age_table, eval = FALSE}
+round(sapply(split(NHANES[, "age"], addNA(NHANES$hypten)), summary), 1)
+```
+
+\begincols[onlytextwidth]
+\begincol{0.5\linewidth}
+\small
+```{r, eval = TRUE, ref.label= "hypten_age_table", echo = FALSE}
+```
+\normalsize
+\endcol
+\begincol{0.5\linewidth}
+The distribution of \Rstring{age} in participants with missing
+\Rstring{hypten} is very similar to the distribution of \Rstring{age} 
+in participants without \Rstring{hypten}.
+\endcol
+\endcols
+
+
+## Diagnostics
+Plotting the proportions of observed and imputed \Rstring{hypten} separately
+per quartile of \Rstring{age}:
+\small
+```{r propplot_hypten_print, fig.width = 10, fig.height = 4.2, eval = FALSE}
+propplot(imp4, formula = hypten ~ cut(age, quantile(age), include.lowest = T))
+```
+
+```{r propplot_hypten, fig.width = 10, fig.height = 4.2, echo = FALSE}
+propplot(imp4, formula = hypten ~ cut(age, quantile(age), include.lowest = T),
+         strip.text = element_text(size = 12), nrow = 1, legend.position = 'bottom')
+```
+\normalsize
+
+

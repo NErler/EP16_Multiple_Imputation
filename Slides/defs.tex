@@ -1,0 +1,25 @@
+
+
+\usepackage{lmodern,amsmath,amssymb}
+\usepackage[beamer]{hf-tikz}
+% \usepgfplotslibrary{units}
+% \hfsetfillcolor{highlight}
+% \hfsetbordercolor{highlight}
+% \tikzset{set fill color=highlight,set border color=highlight}
+
+
+
+\usepackage{animate}
+\usepackage{algorithm,algpseudocode}
+\usepackage{arydshln} % for \hdashline
+
+
+\usepackage{tikz}
+\usetikzlibrary{fadings,shapes.arrows,shadows}
+\usepackage{xparse}
+\tikzset{arrowfill/.style={#1}}
+  \tikzset{arrowstyle/.style n args={3}{fill=#3, text=#2, single arrow,minimum height=#1, single arrow,
+    single arrow head extend=.3cm,}}
+  \NewDocumentCommand{\tikzfancyarrow}{O{2cm} O{white} O{EMCdark} m}{
+    \tikz[baseline=-0.5ex]\node [arrowstyle={#1}{#2}{#3}] {#4};
+    }

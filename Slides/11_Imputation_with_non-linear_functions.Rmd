@@ -1,0 +1,417 @@
+---
+title: "EP16: Missing Values in Clinical Research: Multiple Imputation"
+subtitle: "11. Imputation with Non-linear Functional Forms"
+author: "Nicole Erler"
+institute: "Department of Biostatistics, Erasmus Medical Center"
+date: ""
+email: "n.erler@erasmusmc.nl"
+output:
+  beamer_presentation:
+    keep_tex: false
+    template: mytemplate.latex
+    includes:
+      in_header: [SlideTemplate.tex, defs.tex]
+    incremental: false
+classoption: [aspectratio=169]
+bibliography: references.bib
+---
+
+```{r setup, include = FALSE}
+projdir <- gsub("/Slides", "", getwd())
+
+runimps <- FALSE
+  
+knitr::knit_hooks$set(
+  nospace = function(before, options, envir) {
+    if (before) {
+      knitr::asis_output("\\vspace*{-1.5ex}")
+    }
+  }
+)
+
+
+knitr::opts_chunk$set(echo = TRUE, nospace = TRUE, nospaceafter = TRUE,
+                      fig.align = 'center', out.width = "100%")
+
+options(width = 120)
+
+suppressPackageStartupMessages(library("mice"))
+suppressPackageStartupMessages(library("JointAI"))
+
+library(kableExtra)
+library(ggplot2)
+
+
+# simulate data
+set.seed(2018)
+N <- 200
+x <- rnorm(N)
+z <- rbinom(N, size = 1, prob = plogis(x))
+y <- x + x^2 + z + x*z + rnorm(N, 0, 0.5)
+
+DF_nonlin <- data.frame(y = y, x = x, z = z)
+
+# model on complete data
+mod_nonlin <- lm(y ~ x + I(x^2) + z + x:z, data = DF_nonlin)
+
+# create missing values
+DF_nonlin$x[sample(1:length(x), size = N/2)] <- NA
+```
+
+
+## Imputation with mice
+There is \blue{no strategy} for MICE that can \blue{guarantee valid imputations}
+when non-linear functional forms and/or interactions are involved,
+but \blue{some settings} in \textbf{mice} \blue{may help} to reduce bias in the
+resulting estimates.
+
+\bigskip
+
+For imputation of variables that have non-linear associations
+\begin{itemize}
+\item \blue{PMM often works better} than imputation with a normal model,
+\item the \blue{Just Another Variable} approach can reduce bias in interactions,
+\item passive imputation
+\item \Rstring{quadratic} can help to impute variables with quadratic association.
+\end{itemize}
+
+## Imputation with mice
+For demonstration, we use a simulated example dataset \Robj{DFnonlin}:
+
+\begincols[onlytextwidth]
+\begincol{0.54\linewidth}
+\begin{itemize}
+\item[\blue{y}] continuous outcome
+\item[\blue{x}] continuous (normal) covariate\
+      (50\% missing values MCAR)
+\item[\blue{z}] binary covariate (complete)
+\end{itemize}
+
+\medskip
+
+We assume a
+
+* \blue{quadratic effect} of \blue{$x$} on \blue{$y$}, and
+* an \blue{interaction} between \blue{$x$} and \blue{$z$}
+
+\endcol
+\begincol{0.4\linewidth}
+\small
+```{r}
+head(DF_nonlin)
+dim(DF_nonlin)
+```
+\endcol
+\endcols
+
+## Imputation with mice: JAV
+\blue{Just Another Variable (JAV)} approach:
+\begin{itemize}
+\item \blue{pre-calculate} the non-linear form (or interaction term) in the incomplete data,
+\item add it as a column to the dataset, and
+\item impute it as if it was just another variable.
+\end{itemize}
+
+\bigskip\pause
+
+\small
+```{r}
+DF2 <- DF_nonlin         # copy of the data, only for this example
+DF2$xx <- DF2$x^2        # pre-calculate the quadratic term
+DF2$xz <- DF2$x * DF2$z  # pre-calculate the interaction
+
+# JAV imputation (using pmm and full predictor matrix)
+impJAV <- mice(DF2, maxit = 20, printFlag = FALSE)
+```
+\normalsize
+
+
+## Imputation with mice: JAV
+
+To relax the assumption of linear associations even more, we could introduce
+additional interactions with the outcome.
+
+\bigskip
+In this example, we can add an interaction between $z$ and $y$:
+
+\small
+```{r}
+DF3 <- DF2               # make another copy of the data
+DF3$yz <- DF3$y * DF3$z  # add interaction y and z
+
+# JAV imputation with additional interaction
+impJAV2 <- mice(DF3, maxit = 20, printFlag = FALSE)
+```
+
+## Imputation with mice: Passive Imputation
+
+Alternatively, we could impute all non-linear terms and interactions passively:
+\small
+```{r}
+# adapt the imputation method (we re-use the vector from impJAV2 here)
+meth_passive <- impJAV2$method
+meth_passive[c("xx", "xz", "yz")] <- c("~I(x^2)", "~I(x*z)", "~I(y*z)")
+
+
+# adapt the predictor matrix (we re-use the matrix from impJAV2 here)
+pred_passive <- impJAV2$predictorMatrix
+pred_passive['x', 'xx'] <- 0
+pred_passive[c('x', 'z'), 'xz'] <- 0
+pred_passive[c('y', 'z'), 'yz'] <- 0
+
+imp_passive <- mice(DF3, method = meth_passive,
+                    predictorMatrix = pred_passive,
+                    maxit = 20, printFlag = FALSE)
+```
+
+
+
+## Imputation with mice: Polynomial Combination
+
+The imputation method \Rstring{quadratic} uses the \blue{``polynomial combination''
+method} to impute covariates that have a \blue{quadratic association} with the
+outcome [@Buuren2012 \ pp. 139--141; @Vink2013].
+
+\bigskip
+
+\begin{itemize}
+\item[\ding{225}] ensure the \blue{imputed values} for $x$ and $x^2$ are \blue{consistent}
+\item[\ding{225}] \blue{reduce bias} in the subsequent analysis that uses $x$ and $x^2$
+\end{itemize}
+
+\bigskip\pause
+
+\small
+```{r}
+# adapt the imputation method (we re-use the vector from impJAV here)
+methqdr <- impJAV$meth
+methqdr[c("x", "xx", "xz")] <- c("quadratic", "~I(x^2)", "~I(x*z)")
+```
+\normalsize
+\blue{\ding{225}} Here we use passive imputation for $x^2$ and the interaction.
+
+## Imputation with mice: polynomial combination
+\small
+```{r, warning = FALSE}
+# adapt the predictor matrix (we re-use the matrix from impJAV here)
+predqdr <- impJAV$pred
+predqdr['x', "xx"] <- 0          # prevent feedback
+predqdr[c('x', 'z'), 'xz'] <- 0  # prevent feedback
+
+impqdr <- mice(DF3, meth = methqdr, pred = predqdr,
+               maxit = 20, printFlag = FALSE)
+```
+\normalsize
+
+\bigskip\pause
+For comparison, we also run a naive version (using defaults):
+\small
+```{r}
+# naive imputation, using only y, x, z
+impnaive <- mice(DF_nonlin, printFlag = FALSE)
+``` 
+
+
+## Imputation with mice
+```{r, echo = FALSE}
+res_impnaive <- with(impnaive, lm(y ~ x + I(x^2) + z + x:z)) %>% pool %>% summary(conf.int = TRUE)
+res_JAV <- with(impJAV, lm(y ~ x + xx + z + xz)) %>% pool %>% summary(conf.int = TRUE)
+res_JAV2 <- with(impJAV2, lm(y ~ x + xx + z + xz)) %>% pool %>% summary(conf.int = TRUE)
+res_qdr <- with(impqdr, lm(y ~ x + xx + z + x:z)) %>% pool %>% summary(conf.int = TRUE)
+res_passive <- with(imp_passive, lm(y ~ x + xx + z + x:z)) %>% pool %>% summary(conf.int = TRUE)
+
+reslist <- list(naive = as.data.frame(res_impnaive[, c("term", "estimate", "2.5 %", "97.5 %")]),
+                pas = as.data.frame(res_passive[, c("term", "estimate", "2.5 %", "97.5 %")]),
+                JAV = as.data.frame(res_JAV[, c("term", "estimate", "2.5 %", "97.5 %")]),
+                JAV2 = as.data.frame(res_JAV2[, c("term", "estimate", "2.5 %", "97.5 %")]),
+                qdr = as.data.frame(res_qdr[, c("term", "estimate", "2.5 %", "97.5 %")])
+)
+```
+
+```{r comp_plot, echo = FALSE, fig.width = 7.5, fig.height = 4}
+plotfun <- function(reslist, models = c("naive", "JAV", "JAV2", "pas", "qdr")) {
+  res_nonlin <- lapply(reslist, function(x) {
+    colnames(x) <- gsub('5%', '5 %', colnames(x)) %>%
+      gsub('Mean', 'estimate', .)
+    
+    x$term <- gsub("xx", "I(x^2)", x$term) %>%
+      gsub("z1", "z", .) %>%
+      gsub("xz", "x:z", .)
+    x
+  })
+  
+  plot_nonlin <- merge(reshape2::melt(res_nonlin, id.vars = colnames(res_nonlin[[1]])), 
+                       data.frame(term = names(coef(mod_nonlin)),
+                                  betas = coef(mod_nonlin))
+  )
+  
+  plot_nonlin$type = 'true'
+  
+  
+  polyDF_nonlin <- data.frame(x = rep(c(0, length(models) + 1, length(models) + 1, 0), 5),
+                              y = c(apply(confint(mod_nonlin), 1, rep, each = 2)),
+                              term = rep(c("(Intercept)", "x", "I(x^2)", "z", "x:z"),
+                                         each = 4),
+                              type = 'true'
+  )
+
+  
+  ggplot(plot_nonlin, aes(x = L1, y = estimate)) +
+    geom_polygon(data = polyDF_nonlin,
+                 aes(x = x, y = y, fill = type), alpha = 0.2) +
+    geom_point() +
+    geom_errorbar(aes(ymin = `2.5 %`, ymax = `97.5 %`), width = 0.3) +
+    facet_wrap("term", scales = 'free') +
+    geom_hline(data = plot_nonlin, aes(yintercept = betas, lty = type)) +
+    scale_x_discrete(limits = models) +
+    ylab("estimate & 95% CI") +
+    xlab("") +
+    scale_fill_manual(name = '', limits = 'true', values = 'blue', 
+                      labels = 'Result from\nthe analysis of\nthe full data') +
+    scale_linetype_manual(name = '', limits = 'true', values = 2,
+                          labels = 'Result from\nthe analysis of\nthe full data') +
+    theme(panel.background = element_rect(fill = grey(0.98), color = grey(0.85)),
+          panel.grid = element_blank(),
+          legend.position = c(0.85, 0.2),
+          legend.key.width = unit(10, "mm"),
+          legend.key.height = unit(10, "mm")) +
+    coord_cartesian(xlim = c(1.2, length(models) - 0.2))
+}
+
+plotfun(reslist)
+```
+
+\vspace*{-2ex}
+
+## Imputation with JointAI
+The syntax we use to analyse and impute the current example using \blue{JointAI} is
+similar to the specification of a standard linear model using \Rfct{lm}.
+
+\small
+```{r JointAI_nonlin, eval = FALSE}
+library("JointAI")
+JointAI_nonlin <- lm_imp(y ~ x*z + I(x^2), data = DF_nonlin,
+                         n.iter = 2500)
+```
+
+```{r runJointAI_nonlin, eval = runimps, echo = FALSE}
+JointAI_nonlin <- lm_imp(y ~ x*z + I(x^2), data = DF_nonlin, n.iter = 2500,
+                         seed = 1234)
+save(JointAI_nonlin, file = file.path(projdir, "Slides/workspaces/JointAI_nonlin.RData"))
+``` 
+
+```{r getJointAI_nonlin, echo = FALSE, message = FALSE}
+load(file.path(projdir, "Slides/workspaces/JointAI_nonlin.RData"))
+```
+
+\pause
+
+Convergence of the Gibbs sampler can be checked using a `traceplot`.
+```{r JointAI_nonlin_trace, eval = FALSE}
+traceplot(JointAI_nonlin, ncol = 3)
+```
+
+\pause
+
+Results (no separate analysis \& pooling is necessary) can be obtained with
+the \Rfct{summary} function:
+
+```{r eval = FALSE}
+summary(JointAI_nonlin)
+```
+
+
+## Imputation with JointAI: Convergence
+```{r eval = TRUE, ref.label="JointAI_nonlin_trace", fig.width = 7, fig.height = 3.8, echo = FALSE}
+```
+
+
+## Imputation with JointAI: Model Summary
+\scriptsize
+```{r, echo = FALSE}
+res_JointAI_nonlin <- summary(JointAI_nonlin)
+sumJointAI <- capture.output(summary(JointAI_nonlin))
+
+cat(paste0(sumJointAI[1:20], collapse = "\n"),
+    "[...]")
+```
+
+## Imputation with JointAI: Model Summary
+\scriptsize
+```{r, echo = FALSE}
+cat("[...]","\n", 
+    paste0(sumJointAI[20:27], collapse = "\n")
+)
+```
+
+
+
+## Imputation with Non-linear Effects: Comparison
+
+```{r, echo = FALSE}
+reslist <- c(reslist,
+             list(JointAI = cbind(term = names(coef(JointAI_nonlin)), 
+                                   as.data.frame(res_JointAI_nonlin$stat[
+                                     names(coef(JointAI_nonlin)), c(1,3,4)])
+                   )))
+```
+
+```{r, echo = FALSE, fig.width = 7.5, fig.height = 4}
+plotfun(reslist, models = c("naive", "JAV", "JAV2", "pas", "qdr", "JointAI"))
+```
+\vspace*{-2ex}
+
+## Imputation with Non-linear Effects: Comparison
+
+\blue{Just Another Variable:}\vspace*{-1ex}
+
+ * Easy specification
+ * usually less bias than naive approach
+ * inconsistent imputed values
+ 
+\blue{passive imputation}\vspace*{-1ex}
+
+ * easy specification
+ * consistent imputed values
+ * less flexible than JAV
+
+\blue{polynomial combination}\vspace*{-1ex}
+
+* consistent imputed values
+* only available for quadratic association
+* often numeric instabilities (warning messages)
+
+
+## Imputation with Non-linear Effects: Comparison
+
+\blue{JointAI}\vspace*{-1ex}
+
+ * theoretically valid approach (= unbiased)
+ * similar specification to standard models
+ * simultaneous analysis & imputation instead of 3 steps
+
+\pause
+
+To use JointAI appropriately and to interpret the results correctly 
+requires more knowledge about the underlying method than can be 
+covered in this course.
+
+\pause   
+
+\blue{Note:}\
+The example used here only serves to demonstrate the different approaches.
+We cannot use these results to conclude which approach works better in general.
+
+
+## Your Turn!
+\begin{center}
+\begin{columns}
+\begin{column}{0.60\linewidth}
+\begin{block}{Practical}
+Imputation with non-linear associations \button{https://nerler.github.io/EP16_Multiple_Imputation/practical/minonlin/EP16_MInonlin.html}{html}
+\end{block}
+\end{column}
+\end{columns}
+\end{center}
+
+## References

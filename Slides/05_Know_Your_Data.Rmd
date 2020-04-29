@@ -1,0 +1,244 @@
+---
+title: "EP16: Missing Values in Clinical Research: Multiple Imputation"
+subtitle: "5. Know Your Data"
+author: "Nicole Erler"
+institute: "Department of Biostatistics, Erasmus Medical Center"
+date: ""
+email: "n.erler@erasmusmc.nl"
+output:
+  beamer_presentation:
+    keep_tex: false
+    template: mytemplate.latex
+    includes:
+      in_header: [SlideTemplate.tex, defs.tex]
+    incremental: false
+classoption: aspectratio=169
+---
+
+```{r setup, include = FALSE}
+projdir <- gsub("/Slides", "", getwd())
+
+
+knitr::knit_hooks$set(
+  nospace = function(before, options, envir) {
+    if (before) {
+      knitr::asis_output("\\vspace*{-1.5ex}")
+    # } else {
+    #   knitr::asis_output("\\vspace*{-1.22222ex}")
+    }
+  }
+)
+
+
+knitr::opts_chunk$set(echo = TRUE, nospace = TRUE, nospaceafter = TRUE,
+                      fig.align = 'center', out.width = "100%")
+
+options(width = 120)
+
+load(file.path(projdir, "Slides/data", "NHANES.RData"))
+NHANES <- subset(NHANES, select = -DBP)
+NHANES <- NHANES[, c(which(names(NHANES) != 'BMI')[1:7],
+                     which(names(NHANES) == 'BMI'),
+                     which(names(NHANES) != 'BMI')[-c(1:7)])]
+```
+
+
+
+## Missing Data Pattern
+To demonstrate the \blue{work flow} when performing \blue{multiple imputation}
+with the \textbf{mice} package, we use data from the
+\href{https://www.cdc.gov/nchs/nhanes/index.htm}{National Health and Nutrition
+Examination Survey (NHANES)}.
+
+
+\vfill
+
+There are several packages in \includegraphics[width = 1em]{TemplateGraphics/Rlogo.png}
+that provide functions to investigate
+\blue{the missing data pattern}.
+
+\bigskip
+
+Examples are:\newline
+\textbf{mice}, \textbf{JointAI}, \textbf{VIM}, \textbf{Amelia}, \textbf{visdat}, \textbf{naniar}, \ldots
+
+
+## Missing Data Pattern
+\scriptsize
+```{r}
+mdp <- mice::md.pattern(NHANES, plot = FALSE)
+head(mdp[, -c(7:14)]) # omit some columns to fit it on the slide
+tail(mdp[, -c(7:14)])
+```
+
+## Missing Data Pattern
+\scriptsize
+```{r JointAI_md_pattern, fig.width = 9, fig.height = 8, fig.show = 'hide'}
+JointAI::md_pattern(NHANES)
+```
+
+\begin{center}
+\vspace*{-1.8ex}
+\includegraphics[width=0.6\linewidth]{05_Know_Your_Data_files/figure-beamer/JointAI_md_pattern-1}
+\vspace*{-1.5ex}
+\end{center}
+
+## Missing Data Pattern
+\scriptsize
+```{r VIM_aggr, fig.width = 10, fig.height = 5, out.width = "95%"}
+VIM::aggr(NHANES, prop = TRUE)
+```
+
+
+## Missing Data Pattern
+We are also interested in the number and proportion of (in)complete cases ...
+\small
+```{r NCC_calc, size = 'small'}
+cctab <- table(complete.cases(NHANES))
+cbind(
+  "#" = setNames(cctab, c('incomplete', 'complete')),
+  "%" = round(100 * cctab/nrow(NHANES), 2)
+)
+```
+
+
+## Missing Data Pattern
+... and the proportion of missing values per variable:
+\small
+```{r nmis, eval = FALSE}
+cbind("# NA" = sort(colSums(is.na(NHANES))),
+      "% NA" = round(sort(colMeans(is.na(NHANES))) * 100, 2))
+```
+
+\begincols[t, onlytextwidth]
+\begincol{0.29\linewidth}
+\small
+```{r nmis_print, echo = FALSE}
+nmis <- cbind("# NA" = sort(colSums(is.na(NHANES))),
+              "% NA" = round(sort(colMeans(is.na(NHANES))) * 100, 2))
+nmis[1:ceiling(nrow(nmis)/3), ]
+```
+\endcol
+\begincol{0.3\linewidth}
+```{r nmis_print2, echo = FALSE}
+nmis[(1 + ceiling(nrow(nmis)/3)):ceiling(2 * nrow(nmis)/3), ]
+```
+\endcol
+\begincol{0.35\linewidth}
+```{r nmis_print3, echo = FALSE}
+nmis[(1 + ceiling(2 * nrow(nmis)/3)):nrow(nmis), ]
+```
+\endcol
+\endcols
+
+## Missing Data Pattern
+See also:
+
+\begincols[t, onlytextwidth]
+\begincol{0.48\linewidth}
+
+* `mice::md.pattern()`
+* `visdat::vis_miss()`
+* `visdat::vis_dat()`
+* \ldots
+
+\endcol
+\begincol{0.48\linewidth}
+
+* `naniar::prop_miss_case()`,\newline
+  `naniar::pct_miss_case()`
+* `naniar::prop_complete_case()`,\newline`naniar::pct_complete_case()`
+* `naniar::miss_var_summary()`
+* `mice::md.pairs()`
+* \ldots
+
+\endcol
+\endcols
+
+## Data Distribution
+\small
+```{r eval = FALSE}
+JointAI::plot_all(NHANES[, -1])  # exclude 1st column to fit on slide
+```
+
+\vspace*{-2.5ex}
+```{r NHANESplotall, fig.width = 9, fig.height = 4.4, out.width = "100%", echo = FALSE}
+par(mgp = c(2, 0.6, 0), mar = c(2, 3, 2.5, 0.5))
+JointAI::plot_all(NHANES[, -1], breaks = 30, ncol = 5)
+```
+\vspace*{-1.5ex}
+
+
+```{r, echo = FALSE}
+options(width = 70)
+```
+
+
+## Correlations & Patterns
+
+A quick (and dirty) way to check for strong correlations between variables is:
+\small
+```{r corr}
+# re-code all variables as numeric and calculate spearman correlation
+Corr <- cor(sapply(NHANES, as.numeric),
+           use = "pairwise.complete.obs", method = "spearman")
+```
+
+```{r, echo = FALSE}
+options(width = 120)
+```
+
+```{r corrplot syntax, eval = FALSE}
+corrplot::corrplot(Corr, method = "square", type = "upper",
+                   tl.col = "black")
+```
+\normalsize
+\blue{Note:} \parbox[t]{0.9\linewidth}{
+We only use the correlation coefficient for categorical variables for\\
+visualization, not as a statistical result!
+}
+
+## Correlations & Patterns
+```{r corrplotplot, echo = FALSE, out.width = "78%", crop = TRUE}
+# corrplot::corrplot.mixed(Corr, upper = 'square', lower = 'number',
+#                          lower.col = 'black', tl.cex = 0.6,
+#                          number.cex = 0.5, bg = 'transparent')
+corrplot::corrplot(Corr, method = "square", type = "upper", tl.col = "black")
+```
+\vspace*{-2ex}
+
+## Correlations & Patterns
+Check out what the problem is with \Rstring{hypertension} and \Rstring{HyperMed}:
+\small
+```{r tab_hyper}
+table(hypertension = NHANES$hypten,
+      HyperMed = NHANES$HyperMed, exclude = NULL)
+```
+
+
+## Why are values missing?
+Knowing your data also means being able to answer these questions:
+\begin{itemize}
+\item Do missing values in multiple variables always \blue{occur together}?\\
+      (e.g. blood measurements)
+\item Are there \blue{structural missing values}? (e.g. pregnancy status in men)
+\item Are there \blue{patterns} in the missing values?\\
+      (e.g. only patients with hypertension have observations of \Rstring{HyperMed})
+\item Are values \blue{missing by design}?
+\item Is the \blue{assumption of ignorable missingness} (MAR or MCAR) justifiable?
+\end{itemize}
+
+
+## Auxiliary Variables
+\blue{Auxiliary variables} are variables that are not part of the analysis but
+\blue{can help during imputation}.
+
+\bigskip
+
+Good auxiliary variables
+\begin{itemize}
+\item are \blue{related to the probability of missingness} in a variable, or
+\item are \blue{related to the incomplete variable} itself,
+\item do \blue{not have many missing values} themselves and
+\item are (mostly) \blue{observed} when the incomplete variable of interest is missing.
+\end{itemize}

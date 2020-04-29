@@ -1,0 +1,429 @@
+---
+title: "EP16: Missing Values in Clinical Research: Multiple Imputation"
+subtitle: "14. Strategies for using MICE"
+author: "Nicole Erler"
+institute: "Department of Biostatistics, Erasmus Medical Center"
+date: ""
+email: "n.erler@erasmusmc.nl"
+output:
+  beamer_presentation:
+    keep_tex: false
+    template: mytemplate.latex
+    includes:
+      in_header: [SlideTemplate.tex, defs.tex]
+    incremental: false
+classoption: [aspectratio=169]
+bibliography: references.bib
+---
+
+```{r setup, include = FALSE}
+projdir <- gsub("/Slides", "", getwd())
+
+library(kableExtra)
+
+knitr::knit_hooks$set(
+  nospace = function(before, options, envir) {
+    if (before) {
+      knitr::asis_output("\\vspace*{-1.5ex}")
+    }
+  }
+)
+
+
+knitr::opts_chunk$set(echo = TRUE, nospace = TRUE, nospaceafter = TRUE,
+                      fig.align = 'center', out.width = "100%")
+```
+
+
+
+In \blue{early publications} on multiple imputation:
+
+* 3 -- 5 imputations are sufficient
+* still is a common assumption in practice [@Rubin2004]
+
+\bigskip
+
+Reasoning behind using a small number of imputations:
+
+* \blue{storage of imputed data was ``expensive''} (no longer the case)
+* larger number of imputations would only have little advantage [@Schafer1997]
+
+
+## Number of Imputations
+More \blue{recent work} from various authors considers
+
+* the efficiency of the pooled estimates
+* reproducibility of the results,
+* statistical power of tests or 
+* the width of the resulting confidence intervals compared to the width of the true confidence intervals
+
+[@White2011; @Buuren2012; @Graham2007]
+
+## Number of Imputations
+A \blue{suggested rule of thumb} [@White2011]:
+
+\blue{number of imputed datasets} should be similar to the 
+\blue{percentage of incomplete cases}
+
+
+Since this percentage depends on the size of the dataset, the 
+\blue{average percentage of missing values} per
+variable could be used as an alternative. [@Buuren2012]
+
+\bigskip
+
+Generally:
+
+* using \blue{more imputed datasets should be preferred},
+* especially in settings where the computational burden allows for it.
+
+Even though results are unlikely to change with a larger number of imputations,
+it can increase the efficiency and reproducibility of the results.
+
+
+## What to do with large datasets?
+In imputation, generally the \blue{advice is to include as much information as possible}
+in the imputation models.
+
+\bigskip
+
+Using a large number of predictor variables
+\begin{itemize}
+\item makes the \blue{MAR assumption more plausible} (and, hence, reduces bias due to MNAR missingness)
+\item can \blue{reduce uncertainty} about the missing values
+\end{itemize}
+
+\bigskip
+\pause
+
+This can \blue{work well in small or medium sized datasets}
+(20 -- 30 separate variables, i.e. without interactions, variables derived
+from others, \ldots)
+
+\bigskip
+
+However, \blue{in large datasets} (contain hundreds or thousands of
+variables) this is \blue{not feasible}. [@Buuren2012]
+
+
+
+
+## What to do with large datasets?
+For large datasets a possible strategy is to
+
+* Include all \blue{variables used in the analysis model(s)}\
+      (including the outcome!)
+* Include auxiliary variables if
+    * if they are \blue{strong predictors of missingness}, or
+    * if they have \blue{strong associations with the incomplete variables}
+    * \blue{only if they do not have too many missing values} themselves
+      (and are observed for most of the incomplete cases of the variable of interest)
+    * only in those imputation models for which they are \blue{relevant}
+* Calculate \blue{summary scores} from multiple items referring to the same concept
+  and use the summary score as predictor variable.
+      
+
+## How much missing is too much?
+There is \blue{no clear cut-off} for the proportion of missing values that can
+be handled adequately using MICE (or any other imputation method).
+
+\bigskip
+
+The amount of missingness that can be handled \blue{depends on the information that
+is available} to impute it.
+
+\begin{itemize}
+\item Are there \blue{strong predictor variabels} available \& observed?
+\item Are there \blue{sufficient observed cases} to get reliable estimates for the
+      predictive distribution?
+\end{itemize}
+
+\vfill
+
+\pause
+\textbf{Example:}
+\begin{itemize}
+\item In a set of $N = 50$ cases, 50\% missing values leaves 25 cases to
+      estimate the parameters of the predictive distribution.
+\item In a large set of $N = 5000$ subjects, 50\% missing cases leaves 2500
+      observed cases to estimate parameters.
+\end{itemize}
+
+
+
+
+## Imputation of Outcomes
+Usually, \blue{missing outcome values are not imputed}.
+
+\bigskip
+
+\textbf{Why?}\
+When there are no auxiliary variables, imputation and analysis model are equal.
+\begin{itemize}
+\item Parameters of the imputation model are estimated on observed cases of the outcome.
+\item Imputed values will fit the assumed model perfectly.
+\item Including imputed cases in the analysis does not add any information.
+\end{itemize}
+
+## Imputation of Outcomes
+\textbf{Exception:}
+\begin{itemize}
+\item When very strong auxiliary variables are available.
+\item Outcomes may be imputed when one imputation is performed for
+      several analysis models, because not imputing the outcome(s) would mean
+      \begin{itemize}
+      \item excluding cases with missing outcome(s) from the imputation, or
+      \item excluding the outcome variable(s) as predictor(s).
+      \end{itemize}
+\end{itemize}
+
+
+
+## Notes of caution \& things to keep in mind
+Multiple imputation is \blue{not a quick and easy solution for missing data}.
+
+
+It requires \blue{care and knowledge} about
+\begin{itemize}
+\item the \blue{data} to be imputed (and the context of the data),
+\item the statistical \blue{method} used for imputation, and
+\item the \blue{software} implementation used.
+\end{itemize}
+
+\vfill
+
+Moreover
+\begin{itemize}
+\item \blue{Never accept default settings of software blindly.}
+\item \blue{Question the plausibility of the MAR assumption.} If it is doubtful,
+      use sensitivity analysis.
+\end{itemize}
+
+
+## Notes of caution \& things to keep in mind
+\begin{itemize}
+\item \blue{Use as much information as possible}
+      \begin{itemize}
+      \item include all covariates \textcolor{red}{and the outcome}
+      \item use auxiliary information
+      \item use the most detailed version of variables if possible
+      \end{itemize}
+\item \blue{Avoid feedback} from derived variables to their originals.
+\item \blue{Imputation models must fit the data}\\
+      (correct assumption of error distribution and functional forms and
+      possible interactions of predictor variables).
+\item Think carefully how to handle variables that are derived from other variables.
+\item Consider the impact the \blue{visit sequence} may have.
+\item Choose an appropriate \blue{number of imputations}.
+\item Make sure the imputation algorithm has \blue{converged}.
+\item Use \blue{common sense} when evaluating if the imputed values are plausible.
+\end{itemize}
+
+
+
+## Tips & Tricks
+In complex settings, variables may need to be \blue{re-calculated} or
+\blue{re-coded} after imputation:
+
+* Use `complete`{.R} to convert the imputed data from a \Robj{mids} object
+      to a \Robj{data.frame}.
+* Perform the necessary calculations.
+* Convert the changed \Robj{data.frame} back to a \Robj{mids} object
+      using the functions such as `as.mids()`{.R}, `miceadds::datalist2mids()`{.R},
+      `mitools::imputationList()`{.R}, \ldots
+
+
+
+
+\vfill
+\pause
+
+Not just in imputation: Set a \blue{seed value} to create reproducible results.
+
+
+* in \includegraphics[width = 1em]{TemplateGraphics/Rlogo.png}: `set.seed()`{.R}
+* in `mice()`{.R}: argument \Rarg{seed}
+
+
+
+## Imputation Methods
+We have focussed on a few imputation methods that cover the most common
+types of data, but there are many more methods implemented.
+
+\bigskip
+
+Imputation methods implemented in the \textbf{mice} package:\vspace*{-1ex}
+\footnotesize
+```{r getmicemeths, echo = FALSE, warning = FALSE, results = 'asis'}
+used <- paste0("mice.impute.",
+               c("norm", "pmm", "midastouch", "logreg", "polyreg", "polr",
+                 "2lonly.norm", "2lonly.pmm", "quadratic")
+)
+
+mentioned <- paste0("mice.impute.",
+                    c("2l.lmer", "2l.bin", "2l.norm", "2l.pan", "2lonly.mean", "passive",
+                      "logreg.boot", "norm.boot", "norm.predict")
+)
+
+
+micemeth <- sort(grep("mice.impute", getNamespaceExports("mice"), value = TRUE)) %>%
+  cell_spec("latex", color = ifelse(. %in% used, "blue",
+                                    ifelse(. %in% mentioned, "green!40!black", "black")))
+
+
+methtab1 <- matrix(data = c(micemeth, rep(NA, 3 - length(micemeth) %% 3)),
+                   ncol = 3)
+
+methtab1 %>%
+  kable(format = "latex", booktabs = TRUE, linesep = "", escape = F) %>%
+  kable_styling(position = "center")
+```
+\normalsize
+
+\blue{Note: }\parbox[t]{0.75\linewidth}{That a method is implemented does
+not mean you need to / should use it.}
+
+
+## Imputation methods
+Imputation methods implemented in the \textbf{miceadds} package:
+\footnotesize
+```{r getmiceaddsmeths, echo = FALSE, warning = FALSE}
+miceaddsmeth <- sort(grep("mice.impute", getNamespaceExports("miceadds"), value = TRUE))
+methtab2 <- matrix(data = c(miceaddsmeth, rep(NA, length(miceaddsmeth) %% 2)),
+                   ncol = 2)
+
+methtab2 %>%
+  kable(format = "latex", booktabs = TRUE, linesep = "", escape = T) %>%
+  kable_styling(position = "center")
+```
+
+
+
+## Imputation methods
+Imputation methods implemented in the \textbf{micemd} package:
+```{r getmicemdmeths, echo = FALSE, warning = FALSE}
+micemdmeth <- sort(grep("mice.impute", getNamespaceExports("micemd"), value = TRUE))
+methtab2 <- matrix(data = c(micemdmeth, rep(NA, length(micemdmeth) %% 2)),
+                   ncol = 2)
+
+
+methtab2 %>%
+  kable(format = "latex", booktabs = TRUE, linesep = "", escape = F) %>%
+  kable_styling(position = "center")
+```
+
+
+
+## Other R Packages for Imputation
+```{r getallpkgs, echo = FALSE}
+ getPackagesWithTitle <- function() {
+   chooseCRANmirror(graphics = FALSE, ind = 1)
+     contrib.url(getOption("repos")["CRAN"], "source")
+     description <- sprintf("%s/web/packages/packages.rds",
+                            getOption("repos")["CRAN"])
+     con <- if (substring(description, 1L, 7L) == "file://") {
+         file(description, "rb")
+     } else {
+         url(description, "rb")
+     }
+     on.exit(close(con))
+     db <- readRDS(gzcon(con))
+     rownames(db) <- NULL
+
+     db[, c("Package", "Title", "Description")]
+ }
+
+allpkgs <- as.data.frame(getPackagesWithTitle(), stringsAsFactors = FALSE)
+
+words <- c("impute", "imputation", "missing", "incomplete")
+res <- sapply(words, function(x) {
+  apply(allpkgs, 2, grep, pattern = x, ignore.case = TRUE)
+}, simplify = FALSE)
+
+# allpkgs[res$incomplete$Title, ]
+#
+res2 <- lapply(lapply(res, unlist), unique)
+
+```
+
+
+
+In Part III of this course we have seen some
+\textsf{R} packages that perform imputation or provide functionality for
+missing data other than \textbf{mice}.
+
+\bigskip
+
+Currently, there are \blue{`r length(res2$missing)` packages} available on CRAN that
+use the word \blue{``missing''} in either the title or description of the package,
+\blue{`r length(unique(c(res2$impute, res2$imputation)))`} that
+use either \blue{``impute'' or ``imputation''} and
+\blue{`r length(res2$incomplete)`} that use the word \blue{``incomplete''}.
+
+\bigskip
+
+Not all of these packages perform imputation or are useful for our purposes,
+but even if we excluded those packages, the number of useful packages for
+dealing with missing data would still be to large to mention them all.
+
+\bigskip
+
+\blue{\ding{225} The mice package is often a good option, but certainly not the
+only option to perform imputation!}
+
+
+
+
+## Other R Packages for Imputation
+\blue{CRAN Task View on Missing Data:}
+
+\href{https://cran.r-project.org/web/views/MissingData.html}{https://cran.r-project.org/web/views/MissingData.html}
+
+\begin{itemize}
+\item gives an overview on the available \includegraphics[width = 1em]{TemplateGraphics/Rlogo.png}
+      packages for missing data / imputation
+\item good point to start when searching for a package with a particular functionality
+\end{itemize}
+
+
+
+## Imputation in other Software
+In this second half of the course, we have focused on (multiple) imputation
+using \includegraphics[width = 1em]{TemplateGraphics/Rlogo.png}.
+
+\bigskip
+
+Naturally, \includegraphics[width = 1em]{TemplateGraphics/Rlogo.png}
+is not the only statistical software that can perform
+multiple imputation.
+\begin{itemize}
+\item \blue{Stata, SAS and MPLUS} provide packages/functions to perform multiple
+      imputation and pool the results.
+\item There are macros and additional packages available, e.g.,
+      \blue{smcfcs} is implemented for \blue{Stata} as well
+\item \blue{SPSS} provides some functionality to perform MI
+\end{itemize}
+
+
+## Other Approaches to Handle Missing Values
+Finally, we should not forget that
+\blue{MICE is not the only method to handle missing values}.
+
+\bigskip
+
+Besides MICE, \blue{multiple imputation} can be performed in a
+\blue{joint model approach} (as for instance implemented in the \textsf{R}
+package \textbf{jomo}).
+
+\bigskip
+
+Furthermore,
+\begin{itemize}
+\item \blue{direct likelihood methods},
+\item \blue{fully Bayesian methods} (as implemented in \textbf{JointAI}), or
+\item \blue{weighted estimating equations}
+\end{itemize}
+are valid alternative approaches when data are incomplete.
+
+
+## References

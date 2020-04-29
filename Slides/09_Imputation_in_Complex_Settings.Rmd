@@ -1,0 +1,381 @@
+---
+title: "EP16: Missing Values in Clinical Research: Multiple Imputation"
+subtitle: "9. Imputation in Complex Settings"
+author: "Nicole Erler"
+institute: "Department of Biostatistics, Erasmus Medical Center"
+date: ""
+email: "n.erler@erasmusmc.nl"
+output:
+  beamer_presentation:
+    keep_tex: false
+    template: mytemplate.latex
+    includes:
+      in_header: [SlideTemplate.tex, defs.tex]
+    incremental: false
+classoption: [aspectratio=169]
+bibliography: references.bib
+csl: taylor-and-francis-apa.csl
+---
+
+```{r setup, include = FALSE}
+projdir <- gsub("/Slides", "", getwd())
+
+library(knitr)
+library(kableExtra)
+library(plyr)
+
+source(file.path(projdir, 'Slides/Rfcts/Section09_plots.R'))
+```
+
+## Quadratic Effect
+Consider the case where the \blue{analysis model} (which we assume to be true)
+is
+$$y = \beta_0 + \beta_1 x + {\color{EMCdark}\mathbf{\boldsymbol{\beta_2 x^2}}} + \ldots,$$
+i.e., $y$ has a \blue{quadratic relationship} with $x$, and $x$ is incomplete.
+
+\begin{columns}[onlytextwidth]
+\begin{column}{0.6\linewidth}
+\begin{center}
+\includegraphics[width = \linewidth]{graphics/Section09/p_qdr1.pdf}
+\end{center}
+\end{column}
+\begin{column}{0.4\linewidth}
+The original data show a curved pattern.
+\end{column}
+\end{columns}
+
+## Quadratic Effect
+The model used to \blue{impute $x$} when using MICE (naively) is
+$$x = \theta_{10} + \theta_{11} y + \ldots,$$
+i.e., a \blue{linear relation} between $x$ and $y$ is assumed.
+\begin{columns}[onlytextwidth]
+\begin{column}{0.6\linewidth}
+\begin{center}
+\includegraphics[width = \linewidth]{graphics/Section09/p_qdr2.pdf}
+\end{center}
+\end{column}
+\begin{column}{0.4\linewidth}
+The imputed values \blue{distort the curved pattern} of the original data.
+\end{column}
+\end{columns}
+
+
+## Quadratic Effect
+The model fitted on the imputed data gives \blue{severely biased results}; the
+non-linear shape of the curve has almost completely disappeared.
+
+\begin{center}
+\includegraphics[width = 0.6\linewidth]{graphics/Section09/p_qdr3.pdf}
+\end{center}
+
+
+
+
+## Interaction effect
+Another example: consider the analysis model (again, assumed to be true)
+$$y = \beta_0 + \beta_x x + \beta_z z + {\color{EMCdark}\boldsymbol{\mathbf{\beta_{xz} xz}}} + \ldots,$$
+i.e., $y$ has a \blue{non-linear relationship} with $x$ due to the
+\blue{interaction term}.
+
+
+\begin{columns}[onlytextwidth]
+\begin{column}{0.6\linewidth}
+\begin{center}
+\includegraphics[width = \linewidth]{graphics/Section09/p_int1.pdf}
+\end{center}
+\end{column}
+\begin{column}{0.4\linewidth}
+The original data shows a ``$<$'' shaped pattern.
+\end{column}
+\end{columns}
+
+
+## Interaction effect
+The model used to impute $x$ when using MICE (naively) is
+$$x = \theta_{10} + \theta_{11} y + \theta_{12} z + \ldots,$$
+i.e., a linear relation between $x$ and $y$ is assumed.
+\begin{columns}[onlytextwidth]
+\begin{column}{0.6\linewidth}
+\begin{center}
+\includegraphics[width = \linewidth]{graphics/Section09/p_int2.pdf}
+\end{center}
+\end{column}
+\begin{column}{0.4\linewidth}
+The ``$<$'' shaped pattern of the true data is \blue{distorted by the imputed values}.
+\end{column}
+\end{columns}
+
+
+## Interaction effect
+And the analysis on these naively imputed values leads to \blue{severely biased estimates}.
+
+\vfill
+
+\begin{center}
+\includegraphics[width = 0.65\linewidth]{graphics/Section09/p_int3.pdf}
+\end{center}
+
+
+
+
+## Longitudinal outcome
+\begin{columns}[onlytextwidth]
+\begin{column}{0.54\linewidth}
+\includegraphics[width = \linewidth]{graphics/Section09/plong1_1.pdf}
+\end{column}
+\begin{column}{0.45\linewidth}
+\scriptsize
+```{r ex_datatable, echo = FALSE, size = 'scriptsize', warning = F}
+lsp <- rep("", nrow(longDF1_tab))
+lsp[cumsum(table(longDF1$id[longDF1$id %in% longDF1$id]))] <- "\\hdashline"
+
+longdatatab <- longDF1_tab %>%
+  mutate(time = cell_spec(time, 'latex', escape = FALSE,
+                          color = c("#000000", colvec)[as.numeric(factor(id))]),
+         
+         id = cell_spec(id, 'latex', escape = FALSE,
+                        color = c("#000000", colvec)[as.numeric(factor(id))])
+  ) %>%
+  kable(format = 'latex', escape = FALSE, booktabs = TRUE,
+        linesep = lsp,
+        align = 'c',
+        col.names = c("ID", "y", "$x_1$", "$x_2$", "$x_3$", "$x_4$", "time"),
+        row.names = F)
+ 
+longdatatab <- gsub("\\\\\n\\bottomrule", "", longdatatab, fixed = T)
+longdatatab
+```
+\end{column}
+\end{columns}
+Here, $x_1, \ldots, x_4$ are baseline covariates, i.e., not measured repeatedly
+(e.g. age at baseline, gender, education level, \ldots
+
+
+```{r fake_imp, echo = F}
+
+```
+
+
+
+## Longitudinal outcome
+```{r, results='asis', echo = FALSE}
+cat(paste0("\\definecolor{colvec", seq_along(colvec), "}{HTML}{", gsub("#", '', colvec), "}"))
+```
+
+\begin{columns}[onlytextwidth]
+\begin{column}{0.5\linewidth}
+If we use MICE in the data in this (long) format,
+each row would be regarded as independent,
+which may cause bias and \blue{inconsistent imputations}.
+
+\bigskip
+
+Imputed values of baseline covariates are imputed with different values,
+creating data that could not have been observed.
+\end{column}
+\begin{column}{0.45\linewidth}
+\scriptsize
+```{r imptablong, echo = FALSE}
+colvec30 <- paste0("colvec", seq_along(colvec), "!30")
+
+ltDFexlong2 <- longDF1_tab2 %>%
+  mutate(time = cell_spec(time, 'latex', escape = FALSE,
+                          color = c("#000000", colvec)[as.numeric(factor(id))]),
+         x2 = cell_spec(x2, "latex", escape = FALSE,
+                        background = ifelse(x2 %in% c("\\checkmark", "\\vdots"),
+                                            '#FFFFFF',
+                                            colvec30[as.numeric(factor(id)) - 1])),
+         x3 = cell_spec(x3, "latex", escape = FALSE,
+                        background = ifelse(x3 %in% c("\\checkmark", "\\vdots"),
+                                            '#FFFFFF',
+                                            colvec30[as.numeric(factor(id)) - 1])),
+         x4 = cell_spec(x4, "latex", escape = FALSE,
+                        background = ifelse(x4 %in% c("\\checkmark", "\\vdots"),
+                                            '#FFFFFF',
+                                            colvec30[as.numeric(factor(id)) - 1]))
+  ) %>%
+  mutate(id = cell_spec(id, 'latex', escape = FALSE,
+                        color = c("#000000", colvec)[as.numeric(factor(id))])) %>%
+  kable(format = 'latex', escape = FALSE, booktabs = T, linesep = lsp, align = 'c',
+        col.names = c("ID", "y", "$x_1$", "$x_2$", "$x_3$", "$x_4$", "time"),
+        row.names = FALSE, digits = 2)
+
+gsub("\\\\\n\\bottomrule", "", ltDFexlong2, fixe = T)
+```
+\end{column}
+\end{columns}
+
+
+
+## Longitudinal outcome
+\begin{columns}[onlytextwidth]
+\begin{column}{0.7\linewidth}
+\includegraphics[width = \linewidth]{graphics/Section09/gglongex1.pdf}
+\end{column}
+\begin{column}{0.25\linewidth}
+Estimates can be severely biased.
+\end{column}
+\end{columns}
+\vspace*{-2ex}
+
+
+
+
+## Longitudinal outcome
+In some settings \blue{imputation in wide format} may be possible.
+
+\bigskip
+
+\begin{columns}[onlytextwidth]
+\begin{column}{0.54\linewidth}
+\only<1>{
+\includegraphics[width = \linewidth]{graphics/Section09/plong1_1.pdf}
+}
+\only<2>{
+\includegraphics[width = \linewidth]{graphics/Section09/plong1_1b.pdf}
+}
+\end{column}
+\begin{column}{0.45\linewidth}
+\scriptsize
+```{r impwidedat, echo = FALSE, size = 'scriptsize', warning = F}
+longdatatab
+```
+\end{column}
+\end{columns}
+
+
+
+## Longitudinal outcome
+\footnotesize
+```{r impwidedat2, size = 'scriptsize', echo = F}
+subset(wideDF1, subset = id < 5, select = c('id', grep('\\.', names(wideDF1), value = T))) %>%
+  round(2) %>%
+  rbind(., rep("\\vdots", 11)) %>%
+  cbind(., '\\ldots' = c(rep("\\ldots", 4), "$\\ddots$")) %>%
+  kable(format = 'latex', row.names = FALSE, booktabs = T, escape = F, digits = 1)
+```
+\normalsize
+
+\bigskip
+
+In this \blue{wide format data} frame, missing values in the outcome and measurement times
+need to be imputed (to be able to use them as predictors to impute covariates),
+even though we would not need to impute them for the analysis
+(mixed model is valid when outcome measurements are M(C)AR).
+
+
+
+## Longitudinal outcome
+\begin{columns}
+\begin{column}{0.7\linewidth}
+\includegraphics[width = \linewidth]{graphics/Section09/gg_wideex1.pdf}
+\end{column}
+\begin{column}{0.3\linewidth}
+Better, but large confidence intervals.
+\end{column}
+\end{columns}
+
+\vspace*{-2ex}
+
+
+## Longitudinal outcome
+\begin{columns}
+\begin{column}{0.7\linewidth}
+\includegraphics[width = \linewidth]{graphics/Section09/plong2_1}
+\end{column}
+\begin{column}{0.3\linewidth}
+When the data is very \blue{unbalanced}, transformation to wide format is not possible.
+
+\bigskip
+
+(Or at least transformation to wide format leads to variables with high proportions
+of missing values.)
+\end{column}
+\end{columns}
+
+
+
+
+
+## Longitudinal outcome
+\begin{columns}
+\begin{column}{0.5\linewidth}
+\includegraphics[width = \linewidth]{graphics/Section09/plong2_2}
+\onslide<2->{
+\includegraphics[width = \linewidth]{graphics/Section09/plong2_3}
+}\vspace*{-1ex}
+\end{column}
+\begin{column}{0.4\linewidth}
+Naive approaches that are sometimes used are to
+\begin{itemize}
+\item \blue{ignore the outcome} in the imputation\onslide<2->{, or to}
+\item<2-> use only the \blue{first/baseline outcome}
+\end{itemize}
+
+\bigskip
+
+\onslide<3>{However, \blue{important information may be lost},
+resulting in invalid imputations and biased results.}
+
+\end{column}
+\end{columns}
+
+
+
+
+## Survival Data
+In \blue{survival analysis}, the aim is to estimate the effect of covariates on
+the \blue{time until an event} of interest happens.
+
+\bigskip
+
+\pause
+Commonly used method: \blue{Cox proportional hazards model}
+
+$$h(t) = h_0(t) \exp(x \beta_x + z\beta_z),$$
+
+\begin{itemize}
+\item $h(t)$: hazard = the instantaneous risk of an event at time $t$,
+      given that the event has not occurred until time $t$
+\item $h_0(t)$: unspecified baseline hazard
+\item \blue{$x$} and \blue{$z$}: \blue{incomplete} and \blue{complete}
+covariates, respectively
+\end{itemize}
+
+\bigskip
+
+\pause
+\blue{Survival outcomes} are usually represented by the \blue{observed event
+time $T$} and the \blue{event indicator $D$} ($D = 1$: event, $D = 0$: censored).
+
+
+## Survival Data
+\blue{Naive use of MICE}
+\begin{itemize}
+\item $T$ and $D$ are treated just like any other variable.
+\item The resulting imputation model for $X$ would have the form
+$$p(x \mid T, D, \mathbf z) = \theta_0 + \theta_1 T + \theta_2 D + \theta_3 z + \ldots.$$
+\end{itemize}
+
+\bigskip
+
+\pause
+The \blue{correct conditional distribution} of $x$ given the other variables is, however,
+$$\log p(x\mid T, D, z) = \log p(x\mid z) + D(\beta_x x + \beta_z z) - 
+H_0(T)\exp(\beta_x x+\beta_z z) + const.,$$
+where $H_0(T)$ is the cumulative baseline hazard. [@White2009]
+
+
+
+## Survival Data
+Using the naively assumed imputation model can lead to \blue{severe bias}:
+
+\begin{center}
+\includegraphics[width = 0.8\linewidth]{graphics/Section09/p_cox.pdf}
+\end{center}
+
+(Results from MICE imputation with two incomplete normal and one incomplete binary covariate.)
+
+
+## References
+

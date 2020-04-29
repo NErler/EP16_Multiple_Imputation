@@ -1,0 +1,267 @@
+---
+title: "EP16: Missing Values in Clinical Research: Multiple Imputation"
+subtitle: "8. Analysis of Imputed Data, Pooling & More"
+author: "Nicole Erler"
+institute: "Department of Biostatistics, Erasmus Medical Center"
+date: ""
+email: "n.erler@erasmusmc.nl"
+output:
+  beamer_presentation:
+    keep_tex: false
+    template: mytemplate.latex
+    includes:
+      in_header: [SlideTemplate.tex, defs.tex]
+    incremental: false
+classoption: [aspectratio=169]
+bibliography: references.bib
+---
+
+```{r setup, include = FALSE}
+projdir <- gsub("/Slides", "", getwd())
+
+runimps <- FALSE
+  
+knitr::knit_hooks$set(
+  nospace = function(before, options, envir) {
+    if (before) {
+      knitr::asis_output("\\vspace*{-1.5ex}")
+    }
+  }
+)
+
+
+knitr::opts_chunk$set(echo = TRUE, nospace = TRUE, nospaceafter = TRUE,
+                      fig.align = 'center', out.width = "100%")
+
+options(width = 120)
+
+suppressPackageStartupMessages(library(mice))
+
+load(file.path(projdir, "Slides/data", "NHANES.RData"))
+NHANES <- subset(NHANES, select = -DBP)
+NHANES <- NHANES[, c(which(names(NHANES) != 'BMI')[1:7],
+                     which(names(NHANES) == 'BMI'),
+                     which(names(NHANES) != 'BMI')[-c(1:7)])]
+
+source('07_Convergencve_and_Diagnostics.R')
+
+load(file.path(projdir, "Slides/workspaces/imp3.RData"))
+load(file.path(projdir, "Slides/workspaces/imp4.RData"))
+```
+
+
+
+## Analysing imputed data
+Once we have confirmed that our imputation was successful, we can move on
+to the \blue{analysis of the imputed data}.\bigskip
+
+For example, we might be interested in the following logistic regression model:
+\small
+```{r fitglm, eval = FALSE}
+glm(DM ~ age + gender + hypchol + BMI + smoke + alc,
+    family = "binomial")
+```
+\normalsize
+\pause
+
+To fit the model on each of the imputed datasets, we do not need to extract
+the data from the \Robj{mids} object, but can use \Rfct{with}.
+\small
+```{r glm}
+mod1 <- with(imp4, glm(DM ~ age + gender + hypchol + BMI + smoke + alc,
+                       family = "binomial"))
+```
+
+\Robj{mod1} is an object of class \Robj{mira}.
+
+
+## Pooling the Results
+Pooled results can be obtained using \Rfct{pool} and its summary.
+
+```{r pooled}
+res1 <- summary(pool(mod1), conf.int = TRUE)
+# round(res1, 3)
+```
+
+
+
+## Pooling the Results
+
+\blue{Pooling} with \Rfct{mice::pool} is available for most types of models.\bigskip
+
+It extracts the model coefficients and variance-covariance matrices using \Rfct{tidy}
+from the package \textbf{broom}.
+Hence, pooling using the \Rfct{pool} function from \textbf{mice} only works for
+models of classes for which a method \Rfct{tidy} exists.
+
+\bigskip
+
+An alternative is offered by the package \textbf{mitools} and the function
+\Rfct{MIcombine}.
+
+
+
+## Functions for Pooled Results
+\textbf{mice} currently has two functions available for evaluating model
+fit / model comparison
+
+\bigskip
+For \blue{linear} regression models the pooled $R^2$ can be calculated
+using \Rfct{pool.r.squared}.
+\small
+```{r poolrsquared, size = 'small'}
+mod2 <- with(imp4, lm(SBP ~ DM + age + hypten))
+pool.r.squared(mod2, adjusted = TRUE)
+```
+\normalsize
+
+The argument \Rarg{adjusted} specifies whether the adjusted $R^2$ or the
+standard $R^2$ is returned.
+
+
+## Functions for Pooled Results
+The function \Rfct{pool.compare} allows comparison of \blue{nested models}
+(i.e., models where one is a special case of the other, with some parameters
+fixed to zero) using a \blue{Wald test}.
+
+\bigskip
+
+\textbf{Example:}
+To test if \Rstring{smoke} has a relevant contribution to the model for
+\Rstring{DM} from above we re-fit the model without \Rstring{smoke} and
+compare the two models:
+\small
+```{r poolcompare, size = 'small'}
+mod3 <- with(imp4, glm(DM ~ age + gender + hypchol + BMI + alc,
+                       family = "binomial"))
+# Wald test
+pool.compare(mod1, mod3)$pvalue
+```
+\normalsize
+\Rfct{anova} allows comparison of multiple nested models
+
+
+
+## Functions for Pooled Results
+The package \textbf{miceadds} extends \textbf{mice}, for example with the
+following functionality:
+
+\bigskip
+
+\blue{Combine $\chi^2$ or F statistics from multiply imputed data:}
+```{r miceaddsfcts, eval = FALSE, size = 'small'}
+miceadds::micombine.chisquare(dk, df, ...)
+miceadds::micombine.F(values, df1, ...)
+```
+
+These functions take vectors of statistics computed on each imputed dataset
+and pool them.
+
+\bigskip
+
+\pause
+\blue{Calculate correlation or covariance of imputed data:}
+```{r miceaddsfcts2, eval = FALSE, size = 'small'}
+miceadds::micombine.cor(mi.res, ...)
+miceadds::micombine.cov(mi.res, ...)
+```
+These functions take \Robj{mids} objects as input.
+
+## Extract Imputed Data
+The function \Rfct{complete} allows \blue{extraction of the imputed data} from a \Robj{mids} object:
+```{r completedata, eval = FALSE}
+mice::complete(data, action = 1, include = FALSE, ...)
+```
+
+\begin{itemize}
+\item \Robj{data}: the \Robj{mids} object
+\item \Rarg{action}:
+      \begin{itemize}
+      \item \Rval{1}, \ldots, \Rval{m} (single imputed dataset)
+      \item \Rstring{"long"}: long format (imputed data stacked vertically)
+      \item \Rstring{"broad"}: \parbox[t]{0.65\linewidth}{
+                                  wide format (imputed data combined horizontally;
+                                  ordered by imputation)}
+      \item \Rstring{"repeated"}: (like \Rstring{"broad"}, but ordered by variable)
+      \end{itemize}
+\item \Rarg{include}: include the original data?\\
+      (if \Rarg{action} is \Rstring{"long"}, \Rstring{"broad"} or \Rstring{"repeated"})
+\end{itemize}
+
+
+## Extract Imputed Data
+The function \Rfct{mids2spss} allows the \blue{export of imputed data} (\Robj{mids} objects)
+to \textsf{SPSS}.
+```{r exporttospss, size = 'small', eval = FALSE}
+mids2spss(imp4,
+          filedat = "datafile.txt", # the file containing the data
+          filesps = "importsyntax.sps", # syntax to get .sav from .txt
+          silent = TRUE, ...
+)
+``` 
+
+Data from \Robj{mids} objects can also be exported to \textsf{MPLUS} using
+\Rfct{mids2mplus}.
+
+
+## Combining \texttt{mids} objects
+To \blue{increase the number of imputed datasets} without re-doing the initial $m$ imputations,
+a second set of imputations can be done and the two \Robj{mids} objects combined
+using \Rfct{ibind}.
+
+```{r ibind, eval = F, size = 'small'}
+# same syntax as before, but different seed
+imp4b <- update(imp4, post = post, maxit = 20, seed = 456)
+imp4combi <- ibind(imp4, imp4b)
+```
+
+```{r ibindrun, eval = runimps, echo = F}
+# same syntax as before, but different seed:
+imp4b <- update(imp4, post = post, maxit = 20, seed = 456)
+save(imp4b, file = file.path(projdir, "Slides", "workspaces/imp4b.RData"))
+```
+
+```{r ibindget, echo = F, size = 'small'}
+load(file.path(projdir, "Slides", "workspaces/imp4b.RData"))
+imp4combi <- ibind(imp4, imp4b)
+```
+
+```{r, size = 'small'}
+# check the new number of impute datasets:
+imp4combi$m
+```
+
+
+## Adding variables to \texttt{mids} objects
+
+The function \Rfct{cbind.mids} allows us to \blue{add columns} to a \Robj{mids} object.
+The extra columns can either be a \Robj{data.frame}, \Robj{matrix}, \Robj{vector}
+or \Robj{factor} or another \Robj{mids} object.\bigskip
+
+
+For example data columns that should be part of the imputed data for completeness,
+but are not needed in the imputation.
+
+```{r cibindmids, size = 'small'}
+extravar <- rnorm(nrow(NHANES))
+impextra <- mice:::cbind.mids(x = imp4, extravar = extravar)
+```
+
+\blue{Note:}
+\Rfct{cbind} just adds columns to the data, you need to make sure they are
+\blue{sorted correctly} so that the rows of the new data are from the same subjects
+as the corresponding rows in the imputed data.
+
+
+
+## Your Turn!
+\begin{center}
+\begin{columns}
+\begin{column}{0.55\linewidth}
+\begin{block}{Practical}
+How to Analyse Data after Multiple Imputation \button{https://nerler.github.io/EP16_Multiple_Imputation/practical/analysismi/EP16_AnalysisMI.html}{html}
+\end{block}
+\end{column}
+\end{columns}
+\end{center}
+

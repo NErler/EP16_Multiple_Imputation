@@ -1,0 +1,414 @@
+---
+title: 'Multiple Imputation with the mice Package'
+output:
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+    number_sections: false
+    theme: spacelab
+    highlight: tango
+    includes:
+      after_body: style/footer.html
+    css: style/style.css
+---
+
+```{r, include = FALSE}
+projdir <- gsub("/Practicals", "", getwd())
+
+runimp <- FALSE
+
+hint <- function(text) {
+  id <- paste0('hint_', sample.int(1e10, size = 1))
+    cat(
+    paste0('\n',
+      '<button type="button" class="btn btn-info btn-sm" data-toggle="collapse" ',
+      'data-target="#', id, '">Hint</button>',
+      '<div id = "', id, '" class="collapse" style="border:1px; ',
+      'border-style:solid; padding: 1em; border-color:#1F78B4">',
+      text, '</div>')
+  )
+}
+
+options(width = 100)
+
+set.seed(2020)
+
+library(kableExtra)
+library(knitr)
+library(mice)
+
+load(file.path(projdir, "Practicals/data/EP16dat1.RData"))
+load(file.path(projdir, "Practicals/workspaces/imps.RData"))
+```
+
+## Preface {data-progressive=FALSE}
+### R packages
+
+In this practical, a number of R packages are used.
+If any of them are not installed you may be able to follow the practical
+but will not be able to run all of the code. The packages used (with versions
+that were used to generate the solutions) are:
+
+* `r R.version.string`
+* `mice` (version: `r packageVersion("mice")`)
+
+
+### Help files
+You can find help files for any function by adding a `?` before the name of the 
+function.
+
+Alternatively, you can look up the help pages online at 
+[https://www.rdocumentation.org/](https://www.rdocumentation.org/)
+or find the whole manual for a package at
+[https://cran.r-project.org/web/packages/available_packages_by_name.html](https://cran.r-project.org/web/packages/available_packages_by_name.html)
+
+
+## Dataset 
+### Overview {.tabset .tabset-fade .tabset-pills}
+
+For this practical, we will use the **EP16dat1** dataset, which is a 
+subset of the [NHANES (National Health and Nutrition Examination Survey)](https://www.cdc.gov/nchs/nhanes/index.htm) data.
+
+To get the **EP16dat1** dataset, load the file `EP16dat1.RData`.
+You can download it [here](https://nerler.github.io/EP16_Multiple_Imputation/practical/data/index.html).
+
+To load this dataset into R, you can use the command `file.choose()` which opens the
+explorer and allows you to navigate to the location of the file on your computer.
+
+If you know the path to the file, you can also use `load("<path>/EP16dat1.RData")`.
+
+
+If you have not followed the first practical or if you re-loaded the **EP16dat1**
+data, you need to re-code the variable `educ` again:
+
+```{r}
+EP16dat1$educ <- as.ordered(EP16dat1$educ)
+```
+
+
+## Preparing for imputation
+### Set-up run {.tabset .tabset-fade .tabset-pills}
+Imputation needs to be tailored to the dataset at hand and, hence, using
+the function `mice()` well requires several arguments to be specified.
+To make the specification easier it is useful to do a dry-run which will
+create the default versions of everything that needs to be specified. 
+
+These default settings can then be adapted to our data.
+
+#### Task
+:::{.task}
+Do the set-up run of `mice()` with the **EP16dat1** data without any 
+iterations (`maxit = 0`).
+:::
+
+#### Solution
+```{r imp0-solution}
+# Note: This command may not produce any output.
+library("mice")
+imp0 <- mice(EP16dat1, maxit = 0)
+```
+
+
+### Imputation method {.tabset .tabset-fade .tabset-pills}
+There are many imputation methods available in **mice**. You can find the list in
+the help page of the 
+[`mice()` function](https://www.rdocumentation.org/packages/mice/versions/3.3.0/topics/mice).
+We will focus here on the following ones:
+
+```{r, echo = FALSE}
+tab <- rbind(
+  c("pmm", "any", "Predictive mean matching"),
+  c("norm", "numeric", "Bayesian linear regression"),
+  c("logreg", "binary", "Logistic regression"),
+  c("polr", "ordered", "Proportional odds model"),
+  c("polyreg", "unordered", "Polytomous logistic regression")
+)
+
+colnames(tab) <- c("name", "variable type", "description")
+
+knitr::kable(tab, row.names = FALSE) %>%
+  kable_styling(full_width = FALSE)
+  
+```
+
+The default imputation methods that `mice()` selects can be specified in the
+argument `defaultMethod`. 
+
+If unspecified, `mice` will use 
+
+* `pmm` for numerical columns,
+* `logreg` for factor columns with two categories, 
+* `polyreg` for columns with unordered and 
+* `polr` for columns with ordered factors with more than two categories.
+
+#### Task 1
+:::{.task}
+When a normal imputation model seems to be appropriate for most of the 
+continuous covariates, you may want to specify `norm` as
+the default method in the set-up run. Let's do that!
+
+```{r results = 'asis', echo = FALSE}
+hint('The order of the types of variable is: continuous, binary, factor, ordered factor.')
+```
+:::
+
+#### Solution 1
+```{r imp0v2-hint-2}
+imp0 <- mice(EP16dat1, maxit = 0, 
+             defaultMethod = c("norm", 'logreg', 'polyreg', 'polr'))
+```
+
+#### Task 2
+:::{.task}
+In the histograms we made for the continuous variables during the previous practical,
+we could see that the variable `creat` had a skewed distribution, hence, 
+using a normal imputation model may not work well. 
+
+* Extract the default settings of the imputation `method` from `imp0`.
+* Change the imputation method for `creat` so that this variable will be imputed
+  using predictive mean matching.
+* Check that all specified imputation methods are correct. When no imputation 
+  method is specified (`""`) the variable will not be imputed.
+:::
+
+#### Solution 2
+```{r changeimpmod-solution}
+meth <- imp0$method
+meth["creat"] <- "pmm"
+meth
+```
+
+
+### Predictor matrix {.tabset .tabset-fade .tabset-pills}
+The predictor matrix specifies which variables are used in the linear predictors
+of each of the imputation models. 
+
+A value of `1` specifies that the variable given in the column name is used in the model
+to impute the variable given in the row name (and `0` specifies that this variable
+is not used in that model).
+
+#### Task 1
+:::{.task}
+Get the `predictorMatrix` from `imp0`. Notice that **mice** has already set
+some of the values to `0`. Do you understand why?
+:::
+
+#### Solution 1
+```{r predmat-solution}
+pred <- imp0$predictorMatrix
+pred
+```
+
+The column corresponding to the variable `cohort` is set to `0` which means 
+that this variable is not used in any of the imputation models.
+`cohort` has the same value for all observations, so it would not be useful as a covariate.
+
+#### Task 2
+:::{.task}
+Because BMI is calculated from height (`hgt`) and weight (`wgt`), and there are
+cases where only one of these two variables is missing, we want to impute 
+`hgt` and `wgt` separately. `BMI` should be imputed using "passive imputation".
+
+To avoid multicollinearity (which may lead to problems during imputation),
+imputation models should not include all three variables as predictor variables.
+In this example, we will use `BMI` to impute the other variables.
+
+Moreover, we need to exclude `WC` from the imputation model for `wgt` because
+the high correlation between `WC`, `BMI` and `wgt` would otherwise lead to problems
+during imputation.
+
+And since `HyperMed` does not give us a lot more information than `hypten`, but
+has a lot more missing values, we do not want to use it as a predictor variable.
+
+Apply the necessary changes to  `pred` and `meth`.
+```{r results = 'asis', echo = FALSE}
+hint('For passive imputation, you need to specify the formula used to calculate
+BMI in meth using `"~I(...)"`.')
+```
+:::
+
+
+#### Solution 2
+```{r changepred-solution}
+# BMI will not be used as predictor of height and weight
+pred[c("hgt", "wgt"), "BMI"] <- 0
+
+# height and weight will not be used as predictor in any model
+pred[, c("hgt", "wgt")] <- 0
+
+# height and weight will be used as predictors for each other
+pred["hgt", "wgt"] <- 1
+pred["wgt", "hgt"] <- 1
+
+# WC is not used as predictor for weight
+pred["wgt", "WC"] <- 0
+
+# HyperMed will not be used as predictor in any model
+pred[, "HyperMed"] <- 0
+
+# hypchol will not be used as predictor in the imputation model for chol
+pred["chol", "hypchol"] <- 0
+
+# BMI will be imputed passively
+meth["BMI"] <- "~I(wgt/hgt^2)"
+
+# HyperMed will not be imputed
+meth["HyperMed"] <- ""
+```
+
+### Visit sequence {.tabset .tabset-fade .tabset-pills}
+The visit sequence specifies the order in which the variables are imputed.
+
+#### Task
+:::{.task}
+To be sure that the imputed values of `BMI` match the imputed values of `hgt`
+and `wgt`, `BMI` needs to be imputed after `hgt` and `wgt`.
+
+* Get the `visitSequence` from `imp0`, and
+* change it if necessary.
+
+:::
+
+
+#### Solution
+```{r changevisseq-solution, solution = TRUE}
+visSeq <- imp0$visitSequence
+
+which_BMI <- match("BMI", visSeq)
+visSeq <- c(visSeq[-which_BMI], visSeq[which_BMI])
+```
+
+
+
+## Imputation
+### Running the imputation  {.tabset .tabset-fade .tabset-pills}
+#### Task
+:::{.task}
+With the changes that we have made to the `predictorMatrix` and `method`, we
+can now perform the imputation. Use `m = 5` and `maxit = 10`.
+:::
+
+#### Solution
+```{r eval = runimp}
+imp <- mice(EP16dat1, method = meth, predictorMatrix = pred, visitSequence = visSeq,
+            maxit = 10, m = 5, seed = 2020)
+```
+
+```{r saveimp, include = FALSE, eval = runimp}
+imp30 <- update(imp, maxit = 30)
+impnaive <- mice(EP16dat1, maxit = 30, m = 5, seed = 2020)
+
+save(imp, imp30, impnaive, 
+     file = file.path(projdir, "Practicals/workspaces/imps.RData"))
+```
+
+`mice()` prints the name of the variable being imputed for each
+iteration and imputation. If you run `mice()` on your own computer the output
+will show up continuously. There, you may notice that imputation is slowest for 
+categorical variables, especially when they have many categories.
+
+You can hide the lengthy output by specifying
+`printFlag = FALSE`.
+
+### What does mice return? {.tabset .tabset-fade .tabset-pills}
+#### Task
+:::{.task}
+`mice()` does not return a `data.frame`. 
+Find out the class of the object returned by `mice()` function using the 
+function `class()`, and take a look at the [help file](https://www.rdocumentation.org/packages/mice/versions/2.46.0/topics/mids-class) for this class.
+:::
+
+
+#### Solution
+```{r findclass-solution}
+class(imp)
+```
+
+We see that `imp` is an object of class `mids`.
+
+The [help file](https://www.rdocumentation.org/packages/mice/versions/2.46.0/topics/mids-class) tells us that a `mids` object is a list with several elements:
+
+```{r, echo = FALSE}
+midsdf <- rbind(
+  c("`data`:", "Original (incomplete) data set."),
+  c("`imp`:",
+    paste0("The imputed values: A list of `ncol(data)` components, ",
+           "each list component is a matrix with `nmis[j]` rows and `m` columns.")),
+  c("`m`:",
+    "The number of imputations."),
+  c("`where`:", "The missingness indicator matrix."),
+ c("`blocks`", "The blocks argument of the `mice()` function."),  
+  c("`call`:", "The call that created the `mids` object."),
+  c("`nmis`:",
+    "The number of missing observations per variable."),
+  c("`method`:",
+    "The vector imputation methods."),
+  c("`predictorMatrix`:",
+    "The predictor matrix."),
+  c("`visitSequence`:", 
+    "The sequence in which columns are visited during imputation."),
+ c("`formulas`", "A named list of formulas corresponding the the imputed variables (blocks)."),
+  c("`post`:",
+    "A vector of strings of length `length(blocks)` with commands for post-processing."),
+ # c("`blots`", ""),
+  c("`seed`:",
+    "The seed value of the solution."),
+  c("`iteration`:", 
+    "The number of iterations."),
+  c("`lastSeedValue`:",
+    "The most recent seed value."),
+  c("`chainMean:`", 
+    paste0("The mean of imputed values per variable and iteration: ",
+           "a list of `m` components. Each component is a matrix with `maxit`",
+           "columns and `length(visitSequence)` rows.")),
+  c("`chainVar`:",
+    paste0("The variances of imputed values per variable and iteration" ,
+           "(same structure as `chainMean`).")),
+  c("`loggedEvents`:",
+    paste0("A `data.frame` with the record of automatic corrective actions and warnings; ",
+           "(`NULL` if no action was made).")),
+  # c("`pad`:",
+  #   paste0("A list containing the internally used version of the `data`,",
+  #          "`method`, `predictorMatrix`, `visitSequence`, `post` and dummy coding.")
+ c("`version`", "Version number of the **mice** package that created the object."),
+ c("`date`", "Date at which the object was created.")
+) %>% as.data.frame
+
+names(midsdf) <- c(" ", " ")
+
+midsdf %>% kable(format = 'html') %>%
+  kable_styling()
+  # row_spec(c(4:10, 12:16), background = "#f2f2f2")
+```
+
+
+**Details of the `loggedEvents`:**
+
+`mice()` does some pre-processing of the data:
+
+  * variables containing missing values, that are not imputed but used as
+    predictor are removed
+  * constant variables are removed
+  * collinear variables are removed
+  
+  
+Furthermore, during each iteration
+
+  * variables (or dummy variables) that are linearly dependent are removed
+  * `polr` imputation that does not converge is replaced by `polyreg`. 
+  
+The `data.frame` in `loggedEvents` has the following columns:
+```{r, echo = FALSE}
+rbind(
+  c("`it`", "iteration number"), 
+  c("`im`", "imputation number"),
+  c("`dep`", "name of the name of the variable being imputed"),
+  c("`meth`", "imputation method used"),
+  c("`out`", "character vector with names of altered/removed predictors")
+) %>%
+  kable(format = "html") %>%
+  kable_styling(full_width = FALSE)
+```
+
+

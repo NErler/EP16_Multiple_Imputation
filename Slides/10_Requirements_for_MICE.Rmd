@@ -1,0 +1,517 @@
+---
+title: "EP16: Missing Values in Clinical Research: Multiple Imputation"
+subtitle: "10. Requirements for MICE to work (well)"
+author: "Nicole Erler"
+institute: "Department of Biostatistics, Erasmus Medical Center"
+date: ""
+email: "n.erler@erasmusmc.nl"
+output:
+  beamer_presentation:
+    keep_tex: false
+    template: mytemplate.latex
+    includes:
+      in_header: [SlideTemplate.tex, defs.tex]
+    incremental: false
+classoption: [aspectratio=169]
+bibliography: references.bib
+---
+
+```{r setup, include = FALSE}
+projdir <- gsub("/Slides", "", getwd())
+
+knitr::knit_hooks$set(
+  nospace = function(before, options, envir) {
+    if (before) {
+      knitr::asis_output("\\vspace*{-1.5ex}")
+    }
+  }
+)
+
+
+knitr::opts_chunk$set(echo = TRUE, nospace = TRUE, nospaceafter = TRUE,
+                      fig.align = 'center', out.width = "100%")
+```
+
+
+## Joint and Conditional Distributions
+\blue{Recall:} The MICE algorithm is based on the idea of Gibbs sampling.
+
+\bigskip
+\pause
+
+Gibbs sampling exploits the fact that a joint distribution is fully determined
+by its full conditional distributions.
+
+\begin{center}
+\tcbox[nobeforeafter, box align=base, colback = EMCdark, colframe=EMCdark, boxsep = 1ex]{
+   \parbox{2.5cm}{\centering\color{white} joint\\distribution}
+}
+\quad
+\parbox[c]{3cm}{
+\tikzfancyarrow[3cm]{\scriptsize \textbf{Gibbs}}\\
+\onslide<2>{\tikzfancyarrow[3cm, shape border rotate = 180]{\scriptsize \textbf{MICE}}}
+}
+\quad
+\tcbox[nobeforeafter, box align=base, colback = EMCdark, colframe=EMCdark, boxsep = 1ex]{
+   \parbox{2.5cm}{\centering\color{white}full\\conditionals}
+}
+\end{center}
+
+\onslide<2>{In MICE, the full conditionals are not derived from the joint distribution:\\
+we directly specify the full conditionals and hope a joint distribution exists.}
+
+
+
+## Joint and Conditional Distributions
+The \blue{uncertainty about whether a joint distribution exists} for the specified
+set of imputation models is often considered to be mainly a theoretical problem.
+
+\bigskip
+
+In practice, violations only have little impact on results in many applications.
+
+\bigskip
+
+\pause
+However, as we have seen in the examples on the previous slides,
+there are \blue{settings where the direct specification} of the full
+conditionals/imputation models \blue{may lead to problems}, causing biased results.
+
+
+
+## Some Conditions and Definitions
+Two important definitions:
+
+\bigskip
+
+
+\blue{Compatibility:}
+\begin{quote}
+A joint distribution exists, that has the full conditionals (imputation models)
+as its conditional distributions.
+\end{quote}
+
+\blue{Congeniality:}
+\begin{quote}
+The imputation model is compatible with the analysis model.
+\end{quote}
+
+
+## Some Conditions and Definitions
+\blue{Important requirements} for MICE to work well include:
+\begin{itemize}
+\item Compatibility
+\item Congeniality
+\item MAR or MCAR (in the standard implementations)
+\item \blue{All relevant variables} need to be included. (Omission might result in MNAR.)
+\item \textbf{\textcolor{red}{The outcome needs to be included}} as predictor variable\\
+      (but we usually do not impute missing outcome values).
+\item The imputation models (and analysis model) need to be \blue{correctly specified}
+      (which is a requirement in any standard analysis).
+\end{itemize}
+
+
+
+## Why imputation with MICE can go wrong
+
+\blue{What went wrong in our previous examples?}
+
+\bigskip\pause
+
+When incomplete variables have \blue{non-linear associations} with the outcome,
+or with each other, the requirement(s) of \blue{\textit{compatibility} and/or
+\textit{congeniality} are violated}.
+
+\bigskip\pause
+
+\blue{Omission, or inadequate inclusion, of the outcome} may result in \blue{MNAR} missing
+mechanisms. The same is the case when other relevant predictor variables
+are not used as predictor variables in the imputation.
+\bigskip\pause
+
+Furthermore, \blue{omission of variables} may lead to \blue{mis-specified models},
+however, models may also be mis-specified when all relevant covariates are included,
+but \blue{distributional assumptions} or the specified \blue{form of associations}
+are incorrect.
+
+
+
+
+
+
+## Alternatives to MICE
+To \blue{avoid incompatible} and \blue{uncongenial} imputation models, we need to
+\begin{itemize}
+\item specify the joint distribution
+\item and derive full conditionals / imputation models from this joint distribution
+\end{itemize}
+instead of specifying them directly.
+
+\bigskip
+
+\pause
+\blue{Problem:}\\
+The joint distribution may not be of any known form:
+
+\begin{eqnarray*}
+\begin{array}{c}
+x_1 \sim N(\mu_1, \sigma_1^2)\\
+x_2 \sim N(\mu_2, \sigma_2^2)\\
+\end{array}
+& \Rightarrow &
+\left(
+  \begin{array}{c}
+  x_1\\ x_2
+  \end{array}
+\right) \sim N\left(
+                \left[
+                  \begin{array}{c}
+                  \mu_1\\ \mu_2
+                  \end{array}
+                \right], \left[
+                            \begin{array}{cc}
+                            \sigma_1^2 & \sigma_{12}\\
+                            \sigma_{12} & \sigma_2^2
+                            \end{array}
+                          \right]
+              \right)\\[2ex]
+\text{\blue{but}\quad}
+\begin{array}{l}
+x_1 \sim N(\mu_1, \sigma_1^2)\\
+x_2 \sim Bin(\mu_2)\\
+\end{array}
+& \Rightarrow &
+\left(
+  \begin{array}{c}
+  x_1\\ x_2
+  \end{array}
+\right) \sim ???
+\end{eqnarray*}
+
+
+
+## Alternatives to MICE
+Possible approaches:\\\bigskip
+
+Approach 1: \blue{Multivariate Normal Model}\\
+Approximate the joint distribution by a known multivariate distribution
+
+(usually the normal distribution; this is the approach mentioned in Part I
+on slide~\ref{jointmodelimp}).
+
+\bigskip
+
+Approach 2: \blue{Sequential Factorization}\\
+Factorize the joint distribution into a (sequence of) conditional and a marginal
+distributions.
+
+
+## Multivariate Normal Model
+\blue{Assumption:}\\
+The outcome and incomplete variables follow a \blue{joint multivariate normal
+distribution}, conditional on the completely observed covariates $\mathbf X_c$,
+parameters $\boldsymbol\theta$ and, possibly, random effects, $\mathbf b$:
+$$ p(\mathbf y, \mathbf x_1,\ldots, \mathbf x_p \mid \mathbf X_c, \boldsymbol\theta,
+     \mathbf b) \sim N(\mathbf \mu, \mathbf \Sigma)$$
+
+\bigskip
+
+\onslide<2>{
+\textbf{How do we get that multivariate normal distribution?}
+\begin{enumerate}
+\item Assume \blue{all} incomplete variables and the outcome are \blue{(latent) normal}.
+\item Specify linear (mixed) \blue{models based on observed covariates}.
+\item \blue{Connect} using multivariate normal for \blue{random effects \& error terms}.
+\end{enumerate}
+}
+
+
+## Multivariate Normal Model
+\textbf{1. Latent normal assumption:}\vspace*{-3ex}
+$$\text{e.g.: } \mathbf x_k \text{ binary }
+  \rightarrow \text{ latent } \mathbf{\hat x}_k \text{ is standard normal: }
+  \left\{\begin{array}{c} \mathbf x_k = 1\\ \mathbf x_k = 0\end{array}\right.
+  \text{ if } \begin{array}{c} \mathbf{\hat x_k}\geq 0\\ \mathbf{\hat x_k} < 0\end{array}
+$$
+
+```{r, echo = F, fig.width = 6, fig.height = 3, out.width = "70%"}
+par(mar = c(3.5, 4.4, 0.5, 0.5), mgp = c(2.5, 0.6, 0))
+plot(seq(-4, 4, 0.1), dnorm(seq(-4, 4, 0.1)), type = "l", cex.lab = 1.5,
+     xlab = expression(hat(x)[k]), ylab = expression(density~of~hat(x)[k]))
+polygon(x = c(seq(-4, 0, 0.1), 0),
+        y = c(dnorm(seq(-4, 0, 0.1)), 0), col = grey(0.9), border = 'transparent')
+polygon(x = c(seq(4, 0, -0.1), 0),
+        y = c(dnorm(seq(4, 0, -0.1)), 0), col = grey(0.7), border = 'transparent')
+abline(v = 0, lty = 2)
+lines(seq(-4, 4, 0.1), dnorm(seq(-4, 4, 0.1)))
+text(x = -1, y = 0.05, label = bquote(x[k] == 0), cex = 1.5)
+text(x = 1, y = 0.05, label = bquote(x[k] == 1), cex = 1.5)
+```
+
+## Multivariate Normal Model
+\only<1>{\textbf{2. Specify models:}\\}
+\only<2>{\textbf{2. Specify models / 3. Connect random effects \& error terms:}\\}
+\begin{picture}(200, 120)
+\onslide<1->{
+\put(3, 60){
+    $\addtolength\arraycolsep{-.8ex}\def\arraystretch{1.5}
+    \begin{array}{rclclcl}
+    \mathbf y   &=& \mathbf X_c \boldsymbol{\beta}_y     &+& \mathbf{ Z_y} \;\mathbf{ b_y} &+& \boldsymbol{ \varepsilon_y}\\
+    \textcolor{black!30}{\mathbf w} &=& \textcolor{black!30}{\mathbf X_c \boldsymbol{\beta}_w}
+                                   &+& \textcolor{black!30}{\mathbf{ Z_w} \,\mathbf{ b_w}}
+                                   &+& \textcolor{black!30}{\boldsymbol{ \varepsilon_w}}\\
+    \mathbf{\hat x}_1 &=& \mathbf X_c \boldsymbol{\beta}_{x_1} &+& \phantom{\mathbf Z_w\,} \boldsymbol{ \varepsilon_{x_1}}      &&\\[-1ex]
+               & \vdots&                                & & \phantom{\mathbf Z_w\;} \vdots                                &&\\[-1ex]
+    \mathbf{\hat x}_p &=& \mathbf X_c \boldsymbol{\beta}_{x_p} &+& \phantom{\mathbf Z_w\,} \boldsymbol{ \varepsilon_{x_p}}      &&
+    \end{array}
+    $
+    }
+}
+\thicklines
+\onslide<2>{
+\put(124, 87){\color{red} \oval(15, 35)}
+\put(96, 62.5){\color{red} \oval(18, 93)}
+\put(97, 15){\line(0,-1){12}}
+\put(97, 3){\vector(1, 0){10}}
+\put(110, 0.5){multivariate normal}
+%
+\put(125, 67){\line(0,-1){17}}
+\put(125, 50){\vector(1, 0){10}}
+\put(137.5, 47.5){multivariate normal (optional, but suggested)}
+}
+\end{picture}
+
+
+## Multivariate Normal Model
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.5\linewidth}
+\blue{Advantages:}
+\begin{itemize}
+\item easy to specify
+\item relatively easy to implement
+\item relatively easy to sample from
+\item works for longitudinal outcomes
+\end{itemize}
+\end{column}
+\begin{column}{0.5\linewidth}
+\blue{Disadvantages:}
+\begin{itemize}
+\item assumes linear associations
+\end{itemize}
+\end{column}
+\end{columns}
+
+\bigskip
+
+\begin{center}
+\parbox{0.6\linewidth}{Imputation with \blue{non-linear associations} or \blue{survival data} is
+possible with \blue{extensions} of the multivariate normal approach.
+}\end{center}
+
+
+## Sequential Factorization
+\onslide<1->{
+The \blue{joint distribution} of two variables $y$ and $x$ can be written
+as the product of conditional distributions:
+$$p(y,x) = p(y\mid x)\;p(x)$$
+(or alternatively $p(y,x) = p(x\mid y)\;p(y)$)
+}
+
+\vfill
+
+\onslide<2->{
+This can easily be \blue{extended for more variables}:
+$$p(y,x_1,\ldots,x_p, X_c) = \underset{\text{analysis model}}{
+                             \underbrace{p(y\mid x_1,\ldots,x_p, X_c)}}\;
+p(x_1\mid x_2,\ldots,x_p, X_c)\;
+\ldots\; p(x_p\mid X_c)$$%
+
+where $x_1, \ldots, x_p$ denote incomplete covariates and $X_c$ contains all
+completely observed covariates.
+}
+
+
+## Sequential Factorization
+The analysis model is part of the specification of the joint distribution.
+
+\blue{\ding{225}} Advantages:
+\begin{itemize}
+\item<1-> The outcome is \blue{automatically included in the imputation} procedure.
+\item<1-> The outcome does not appear in any of the predictors of the imputation
+      models:
+      \begin{itemize}
+      \item \blue{no need to approximate} complex outcomes,
+      \item \blue{no need to summarize} complex outcomes.
+      \end{itemize}
+\item<2-> The parameters of interest are obtained directly\\
+      \blue{\ding{225}}
+      imputation and analysis in one step
+\item<3-> \blue{Non-linear associations} or interactions involving incomplete covariates
+      are specified in the analysis model and thereby
+      \blue{automatically taken into account}
+\end{itemize}
+
+
+\bigskip
+
+\onslide<4>{Since the joint distribution usually does not have a known form, Gibbs sampling
+is used to estimate parameters and sample imputed values.}
+
+
+## Sequential Factorization
+\begin{columns}
+\begin{column}{0.55\linewidth}
+\blue{Advantages:}
+\begin{itemize}
+\item \blue{flexible} with regards to outcome type
+\item univariate conditional distributions of incomplete covariates can be chosen
+according to \blue{type of variable}
+\item \blue{non-linear associations} and interactions can be taken into account
+\item assures \blue{congeniality and compatible imputation models}
+\end{itemize}
+\end{column}
+\begin{column}{0.45\linewidth}
+\blue{Disadvantages:}
+\begin{itemize}
+\item separate models need to be specified per incomplete variable: \blue{takes more time
+and consideration}
+\item the joint distribution is of unknown form and sampling may be more \blue{computationally intensive}
+\end{itemize}
+\end{column}
+\end{columns}
+
+
+## Some Relevant R Packages
+For complex settings there are alternatives to \blue{mice}:
+
+For example the \textsf{R} packages \blue{JointAI}, \blue{smcfcs} and \blue{jomo}.
+
+\vfill
+
+\begin{itemize}\itemsep2ex
+\item<2-> they use \blue{Bayesian methodology} to impute values
+\item<3-> \blue{jomo} and \blue{smcfcs} perform \blue{multiple imputation};\\
+      the imputed datasets that can then be analysed the same way data imputed
+      by \textbf{mice} would be analysed.
+\item<4-> \blue{JointAI} works \blue{fully Bayesian}
+      \begin{itemize}
+      \item performs analysis and imputation simultaneously
+      \item \blue{\ding{225}} results from the analysis model of interest are
+obtained directly
+      \end{itemize}
+\end{itemize}
+
+
+## R package smcfcs
+\href{https://cran.r-project.org/package=smcfcs}{\blue{Substantive Model Compatible Fully Conditional Specification}},\\
+a hybrid approach between FCS and sequential factorization \cite{Bartlett2015}
+
+\bigskip
+\textbf{smcfcs} (version 1.4.0) can impute incomplete covariates in
+\begin{columns}
+\begin{column}{0.4\linewidth}
+\begin{itemize}
+\item linear regression
+\item logistic regression
+\item poisson regression
+\item Weibull survival models
+\end{itemize}
+\end{column}
+\begin{column}{0.5\linewidth}
+\begin{itemize}
+\item Cox proportional hazard models
+\item competing risk survival models
+\item nested case control studies
+\item case cohort studies
+\end{itemize}
+\end{column}
+\end{columns}
+\vspace*{3ex}
+while ensuring compatibility between analysis model and imputation models.
+
+\bigskip
+
+For more information see the help files and the
+\href{https://cran.r-project.org/package=smcfcs/vignettes/smcfcs-vignette.html}%
+{vignette}.
+
+
+
+## R Package jomo
+\href{https://cran.r-project.org/package=jomo}{\blue{JOint MOdel imputation}} using the multivariate normal approach,\\
+with \blue{extensions to assure compatibility} between analysis and imputation models. \cite{Carpenter2012}
+
+\bigskip
+
+\textbf{jomo} (version 2.6-7) can handle
+\begin{itemize}
+\item linear regression
+\item generalized linear regression
+\item proportional odds (ordinal) probit regression
+\item linear mixed models
+\item generalized linear mixed models
+\item (ordinal) cumulative link mixed models
+\item Cox proportional hazards models.
+\end{itemize}
+
+For more info see the \href{https://cran.r-project.org/package=jomo}{help file}.
+
+
+
+
+## R Package JointAI
+
+\href{https://cran.r-project.org/package=JointAI}{\blue{Joint Analysis and Imputation}}, \\
+uses the \blue{sequential factorization approach} to perform
+simultaneous analysis and imputation. \cite{Erler2016, Erler2017}
+
+\bigskip
+
+\textbf{JointAI} (version 0.5.1) can analyse incomplete data using
+
+\begin{columns}
+\begin{column}{0.4\linewidth}
+\begin{itemize}
+\item linear regression
+\item generalized linear regression
+\item linear mixed models
+\item generalized linear mixed models
+\end{itemize}
+\end{column}
+\begin{column}{0.6\linewidth}
+\begin{itemize}
+\item (ordinal) cumulative logit regression
+\item (ordinal) cumulative logit mixed models
+\item parametric (Weibull) survival models
+\item Cox proportional hazards models
+\end{itemize}
+\end{column}
+\end{columns}
+\vspace*{3ex}
+while assuring compatibility between analysis model and imputation models
+when non-linear functions or interactions are included.
+
+
+## R Package JointAI
+The necessary \blue{Gibbs sampling} is performed using \blue{\textsf{JAGS}}
+(an external program), which is free, but needs to be
+installed from \url{https://sourceforge.net/projects/mcmc-jags/files/}.
+
+\bigskip
+
+\blue{JointAI} can be installed from CRAN or \href{https://github.com/nerler/JointAI}{GitHub} (development version containing bug fixes and other improvements)
+\small
+```{r eval = FALSE}
+install.packages("devtools")
+devtools::install_github("NErler/JointAI")
+```
+
+
+\blue{JointAI} has its own web page (\href{https://nerler.github.io/JointAI/}{https://nerler.github.io/JointAI/})
+with several vignettes on \href{https://nerler.github.io/JointAI/articles/VisualizingIncompleteData.html}{Visualization of Incomplete Data},
+a \href{https://nerler.github.io/JointAI/articles/MinimalExample.html}{Minimal Example},
+details on
+\href{https://nerler.github.io/JointAI/articles/ModelSpecification.html}{Model Specification},
+\href{https://nerler.github.io/JointAI/articles/}{etc.}
+
+

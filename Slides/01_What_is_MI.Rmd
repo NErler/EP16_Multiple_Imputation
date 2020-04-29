@@ -1,0 +1,182 @@
+---
+title: "EP16: Missing Values in Clinical Research: Multiple Imputation"
+subtitle: "1. What is Multiple Imputation?"
+author: "Nicole Erler"
+institute: "Department of Biostatistics, Erasmus Medical Center"
+date: ""
+email: "n.erler@erasmusmc.nl"
+output:
+  beamer_presentation:
+    keep_tex: false
+    template: mytemplate.latex
+    includes:
+      in_header: [SlideTemplate.tex, defs.tex]
+    incremental: false
+classoption: [aspectratio=169]
+bibliography: references.bib
+csl: taylor-and-francis-apa.csl
+---
+
+
+
+```{r setup, include = FALSE}
+projdir <- gsub("/Slides", "", getwd())
+
+runimps <- FALSE
+  
+knitr::knit_hooks$set(
+  nospace = function(before, options, envir) {
+    if (before) {
+      knitr::asis_output("\\vspace*{-1.5ex}")
+    }
+  }
+)
+
+
+knitr::opts_chunk$set(echo = TRUE, nospace = TRUE, nospaceafter = TRUE,
+                      fig.align = 'center', out.width = "100%")
+
+options(width = 120)
+```
+
+
+
+## History & Ideas {#subsec:history}
+
+
+\begin{itemize}[<+->]
+\item Developed by \blue{Donald B. Rubin} in the 1970s
+\item to handle missing values in \blue{public use databases}\
+      (e.g., census data provided by the government),
+\item motivated by the \blue{increase in missing values}, and
+\item increased \blue{availability of computers}.
+\end{itemize}
+
+\pause\bigskip
+
+\blue{Goal:} data should be usable by [@Rubin1996]
+
+\begin{itemize}[<+->]
+\item a \blue{large number of analysts}, who commonly have to rely on
+\item standard \blue{software that can only handle complete data}, and usually
+\item are \blue{not experts in handling incomplete data}.
+\end{itemize}
+
+
+## History & Ideas [@Rubin2004]
+\begin{columns}[T, onlytextwidth]
+  \begin{column}{0.50\textwidth}
+    \begin{block}{}
+      One imputed value cannot be correct in general.\\
+      \blue{\ding{225}} We need to represent missing values by a
+      \blue{number of imputations}.
+    \end{block}
+    \vspace*{-2ex}
+    \onslide<2->{\centering\scalebox{3}{\rotatebox{-90}{\blue{\ding{225}}}}}
+  \end{column}
+  \begin{column}{0.05\textwidth}
+  \end{column}
+  \begin{column}{0.45\textwidth}
+    \begin{block}{}
+      To find \blue{sensible values} to fill in, we need some kind of \blue{model}.\\
+    \end{block}
+    \vspace*{-2ex}
+    \onslide<2->{\centering\scalebox{3}{\rotatebox{-90}{\blue{\ding{225}}}}}
+  \end{column}
+\end{columns}
+
+\vspace*{-3ex}
+
+\pause
+\begin{columns}[onlytextwidth]
+  \begin{column}{0.47\textwidth}
+    \begin{block}{}
+      \blue{Missing data has a distribution.}
+    \end{block}
+  \end{column}
+  \begin{column}{0.1\textwidth}
+    \centering\raisebox{-3ex}[0ex][0ex]{\scalebox{3}{\blue{\ding{225}}}}
+  \end{column}
+  \begin{column}{0.4\textwidth}
+    \begin{block}{}
+      This \blue{distribution depends on assumptions} that have been made about the model.
+    \end{block}
+  \end{column}
+\end{columns}
+
+\vspace*{1ex}
+
+\pause
+\begin{columns}[onlytextwidth]
+  \begin{column}{0.47\textwidth}
+  \end{column}
+  \begin{column}{0.1\textwidth}
+  \end{column}
+  \begin{column}{0.4\textwidth}
+    \centering\scalebox{3}{\rotatebox{-90}{\blue{\ding{225}}}}
+  \end{column}
+\end{columns}
+
+\begin{block}{}
+What we want is the 
+\blue{`predictive distribution' of the missing values given the observed values.}
+\end{block}
+
+
+## History & Ideas
+\textbf{How to obtain that predictive distribution?}\
+
+\pause
+
+\begin{itemize}
+\item fit a model to the observed data (``respondents''), and to
+\item obtain for each ``nonrespondent'' the conditional distribution of the
+      missing data (given the observed data) as if he/she was a respondent.
+\end{itemize}
+
+\blue{\ding{225}} We assume that \blue{nonrespondents are just like respondents}, and
+obtain the predictive distribution from the model of the respondents' data.
+
+\vfill
+
+\pause
+\begin{block}{\textbf{Example:} survey including age, gender and height}
+10 -- 12 year old boys answered (on average) that they are 1.45m tall.\\[2ex]
+\blue{\ding{225}} \parbox[t]{\dimexpr\linewidth-5em}{
+  We assume that boys aged 10 to 12 who did not
+  report their height are also around 1.45m tall.}
+\end{block}
+
+## History & Ideas
+\textbf{How to represent the multiple imputed values?}\label{slide:RubinI}\
+For each missing value, we now have multiple imputed values.
+
+\pause
+
+\begin{itemize}
+\item For each set of imputed values, create a dataset\\
+      (datasets agree in the observed values but imputed values differ).
+\item Analyse each dataset.
+\item Combine the results from all analyses.
+\end{itemize}
+
+\bigskip\pause
+
+\blue{\ding{225}} We can describe how (much) the \blue{results vary between the
+imputed datasets}, and calculate summary measures.
+
+
+## Three Steps
+\begin{center}\vspace*{-2ex}
+\includegraphics[height = 0.58\textheight]{graphics/MI.pdf}
+\end{center}\vspace*{-3ex}
+\begin{block}{In summary:}
+\begin{enumerate}
+\item \blue{Imputation:} impute multiple times \blue{\ding{225}} multiple completed datasets
+\item \blue{Analysis:} analyse each of the datasets
+\item \blue{Pooling:} combine results, taking into account additional uncertainty
+\end{enumerate}
+\end{block}
+
+
+## References

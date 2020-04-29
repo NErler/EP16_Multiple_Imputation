@@ -1,0 +1,42 @@
+h2, .h2 {
+    margin-top: 80px;
+}
+
+
+.gist {
+   overflow:auto;
+}
+
+.gist .blob-wrapper.data {
+   max-height:300px;
+   overflow:auto;
+}
+
+
+.task {
+  border:2px;
+  border-style:solid;
+  padding: 1em;
+  border-color:#446E9B
+}
+
+
+.notebox {
+  border:2px;
+  border-style:solid;
+  padding: 1em;
+  border-color:#009B8F
+}
+
+
+.Note {
+  font-weight:bold;
+  color:#009B8F;
+}
+
+
+.scroll-400 {
+  max-height: 400px;
+  overflow-y: auto;
+  background-color: inherit;
+}

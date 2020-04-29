@@ -1,0 +1,232 @@
+---
+title: "EP16: Missing Values in Clinical Research: Multiple Imputation"
+subtitle: "3. Analysis & Pooling"
+author: "Nicole Erler"
+institute: "Department of Biostatistics, Erasmus Medical Center"
+date: ""
+email: "n.erler@erasmusmc.nl"
+output:
+  beamer_presentation:
+    keep_tex: false
+    template: mytemplate.latex
+    includes:
+      in_header: SlideTemplate.tex
+    incremental: false
+classoption: [aspectratio=169]
+bibliography: references.bib
+csl: taylor-and-francis-apa.csl
+---
+
+```{r setup, include = FALSE}
+projdir <- gsub("/Slides", "", getwd())
+
+source(file.path(projdir, 'Slides/Rfcts', 'Section03_plots.R'))
+```
+
+
+## Analysis Step
+
+Multiple imputed datasets:
+\begin{columns}
+\begin{column}{0.3\linewidth}
+\scalebox{0.8}{
+  \begin{tabular}{ccccc}
+  $X_1$ & $X_2$ & $X_3$ & $X_4$\\\hline
+   1.4 & \cellcolor{EMClight} 9.2  & 1.8                      & 2.0\\
+   0.5 & 12.4                      & \cellcolor{EMClight} 2.3 & \cellcolor{EMClight} 0.1\\
+  -0.5 & \cellcolor{EMClight} 10.7 & 2.6                      & \cellcolor{EMClight} -1.6\\
+  \vdots    & \vdots     & \vdots     & \vdots
+ \end{tabular}
+}
+\end{column}
+\begin{column}{0.3\textwidth}
+\scalebox{0.8}{
+  \begin{tabular}{ccccc}
+  $X_1$ & $X_2$ & $X_3$ & $X_4$\\\hline
+   1.4 & \cellcolor{EMClight} 13.3 & 1.8                      & 2.0\\
+   0.5 & 12.4                      & \cellcolor{EMClight} 2.1 & \cellcolor{EMClight} 0.6\\
+  -0.5 & \cellcolor{EMClight} 10.2 & 2.6                      & \cellcolor{EMClight} -1.7\\
+  \vdots    & \vdots     & \vdots     & \vdots
+ \end{tabular}
+}
+\end{column}
+\begin{column}{0.3\textwidth}
+\scalebox{0.8}{
+  \begin{tabular}{ccccc}
+  $X_1$ & $X_2$ & $X_3$ & $X_4$\\\hline
+   1.4 & \cellcolor{EMClight} 10.0 & 1.8                      & 2.0\\
+   0.5 & 12.4                      & \cellcolor{EMClight} 2.2 & \cellcolor{EMClight} -1.4\\
+  -0.5 & \cellcolor{EMClight} 8.6  & 2.6                      & \cellcolor{EMClight} -1.0\\
+  \vdots    & \vdots     & \vdots     & \vdots
+ \end{tabular}
+}
+\end{column}
+\end{columns}
+
+
+## Analysis Step
+
+
+Analysis model of interest, e.g.,
+\begin{beamercolorbox}{block body}
+    $$x_1 = \beta_0 + \beta_1 x_2 + \beta_2 x_3 + \beta_3 x_4 + \varepsilon$$
+\end{beamercolorbox}
+\vspace*{2ex}
+
+\pause
+Multiple sets of results:
+\begin{columns}
+\begin{column}{0.3\textwidth}
+\begin{tabular}{l|rr}
+& est. & se\\\hline
+`r print1`
+\end{tabular}
+\end{column}
+\begin{column}{0.3\textwidth}
+\begin{tabular}{l|rr}
+& est. & se\\\hline
+`r print2`
+\end{tabular}
+\end{column}
+\begin{column}{0.3\textwidth}
+\begin{tabular}{l|rr}
+& est. & se\\\hline
+`r print3`
+\end{tabular}
+\end{column}
+\end{columns}
+
+
+
+
+
+
+## Pooling
+\blue{Why pooling?}
+
+Recall from Section 1:\
+We need to represent missing values by a \blue{number of imputations}.\
+\blue{\ding{225}} $m$ imputed datasets
+
+\bigskip
+
+\pause
+
+From the different imputed datasets we get \blue{different sets of parameter estimates},
+each of them with a standard error, representing the uncertainty about the
+estimate.
+
+\bigskip
+
+\pause
+We want to \blue{summarize} the results and describe
+\blue{how (much) the results vary} between the imputed datasets.
+
+
+
+## Pooling
+In the results from multiply imputed data there are
+\blue{two types of variation/uncertainty}:
+\begin{itemize}
+\item \blue{within} imputation (represented by the confidence intervals)
+\item \blue{between} imputation (horizontal shift between results)
+\end{itemize}
+
+\includegraphics[width = \linewidth]{graphics/Section03/poolplot1a}
+
+
+
+## Pooling
+To summarize the results, we can take the mean of the results from the separate
+analyses. This is the \blue{pooled point estimate}.
+
+\only<1-2>{
+\includegraphics[width = \linewidth]{graphics/Section03/poolplot1b.pdf}
+}
+\only<3->{
+\includegraphics[width = \linewidth]{graphics/Section03/poolplot1c.pdf}
+}
+
+\onslide<2->{%
+But does the same work for the standard error (or bounds of the CIs)?
+}
+
+\bigskip
+
+\onslide<3->{%
+The averaged CI's (marked in red) seem to underestimate the total variation
+(within + between).
+}
+
+
+
+## Rubin's Rules
+The most commonly used method to pool results from analyses of multiply imputed
+data was introduced by @Rubin1987, hence \blue{Rubin's Rules}.
+
+\bigskip
+
+\blue{Notation:}\
+$m$: number of imputed datasets\
+$Q_\ell$: quantity of interest (e.g., regr. parameter $\beta$) from $\ell$-th imputation\
+$U_\ell$: variance of $Q_\ell$ (e.g., $var(\beta) = se(\beta)^2$)
+
+\bigskip
+
+\blue{Pooled parameter estimate:}
+$$\bar Q = \frac{1}{m} \sum_{\ell = 1}^m\hat Q_\ell$$
+
+
+## Rubin's Rules
+The \blue{variance} of the pooled parameter estimate is calculated from the
+\blue{within and between imputation variance}.
+
+
+\bigskip
+
+\blue{Average within imputation variance:}\vspace*{-1.5ex}
+$$\bar U = \frac{1}{m} \sum_{\ell = 1}^m \hat U_\ell$$
+
+\bigskip
+\blue{Between imputation variance:}\vspace*{-1.5ex}
+$$B = \frac{1}{m-1}\sum_{\ell = 1}^m \left(\hat Q_\ell - \bar Q\right)^T\left(\hat Q_\ell - \bar Q\right)$$
+
+\bigskip
+
+\blue{Total variance:}\vspace*{-2ex}
+$$T = \bar U + B + B/m$$
+
+
+## Rubin's Rules
+\blue{Confidence intervals} for pooled estimates can be obtained using the
+\blue{pooled standard error} $\sqrt{T}$ and a \blue{reference $t$ distribution}
+with degrees of freedom
+
+$$\nu = \left(m - 1\right)\left(1 + r_m^{-1}\right)^2,$$
+where $r_m  = \frac{\left(B + B/m \right)}{\bar U}$
+is the relative increase in variance that is due to the missing values.
+
+\bigskip
+
+The \blue{$(1 - \alpha)$ 100\%  confidence interval} is then
+$$\bar Q \pm t_\nu(\alpha/2)\sqrt{T},$$
+where $t_{\nu}$ is the $\alpha/2$ quantile of the $t$ distribution with $\nu$
+degrees of freedom.
+
+
+## Rubin's Rules
+\includegraphics[width = \linewidth]{graphics/Section03/cis_final.pdf}
+
+\vfill
+
+\pause
+
+The corresponding \blue{p-value} is the probability
+$$Pr\left\{F_{1,\nu} > \left(Q_0-\bar Q\right)^2/T\right\},$$
+
+where $F_{1,\nu}$ is a random variable that has an F distribution with
+$1$ and $\nu$ degrees of freedom, and $Q_0$ is the null hypothesis value
+(typically zero).
+
+
+## References

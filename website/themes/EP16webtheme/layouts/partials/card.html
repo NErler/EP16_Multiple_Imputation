@@ -1,0 +1,18 @@
+<link rel="stylesheet" href="/css/color.css">
+
+<div class="container">
+<a href={{ .Params.link }} target="_blank">
+  <div class="card">
+
+    <header class="container-tr w3-theme-l2">
+        <h3> {{.Title}} </h3>
+    </header>
+
+    <img src={{ .Params.image }} style="width:95%">
+
+    <div class="container-br w3-theme-l5">
+      <p> {{ .Description }} </p>
+    </div>
+  </div>
+</a>
+</div>

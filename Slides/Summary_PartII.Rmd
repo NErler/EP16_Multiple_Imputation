@@ -1,0 +1,183 @@
+---
+title: "EP16: Missing Values in Clinical Research: Multiple Imputation"
+subtitle: "Summary Part II (Sections 6 -- 9)"
+author: "Nicole Erler"
+institute: "Department of Biostatistics, Erasmus Medical Center"
+date: ""
+email: "n.erler@erasmusmc.nl"
+output:
+  beamer_presentation:
+    keep_tex: true
+    template: mytemplate.latex
+    includes:
+      in_header: SlideTemplate.tex
+    incremental: false
+classoption: [aspectratio=169]
+bibliography: references.bib
+---
+
+```{r setup, include = FALSE}
+projdir <- gsub("/Slides", "", getwd())
+
+knitr::knit_hooks$set(
+  nospace = function(before, options, envir) {
+    if (before) {
+      knitr::asis_output("\\vspace*{-1.5ex}")
+    }
+  }
+)
+
+
+knitr::opts_chunk$set(echo = TRUE, nospace = TRUE, nospaceafter = TRUE,
+                      fig.align = 'center', out.width = "100%")
+
+```
+
+
+
+## Summary Part I
+\blue{1. What is Multiple Imputation?}\\
+\begin{itemize}
+\item Rubin's \blue{idea}:
+      \begin{itemize}
+      \item Missing values need to be represented by \blue{multiple imputed values}.
+      \item A \blue{model is necessary} to obtain good imputations.
+      \end{itemize}
+\item Imputed values are obtained from the \blue{predictive distribution} of the missing data,
+given the observed data.
+\item Multiple completed datasets are created from the multiple imputed values.
+\item Multiple imputation has \blue{three steps: imputation, analysis, pooling}
+\end{itemize}
+
+\framebreak
+-------------------------------------------------------------------
+
+\blue{2. Imputation step}
+\begin{itemize}
+\item Two \blue{sources of variation} need to be taken into account
+      \begin{itemize}
+      \item \blue{parameter uncertainty}
+      \item \blue{random variation}
+      \end{itemize}
+\item \blue{Two approaches} to MI for imputation of non-monotone multivariate missing data
+      \begin{itemize}
+      \item \blue{MICE/FCS}
+      \item \blue{Joint model imputation}
+      \end{itemize}
+\item The MICE algorithm re-uses univariate imputation models by iterating
+      through all incomplete variables, multiple times (\blue{iterations})
+\item \blue{Multiple runs} through the algorithm are necessary to create multiple
+      imputed datasets
+\item The \blue{convergence of the chains} needs to be checked.
+\end{itemize}
+
+\framebreak
+-------------------------------------------------------------
+
+\blue{3. Analysis step}
+\begin{itemize}
+\item Analyse each imputed dataset the way you would analyse a complete dataset
+\end{itemize}
+
+
+\blue{4. Pooling}
+\begin{itemize}
+\item Results from analyses of multiple imputed datasets can be summarized
+      by taking the \blue{average of the regression coefficients}
+\item For the total variance, \blue{three sources of variation} need to be considered:
+      \begin{itemize}
+      \item \blue{within imputation variance}
+      \item \blue{between imputation variance}
+      \item uncertainty due to finite number of imputations
+      \end{itemize}
+\end{itemize}
+
+\framebreak
+-------------------------------------------------
+
+\blue{5. A closer look at the imputation step}
+\begin{itemize}
+\item Two \blue{parametric approaches} for imputation:
+      \begin{itemize}
+      \item \blue{Bayesian} (sample from posterior distribution of parameters)
+      \item \blue{Bootstrap} (uses bootstrap samples of the data to estimate parameters)
+      \end{itemize}
+\item \blue{Predictive mean matching} is a semi-parametric alternative\\
+      (it matches observed and missing cases based on their predicted values).
+\item In PMM we need to consider
+      \begin{itemize}
+      \item \blue{donor selection}
+      \item \blue{matching type} (how parameters are sampled/estimated),
+      \item the \blue{set of data} used to calculate/estimate the parameters.
+      \end{itemize}
+\item Bayesian and bootstrap imputation take into account the variation, while
+      many \blue{choices in PMM lead to underestimation of the variation}.
+\end{itemize}
+
+
+
+## Summary of Part II
+\blue{6. Know your data}\
+Check the
+\begin{itemize}
+\item missing data pattern
+\item distribution of observed values
+\item associations \& patterns in the observed values
+\end{itemize}
+
+\vspace*{3ex}
+
+\begin{itemize}
+\item Think about why values are missing. Is MAR reasonable?
+\item Is additional information available (auxiliary variables)?
+\end{itemize}
+
+\framebreak
+
+----------------------------------------
+
+\blue{7. Imputation with mice}\
+Specification of
+\begin{itemize}
+\item imputation method
+\item predictor matrix
+\item visit sequence
+\end{itemize}
+
+\vspace*{3ex}
+
+Further tailoring of the imputation using
+\begin{itemize}
+\item passive imputation
+\item post processing
+\end{itemize}
+
+----------------------------------------
+\framebreak
+
+\blue{8. Convergence \& diagnostics}
+\begin{itemize}
+\item Logged events
+\item convergence: traceplots
+\item distribution of observed and imputed values (conditional on other variables)\\
+\end{itemize}
+
+
+\blue{9. Analysis \& pooling}
+\begin{itemize}
+\item \textbf{mice} functions \Rfct{with} and \Rfct{pool}
+\item alternative pooling using \textbf{mitools}
+\item additional functions in \textbf{mice}: \Rfct{pool.r.squared}, \Rfct{pool.compare}
+\item additional functions in other packages: \Rfct{miceadds::micombine.chisquare},
+\Rfct{miceadds::micombine.F}
+\end{itemize}
+
+----------------------------------------
+\framebreak
+
+\blue{10. Additional functions in mice}
+\begin{itemize}
+\item \Rfct{complete}, \Rfct{mids2spss}
+\item \Rfct{ibind}, \Rfct{cbind.mids}
+\end{itemize}
+

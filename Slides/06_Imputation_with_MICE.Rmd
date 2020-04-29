@@ -1,0 +1,581 @@
+---
+title: "EP16: Missing Values in Clinical Research: Multiple Imputation"
+subtitle: "6. Imputation with mice"
+author: "Nicole Erler"
+institute: "Department of Biostatistics, Erasmus Medical Center"
+date: ""
+email: "n.erler@erasmusmc.nl"
+output:
+  beamer_presentation:
+    keep_tex: false
+    template: mytemplate.latex
+    includes:
+      in_header: [SlideTemplate.tex, defs.tex]
+    incremental: false
+classoption: [aspectratio=169]
+bibliography: references.bib
+---
+
+```{r setup, include = FALSE}
+projdir <- gsub("/Slides", "", getwd())
+
+runimps <- FALSE
+  
+knitr::knit_hooks$set(
+  nospace = function(before, options, envir) {
+    if (before) {
+      knitr::asis_output("\\vspace*{-1.5ex}")
+    }
+  }
+)
+
+
+knitr::opts_chunk$set(echo = TRUE, nospace = TRUE, nospaceafter = TRUE,
+                      fig.align = 'center', out.width = "100%")
+
+options(width = 120)
+
+suppressPackageStartupMessages(library("mice"))
+
+load(file.path(projdir, "Slides/data", "NHANES.RData"))
+NHANES <- subset(NHANES, select = -DBP)
+NHANES <- NHANES[, c(which(names(NHANES) != 'BMI')[1:7],
+                     which(names(NHANES) == 'BMI'),
+                     which(names(NHANES) != 'BMI')[-c(1:7)])]
+```
+
+
+## Main Function Arguments
+
+The main function for imputation with the R package **mice** is `mice()`{.R}.\
+Its most important arguments are:
+
+>- \Rarg{data}: the dataset
+>- \Rarg{m}: number of imputed datasets
+>- \Rarg{maxit}: number of iterations
+>- \Rarg{method}: vector of imputation methods
+>- \Rarg{defaultMethod}: vector of default imputation methods
+>- \Rarg{predictorMatrix}: matrix specifying roles of variables
+
+
+## Iterations and Imputations
+
+By default, **mice** will use
+
+* \Rarg{maxit} ` = 5` (i.e., the algorithm is run for 5 iterations)
+* \Rarg{m} ` = 5` (i.e., 5 imputed datasets will be created)
+
+Often, these values need to be larger, but we will come back to this
+later in the course.
+
+## Imputation Methods
+
+\textbf{mice} has implemented many \blue{imputation methods}, the
+most commonly used ones are:
+
+>- \Rstring{pmm}: predictive mean matching (any)
+>- \Rstring{norm}: Bayesian linear regression (numeric)
+>- \Rstring{logreg}: binary logistic regression (binary)
+>- \Rstring{polr}: proportional odds model (ordered factors)
+>- \Rstring{polyreg}: polytomous logistic regression (unordered factors)
+
+\bigskip
+
+\onslide<6->{
+Imputation methods are chosen \blue{automatically based on the type of variable}.
+
+
+\blue{\ding{225} }\parbox[t]{0.80\linewidth}{
+Make sure all \blue{variables are coded correctly}, so that the
+automatically chosen imputation methods are appropriate.
+}
+}
+
+## Imputation Methods: \Rarg{defaultMethod}
+
+The default setting for the argument \Rarg{defaultMethod} is:
+
+`defaultMethod = c("pmm", "logreg", "polyreg", "polr")`{.R}
+
+i.e.,\vspace*{-1.5ex}
+
+ * \Rstring{pmm} for numerical variables
+ * \Rstring{logreg} for binary variables
+ * \Rstring{polr} for unordered factors with $>2$ levels
+ * \Rstring{polyreg} for ordered factors
+
+\pause
+\bigskip
+
+**Example:**\
+To use \Rstring{norm} instead of \Rstring{pmm} for all
+continuous incomplete variables:
+\small
+```{r mice example, eval = FALSE, size = 'small'}
+mice(NHANES, defaultMethod = c("norm", "logreg", "polyreg", "polr"))
+```
+\normalsize
+
+
+## Tip: Use a Setup Run
+
+To obtain a default version for the arguments like \Rarg{method} and
+\Rarg{predictorMatrix} it is convenient to \blue{do
+a setup run} of `mice()`{.R} without iterations:
+
+\small
+```{r imp0}
+library("mice")
+imp0 <- mice(NHANES, maxit = 0)
+```
+\normalsize
+
+\pause
+
+The function `mice()`{.R} returns an object of class \blue{mids}
+(multiply imputed data set).
+
+\pause\bigskip
+
+The default versions can then be extracted and modified, for example:
+
+\small
+```{r}
+meth <- imp0$method
+```
+\normalsize
+
+## Imputation Methods: \Rarg{method}
+```{r echo = FALSE}
+op <- getOption("width")
+options(width = 70)
+```
+
+\small
+```{r meth, eval = FALSE}
+meth
+```
+\vspace*{-3ex}
+```{r, ref.label="meth", eval = TRUE, echo = FALSE}
+```
+\normalsize
+\pause
+
+Variables that do \blue{not need to be imputed} (= do not have any missing values)
+are set to \blue{""}.
+
+To change the imputation method for single variables, 
+the vector `meth` can then be adapted:
+\small
+```{r imp0orig1}
+meth["albu"] <- "norm"
+```
+\normalsize
+```{r echo = FALSE}
+options(width = op)
+```
+
+## Imputation Methods: \Rarg{method}
+For variables that \blue{should not be imputed} the imputation method can be
+set to \blue{""}:
+\small
+```{r imp0orig2}
+meth["HyperMed"] <- ""
+```
+\normalsize
+
+For the actual imputation, `mice()`{.R} is called using the adapted argument(s):
+```{r, eval = FALSE}
+imp1 <- mice(NHANES, method = meth)
+```
+
+
+## Predictor Matrix
+The \Rarg{predictorMatrix} is a matrix that specifies \blue{which variables are used as
+predictors} in which imputation model.\newline
+
+Each row represents the model for the variable given in the row name.
+
+\small
+```{r predmat}
+head(imp0$predictorMatrix)[, 1:11]  # subset, to fit on the slide
+```
+\normalsize
+
+Variables \blue{not used as predictor} are (or have to be) set to \blue{zero}.\
+By default, \blue{all variables} (except the variable itself) \blue{are used}
+as predictors.
+
+
+## Predictor Matrix
+\blue{Important:}\
+A variable that has \blue{missing values needs to be imputed} in order to be used as a
+predictor for other imputation models!!!
+\pause
+
+**Example:**\
+
+* We set `meth["HyperMed"] = ""`{.R}\
+  \ding{225} \Rstring{HyperMed} will not be imputed
+* \Rstring{HyperMed} is still used as predictor variable (default setting of \Rarg{predicorMatrix})
+* for cases with missing \Rstring{HyperMed} none of the other variables can be imputed
+
+\bigskip
+\pause
+
+\blue{\ding{225}} We also have to set
+```{r}
+pred <- imp0$predictorMatrix
+pred[, 'HyperMed'] <- 0
+```
+
+<!-- \blue{\ding{225}} Make sure to adjust the \Rarg{predictorMatrix} and \Rarg{method} -->
+<!-- to avoid using ID variables or other columns of the data that should not be part -->
+<!-- of the imputation. -->
+
+
+## A Quick Summary
+\small
+```{r impset}
+library("mice")
+# setup-run
+imp0 <- mice(NHANES, maxit = 0,
+             defaultMethod = c("norm", "logreg", "polyreg", "polr"))
+
+# adjust imputation methods
+meth <- imp0$method
+meth["HyperMed"] <- ""
+
+# adjust predictor matrix
+pred <- imp0$predictorMatrix
+pred[, "HyperMed"] <- 0
+```
+```{r imp, eval = FALSE}
+# run imputation with adjusted settings
+imp1 <- mice(NHANES, method = meth, predictorMatrix = pred)
+```
+
+```{r imprun, eval = runimps, ref.label = 'imp', include = FALSE}
+```
+```{r, echo = FALSE, eval = runimps}
+save(imp1, file = file.path(projdir, "Slides/workspaces/imp1.RData"))
+```
+
+
+```{r impget, echo = FALSE}
+load(file.path(projdir, "Slides/workspaces/imp1.RData"))
+```
+\normalsize
+
+
+## Passive Imputation
+In some cases, variables are \blue{functions of other variables}:
+$BMI = \frac{weight}{height^2}$\bigskip
+
+If we impute \Rstring{BMI} directly, its values may be \blue{inconsistent} with the
+(imputed) values of \Rstring{height} and \Rstring{weight}.
+
+\vspace*{1.5ex}\pause
+
+\small
+```{r demo_passive1, results='hide'}
+DF1 <- complete(imp1, 1) # select the first imputed dataset
+
+round(cbind(BMI = DF1$BMI,                         # imputed
+            "wgt/hgt^2" = DF1$weight/DF1$height^2  # calculated
+), 2)[which(is.na(NHANES$BMI))[1:3], ]
+```
+\normalsize \pause
+\vspace*{-1.5ex}
+\begincols[t, onlytextwidth]
+\begincol{0.35\linewidth}
+\small
+```{r demo_pasive1_print, ref.label = "demo_passive1", echo = FALSE, results = 'markup'}
+```
+\normalsize
+\endcol
+\begincol{0.6\linewidth}
+The imputed values of \Rstring{BMI} are impossible given the corresponding
+values of \Rstring{height} and \Rstring{weight}.
+\endcol
+\endcols
+
+
+## Passive Imputation
+Moreover, if some components of a variable are observed we want to use that
+\blue{information to reduce uncertainty}.
+
+\small\vspace*{1.5ex}
+```{r demo_passive2, eval = FALSE}
+table(weight_missing = is.na(NHANES$weight),
+      height_missing = is.na(NHANES$height))
+```
+\vspace*{-2ex}
+```{r, eval = TRUE, ref.label = "demo_passive2", echo = FALSE}
+```
+\normalsize
+Here we have
+`r sum(is.na(NHANES$height) & !is.na(NHANES$weight))` +
+`r sum(is.na(NHANES$weight) & !is.na(NHANES$height))` =
+`r sum(xor(is.na(NHANES$height), is.na(NHANES$weight)))` cases in which
+either \Rstring{height} or \Rstring{weight} is observed.\bigskip
+
+\pause
+
+\blue{\ding{225} }\parbox[t]{0.80\linewidth}{
+We would like to impute \Rstring{height} and \Rstring{weight} separately and
+calculate \Rstring{BMI} from the (imputed) values of the two variables.
+}
+
+
+
+## Passive Imputation
+If \Rstring{BMI} is not a relevant predictor in any of the other imputation models,
+we could just exclude BMI from the imputation and \blue{re-calculate it afterwards}.
+
+\smallskip
+
+To use \Rstring{BMI} as predictor in the imputation, it has to be \blue{calculated
+in each iteration} of the algorithm.\
+In \textbf{mice} this is possible with \blue{\textit{passive imputation}}:
+
+\smallskip
+
+\pause
+Instead of using a standard imputation \Rarg{method}, we can specify a 
+\blue{formula to calculate \Rstring{BMI}}:
+\small
+```{r passive_BMI1}
+meth["BMI"] <- "~I(weight/height^2)"
+```
+\normalsize\pause
+To \blue{prevent feedback} from \Rstring{BMI} in the imputation of \Rstring{height}
+and \Rstring{weight} the \Rarg{predictorMatrix} needs to be modified:
+\small
+```{r passive_BMI2}
+pred[c("weight", "height"), "BMI"] <- 0
+```
+\normalsize
+
+
+## Passive Imputation
+Since \Rstring{BMI} depends on \Rstring{weight}, and the two variables are highly correlated
+(
+$\rho = `r round(cor(NHANES$weight, NHANES$BMI, use = "pair"), 2)`$
+)
+it \blue{\ul{may}} be beneficial \blue{not to use them simultaneously} as predictors in the
+other imputation models.
+
+Which one to use may differ between imputation models.
+
+\bigskip\pause
+
+\blue{Passive imputation} can also be useful in settings where
+
+>- imputation models include \blue{interaction terms} between incomplete variables
+  (see @Buuren2012, p. 133 for an example), or when
+>- a number of covariates is used to form a \blue{sum score}.\newline
+  The sum score, instead of all single elements, can then be used as predictor
+  in other imputation models.
+
+
+## Post Processing
+`mice()`{.R} has an argument \Rarg{post} that can be used to specify functions
+that modify imputed values.\bigskip
+
+\vfill
+\pause
+
+\textbf{Example:}\
+When inspecting the imputed values from \Robj{imp}, we find that some imputed
+values in \Rstring{creat} are negative.
+
+\small
+```{r demo_squeeze}
+# DF1 is the first imputed dataset we extracted earlier
+summary(DF1$creat)
+```
+\normalsize
+
+```{r interactiveHistogram, eval = FALSE, fig.width = 7, fig.height = 3.8, echo = FALSE}
+library(ggplot2)
+plotDF <- reshape2::melt(cbind(orig = NHANES$creat,
+                     imp = DF1$creat))
+
+ggplot(plotDF, aes(x = value, fill = Var2, color = Var2)) +
+  geom_histogram(alpha = 0.3, bins = 200, position = "identity", na.rm = TRUE) +
+  theme_light() +
+  theme(legend.position = "bottom",
+        legend.text = element_text(size = 10)) +
+  scale_fill_brewer(name = "", palette = "Dark2") +
+  scale_color_brewer(name = "", palette = "Dark2") +
+  scale_x_continuous(name = "Creatinine level", seq(0, 10, 1))
+```
+
+
+## Post Processing
+A helpful function:
+
+* `mice::squeeze()`{.R} to censor variables at given boundaries
+
+With the following syntax all imputed values of \Rstring{creat} that are
+outside the interval \texttt{c(0, 100)} will be \blue{set to those limiting values}.
+\small
+```{r}
+post <- imp1$post
+post["creat"] <- "imp[[j]][,i] <- squeeze(imp[[j]][,i], c(0, 100))"
+```
+\pause
+```{r imp2, eval = FALSE}
+imp2 <- update(imp1, post = post)
+```
+```{r, eval = runimps, include = FALSE}
+imp2 <- update(imp1, post = post, seed = 2020)
+save(imp2, file = file.path(projdir, "Slides/workspaces/imp2.RData"))
+```
+```{r imp2get, echo = FALSE}
+load(file.path(projdir, "Slides/workspaces/imp2.RData"))
+```
+\normalsize
+
+\vfill\pause
+
+\blue{Note:}\
+When many observations are outside the limits it may be better to \blue{change the
+imputation model} since the implied \blue{assumption of the imputation model}
+apparently \blue{does not fit the complete data distribution}.
+
+
+## Post Processing
+The \blue{post-processing} functionality allows for many
+\blue{more data manipulations} and is not restricted to \Rfct{squeeze}.\bigskip
+
+Any string of \textsf{R} commands provided will be evaluated after the
+corresponding variable is imputed, within each iteration.\bigskip
+
+\pause
+
+**For example,** if subjects with SBP $>140$ should be classified as
+hypertensive:
+\small
+```{r eval = FALSE}
+post["hypten"] <- "imp[[j]][data[where[, j], 'SBP'] > 140, i] <- 'yes'"
+```
+\normalsize
+\pause
+
+This also allows for (some) \blue{MNAR scenarios}, for example, by multiplying
+or adding a constant to the imputed values, or to re-impute values depending
+on their current value.
+
+
+## Visit Sequence
+When the \blue{post-processed or passively imputed values} of a variable depend on
+other variables, the \blue{sequence in which the variables are imputed} may be
+important to obtain \blue{consistent values}.
+
+In \Rfct{mice} the argument \Rarg{visitSequence} specifies in which order the
+columns of the \Robj{data} are imputed.
+
+\bigskip\pause
+
+\blue{Example:}\
+If \Rstring{BMI} is passively imputed (calculated) before the new
+imputations for \Rstring{height} and \Rstring{weight} are drawn, the resulting
+values of \Rstring{BMI}, will match \Rstring{height} and \Rstring{weight} from
+the \blue{previous iteration}, but not the iteration given in the imputed dataset.
+
+## Visit Sequence
+```{r echo = FALSE}
+options(width = 70)
+```
+
+**Example:**\
+Currently, \Rstring{BMI} is imputed before \Rstring{height} and \Rstring{weight}:
+
+\small
+```{r visitSeq1, size = 'small'}
+visitSeq <- imp2$visitSequence
+visitSeq
+```
+\normalsize
+
+To get consistent values, we need to change the \Rarg{visitSequence}:
+
+\small
+```{r visitSeq2}
+visitSeq <- c(visitSeq[-which(visitSeq == "BMI")], # everything else
+              "BMI")                               # BMI 
+```
+\normalsize
+
+
+## Visit Sequence
+
+* By default \Rfct{mice} imputes in the \blue{order of the columns in the \Robj{data}}.
+
+\medskip
+
+
+* The \Rarg{visitSequence} may specify that a column is \blue{visited multiple times}
+  during one iteration.
+
+\medskip
+
+* All incomplete variables must be \blue{visited at least once}.
+
+
+
+## Automated Changes \label{subsec:goodtoknow}
+
+\Rfct{mice} automatically performs some \blue{pre-processing} and \blue{removes}
+\begin{itemize}
+\item incomplete variables that are not imputed but are specified as predictors,
+\item constant variables, and
+\item collinear variables.
+\end{itemize}
+
+\bigskip\pause
+
+In each iteration
+\begin{itemize}
+\item linearly dependent variables are removed and
+\item \Rstring{polr} imputation models that do not converge are replaced by
+      \Rstring{polyreg}.
+\end{itemize}
+
+\bigskip
+
+\textbf{Why?}\
+To avoid problems in the imputation models.
+
+
+## Automated Changes
+As a \blue{consequence}
+\begin{itemize}
+\item imputation models may differ from what the user has specified or assumes
+      is happening, or
+\item variables that should be imputed are not.
+\end{itemize}
+
+\bigskip\pause
+
+\begin{block}{}
+\begin{itemize}
+\item[\blue{\ding{225}}] Know your data
+\item[\blue{\ding{225}}] Make sure \Rarg{method} and \Rarg{predictorMatrix} are
+      specified appropriately
+\item[\blue{\ding{225}}] Check the output and log of these automatic actions carefully
+\end{itemize}
+\end{block}
+
+
+## A note
+
+>``Please realize that these choices are always needed. Imputation software
+needs to make default choices. These choices are intended to be useful across
+a wide range of applications. However, the \blue{default choices are not necessarily
+the best for the data at hand. There is simply no magical setting that always
+works}, so often some tailoring is needed.'' [@Buuren2012, \ p.124]
+
+## References

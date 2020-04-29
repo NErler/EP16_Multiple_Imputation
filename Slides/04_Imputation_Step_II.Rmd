@@ -1,0 +1,472 @@
+---
+title: "EP16: Missing Values in Clinical Research: Multiple Imputation"
+subtitle: "4. A Closer Look at the Imputation Step"
+author: "Nicole Erler"
+institute: "Department of Biostatistics, Erasmus Medical Center"
+date: ""
+email: "n.erler@erasmusmc.nl"
+output:
+  beamer_presentation:
+    keep_tex: false
+    template: mytemplate.latex
+    includes:
+      in_header: [SlideTemplate.tex, defs.tex]
+    incremental: false
+classoption: [aspectratio=169]
+bibliography: references.bib
+csl: taylor-and-francis-apa.csl
+---
+
+```{r setup, include = FALSE}
+projdir <- gsub("/Slides", "", getwd())
+
+# source(file.path(projdir, "Slides/Rfcts", "figures.R"))
+```
+
+## The Imputation Step
+
+The imputation step consists itself of two (or three) steps:
+\begin{enumerate} \setcounter{enumi}{-1}
+\item specification of the imputation model
+\item \blue{estimation} / sampling \blue{of the parameters}
+\item \blue{drawing imputed values} from the predictive distribution
+\end{enumerate}
+
+\bigskip\pause
+
+\blue{Notation:}
+\begincols[onlytextwidth]
+\begincol{0.5\linewidth}
+\blue{y}: variable to be imputed
+$$
+\mathbf y = \begin{array}{c}
+\mathbf y_{obs}\scalebox{1.4}{\Bigg\{}\\[3ex]
+\mathbf y_{mis}\scalebox{1.4}{\Bigg\{}
+\end{array}
+\left[
+\begin{array}{c}
+            y_1\\
+            \vdots\\
+            y_q\\
+            NA\\
+            \vdots\\
+            NA
+            \end{array}
+\right]$$
+\endcol
+\begincol{0.5\linewidth}
+\blue{X}: design matrix of other variables
+$$\mathbf X = \begin{array}{c}
+\mathbf X_{obs}\scalebox{1.4}{\Bigg\{}\\[3ex]
+\mathbf X_{mis}\scalebox{1.4}{\Bigg\{}
+\end{array}
+\left[
+\begin{array}{ccc}
+x_{11} & \ldots & x_{1p}\\
+\vdots & \ldots & \vdots\\
+x_{q1} & \ldots & x_{qp}\\
+x_{q+1,1} & \ldots & x_{q+1,p}\\
+\vdots & \ldots & \vdots\\
+x_{n1} & \ldots & x_{np}\\
+\end{array}
+\right]
+$$
+\endcol
+\endcols
+
+
+
+## Bayesian Multiple Imputation
+
+In the \blue{Bayesian framework:}\
+\blue{everything unknown} or unobserved is considered a \blue{random variable}.
+
+For example:
+
+* regression coefficients $\boldsymbol\beta$,
+* residual variance $\sigma^2$ and 
+* missing values $\mathbf y_{mis}$.
+
+\bigskip\pause
+
+Random variables have a \blue{probability distribution}.
+\begin{itemize}
+\item The \blue{expectation} of that distribution quantifies which \blue{values} of the random
+variable are \blue{most likely}.
+\item The \blue{variance} is a measure of the \blue{uncertainty} about the values.
+\end{itemize}
+
+## Bayesian Multiple Imputation
+In \blue{Bayesian imputation}:
+
+1. in the \blue{observed data}:\
+  \blue{estimate} the distribution of \blue{the parameters} describing the
+  association between incomplete variables and the other data
+  $$p(\mathbf y_{obs}\mid\mathbf X_{obs}, \boldsymbol\beta, \sigma) 
+  \quad \Rightarrow \quad
+  p(\boldsymbol\beta\mid \mathbf y_{obs}, \mathbf X_{obs}), \; 
+  p(\sigma\mid \mathbf y_{obs}, \mathbf X_{obs})$$
+  
+2. use these estimates to obtain the the probability \blue{distribution of incomplete
+  variables} given the other data
+  $$p(\mathbf y_{mis}\mid\mathbf X_{mis}, \boldsymbol\beta, \sigma)$$
+  
+3. \blue{sample values} from these distributions \blue{\ding{225} imputation}
+
+
+## Bayesian Multiple Imputation
+\blue{Step 1:}
+
+Specify a (Bayesian) regression model
+$$ y_{obs} = \underset{\downarrow}{\beta_0} \;\; + \;\;
+\underset{\downarrow}{\beta_1} x_{1,obs} \;\; + \;\;
+\underset{\downarrow}{\beta_2} x_{2,obs} \;\; + \;\;
+\underset{\downarrow}{\beta_3} x_{3,obs} \;\; + \;\; \ldots \;\; + \;\;
+\underset{\downarrow}{\varepsilon}$$
+
+\begin{picture}(370, 80)(-15, -0)
+\put(305, 60){\includegraphics[width = 0.15\linewidth]{graphics/Section04/BayesImp_eps.png}}
+\put(205, 60){\includegraphics[width = 0.15\linewidth]{graphics/Section04/BayesImp_beta3.png}}
+\put(80, 60){\includegraphics[width = 0.15\linewidth]{graphics/Section04/BayesImp_beta1.png}}
+
+\pause
+
+\put(98, 54){\small$\downarrow$}
+\put(100, 54){\small$\downarrow$}
+\put(105, 54){\small$\downarrow$}
+\put(109, 54){\small$\downarrow$}
+\put(110, 54){\small$\downarrow$}
+\put(112, 54){\small$\downarrow$}
+\put(116, 54){\small$\downarrow$}
+\put(118, 54){\small$\downarrow$}
+
+
+\put(322, 54){\small$\downarrow$}
+\put(328, 54){\small$\downarrow$}
+\put(333, 54){\small$\downarrow$}
+\put(336, 54){\small$\downarrow$}
+\put(334, 54){\small$\downarrow$}
+\put(342, 54){\small$\downarrow$}
+\put(344, 54){\small$\downarrow$}
+
+\put(222, 54){\small$\downarrow$}
+\put(228, 54){\small$\downarrow$}
+\put(233, 54){\small$\downarrow$}
+\put(234, 54){\small$\downarrow$}
+\put(236, 54){\small$\downarrow$}
+\put(240, 54){\small$\downarrow$}
+\put(242, 54){\small$\downarrow$}
+\put(247, 54){\small$\downarrow$}
+
+\put( 80, -5){\includegraphics[width = 0.15\linewidth]{graphics/Section04/BayesImp_betahat1.png}}
+\put(205, -5){\includegraphics[width = 0.15\linewidth]{graphics/Section04/BayesImp_betahat3.png}}
+\put(305, -5){\includegraphics[width = 0.15\linewidth]{graphics/Section04/BayesImp_sighat.png}}
+
+\end{picture}
+
+
+
+## Bayesian Multiple Imputation
+
+\blue{Step 2:}
+
+\begin{picture}(370, 25)(-15, 25)
+\put( 80, 0){\includegraphics[width = 0.15\linewidth]{graphics/Section04/BayesImp_betahat1.png}}
+\put(205, 0){\includegraphics[width = 0.15\linewidth]{graphics/Section04/BayesImp_betahat3.png}}
+\end{picture}
+
+$$ \underset{\downarrow}{\mathbb{E}}(y_{mis}) = \overset{\downarrow}{\hat\beta_0} \;\; + \;\;
+\overset{\downarrow}{\hat\beta_1} x_{1,mis} \;\; + \;\;
+\overset{\downarrow}{\hat\beta_2} x_{2,mis} \;\; + \;\;
+\overset{\downarrow}{\hat\beta_3} x_{3,mis} \;\; + \;\; \ldots
+\phantom{\;\; + \;\;
+\overset{\downarrow}{\hat\varepsilon}}$$
+
+\begin{picture}(170, 0)
+\put( 25, -45){\includegraphics[width = 0.15\linewidth]{graphics/Section04/BayesImp_Eymis.png}}
+\end{picture}
+
+
+\begin{flushright}
+\only<1>{
+\vspace*{12ex}
+}
+\only<2>{
+\vspace*{-3ex}
+\animategraphics[loop, autoplay, width = 0.4 \linewidth]{10}{graphics/Section02/regimps_movie/regimps_movie0}{001}{100}
+}
+\end{flushright}
+
+
+
+
+
+## Bayesian Multiple Imputation
+\blue{Step 3:}
+
+\begin{picture}(200, 100)(50, 0)
+\put(50, 40){\includegraphics[width = 0.15\linewidth]{graphics/Section04/BayesImp_Eymis.png}}
+\put(150, 40){\includegraphics[width = 0.15\linewidth]{graphics/Section04/BayesImp_sighat.png}}
+\put(75, 0){\includegraphics[width = 0.3\linewidth]{graphics/Section04/BayesImp_distr.png}}
+\put(100, -65){\includegraphics[width = 0.17\linewidth]{graphics/Section04/BayesImp_ymis.png}}
+\put(130, 0){$\downarrow$}
+\put(160, 35){$\swarrow$}
+\put(100, 35){$\searrow$}
+\end{picture}
+
+\begin{flushright}
+\vspace*{-6ex}
+\animategraphics[loop, autoplay, width = 0.4\linewidth]{1}{graphics/Section02/ranerr_movie/ranerr_movie}{0001}{0010}
+\end{flushright}
+
+
+
+
+
+## Bootstrap Multiple Imputation
+Alternative approach to capture the uncertainty: \blue{bootstrap}
+
+\tcbset{before=,after=\hfill, boxsep=0mm,
+colframe=EMC20, 
+colback=EMC20,
+valign = center, halign = center, 
+height = 1.8cm, width = 4cm
+}
+
+\vfill
+
+\begin{columns}
+\begin{column}{0.55\linewidth}
+\scalebox{0.68}{
+\setlength{\unitlength}{1cm}
+\begin{picture}(11, 7)
+%
+\put(0, 4){
+\tcbox[tikznode]{observed\\data}
+}
+%
+\put(5, 5.0){
+\tcbox[tikznode]{bootstrap\\sample}
+}
+\put(6.4, 4.4){\color{EMCdark}\vdots}
+\put(5, 2.25){
+\tcbox[tikznode]{bootstrap\\sample}
+}
+\put(5, 0){
+\tcbox[tikznode]{bootstrap\\sample}
+}
+{\color{EMCdark}
+\put(2.8, 5.0){\vector(2, 1){2.2}}
+\put(2.8, 4.5){\vector(2,-1){2.2}}
+\put(2.8, 4.0){\vector(2,-3){2.2}}
+%
+\put(2.8, 5.0){\rotatebox{28}{\footnotesize \parbox{3cm}{sample with\\replacement}}}
+\put(2.8, 4.3){\rotatebox{-27}{\footnotesize \parbox{3cm}{sample with\\replacement}}}
+\put(3.05, 3.2){\rotatebox{-57}{\footnotesize \parbox{3cm}{sample with\\replacement}}}
+%
+\put(8.0, 5.90){\vector(1,0){1}}
+\put(8.0, 3.15){\vector(1,0){1}}
+\put(8.0, 0.90){\vector(1,0){1}}
+}%
+\put(9.1, 5.90){\parbox{2cm}{\Large estimate\\$\boldsymbol{\hat\beta}$ and $\hat\sigma$}}
+\put(9.1, 3.15){\parbox{2cm}{\Large estimate\\$\boldsymbol{\hat\beta}$ and $\hat\sigma$}}
+\put(9.1, 0.90){\parbox{2cm}{\Large estimate\\$\boldsymbol{\hat\beta}$ and $\hat\sigma$}}
+\end{picture}
+}
+\end{column}
+\begin{column}{0.45\linewidth}
+Bootstrap samples can contain some \blue{observations multiple times} and some
+\blue{observations not at all}.
+
+\end{column}
+\end{columns}
+
+
+## Bootstrap Multiple Imputation
+In \blue{bootstrap multiple imputation},
+\begin{itemize}
+\item per imputation: \blue{one bootstrap sample} of the \blue{observed data}
+\item the (least squares or maximum likelihood) estimates of the parameters are calculated from
+      $$\mathbf y_{obs} = \mathbf X_{obs}
+      \underset{\stackrel{\downarrow}{\boldsymbol{\hat\beta}}}{\boldsymbol\beta} +
+      \underset{\stackrel{\downarrow}{\hat\sigma}}{\varepsilon_{obs}}\hspace{2cm}\text{(step 1)}.$$
+\item Imputed values are sampled from
+$p(\mathbf y_{mis} \mid \mathbf X_{mis}, \boldsymbol{\hat\beta}, \hat\sigma)$ (step 2).
+\end{itemize}
+
+\vfill
+
+\pause
+
+\blue{\ding{225}} Step 2 is analogous to step 3 in Bayesian multiple imputation.
+
+
+## Semi-parametric Imputation
+Both Bayesian and bootstrap multiple imputation sample imputed values from
+a distribution 
+$p(\mathbf y_{mis} \mid \mathbf X_{mis}, \boldsymbol{\hat\beta}, \hat\sigma)$.
+
+\bigskip
+
+Sometimes, the empirical distribution can not
+be adequately approximated by a known probability distribution.
+
+\vfill
+
+```{r skylineplot, echo = F, fig.width = 8, fig.height = 2.5}
+set.seed(2020)
+N <- 100
+x1 <- runif(N, min = -1.5, max = 2)
+x2 <- rnorm(N, -3, 0.5)
+x3 <- rnorm(N, 5, 1)
+x4 <- rbinom(N/3, size = 6, prob = 0.4)
+x <- c(x1, x2, x3, x4, x4 - 4.23) + 4.5
+par(mar = rep(0.1, 4), mgp = c(0, 0, 0))
+hist(x, breaks = 100, xlab = "", main = "", xaxt = 'n', yaxt = 'n',
+     col = "#ced2e3", border = "#0c2074", ylab = "")
+```
+
+
+## Semi-parametric Imputation
+\blue{Predictive Mean Matching (PMM)}
+
+* semi-parametric approach to imputation
+* developed for settings where the normal distribution is not a
+  good choice for the predictive distribution. [@Little1988; @Rubin1986]
+
+\bigskip\pause
+
+\blue{Idea:}
+\begin{itemize}
+\item find cases in the observed data that are similar to the cases with missing values
+\item fill in the missing value with the observed value from one of those cases
+\end{itemize}
+
+\bigskip
+
+To find similar cases, the predicted values of complete and incomplete cases
+are compared.
+
+
+
+## Semi-parametric Imputation {#pmmalgo}
+\blue{The steps in PMM:}
+\begin{enumerate}
+\item Obtain parameter estimates for $\boldsymbol{\hat\beta}$ and $\hat\sigma$ (see later)
+\item Calculate the predicted values for the observed cases
+      $$\boldsymbol{\hat y}_{obs} = \mathbf{X}_{obs} \boldsymbol{\hat\beta}$$
+\item Calculate the predicted value for the missing cases
+      $$\boldsymbol{\hat y}_{mis} = \mathbf{X}_{mis} \boldsymbol{\hat\beta}$$
+\item For each missing value, find $d$ donor candidates that fulfil a given
+      criterion (details on the next slide).
+\item Randomly select one of the donors.
+\end{enumerate}
+
+
+## Semi-parametric Imputation
+Several \blue{criteria to select donors} (donor candidates) have been proposed:
+
+> - \blue{Case with the smallest absolute difference}
+    $\left|\hat y_{mis,i} - \hat y_{obs, j}\right|, \; j = 1,\ldots,q$.
+> - Donor candidates are the \blue{$d$ cases with the smallest absolute difference}
+    $\left|\hat y_{mis,i} - \hat y_{obs, j}\right|, \; j = 1,\ldots,q$.
+    The donor is selected randomly from the candidates.
+> - Donor candidates are those cases for which the \blue{absolute difference
+    is smaller than some limit $\eta$}:
+    $\left|\hat y_{mis,i} - \hat y_{obs, j}\right|<\eta, \; j = 1,\ldots,q$.
+    The donor is selected randomly from the candidates.
+> - Select candidates like in 2. or 3., but select the donor from the
+    candidates with probability that depends on 
+    $\left|\hat y_{mis,i} - \hat y_{obs, j}\right|$.[@Siddique2008]
+
+
+## Semi-parametric Imputation
+\blue{Potential issues with donor selection}
+
+> - Selection criteria 2. - 4., \blue{require the number of candidates}
+          $d$ (or max. diff. $\eta$) to be specified. Common choices for
+          $d$ are 3, 5 or 10.
+> - If the same donor is chosen in many/all imputations (e.g., because
+    only a few similar observed cases are available), the
+    blue{uncertainty about the missing values will be underestimated}.
+> - \blue{\ding{225}} PMM may be \blue{problematic} when
+>     - the \blue{dataset is very small},
+>     - the \blue{proportion of missing values is large}, or
+>     - \blue{predictor variables} are strongly \blue{related to the missingness}.
+> - Therefore, using $d = 1$ (selection criterion 1.) is not a
+    good idea. On the other hand, using too many candidates can lead to bad matches.
+> - @Schenker1996 proposed an adaptive procedure
+    to select $d$, but it is not used much in practice.
+
+
+
+## Semi-parametric Imputation
+For the \blue{sampling of the parameters} (step 1),
+different approaches have been introduced in the literature:
+
+\bigskip
+
+\begin{tabular}{lp{12cm}}
+Type-0 & $\hat\beta_{LS/ML}$ (least squares or maximum likelihood) are used in
+          both prediction models\\[2ex]
+Type-I & $\hat\beta_{LS/ML}$ to predict $\hat y_{obs}$;
+          $\tilde\beta_{B/BS}$ (Bayesian or bootstrapped) to predict $\hat y_{mis}$\\[2ex]
+Type-II & $\tilde\beta$ to predict $\hat y_{obs}$ as well as $\hat y_{mis}$\\[2ex]
+Type-III & different draws $\tilde\beta^{(1)}_{B/BS}$ and $\tilde\beta^{(2)}_{B/BS}$
+           to predict $\hat y_{obs}$ and $\hat y_{mis}$, respectively
+\end{tabular}
+
+\bigskip
+
+The use of Type-0 and Type-I matching \blue{underestimates the uncertainty} about
+the regression parameters.
+
+
+## Semi-parametric Imputation
+Another point to consider:\
+the \blue{choice of the set of data used to train the prediction models}
+
+\bigskip
+
+By default, the same set of data (all cases
+with observed $y$) is used to train the model and to produce predicted values
+of $y_{obs}$.
+
+\bigskip
+
+The predictive model will likely fit the observed cases better than the missing cases,
+and, hence, \blue{variation will be underestimated}.
+
+\bigskip
+
+Alternatives:
+\begin{itemize}
+\item the \blue{model could be trained on the whole data}
+(using previously imputed values)
+\item use a \blue{leave-one-out approach} on the observed data
+\end{itemize}
+
+
+## What is Implemented in Software?
+\blue{mice (in R):}
+\begin{itemize}
+\item \blue{PMM} via \Rfct{mice.impute.pmm}
+      \begin{itemize}
+      \item specification of number of donors $d$ (same for all variables)
+      \item Type-0, Type-I, Type-II matching
+      \end{itemize}
+\item \blue{PMM} via \Rfct{mice.impute.midastouch}
+      \begin{itemize}
+      \item allows leave-one-out estimation of the parameters
+      \item distance based donor selection
+      \item Type-0, Type-I, Type-II matching
+      \end{itemize}
+\item \blue{bootstrap} linear regression via \Rfct{mice.impute.norm.boot}
+\item \blue{bootstrap} logistic regression via \Rfct{mice.impute.logreg.boot}
+\item \blue{Bayesian} linear regression via \Rfct{mice.impute.norm}
+\item \ldots
+\end{itemize}
+
+
+
+## References

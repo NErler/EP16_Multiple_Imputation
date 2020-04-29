@@ -1,0 +1,625 @@
+---
+title: "EP16: Missing Values in Clinical Research: Multiple Imputation"
+subtitle: "2. Imputation Step"
+author: "Nicole Erler"
+institute: "Department of Biostatistics, Erasmus Medical Center"
+date: ""
+email: "n.erler@erasmusmc.nl"
+output:
+  beamer_presentation:
+    keep_tex: false
+    template: mytemplate.latex
+    includes:
+      in_header: [SlideTemplate.tex, defs.tex]
+    incremental: false
+classoption: [aspectratio=169]
+bibliography: references.bib
+csl: taylor-and-francis-apa.csl
+---
+
+```{r setup, include = FALSE}
+projdir <- gsub("/Slides", "", getwd())
+```
+
+## Univariate Missing Data
+
+\textbf{How can we actually get imputed values?}
+
+\onslide<2->{
+\begin{columns}[onlytextwidth]
+\begin{column}{0.65\textwidth}
+For now: assume only one continuous variable has missing values (\blue{univariate missing data}).
+\end{column}
+
+\begin{column}{0.35\textwidth}
+\begin{center}
+\scalebox{0.8}{
+  \begin{tabular}{ccccc}
+  $X_1$ & $X_2$ & $X_3$ & $X_4$\\\hline
+  \checkmark & NA         & \checkmark & \checkmark\\
+  \checkmark & \checkmark & \checkmark & \checkmark\\
+  \checkmark & NA         & \checkmark & \checkmark\\
+  \vdots     & \vdots     & \vdots     & \vdots
+ \end{tabular}
+}
+\end{center}
+\end{column}
+\end{columns}
+
+
+\bigskip
+
+\begincols[onlytextwidth]
+\begincol{0.55\textwidth}
+\onslide<3->{
+\blue{Idea:} Predict values
+
+\medskip
+
+Model:\
+$x_{i2} = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i3} + \beta_3 x_{i4} + \varepsilon_i$
+
+\medskip
+
+}
+\onslide<4->{
+Imputed/predicted value:\
+$\hat x_{i2} = \hat\beta_0 + \hat\beta_1 x_{i1} + \hat\beta_2 x_{i3} + \hat\beta_3 x_{i4}$
+}
+\endcol
+\begincol{0.45\textwidth}
+
+\only<1-2>{
+
+\vspace*{3in}
+
+}
+
+\only<3>{
+\includegraphics[width = \linewidth]{graphics/Section02/reglineplot.pdf}
+}
+
+\only<4>{
+\animategraphics[loop, autoplay, width = \linewidth]{10}{graphics/Section02/regimp_movie/regimp_movie00}{01}{49}
+}
+
+\vspace*{-3ex}
+\endcol
+\endcols
+}
+
+## Univariate Missing Data
+\blue{Problem:}
+\begin{itemize}
+\item We can obtain \blue{only one imputed value} per missing value\
+      (but we wanted a whole distribution).
+\item The predicted values do not take into account the added
+      \blue{uncertainty} due to the missing values.
+\end{itemize}
+
+\bigskip
+
+\pause
+
+\blue{\ding{225}} We need to take into account \blue{two sources of uncertainty}:
+\begin{itemize}
+\item The \blue{parameters} are estimated with \blue{uncertainty}\\
+      (represented by the standard error).
+\item There is \blue{random variation / prediction error}\\
+      (variation of the residuals).
+\end{itemize}
+
+
+## Univariate Missing Data
+\textbf{Taking into account uncertainty about the parameters:}\
+We assume that \blue{$\boldsymbol\beta$ has a distribution},
+and we can sample realizations
+of $\boldsymbol \beta$ from that distribution.
+
+\vfill
+
+\begin{columns}[onlytextwidth]
+\begin{column}{0.5\textwidth}
+\onslide<1->{%
+When plugging the different realizations of $\boldsymbol\beta$ into the predictive
+model, we obtain \blue{slightly different regression lines}.
+}
+
+\bigskip
+
+\onslide<2>{
+With each set of coefficients, we also get slightly \blue{different predicted values}.
+}
+\end{column}
+\begin{column}{0.5\textwidth}
+\only<-1>{
+\animategraphics[loop, autoplay, width = \linewidth]{5}{graphics/Section02/reglines_movie/reglines_movie0}{001}{100}
+}
+\only<2->{
+\animategraphics[loop, autoplay, width = \linewidth]{10}{graphics/Section02/regimps_movie/regimps_movie0}{001}{100}
+}
+\end{column}
+\end{columns}
+
+
+
+
+## Univariate Missing Data
+\textbf{Taking into account the prediction error:}\
+The model does not fit the data perfectly: observations are scattered around the
+regression lines.
+
+\bigskip
+
+\begin{columns}[onlytextwidth, T]
+\begin{column}{0.5\textwidth}
+We assume that the \blue{data have a distribution}, where
+\begin{itemize}
+\item the \blue{mean} for each value is given by the \blue{predictive model}, and
+\item the \blue{variance} is determined by  the variance of the residuals
+      $\boldsymbol\varepsilon$.
+\end{itemize}
+\onslide<2->{\blue{\ding{225}} \parbox[t]{0.8\linewidth}{sample imputed values
+from this distribution.}}
+\end{column}
+\begin{column}{0.5\textwidth}
+\only<1>{
+\includegraphics[width = \linewidth]{graphics/Section02/ranerrplot.pdf}
+}
+\only<2>{
+\animategraphics[loop, autoplay, width = \linewidth]{1}{graphics/Section02/ranerr_movie/ranerr_movie}{0001}{0010}
+}
+\only<3>{
+\includegraphics[width = \linewidth]{graphics/Section02/ranerrimpsplot.pdf}
+}
+
+\end{column}
+\end{columns}
+\vspace*{-2ex}
+\onslide<3> In the end, we obtain one imputed dataset for each colour.
+
+
+
+## Multivariate Missing Data {#subsec:multivarmissing}
+\blue{Multivariate missing data:}\
+What if we have \blue{missing values in more than one variable}?
+
+\vfill
+
+\pause
+\begin{columns}[onlytextwidth]
+\begin{column}{0.65\textwidth}
+In case of \blue{monotone missing values} we can use the technique for univariate
+missing data in a chain:
+
+impute $x_4$ given $x_1$\linebreak
+impute $x_3$ given $x_1$ and $x_4$\linebreak
+impute $x_2$ given $x_1$, $x_4$ and $x_3$
+\end{column}
+\begin{column}{0.3\textwidth}
+\scalebox{0.8}{
+  \begin{tabular}{ccccc}
+  $X_1$ & $X_2$ & $X_3$ & $X_4$\\\hline
+  \checkmark & NA     & \checkmark & \checkmark\\
+  \checkmark & NA     & NA         & \checkmark\\
+  \checkmark & NA     & NA         & NA\\
+  \vdots     & \vdots & \vdots     & \vdots
+ \end{tabular}
+}
+\end{column}
+\end{columns}
+
+\vfill
+
+\pause
+\begin{columns}[onlytextwidth]
+\begin{column}{0.65\textwidth}
+When we have \blue{non-monotone missing data} there is no sequence without
+conditioning on unobserved values.
+\vfill
+\end{column}
+\begin{column}{0.3\textwidth}
+\scalebox{0.8}{
+  \begin{tabular}{ccccc}
+  $X_1$ & $X_2$ & $X_3$ & $X_4$\\\hline
+  \checkmark & NA         & \checkmark & \checkmark\\
+  \checkmark & \checkmark & NA         & NA\\
+  \checkmark & NA         & \checkmark & NA\\
+  \vdots     & \vdots     & \vdots     & \vdots
+ \end{tabular}
+}
+\end{column}
+\end{columns}
+
+
+
+## Multivariate Missing Data
+There are \blue{two popular approaches} for the imputation step in
+\blue{multivariate non-monotone} missing data:
+\begin{block}{Fully Conditional Specification}
+\begin{itemize}
+\item Multiple Imputation using Chained Equations (\blue{MICE})
+\item sometimes also: sequential regression
+\item implemented in SPSS, R, Stata, SAS, \ldots
+\item our focus here
+\end{itemize}
+\end{block}
+
+
+\pause
+\begin{block}{Joint Model Imputation}
+(more details later)
+\end{block}
+
+
+## MICE / FCS {#subsec:micealgorithm}
+
+\blue{MICE} (\blue{M}ultiple \blue{I}mputation using \blue{C}hained \blue{E}quations)
+or\
+\blue{FCS} (multiple imputation using \blue{F}ully \blue{C}onditional \blue{S}pecification)
+
+\bigskip
+extends univariable imputation to the setting with multivariate non-monotone missingness:
+
+\bigskip
+
+MICE / FCS
+\begin{itemize}
+\item imputes \blue{multivariate} missing data on a \blue{variable-by-variable} basis,
+\item using the technique for univariate missing data.
+\end{itemize}
+
+\bigskip
+
+\pause
+Moreover, MICE/FCS is
+\begin{itemize}
+\item an \blue{iterative} procedure, specifically
+\item a \blue{Markov Chain Monte Carlo (MCMC)} method,
+\item uses the idea of the \blue{Gibbs sampler}
+%\item is a Gibbs sampler if the conditional distributions are compatible\\
+%      (we will come back to this)
+\end{itemize}
+
+
+## MICE / FCS: Sidenote
+\blue{Markov Chain Monte Carlo}
+\begin{itemize}
+\item a technique to \blue{draw samples from a complex probability distribution}
+\item works via creating a chain of random variables (a Markov chain)\\
+      \ding{225} The distribution that each element in the chain is sampled from
+      depends on the value of the previous element.
+\item When certain conditions are met, the chain eventually stabilizes
+\item samples of the chain are then a sample from the complex distribution
+of interest
+\end{itemize}
+
+## MICE / FCS: Sidenote
+\blue{Gibbs sampling}
+\begin{itemize}
+\item a MCMC method to obtain a \blue{sample from a multivariate distribution}
+\item the multivariate distribution is split into a set of univariate full conditional distributions
+\item a sample from the multivariate distribution can be obtained by repeatedly drawing from each of the univariate distributions
+\end{itemize}
+
+
+## MICE / FCS: Notation
+\begin{itemize}
+\item $X$: $n \times p$ data matrix with $n$ rows and $p$ variables $x_1,\ldots, x_p$
+\item $R$: $n \times p$ missing indicator matrix containing 0 (missing) or 1 (observed)
+\end{itemize}
+
+\begin{columns}[onlytextwidth]
+\begin{column}{0.5\textwidth}
+\begin{center}
+\newcolumntype{g}{>{\columncolor{EMClight}}c}
+$\mathbf X$ = \begin{tabular}{|cgcc|}\arrayrulecolor{lightgray}
+\multicolumn{1}{c}{$X_{-2}$} & \textcolor{EMCdark}{$X_2$} & \multicolumn{2}{c}{$X_{-2}$}\\\hline
+$x_{1,1}$ & $x_{1,2}$ & \ldots & $x_{1,p}$\\
+$x_{2,1}$ & $x_{2,2}$ & \ldots & $x_{2,p}$\\
+\vdots    & \vdots    & $\ddots$ & \vdots\\
+$x_{n,1}$ & $x_{n,2}$ & \ldots & $x_{n,p}$\\\hline
+\end{tabular}\\
+\end{center}
+\end{column}
+%
+\begin{column}{0.5\textwidth}
+\begin{center}
+$\mathbf R$ = \begin{tabular}{|cccc|}\arrayrulecolor{lightgray}
+\multicolumn{4}{c}{}\\\hline
+$R_{1,1}$ & $R_{1,2}$ & \ldots & $R_{1,p}$\\
+$R_{2,1}$ & $R_{2,2}$ & \ldots & $R_{2,p}$\\
+\vdots    & \vdots    & $\ddots$ & \vdots\\
+$R_{n,1}$ & $R_{n,2}$ & \ldots & $R_{n,p}$\\\hline
+\end{tabular}
+\end{center}
+\end{column}
+\end{columns}
+
+\bigskip
+
+\pause
+\textbf{For example:}
+\small
+\begin{columns}[onlytextwidth]
+\begin{column}{0.5\textwidth}
+\begin{center}
+$\mathbf X$ =
+\begin{tabular}{ccccc}\arrayrulecolor{lightgray}
+$X_1$ & $X_2$ & $X_3$ & $X_4$\\\hline
+\checkmark & NA         & \checkmark & \checkmark\\
+\checkmark & \checkmark & NA & NA\\
+\checkmark & NA         & \checkmark & NA\\
+\end{tabular}
+\end{center}
+\end{column}
+\begin{column}{0.5\textwidth}
+\begin{center}
+\ding{225} $\mathbf R$ =
+\begin{tabular}{|cccc|}\arrayrulecolor{lightgray}
+\hline
+  % $X_1$ & $X_2$ & $X_3$ & $X_4$\\\hline
+  1 & 0         & 1 & 1\\
+  1 & 1 & 0 & 0\\
+  1 & 0         & 1 & 0\\\hline
+\end{tabular}
+\end{center}
+\end{column}
+\end{columns}
+
+
+
+## The MICE Algorithm [@Buuren2012]
+\algrenewcommand\algorithmicdo{}
+\begin{algorithmic}[1]
+\For{$j$ in $1,\ldots, p$:}
+\Comment{Setup}
+\State \parbox[t]{\dimexpr\linewidth-\algorithmicindent}{
+       Specify imputation model for variable $X_j$\\
+       $p(X_j^{mis}\mid X_j^{obs}, X_{-j}, R)$}
+\State \parbox[t]{\dimexpr\linewidth-\algorithmicindent}{
+        Fill in starting imputations $\dot X_j^0$ by random draws
+        from $X_j^{obs}$.}
+\EndFor
+\uncover<2->{
+\Statex
+\For{$t$ in $1,\ldots, T$:} \Comment{loop through iterations}
+\For{$j$ in $1,\ldots, p$:} \Comment{loop through variables}
+\uncover<3->{%
+\State \parbox[t]{\dimexpr0.95\linewidth-\algorithmicindent}{Define currently complete data except $X_j$\\
+       $\dot X_{-j}^t = \left(\dot X_1^t,\ldots, \dot X_{j-1}^t,
+               \dot X_{j+1}^{t-1},\ldots, \dot X_p^{t-1}\right)$.}
+}
+\uncover<4->{
+\State Draw parameters $\dot \theta_j^t\sim p(\theta_j^t \mid X_j^{obs}, \dot X_{-j}^t, R)$.
+}
+\uncover<5->{
+\State Draw imputations $\dot X_j^t \sim p(X_j^{mis}\mid \dot X_{-j}^t, R, \dot\theta_j^t)$.
+}
+\EndFor
+\EndFor
+}
+\end{algorithmic}
+
+
+
+## The MICE Algorithm [@Buuren2012]
+\algrenewcommand\algorithmicdo{}
+\begin{algorithmic}[1]
+\For{\textcolor{blue}{$j$ in $1,\ldots, 4$}:}
+\Comment{Setup}
+\State \parbox[t]{\dimexpr\linewidth-\algorithmicindent}{
+       Specify imputation model for variable $X_j$\\
+       $p(X_j^{mis}\mid X_j^{obs}, X_{-j}, R)$}
+\State \parbox[t]{\dimexpr\linewidth-\algorithmicindent}{
+        Fill in starting imputations $\dot X_j^0$ by random draws
+        from $X_j^{obs}$.}
+\EndFor
+\Statex
+\only<1>{%
+\For{\textcolor{darkred}{$t = 1$}:}\Comment{loop through \textcolor{darkred}{iterations}}
+\For{\textcolor{blue}{$j = 1$}:}\Comment{loop through \textcolor{blue}{variables}}
+\State \parbox[t]{\dimexpr0.95\linewidth-\algorithmicindent}{%
+       Define currently complete data except $X_{\textcolor{blue}{1}}$\\
+       $\dot X_{\textcolor{blue}{-1}}^{\textcolor{darkred}{1}} =
+       \left(\dot X_2^{\textcolor{darkred}{0}},
+             \dot X_3^{\textcolor{darkred}{0}},
+             \dot X_4^{\textcolor{darkred}{0}}\right)$.}
+\State Draw parameters $\dot \theta_{\textcolor{blue}{1}}^{\textcolor{darkred}{1}}\sim
+p(\theta_{\textcolor{blue}{1}}^{\textcolor{darkred}{1}} \mid X_{\textcolor{blue}{1}}^{obs},
+\dot X_{\textcolor{blue}{-1}}^{\textcolor{darkred}{1}}, R)$.
+\State Draw imputations $\dot X_{\textcolor{blue}{1}}^{\textcolor{darkred}{1}} \sim
+p(X_{\textcolor{blue}{1}}^{mis}\mid \dot X_{\textcolor{blue}{-1}}^{\textcolor{darkred}{1}}, R,
+\dot\theta_{\textcolor{blue}{1}}^{\textcolor{darkred}{1}})$.
+}
+\only<2>{%
+\For{\textcolor{darkred}{$t = 1$}:}\Comment{loop through \textcolor{darkred}{iterations}}
+\For{\textcolor{blue}{$j = 2$}:}\Comment{loop through \textcolor{blue}{variables}}
+\State \parbox[t]{\dimexpr0.95\linewidth-\algorithmicindent}{
+       Define currently complete data except $X_{\textcolor{blue}{2}}$\\
+       $\dot X_{\textcolor{blue}{-2}}^{\textcolor{darkred}{1}} =
+       \left(\dot X_1^{\textcolor{darkred}{1}},
+             \dot X_3^{\textcolor{darkred}{0}},
+             \dot X_4^{\textcolor{darkred}{0}}\right)$.}
+\State Draw parameters $\dot \theta_{\textcolor{blue}{2}}^{\textcolor{darkred}{1}}\sim
+p(\theta_{\textcolor{blue}{2}}^{\textcolor{darkred}{1}} \mid X_{\textcolor{blue}{2}}^{obs},
+\dot X_{\textcolor{blue}{-2}}^{\textcolor{darkred}{1}}, R)$.
+\State Draw imputations $\dot X_{\textcolor{blue}{2}}^{\textcolor{darkred}{1}} \sim
+p(X_{\textcolor{blue}{2}}^{mis}\mid \dot X_{\textcolor{blue}{-2}}^{\textcolor{darkred}{1}}, R,
+\dot\theta_{\textcolor{blue}{2}}^{\textcolor{darkred}{1}})$.
+}
+\only<3>{%
+\For{\textcolor{darkred}{$t = 1$}:}\Comment{loop through \textcolor{darkred}{iterations}}
+\For{\textcolor{blue}{$j = 3$}:}\Comment{loop through \textcolor{blue}{variables}}
+\State \parbox[t]{\dimexpr0.95\linewidth-\algorithmicindent}{%
+       Define currently complete data except $X_{\textcolor{blue}{3}}$\\
+       $\dot X_{\textcolor{blue}{-3}}^{\textcolor{darkred}{1}} =
+       \left(\dot X_1^{\textcolor{darkred}{1}},
+             \dot X_2^{\textcolor{darkred}{1}},
+             \dot X_4^{\textcolor{darkred}{0}}\right)$.}
+\State Draw parameters $\dot \theta_{\textcolor{blue}{3}}^{\textcolor{darkred}{1}}\sim
+p(\theta_{\textcolor{blue}{3}}^{\textcolor{darkred}{1}} \mid X_{\textcolor{blue}{3}}^{obs},
+\dot X_{\textcolor{blue}{-3}}^{\textcolor{darkred}{1}}, R)$.
+\State Draw imputations $\dot X_{\textcolor{blue}{3}}^{\textcolor{darkred}{1}} \sim
+p(X_{\textcolor{blue}{3}}^{mis}\mid \dot X_{\textcolor{blue}{-3}}^{\textcolor{darkred}{1}}, R,
+\dot\theta_{\textcolor{blue}{3}}^{\textcolor{darkred}{1}})$.
+}
+\only<4>{%
+\For{\textcolor{darkred}{$t = 1$}:}\Comment{loop through \textcolor{darkred}{iterations}}
+\For{\textcolor{blue}{$j = 4$}:}\Comment{loop through \textcolor{blue}{variables}}
+\State \parbox[t]{\dimexpr0.95\linewidth-\algorithmicindent}{
+       Define currently complete data except $X_{\textcolor{blue}{4}}$\\
+       $\dot X_{\textcolor{blue}{-4}}^{\textcolor{darkred}{1}} =
+       \left(\dot X_1^{\textcolor{darkred}{1}},
+             \dot X_2^{\textcolor{darkred}{1}},
+             \dot X_3^{\textcolor{darkred}{1}}\right)$.}
+\State Draw parameters $\dot \theta_{\textcolor{blue}{4}}^{\textcolor{darkred}{1}}\sim
+p(\theta_{\textcolor{blue}{4}}^{\textcolor{darkred}{1}} \mid X_{\textcolor{blue}{4}}^{obs},
+\dot X_{\textcolor{blue}{-4}}^{\textcolor{darkred}{1}}, R)$.
+\State Draw imputations $\dot X_{\textcolor{blue}{4}}^{\textcolor{darkred}{1}} \sim
+p(X_{\textcolor{blue}{4}}^{mis}\mid \dot X_{\textcolor{blue}{-4}}^{\textcolor{darkred}{1}}, R,
+\dot\theta_{\textcolor{blue}{4}}^{\textcolor{darkred}{1}})$.
+}
+\only<5>{%
+\For{\textcolor{darkred}{$t = 2$}:}\Comment{loop through \textcolor{darkred}{iterations}}
+\For{\textcolor{blue}{$j = 1$}:}\Comment{loop through \textcolor{blue}{variables}}
+\State \parbox[t]{\dimexpr0.95\linewidth-\algorithmicindent}{%
+       Define currently complete data except $X_{\textcolor{blue}{1}}$\\
+       $\dot X_{\textcolor{blue}{-1}}^{\textcolor{darkred}{2}} =
+       \left(\dot X_2^{\textcolor{darkred}{1}},
+             \dot X_3^{\textcolor{darkred}{1}},
+             \dot X_4^{\textcolor{darkred}{1}}\right)$.}
+\State Draw parameters $\dot \theta_{\textcolor{blue}{1}}^{\textcolor{darkred}{2}}\sim
+p(\theta_{\textcolor{blue}{1}}^{\textcolor{darkred}{2}} \mid X_{\textcolor{blue}{1}}^{obs},
+\dot X_{\textcolor{blue}{-1}}^{\textcolor{darkred}{2}}, R)$.
+\State Draw imputations $\dot X_{\textcolor{blue}{1}}^{\textcolor{darkred}{2}} \sim
+p(X_{\textcolor{blue}{1}}^{mis}\mid \dot X_{\textcolor{blue}{-1}}^{\textcolor{darkred}{2}}, R,
+\dot\theta_{\textcolor{blue}{1}}^{\textcolor{darkred}{2}})$.
+}
+\only<6>{%
+\For{\textcolor{darkred}{$t = 2$}:}\Comment{loop through \textcolor{darkred}{iterations}}
+\For{\textcolor{blue}{$j = 2$}:}\Comment{loop through \textcolor{blue}{variables}}
+\State \parbox[t]{\dimexpr0.95\linewidth-\algorithmicindent}{%
+       Define currently complete data except $X_{\textcolor{blue}{2}}$\\
+       $\dot X_{\textcolor{blue}{-2}}^{\textcolor{darkred}{2}} =
+       \left(\dot X_1^{\textcolor{darkred}{2}},
+             \dot X_3^{\textcolor{darkred}{1}},
+             \dot X_4^{\textcolor{darkred}{1}}\right)$.}
+\State Draw parameters $\dot \theta_{\textcolor{blue}{2}}^{\textcolor{darkred}{2}}\sim
+p(\theta_{\textcolor{blue}{2}}^{\textcolor{darkred}{2}} \mid X_{\textcolor{blue}{2}}^{obs},
+\dot X_{\textcolor{blue}{-2}}^{\textcolor{darkred}{2}}, R)$.
+\State Draw imputations $\dot X_{\textcolor{blue}{2}}^{\textcolor{darkred}{2}} \sim
+p(X_{\textcolor{blue}{2}}^{mis}\mid \dot X_{\textcolor{blue}{-2}}^{\textcolor{darkred}{2}}, R,
+\dot\theta_{\textcolor{blue}{2}}^{\textcolor{darkred}{2}})$.
+}
+\EndFor
+\EndFor
+\end{algorithmic}
+
+
+
+
+## The MICE Algorithm
+The imputed values from the \blue{last iteration},
+$$\left(\dot X_1^T, \ldots, \dot X_p^T\right),$$
+are then used to replace the missing values in the original data.
+
+
+\bigskip
+
+One run through the algorithm \blue{\ding{225}} one imputed dataset.
+
+\bigskip
+
+\pause
+\blue{\ding{225}} To obtain $m$ imputed datasets: \blue{repeat $m$ times}
+
+## Iterations & Convergence
+\begin{itemize}
+\item The \blue{sequence of imputations} for one missing value (from
+starting value to final iteration) is called a \blue{chain}.
+\item Each run through the MICE algorithm produces one chain per missing value.
+\end{itemize}
+
+\bigskip
+
+\blue{Why iterations?}
+
+\pause
+
+\begin{itemize}
+\item \blue{Imputed values} in one variable \blue{depend on} the imputed values 
+       of the \blue{other variables} (Gibbs sampling).
+\item If the starting values (random draws) are far from the actual distribution,
+imputed values from the first few iterations are not draws from the distribution
+of interest.
+\end{itemize}
+
+## Iterations & Convergence
+\blue{How many iterations?}\
+Until \blue{convergence}\
+= when the sampling distribution does not change any more\
+(Note: the imputed value will still vary between iterations.)
+
+\bigskip\pause
+
+\blue{How to evaluate convergence?}\
+The \blue{traceplot} (x-axis: iteration number, y-axis: imputed value) should
+show a horizontal band
+
+
+## Checking Convergence {#subsec:convergence}
+\vspace*{-1ex}
+\only<1>{
+\includegraphics[width = \linewidth]{graphics/Section02/demotrace_01.pdf}
+}
+\only<2>{
+\includegraphics[width = \linewidth]{graphics/Section02/demotrace_02.pdf}
+}
+\vspace*{-2ex}
+Each chain is the sequence of imputed values (from starting value to final imputed value)
+for the same missing value.
+
+
+## Checking Convergence
+In imputation we have
+\begin{itemize}
+\item several \blue{variables} with missing values (e.g., $p$)
+\item several missing \blue{values} in each of these variables
+\item $m$ \blue{chains} for each missing value
+\end{itemize}
+\blue{\ding{225}} possibly a large number of MCMC chains
+
+\bigskip
+
+To check all chains separately could be very time consuming in large datasets.
+
+\bigskip
+
+\pause
+\blue{Alternative:} Calculate and plot a summary (e.g., the mean) of the imputed
+values over all subjects, separately per chain and variable\
+\blue{\ding{225}} only $m \times p$ chains to check
+
+
+
+## Checking Convergence
+\includegraphics[width = \linewidth]{graphics/Section02/convplot1a.pdf}
+
+## Checking Convergence
+\begincols[onlytextwidth]
+\begincol{0.33\linewidth}
+\includegraphics[width = \linewidth]{graphics/Section02/convplot1b.pdf}\vspace*{-1ex}
+\endcol
+\pause
+\begincol{0.33\linewidth}
+\includegraphics[width = \linewidth]{graphics/Section02/convplot1c.pdf}\vspace*{-1ex}
+\endcol
+\pause
+\begincol{0.33\linewidth}
+\includegraphics[width = \linewidth]{graphics/Section02/convplot1d.pdf}\vspace*{-1ex}
+\endcol
+\endcols
+
+
+## References
