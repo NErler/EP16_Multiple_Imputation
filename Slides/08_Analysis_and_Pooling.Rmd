@@ -43,7 +43,7 @@ NHANES <- NHANES[, c(which(names(NHANES) != 'BMI')[1:7],
                      which(names(NHANES) == 'BMI'),
                      which(names(NHANES) != 'BMI')[-c(1:7)])]
 
-source('07_Convergencve_and_Diagnostics.R')
+source('07_Convergence_and_Diagnostics.R')
 
 load(file.path(projdir, "Slides/workspaces/imp3.RData"))
 load(file.path(projdir, "Slides/workspaces/imp4.RData"))
