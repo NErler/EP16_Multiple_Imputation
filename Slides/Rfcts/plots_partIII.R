@@ -1,3 +1,8 @@
+
+source(file.path(projdir, "Slides", "Rscripts/simdata_PartIII.R"))
+
+library(ggplot2)
+
 # quadratic exampe -------------------------------------------------------------
 # * simuate data ---------------------------------------------------------------
 set.seed(2)
