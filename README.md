@@ -70,6 +70,8 @@ There are a number of additional packages that may be useful:
 install.packages("VIM")
 install.packages("naniar")
 install.packages("visdat")
+install.packages("mitools")
+install.packages("miceadds")
 ```
 
 <br><br><hr>
