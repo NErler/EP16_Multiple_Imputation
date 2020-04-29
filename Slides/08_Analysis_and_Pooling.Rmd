@@ -43,44 +43,84 @@ NHANES <- NHANES[, c(which(names(NHANES) != 'BMI')[1:7],
                      which(names(NHANES) == 'BMI'),
                      which(names(NHANES) != 'BMI')[-c(1:7)])]
 
-source('07_Convergence_and_Diagnostics.R')
+source(file.path(projdir, 'Slides/07_Convergence_and_Diagnostics.R'))
 
 load(file.path(projdir, "Slides/workspaces/imp3.RData"))
 load(file.path(projdir, "Slides/workspaces/imp4.RData"))
+load(file.path(projdir, "Slides/workspaces/imp4b.RData"))
 ```
 
 
 
-## Analysing imputed data
+## Analysing Imputed Data
 Once we have confirmed that our imputation was successful, we can move on
 to the \blue{analysis of the imputed data}.\bigskip
 
-For example, we might be interested in the following logistic regression model:
+For example a logistic regression model:
 \small
 ```{r fitglm, eval = FALSE}
-glm(DM ~ age + gender + hypchol + BMI + smoke + alc,
-    family = "binomial")
+glm(DM ~ age + gender + hypchol + BMI + smoke + alc, family = binomial())
 ```
 \normalsize
 \pause
 
-To fit the model on each of the imputed datasets, we do not need to extract
-the data from the \Robj{mids} object, but can use \Rfct{with}.
+To fit the model on each of the imputed datasets:
+
+* no need to extract the data from the \Robj{mids} object
+* instead: can use \Rfct{with}
+
 \small
 ```{r glm}
 mod1 <- with(imp4, glm(DM ~ age + gender + hypchol + BMI + smoke + alc,
-                       family = "binomial"))
+                       family = binomial()))
 ```
 
-\Robj{mod1} is an object of class \Robj{mira}.
+## Analysing Imputed Data
+\Robj{mod1} is an object of class \Robj{mira} (Multiply Imputed Repeated Analyses).
+
+\pause\bigskip
+
+The `mira` object has elements
+
+* \blue{call:} the current call
+* \blue{call1:} call that created the `mids` object
+* \blue{nmis:} vector with number of missing values per variable
+* \blue{analyses:} a list of the separate analyses
 
 
 ## Pooling the Results
 Pooled results can be obtained using \Rfct{pool} and its summary.
 
-```{r pooled}
-res1 <- summary(pool(mod1), conf.int = TRUE)
-# round(res1, 3)
+\scriptsize
+```{r, eval = FALSE}
+pool(mod1)$pooled
+```
+```{r, echo = FALSE}
+print(pool(mod1)$pooled, digits = 3)
+```
+
+<!-- ## Pooling the Results -->
+
+<!-- The function `pool()`{.R} returns the elements necessary for the pooling of the results: -->
+
+<!-- * `estimate`: pooled estimate ($\bar Q$) -->
+<!-- * `ubar`: within-imputation variance ($\bar U$) -->
+<!-- * `b`: between-imputation variance ($B$) -->
+<!-- * `t`: total variance ($T$) -->
+<!-- * `dfcom`: degrees of freedom in the complete data ($N - \#params$) -->
+<!-- * `df`: degrees of freedom of the $t$-statistic ($\nu$) -->
+<!-- * `riv`: Relative increase in variance ($r_m$) -->
+<!-- * `lambda`: proportion attributable to the missingness $\left(\frac{B + B/m}{T}\right)$ -->
+<!-- * `fmi`: fraction of missing information -->
+
+
+## Pooling the Results
+\footnotesize
+```{r pooled, eval = FALSE}
+summary(pool(mod1), conf.int = TRUE)
+```
+```{r, echo = FALSE}
+print(summary(pool(mod1), conf.int = TRUE), digits = 3)
 ```
 
 
@@ -102,12 +142,11 @@ An alternative is offered by the package \textbf{mitools} and the function
 
 
 ## Functions for Pooled Results
-\textbf{mice} currently has two functions available for evaluating model
-fit / model comparison
+\textbf{mice} provides some functions for evaluating model fit or model comparison.
 
-\bigskip
-For \blue{linear} regression models the pooled $R^2$ can be calculated
-using \Rfct{pool.r.squared}.
+\bigskip \pause
+
+`pool.r.squared()`{.R} calculates the pooled (adjusted) $R^2$:
 \small
 ```{r poolrsquared, size = 'small'}
 mod2 <- with(imp4, lm(SBP ~ DM + age + hypten))
@@ -120,12 +159,25 @@ standard $R^2$ is returned.
 
 
 ## Functions for Pooled Results
-The function \Rfct{pool.compare} allows comparison of \blue{nested models}
-(i.e., models where one is a special case of the other, with some parameters
-fixed to zero) using a \blue{Wald test}.
+
+To compare nested models:
+
+* `D1()`{.R}: multivariate Wald test
+* `D3()`{.R}: likelihood-ratio test statistic
 
 \bigskip
 
+To pool test statistics when no variance-covariance matrix is available:
+
+* `D2()`{.R}: Combining test statistics
+
+\bigskip\vfill
+
+For details, see @Buuren2012, [Section 5.3](https://stefvanbuuren.name/fimd/sec-multiparameter.html#sec:wald).
+
+
+
+## Functions for Pooled Results
 \textbf{Example:}
 To test if \Rstring{smoke} has a relevant contribution to the model for
 \Rstring{DM} from above we re-fit the model without \Rstring{smoke} and
@@ -135,9 +187,10 @@ compare the two models:
 mod3 <- with(imp4, glm(DM ~ age + gender + hypchol + BMI + alc,
                        family = "binomial"))
 # Wald test
-pool.compare(mod1, mod3)$pvalue
+D1(mod1, mod3)
 ```
 \normalsize
+
 \Rfct{anova} allows comparison of multiple nested models
 
 
@@ -154,24 +207,52 @@ miceadds::micombine.chisquare(dk, df, ...)
 miceadds::micombine.F(values, df1, ...)
 ```
 
-These functions take vectors of statistics computed on each imputed dataset
-and pool them.
+\bigskip\pause
 
-\bigskip
-
-\pause
 \blue{Calculate correlation or covariance of imputed data:}
-```{r miceaddsfcts2, eval = FALSE, size = 'small'}
+\small
+```{r miceaddsfcts2, eval = FALSE}
 miceadds::micombine.cor(mi.res, ...)
 miceadds::micombine.cov(mi.res, ...)
 ```
-These functions take \Robj{mids} objects as input.
+
+
+## Functions for Pooled Results
+\small
+```{r}
+# fit chi-square test on each imputed dataset
+chisq_mira <- with(imp4, chisq.test(table(educ, smoke)))
+
+# extract degrees of freedom
+dfs <- chisq_mira$analyses[[1]]$parameter
+
+# extract test statistic
+stat <- sapply(chisq_mira$analyses, "[[",  'statistic')
+
+# pool the tests
+miceadds::micombine.chisquare(dk = stat, df = dfs)
+```
+
+
+## Functions for Pooled Results
+\small
+```{r, eval = FALSE}
+miceadds::micombine.cor(imp4, variables = c('weight', 'BMI', 'creat'))
+```
+\scriptsize
+```{r, echo = FALSE}
+print(miceadds::micombine.cor(imp4, variables = c('weight', 'BMI', 'creat')), digits = 2)
+```
+
+
 
 ## Extract Imputed Data
-The function \Rfct{complete} allows \blue{extraction of the imputed data} from a \Robj{mids} object:
+The function \Rfct{complete} allows us to \blue{extract the imputed data} from a \Robj{mids} object:
+\small
 ```{r completedata, eval = FALSE}
-mice::complete(data, action = 1, include = FALSE, ...)
+mice::complete(data, action = 1, include = FALSE)
 ```
+\normalsize
 
 \begin{itemize}
 \item \Robj{data}: the \Robj{mids} object
@@ -179,8 +260,8 @@ mice::complete(data, action = 1, include = FALSE, ...)
       \begin{itemize}
       \item \Rval{1}, \ldots, \Rval{m} (single imputed dataset)
       \item \Rstring{"long"}: long format (imputed data stacked vertically)
-      \item \Rstring{"broad"}: \parbox[t]{0.65\linewidth}{
-                                  wide format (imputed data combined horizontally;
+      \item \Rstring{"broad"}: \parbox[t]{0.75\linewidth}{
+                                  wide format (imputed data combined horizontally;\\
                                   ordered by imputation)}
       \item \Rstring{"repeated"}: (like \Rstring{"broad"}, but ordered by variable)
       \end{itemize}
@@ -189,45 +270,28 @@ mice::complete(data, action = 1, include = FALSE, ...)
 \end{itemize}
 
 
-## Extract Imputed Data
-The function \Rfct{mids2spss} allows the \blue{export of imputed data} (\Robj{mids} objects)
-to \textsf{SPSS}.
-```{r exporttospss, size = 'small', eval = FALSE}
-mids2spss(imp4,
-          filedat = "datafile.txt", # the file containing the data
-          filesps = "importsyntax.sps", # syntax to get .sav from .txt
-          silent = TRUE, ...
-)
-``` 
-
-Data from \Robj{mids} objects can also be exported to \textsf{MPLUS} using
-\Rfct{mids2mplus}.
-
 
 ## Combining \texttt{mids} objects
 To \blue{increase the number of imputed datasets} without re-doing the initial $m$ imputations,
 a second set of imputations can be done and the two \Robj{mids} objects combined
 using \Rfct{ibind}.
 
-```{r ibind, eval = F, size = 'small'}
+\small
+```{r ibind, eval = runimps}
 # same syntax as before, but different seed
-imp4b <- update(imp4, post = post, maxit = 20, seed = 456)
-imp4combi <- ibind(imp4, imp4b)
+imp4b <- update(imp4, seed = 456)
 ```
 
-```{r ibindrun, eval = runimps, echo = F}
-# same syntax as before, but different seed:
-imp4b <- update(imp4, post = post, maxit = 20, seed = 456)
+```{r ibindrun, eval = runimps, echo = FALSE}
 save(imp4b, file = file.path(projdir, "Slides", "workspaces/imp4b.RData"))
 ```
 
-```{r ibindget, echo = F, size = 'small'}
-load(file.path(projdir, "Slides", "workspaces/imp4b.RData"))
-imp4combi <- ibind(imp4, imp4b)
+```{r}
+imp4combi <- ibind(imp4, imp4b) # combine
 ```
 
-```{r, size = 'small'}
-# check the new number of impute datasets:
+```{r}
+# check the new number of imputed datasets:
 imp4combi$m
 ```
 
@@ -242,9 +306,10 @@ or \Robj{factor} or another \Robj{mids} object.\bigskip
 For example data columns that should be part of the imputed data for completeness,
 but are not needed in the imputation.
 
-```{r cibindmids, size = 'small'}
-extravar <- rnorm(nrow(NHANES))
-impextra <- mice:::cbind.mids(x = imp4, extravar = extravar)
+\small
+```{r cibindmids, eval = FALSE}
+# "otherdata" is a data.frame
+impextra <- mice:::cbind.mids(x = imp4, y = otherdata)
 ```
 
 \blue{Note:}
@@ -254,14 +319,5 @@ as the corresponding rows in the imputed data.
 
 
 
-## Your Turn!
-\begin{center}
-\begin{columns}
-\begin{column}{0.55\linewidth}
-\begin{block}{Practical}
-How to Analyse Data after Multiple Imputation \button{https://nerler.github.io/EP16_Multiple_Imputation/practical/analysismi/EP16_AnalysisMI.html}{html}
-\end{block}
-\end{column}
-\end{columns}
-\end{center}
+## References
 
