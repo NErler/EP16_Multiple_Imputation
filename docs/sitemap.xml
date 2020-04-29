@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>https://nerler.github.io/EP16_Multiple_Imputation/about/</loc>
+    <lastmod>2020-04-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://nerler.github.io/EP16_Multiple_Imputation/</loc>
+    <lastmod>2020-04-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://nerler.github.io/EP16_Multiple_Imputation/home/</loc>
+    <lastmod>2020-04-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://nerler.github.io/EP16_Multiple_Imputation/practical/01_getting_to_know_your_incomplete_data/</loc>
+  </url>
+  
+  <url>
+    <loc>https://nerler.github.io/EP16_Multiple_Imputation/slide/01_what_is_mi/</loc>
+  </url>
+  
+  <url>
+    <loc>https://nerler.github.io/EP16_Multiple_Imputation/slide/02_imputation_step/</loc>
+  </url>
+  
+  <url>
+    <loc>https://nerler.github.io/EP16_Multiple_Imputation/practical/02_multiple_imputation_with_the_mice_package/</loc>
+  </url>
+  
+  <url>
+    <loc>https://nerler.github.io/EP16_Multiple_Imputation/slide/03_analysis_and_pooling/</loc>
+  </url>
+  
+  <url>
+    <loc>https://nerler.github.io/EP16_Multiple_Imputation/practical/03_checks_after_multiple_imputation/</loc>
+  </url>
+  
+  <url>
+    <loc>https://nerler.github.io/EP16_Multiple_Imputation/practical/04_how_to_analyse_data_after_multiple_imputation/</loc>
+  </url>
+  
+  <url>
+    <loc>https://nerler.github.io/EP16_Multiple_Imputation/slide/04_imputation_step_ii/</loc>
+  </url>
+  
+  <url>
+    <loc>https://nerler.github.io/EP16_Multiple_Imputation/slide/05_know_your_data/</loc>
+  </url>
+  
+  <url>
+    <loc>https://nerler.github.io/EP16_Multiple_Imputation/slide/06_imputation_with_mice/</loc>
+  </url>
+  
+  <url>
+    <loc>https://nerler.github.io/EP16_Multiple_Imputation/slide/07_convergence_and_diagnostics/</loc>
+  </url>
+  
+  <url>
+    <loc>https://nerler.github.io/EP16_Multiple_Imputation/slide/11_imputation_with_non-linear_functions/</loc>
+  </url>
+  
+  <url>
+    <loc>https://nerler.github.io/EP16_Multiple_Imputation/practical/data/</loc>
+  </url>
+  
+  <url>
+    <loc>https://nerler.github.io/EP16_Multiple_Imputation/practical/</loc>
+  </url>
+  
+  <url>
+    <loc>https://nerler.github.io/EP16_Multiple_Imputation/slide/</loc>
+  </url>
+  
+  <url>
+    <loc>https://nerler.github.io/EP16_Multiple_Imputation/tags/</loc>
+  </url>
+  
+  <url>
+    <loc>https://nerler.github.io/EP16_Multiple_Imputation/topics/</loc>
+  </url>
+  
+</urlset>

@@ -23,6 +23,8 @@ sectionPagesMenu = "main"
   # disqus = "Your Disqus shortname"
   # CSS name for highlight.js
   highlightjs = "androidstudio"
+  pygmentsCodefences = true
+  pygmentsStyle = "tango"
   dateFormat = "02 Jan 2006, 15:04"
 
 [menu]

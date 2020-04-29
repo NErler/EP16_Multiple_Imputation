@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>EP16: Missing Values in Clinical Research</title>
+    <link>https://nerler.github.io/EP16_Multiple_Imputation/</link>
+    <description>Recent content on EP16: Missing Values in Clinical Research</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-uk</language>
+    <copyright>&amp;copy; 2020. All rights reserved.</copyright>
+    <lastBuildDate>Fri, 24 Apr 2020 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="https://nerler.github.io/EP16_Multiple_Imputation/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>About</title>
+      <link>https://nerler.github.io/EP16_Multiple_Imputation/about/</link>
+      <pubDate>Fri, 24 Apr 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://nerler.github.io/EP16_Multiple_Imputation/about/</guid>
+      <description>Dr. Nicole Erler  Postdoctoral Researcher  Department of Biostatistics  Erasmus Medical Center  Rotterdam, The Netherlands         </description>
+    </item>
+    
+    <item>
+      <title>EP16: Missing Values in Clinical Research</title>
+      <link>https://nerler.github.io/EP16_Multiple_Imputation/home/</link>
+      <pubDate>Fri, 24 Apr 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://nerler.github.io/EP16_Multiple_Imputation/home/</guid>
+      <description>.btn { padding: 2px 10px; cursor: pointer; font-weight: bold; background: #fff; color: #485167; border-radius: 5px; border: 1px solid #485167; font-size: 100%; } /* Darker background on mouse-over */ .btn:hover { color: #fff; background: #485167; border: 1px solid #485167; }  This website contains materials for the NIHES course Missing Values in Clinical Research (EP16):
+ lecture slides practicals  Download a .zip file with all materials:</description>
+    </item>
+    
+    <item>
+      <title>01 Getting to Know Your Incomplete Data</title>
+      <link>https://nerler.github.io/EP16_Multiple_Imputation/practical/01_getting_to_know_your_incomplete_data/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://nerler.github.io/EP16_Multiple_Imputation/practical/01_getting_to_know_your_incomplete_data/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>01 What is MI</title>
+      <link>https://nerler.github.io/EP16_Multiple_Imputation/slide/01_what_is_mi/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://nerler.github.io/EP16_Multiple_Imputation/slide/01_what_is_mi/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>02 Imputation Step</title>
+      <link>https://nerler.github.io/EP16_Multiple_Imputation/slide/02_imputation_step/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://nerler.github.io/EP16_Multiple_Imputation/slide/02_imputation_step/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>02 Multiple Imputation with the mice Package</title>
+      <link>https://nerler.github.io/EP16_Multiple_Imputation/practical/02_multiple_imputation_with_the_mice_package/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://nerler.github.io/EP16_Multiple_Imputation/practical/02_multiple_imputation_with_the_mice_package/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>03 Analysis and Pooling</title>
+      <link>https://nerler.github.io/EP16_Multiple_Imputation/slide/03_analysis_and_pooling/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://nerler.github.io/EP16_Multiple_Imputation/slide/03_analysis_and_pooling/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>03 Checks after Multiple Imputation</title>
+      <link>https://nerler.github.io/EP16_Multiple_Imputation/practical/03_checks_after_multiple_imputation/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://nerler.github.io/EP16_Multiple_Imputation/practical/03_checks_after_multiple_imputation/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>04 How to Analyse Data after Multiple Imputation</title>
+      <link>https://nerler.github.io/EP16_Multiple_Imputation/practical/04_how_to_analyse_data_after_multiple_imputation/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://nerler.github.io/EP16_Multiple_Imputation/practical/04_how_to_analyse_data_after_multiple_imputation/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>04 Imputation Step II</title>
+      <link>https://nerler.github.io/EP16_Multiple_Imputation/slide/04_imputation_step_ii/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://nerler.github.io/EP16_Multiple_Imputation/slide/04_imputation_step_ii/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>05 Know Your Data</title>
+      <link>https://nerler.github.io/EP16_Multiple_Imputation/slide/05_know_your_data/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://nerler.github.io/EP16_Multiple_Imputation/slide/05_know_your_data/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>06 Imputation with MICE</title>
+      <link>https://nerler.github.io/EP16_Multiple_Imputation/slide/06_imputation_with_mice/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://nerler.github.io/EP16_Multiple_Imputation/slide/06_imputation_with_mice/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>07 Convergence and Diagnostics</title>
+      <link>https://nerler.github.io/EP16_Multiple_Imputation/slide/07_convergence_and_diagnostics/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://nerler.github.io/EP16_Multiple_Imputation/slide/07_convergence_and_diagnostics/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>11 Imputation with non-linear functions</title>
+      <link>https://nerler.github.io/EP16_Multiple_Imputation/slide/11_imputation_with_non-linear_functions/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://nerler.github.io/EP16_Multiple_Imputation/slide/11_imputation_with_non-linear_functions/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Data &amp; Imputations</title>
+      <link>https://nerler.github.io/EP16_Multiple_Imputation/practical/data/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://nerler.github.io/EP16_Multiple_Imputation/practical/data/</guid>
+      <description>.btn { padding: 2px 10px; cursor: pointer; font-weight: bold; background: #fff; color: #485167; border-radius: 5px; border: 1px solid #485167; font-size: 100%; } /* Darker background on mouse-over */ .btn:hover { color: #fff; background: #485167; border: 1px solid #485167; }  Data Download a .zip file with all datasets for the practcals:  
+Imputed Data Objects Download a .zip file with all mids objects from the practicals:</description>
+    </item>
+    
+  </channel>
+</rss>

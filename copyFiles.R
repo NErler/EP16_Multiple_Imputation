@@ -1,26 +1,4 @@
-# help-functions
-# write_Practicals_md <- function(x) {
-#   xnew <- gsub(' ', '-', tolower(x))
-#   
-#   files <- gsub('.Rmd$', '',
-#                 grep('.Rmd$', dir(file.path(getwd(), 'Practicals', x)),
-#                      value = TRUE)
-#   )
-#   
-#   filenames <- gsub("\\_", " ", files)
-#   cat(
-#     paste0("---\n",
-#            "title: ", x, "\n",
-#            "---\n\n"
-#     ),
-#     paste0(
-#       "* ", filenames,
-#       " [[html]](/practical/", xnew, "/", files, ".html)",
-#       "\n"
-#     ), file = paste0('website/content/practical/', x, '.md')
-#   )
-# }
-
+# helper functions
 
 write_Practicals_md <- function(x) {
   file <- gsub('^Practicals/', '', x)
