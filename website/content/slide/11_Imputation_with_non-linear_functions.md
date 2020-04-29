@@ -1,6 +1,6 @@
 ---
-title: '11 Imputation with non-linear functions'
-link: /slide/11_Imputation_with_non-linear_functions.pdf
-image: /slide/11_Imputation_with_non-linear_functions.png
+title: '11 Imputation with Non-linear Functions'
+link: /slide/11_Imputation_with_Non-linear_Functions.pdf
+image: /slide/11_Imputation_with_Non-linear_Functions.png
 ---
 

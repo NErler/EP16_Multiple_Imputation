@@ -65,7 +65,7 @@ when non-linear functional forms and/or interactions are involved,
 but \blue{some settings} in \textbf{mice} \blue{may help} to reduce bias in the
 resulting estimates.
 
-\bigskip
+\bigskip\pause
 
 For imputation of variables that have non-linear associations
 \begin{itemize}
@@ -87,7 +87,7 @@ For demonstration, we use a simulated example dataset \Robj{DFnonlin}:
 \item[\blue{z}] binary covariate (complete)
 \end{itemize}
 
-\medskip
+\bigskip\vspace*{3ex}
 
 We assume a
 
@@ -119,7 +119,9 @@ dim(DF_nonlin)
 DF2 <- DF_nonlin         # copy of the data, only for this example
 DF2$xx <- DF2$x^2        # pre-calculate the quadratic term
 DF2$xz <- DF2$x * DF2$z  # pre-calculate the interaction
+```
 
+```{r}
 # JAV imputation (using pmm and full predictor matrix)
 impJAV <- mice(DF2, maxit = 20, printFlag = FALSE)
 ```
@@ -128,8 +130,8 @@ impJAV <- mice(DF2, maxit = 20, printFlag = FALSE)
 
 ## Imputation with mice: JAV
 
-To relax the assumption of linear associations even more, we could introduce
-additional interactions with the outcome.
+To \blue{relax the assumption} of linear associations even more, we could introduce
+\blue{additional interactions} with the outcome.
 
 \bigskip
 In this example, we can add an interaction between $z$ and $y$:
@@ -138,32 +140,36 @@ In this example, we can add an interaction between $z$ and $y$:
 ```{r}
 DF3 <- DF2               # make another copy of the data
 DF3$yz <- DF3$y * DF3$z  # add interaction y and z
+```
 
+```{r}
 # JAV imputation with additional interaction
 impJAV2 <- mice(DF3, maxit = 20, printFlag = FALSE)
 ```
 
 ## Imputation with mice: Passive Imputation
 
-Alternatively, we could impute all non-linear terms and interactions passively:
+Alternative: impute all non-linear terms and interactions passively:
 \small
 ```{r}
 # adapt the imputation method (we re-use the vector from impJAV2 here)
 meth_passive <- impJAV2$method
 meth_passive[c("xx", "xz", "yz")] <- c("~I(x^2)", "~I(x*z)", "~I(y*z)")
-
-
+```
+\pause
+```{r}
 # adapt the predictor matrix (we re-use the matrix from impJAV2 here)
 pred_passive <- impJAV2$predictorMatrix
 pred_passive['x', 'xx'] <- 0
 pred_passive[c('x', 'z'), 'xz'] <- 0
 pred_passive[c('y', 'z'), 'yz'] <- 0
-
+```
+\pause
+```{r}
 imp_passive <- mice(DF3, method = meth_passive,
                     predictorMatrix = pred_passive,
                     maxit = 20, printFlag = FALSE)
 ```
-
 
 
 ## Imputation with mice: Polynomial Combination
@@ -308,7 +314,7 @@ load(file.path(projdir, "Slides/workspaces/JointAI_nonlin.RData"))
 
 Convergence of the Gibbs sampler can be checked using a `traceplot`.
 ```{r JointAI_nonlin_trace, eval = FALSE}
-traceplot(JointAI_nonlin, ncol = 3)
+traceplot(JointAI_nonlin, ncol = 3, use_ggplot = TRUE)
 ```
 
 \pause
@@ -322,7 +328,9 @@ summary(JointAI_nonlin)
 
 
 ## Imputation with JointAI: Convergence
-```{r eval = TRUE, ref.label="JointAI_nonlin_trace", fig.width = 7, fig.height = 3.8, echo = FALSE}
+```{r fig.width = 7, fig.height = 3.8, echo = FALSE}
+traceplot(JointAI_nonlin, ncol = 3, use_ggplot = TRUE) +
+  theme(legend.position = 'none', panel.background = element_blank())
 ```
 
 
@@ -369,12 +377,14 @@ plotfun(reslist, models = c("naive", "JAV", "JAV2", "pas", "qdr", "JointAI"))
  * usually less bias than naive approach
  * inconsistent imputed values
  
+\pause
 \blue{passive imputation}\vspace*{-1ex}
 
  * easy specification
  * consistent imputed values
  * less flexible than JAV
 
+\pause
 \blue{polynomial combination}\vspace*{-1ex}
 
 * consistent imputed values
@@ -388,7 +398,7 @@ plotfun(reslist, models = c("naive", "JAV", "JAV2", "pas", "qdr", "JointAI"))
 
  * theoretically valid approach (= unbiased)
  * similar specification to standard models
- * simultaneous analysis & imputation instead of 3 steps
+ * simultaneous analysis & imputation instead of three steps
 
 \pause
 
@@ -401,17 +411,5 @@ covered in this course.
 \blue{Note:}\
 The example used here only serves to demonstrate the different approaches.
 We cannot use these results to conclude which approach works better in general.
-
-
-## Your Turn!
-\begin{center}
-\begin{columns}
-\begin{column}{0.60\linewidth}
-\begin{block}{Practical}
-Imputation with non-linear associations \button{https://nerler.github.io/EP16_Multiple_Imputation/practical/minonlin/EP16_MInonlin.html}{html}
-\end{block}
-\end{column}
-\end{columns}
-\end{center}
 
 ## References
