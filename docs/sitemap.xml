@@ -66,15 +66,19 @@
   </url>
   
   <url>
-    <loc>https://nerler.github.io/EP16_Multiple_Imputation/slide/09_imputation_in_complex_settings/</loc>
-  </url>
-  
-  <url>
     <loc>https://nerler.github.io/EP16_Multiple_Imputation/slide/10_requirements_for_mice/</loc>
   </url>
   
   <url>
     <loc>https://nerler.github.io/EP16_Multiple_Imputation/slide/11_imputation_with_non-linear_functions/</loc>
+  </url>
+  
+  <url>
+    <loc>https://nerler.github.io/EP16_Multiple_Imputation/slide/13_imputation_with_survival_data/</loc>
+  </url>
+  
+  <url>
+    <loc>https://nerler.github.io/EP16_Multiple_Imputation/slide/14_strategies/</loc>
   </url>
   
   <url>
