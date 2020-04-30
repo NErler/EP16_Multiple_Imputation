@@ -1,6 +1,6 @@
 ---
 title: '09 Imputation in Complex Settings'
-link: /slide/09_Imputation_in_Complex_Settings.pdf
-image: /slide/09_Imputation_in_Complex_Settings.png
+link: /slide/09_imputation_in_complex_settings.pdf
+image: /slide/09_imputation_in_complex_settings.png
 ---
 

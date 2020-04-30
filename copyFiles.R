@@ -26,10 +26,10 @@ write_Slides_md <- function(x) {
   cat(
     paste0("---\n",
            "title: '", title, "'\n",
-           "link: /slide/", file, "\n",
-           "image: /slide/", img, "\n",
+           "link: /slide/", tolower(file), "\n",
+           "image: /slide/", tolower(img), "\n",
            "---\n\n"
-    ), file = paste0('website/content/slide/', gsub('.pdf$', '', file), '.md')
+    ), file = paste0('website/content/slide/', gsub('.pdf$', '', tolower(file)), '.md')
   )
 }
 
@@ -154,10 +154,12 @@ unlink('website/static/slide/*')
 
 
 # Copy all .pdf files in folder Slides to the corresponding folders in website/static/slide
-pdfs <- grep("[[:digit:]]{2}[[:print:]]+.pdf$", dir('Slides', recursive = FALSE, full.names = TRUE), value = TRUE)
+pdfs <- grep("[[:digit:]]{2}[[:print:]]+.pdf$", dir('Slides', recursive = FALSE,
+                                                    full.names = TRUE), value = TRUE)
 file.copy(from = pdfs,
           to = file.path('website/static/slide'),
           overwrite = TRUE)
+
 
 # write .md files for website/content/slide
 for (x in pdfs) {
@@ -171,6 +173,9 @@ for (x in pdfs) {
 }
 
 
+file.rename(from = grep(".pdf$|.png$", dir('website/static/slide', full.names = TRUE), value = TRUE),
+            to = tolower(grep(".pdf$|.png$", dir('website/static/slide', full.names = TRUE), value = TRUE))
+)
 
 
 ################################################################################

@@ -379,6 +379,9 @@ only option to perform imputation!}
 
 \href{https://cran.r-project.org/web/views/MissingData.html}{https://cran.r-project.org/web/views/MissingData.html}
 
+* mdmb: Model Based Treatment of Missing Data
+
+
 \begin{itemize}
 \item gives an overview on the available \includegraphics[width = 1em]{TemplateGraphics/Rlogo.png}
       packages for missing data / imputation
