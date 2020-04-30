@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Slides on EP16: Missing Values in Clinical Research</title>
+    <link>https://nerler.github.io/EP16_Multiple_Imputation/slide/</link>
+    <description>Recent content in Slides on EP16: Missing Values in Clinical Research</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-uk</language>
+    <copyright>&amp;copy; 2020. All rights reserved.</copyright>
+    
+	<atom:link href="https://nerler.github.io/EP16_Multiple_Imputation/slide/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>01 What is MI</title>
+      <link>https://nerler.github.io/EP16_Multiple_Imputation/slide/01_what_is_mi/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://nerler.github.io/EP16_Multiple_Imputation/slide/01_what_is_mi/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>02 Imputation Step</title>
+      <link>https://nerler.github.io/EP16_Multiple_Imputation/slide/02_imputation_step/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://nerler.github.io/EP16_Multiple_Imputation/slide/02_imputation_step/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>03 Analysis and Pooling</title>
+      <link>https://nerler.github.io/EP16_Multiple_Imputation/slide/03_analysis_and_pooling/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://nerler.github.io/EP16_Multiple_Imputation/slide/03_analysis_and_pooling/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>04 Imputation Step II</title>
+      <link>https://nerler.github.io/EP16_Multiple_Imputation/slide/04_imputation_step_ii/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://nerler.github.io/EP16_Multiple_Imputation/slide/04_imputation_step_ii/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>05 Know Your Data</title>
+      <link>https://nerler.github.io/EP16_Multiple_Imputation/slide/05_know_your_data/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://nerler.github.io/EP16_Multiple_Imputation/slide/05_know_your_data/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>06 Imputation with MICE</title>
+      <link>https://nerler.github.io/EP16_Multiple_Imputation/slide/06_imputation_with_mice/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://nerler.github.io/EP16_Multiple_Imputation/slide/06_imputation_with_mice/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>07 Convergence and Diagnostics</title>
+      <link>https://nerler.github.io/EP16_Multiple_Imputation/slide/07_convergence_and_diagnostics/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://nerler.github.io/EP16_Multiple_Imputation/slide/07_convergence_and_diagnostics/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>08 Analysis and Pooling</title>
+      <link>https://nerler.github.io/EP16_Multiple_Imputation/slide/08_analysis_and_pooling/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://nerler.github.io/EP16_Multiple_Imputation/slide/08_analysis_and_pooling/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>09 Imputation in Complex Settings</title>
+      <link>https://nerler.github.io/EP16_Multiple_Imputation/slide/09_imputation_in_complex_settings/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://nerler.github.io/EP16_Multiple_Imputation/slide/09_imputation_in_complex_settings/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>10 Requirements for MICE</title>
+      <link>https://nerler.github.io/EP16_Multiple_Imputation/slide/10_requirements_for_mice/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://nerler.github.io/EP16_Multiple_Imputation/slide/10_requirements_for_mice/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>11 Imputation with Non-linear Functions</title>
+      <link>https://nerler.github.io/EP16_Multiple_Imputation/slide/11_imputation_with_non-linear_functions/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://nerler.github.io/EP16_Multiple_Imputation/slide/11_imputation_with_non-linear_functions/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>
