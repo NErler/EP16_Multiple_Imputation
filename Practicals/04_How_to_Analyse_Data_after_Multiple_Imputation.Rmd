@@ -133,6 +133,8 @@ hint('For example:\n
 ```
 
 :::
+
+
 #### Solution
 ```{r analysisstep-hint-1}
 # You may, for example, choose one of these models:
@@ -149,7 +151,7 @@ class(mod1)
 
 # to determine the structure
 names(mod1)
-lapply(mod1, class)
+sapply(mod1, class)
 
 # explore further
 mod1$analyses
@@ -291,8 +293,10 @@ pooled1 <- pool(mod1)
 summary(pooled1, conf.int = TRUE)
 ```
 
+:::{.notebox}
 [Note:]{.Note}
 `pool()` extracts the model coefficients and variance-covariance matrices using
 `tidy` from the package **broom**. 
 Hence, pooling using the `pool()` function from **mice** only works for models
 of classes for which a method `tidy` exists.
+:::

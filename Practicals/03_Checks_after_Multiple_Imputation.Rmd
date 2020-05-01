@@ -14,7 +14,6 @@ output:
 ---
 
 
-
 ```{r, include = FALSE}
 projdir <- gsub("/Practicals", "", getwd())
 
@@ -73,9 +72,7 @@ or find the whole manual for a package at
 [https://cran.r-project.org/web/packages/available_packages_by_name.html](https://cran.r-project.org/web/packages/available_packages_by_name.html)
 
 
-## Dataset 
-### Overview {.tabset .tabset-fade .tabset-pills}
-
+### Dataset 
 For this practical, we will use the **EP16dat1** dataset, which is a 
 subset of the [NHANES (National Health and Nutrition Examination Survey)](https://www.cdc.gov/nchs/nhanes/index.htm) data.
 
@@ -248,7 +245,7 @@ Take a look at the `loggedEvents` of `impnaive`.
 
 
 #### Solution 2
-```{r impnaiveloggedEvents-solution}
+```{r impnaiveloggedEvents-solution, class.output = "scroll-400"}
 impnaive$loggedEvents
 ```
 
@@ -272,7 +269,7 @@ hint('You can get an imputed datasets from a mids object using the function `com
 
 
 #### Solution 3
-```{r, impnaiveVisSeq-solution}
+```{r, impnaiveVisSeq-solution, class.output = "scroll-400"}
 naiveDF1 <- complete(impnaive, 1)
 naivecalcBMI <- with(naiveDF1, wgt/hgt^2)
 
@@ -326,7 +323,7 @@ plot(imp30, layout = c(6, 6))
 #### Continue
 In comparison, `impnaive` had some convergence problems:
 ```{r, fig.width = 9, fig.height = 7}
-plot(impnaive, layout = c(6, 6))
+plot(impnaive, layout = c(6, 7))
 ```
 
 
@@ -364,18 +361,17 @@ hint('To check all imputed values you can either get a summary of the `imp` elem
 of the `mids` object or create a complete dataset containing all imputations
 using the function `complete()` and get the summary of that.')
 ```
-
 :::
 
 
 #### Solution 1
-```{r distrplot-solution, fig.width = 9, fig.height = 7, cache = TRUE}
+```{r distrplot-solution, fig.width = 9, fig.height = 7, warning=FALSE, class.output = "scroll-400"}
 # plot densities of continuous variables
 densityplot(imp)
 
 
 # plot for all categorical variables
-propplot(imp)
+propplot(imp, legend.position = 'bottom')
 
 # get the summary of the "the" imputed values
 sapply(Filter(function(x) nrow(x) > 0, imp$imp),
@@ -416,10 +412,10 @@ can be explained by other variables. Check this for
 :::
 
 #### Solution 2
-```{r distrplot2-solution, solution = TRUE, fig.width = 8, fig.height = 6, cache = TRUE}
+```{r distrplot2-solution, solution = TRUE, fig.width = 8, fig.height = 6}
 densityplot(imp, ~SBP|hypten + gender)
 densityplot(imp, ~hgt|gender)
 
-propplot(imp, alc ~ gender + smoke)
+propplot(imp, alc ~ gender + smoke, legend.position = 'bottom')
 ```
 
