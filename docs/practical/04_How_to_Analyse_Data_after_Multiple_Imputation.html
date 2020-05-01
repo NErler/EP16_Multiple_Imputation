@@ -1689,18 +1689,9 @@ Hint
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="co"># to determine the structure</span></span>
 <span id="cb5-2"><a href="#cb5-2"></a><span class="kw">names</span>(mod1)</span></code></pre></div>
 <pre><code>## [1] &quot;call&quot;     &quot;call1&quot;    &quot;nmis&quot;     &quot;analyses&quot;</code></pre>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw">lapply</span>(mod1, class)</span></code></pre></div>
-<pre><code>## $call
-## [1] &quot;call&quot;
-## 
-## $call1
-## [1] &quot;call&quot;
-## 
-## $nmis
-## [1] &quot;integer&quot;
-## 
-## $analyses
-## [1] &quot;list&quot;</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw">sapply</span>(mod1, class)</span></code></pre></div>
+<pre><code>##      call     call1      nmis  analyses 
+##    &quot;call&quot;    &quot;call&quot; &quot;integer&quot;    &quot;list&quot;</code></pre>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="co"># explore further</span></span>
 <span id="cb9-2"><a href="#cb9-2"></a>mod1<span class="op">$</span>analyses</span></code></pre></div>
 <pre><code>## [[1]]
@@ -2008,7 +1999,9 @@ Fraction of missing information.
 ## 4         bili -1.8277428 1.87284753 -0.9759165  91.29758 3.316847e-01 -5.5477610   1.8922754
 ## 5         chol  0.8572508 0.56551762  1.5158693  30.98095 1.396902e-01 -0.2961587   2.0106603
 ## 6          BMI  0.3119069 0.08317291  3.7501022 395.93462 2.031329e-04  0.1483912   0.4754227</code></pre>
+<div class="notebox">
 <p><span class="Note">Note:</span> <code>pool()</code> extracts the model coefficients and variance-covariance matrices using <code>tidy</code> from the package <strong>broom</strong>. Hence, pooling using the <code>pool()</code> function from <strong>mice</strong> only works for models of classes for which a method <code>tidy</code> exists.</p>
+</div>
 </div>
 </div>
 </div>

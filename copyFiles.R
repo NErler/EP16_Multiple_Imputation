@@ -183,13 +183,14 @@ file.rename(from = grep(".pdf$|.png$", dir('website/static/slide', full.names = 
 ################################################################################
 
 practicals <- grep('.html$', dir('Practicals', recursive = FALSE, full.names = TRUE), value = TRUE)
+data <- dir('Practicals/data', full.names = TRUE)
 slides <- grep("[[:digit:]]{2}[[:print:]]+.pdf$", 
                dir('Slides', recursive = FALSE, full.names = TRUE), value = TRUE)
 
 
 # create a .zip
 zip(zipfile = 'website/static/slide/EP16_MultipleImputation_2020',
-    files = unlist(c(practicals, slides)))
+    files = unlist(c(practicals, slides, data)))
 
 
 
