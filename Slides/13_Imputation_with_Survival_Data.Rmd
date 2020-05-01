@@ -42,73 +42,77 @@ library(kableExtra)
 library(ggplot2)
 
 load(file.path(projdir, "Slides/workspaces/survdat.RData"))
+load(file.path(projdir, 'Slides/workspaces/JointAI_surv.RData'))
 
 impsurv_naive <- mice(survdat, printFlag = FALSE)
 ```
 
 
 ## Results from the Literature
-In a previous Section, we saw that the correct conditional distribution for
-an incomplete covariate $x$ in a proportional hazards model would be
+In a previous section we saw that the correct
+conditional distribution for an incomplete covariate $x$ in a proportional hazards model is
+rather complex:
 $$\log p(x\mid T, D, z) = \log p(x\mid z) + D(\beta_x x + \beta_z z) -
 H_0(T)\exp(\beta_x x+\beta_z z) + const.$$
 
 \bigskip
 
-@White2009 derived versions of this model for different
-settings and investigated how to best approximate it.
+@White2009 investigated how to best approximate this formula in multiple imputation:
 
 \bigskip
 
-They found that using
+\blue{\ding{225}} Use $Z$, $D$ and $H_0(T)$, and possibly an interaction term 
+as predictor variables.
 
-* $Z$, $D$ and $H_0(T)$, and
-* possibly an interaction term
-
-as predictor variables may work satisfactorily if
-
-\blue{covariate effects and cumulative incidences are rather small}.
-
+This often works satisfactorily \blue{if covariate effects and cumulative incidences are rather small}.
 
 
 ## Results from the Literature
 \blue{Problem:} in practice $H_0(T)$ is unspecified.
 
 Two main ideas:
-\begin{itemize}
-\item If covariate effects $\beta_x$ and $\beta_z$ are small, \blue{$H_0(t)\approx H(t)$},
-      which can be approximated by the \blue{Nelson-Aalen estimator}.
-\item \blue{Estimate $H_0(T)$ in an additional step} inside the MICE procedure
-      by fitting a Cox model on the imputed data.
+\begin{itemize}\itemsep1ex
+\item If covariate effects $\beta_x$ and $\beta_z$ are small: \blue{$H_0(t)\approx H(t)$}\\
+      \blue{\ding{225}} $H(t)$ can be approximated by the \blue{Nelson-Aalen estimator}.
+\item \blue{Estimate $H_0(T)$ in an additional step} inside MICE\\
+       \blue{\ding{225}} fit a Cox model on the imputed data in each iteration
 \end{itemize}
-Neither of these approaches takes into account uncertainty about $H_0(t)$
-(but the impact is likely to be small).
-
-\bigskip
 
 \pause
-Based on results from their simulation study, White et al. conclude that
-\blue{using $Z$, $D$ and the Nelson-Aalen estimator $\hat H(T)$} as predictors
-for the imputation of $X$ worked best.
+\blue{Conclusion} [@White2009]:\
+Use \blue{$Z$, $D$ and the Nelson-Aalen estimator $\hat H(T)$} as predictors
+for the imputation of $X$.
 
-\bigskip
 
-However, some \blue{bias towards the null} should be expected when covariates have large
-effects.
+
+## Results from the Literature
+\blue{Note:}
+
+* Neither of these approaches takes into account uncertainty about $H_0(t)$
+  (but the impact is likely to be small).
+  
+* Using the Nelson-Aalen estimator is an approximation\
+  \blue{\ding{225}} some \blue{bias towards the null} should be expected when covariates
+  have large effects.
 
 
 ## Imputation with mice
-In \textbf{mice}, \Rfct{nelsonaalen} can be used to
-\blue{calculate the Nelson-Aalen estimator}, to use it as covariate in the
-imputation.
+**Example Data:**
+\small
+```{r}
+head(survdat)
+```
 
+Calculate the Nelson-Aalen estimator using `nelsonaalen()`{.R} from the package
+**mice**:
 \small
 ```{r mice_surv01}
 survdat$H0 <- nelsonaalen(survdat, timevar = Time, statusvar = event)
 ```
 \normalsize
 
-Then, we can prepare the imputation using the same steps as in previous examples:
+
+## Imputation with mice
 \small
 ```{r mice_surv02}
 # setup run
@@ -122,60 +126,57 @@ meth[c("x1", "x3")] <- "norm"
 # remove event time from predictor (high correlation with H0)
 pred[, "Time"] <- 0
 ```
+```{r, eval = FALSE}
+pred
+```
+\scriptsize
+```{r, echo = FALSE}
+pred
+```
 
 
-## Imputation with mcie
-With the modified arguments \Rarg{method} and \Rarg{predictorMatrix} we run
-the imputation:
-\small
+## Imputation with mice
 ```{r mice_surv03}
+# run the imputation
 survimp <- mice(survdat, maxit = 10, method = meth,
                 predictorMatrix = pred, printFlag = FALSE)
 ```
-\normalsize
 
 To obtain the pooled results, we first fit the model of interest
 \small
 ```{r mice_surv2}
-library(survival)
+library("survival")
 cox_mice <- with(survimp, coxph(Surv(Time, event) ~ x1 + x2 + x3))
 ```
 
 and pool and summarize the results.
 \small
 ```{r, warning = FALSE}
-res_mice_surv <- summary(pool(cox_mice, dfcom = 99999), conf.int = TRUE)
+res_mice_surv <- summary(pool(cox_mice), conf.int = TRUE)
 ```
-The warning message refers to the way the degrees of freedom for the formulas
-we saw in Part I (slide \ref{poolingdf}) are calculated and can be ignored.
 
 
 ## Imputation with JointAI
-\textbf{JointAI} has implemented two models for right-censored survival data.
-The Cox PH model and a parametric Weibull model.
+Two options:
 
-The Cox model is implemented in counting process notation and may take longer
-to calculate when there are many event times.
-
+* `coxph_imp()`{.R}\
+   proportional hazards model with flexible baseline hazard
+* `survreg_imp()`{.R}]\
+   parametric (Weibull) model (AFT model)
+   
+\pause\bigskip
 \small
-```{r, eval = FALSE}
+```{r, eval = runimps}
 JointAI_cox <- coxph_imp(Surv(Time, event) ~ x1 + x2 + x3, data = survdat,
                           n.iter = 1500)
-JointAI_surv <- survreg_imp(Surv(Time, event) ~ x1 + x2 + x3, data = survdat,
-                          n.iter = 1500)
+
+JointAI_survreg <- survreg_imp(Surv(Time, event) ~ x1 + x2 + x3,
+                               data = survdat, n.iter = 1500)
 ```
 
-```{r, eval = FALSE, echo = FALSE}
-JointAI_surv <- coxph_imp(Surv(Time, event) ~ x1 + x2 + x3, data = survdat,
-                          n.iter = 1500, quiet = FALSE, parallel = TRUE, ncores = 3)
-JointAI_survreg <- survreg_imp(Surv(Time, event) ~ x1 + x2 + x3, data = survdat,
-                          n.iter = 1500, quiet = FALSE, parallel = TRUE, ncores = 3)
-save(JointAI_surv, JointAI_survreg, file = 'Slides/workspaces/JointAI_surv.RData')
+```{r, eval = runimps, echo = FALSE}
+save(JointAI_cox, JointAI_survreg, file = 'Slides/workspaces/JointAI_surv.RData')
 ```
-```{r echo = FALSE}
-load(file.path(projdir, 'Slides/workspaces/JointAI_surv.RData'))
-```
-
 
 
 ## Comparison of the Results
@@ -189,44 +190,54 @@ mice_naive_wb <- with(impsurv_naive, survreg(Surv(Time, event) ~  x1 + x2 + x3))
 mice_naive_cox <- with(impsurv_naive, coxph(Surv(Time, event) ~  x1 + x2 + x3))
 
 
-res_survreg <- list(mice_naive = summary(pool(mice_naive_wb, dfcom = 99999),
-                                         conf.int = TRUE)[names(coef(JointAI_survreg)),
-                                                          c('estimate', '2.5 %', '97.5 %')],
-                    mice = summary(pool(mice_wb, dfcom = 99999), conf.int = TRUE)[names( coef(JointAI_survreg)),
-                                                                   c("estimate", "2.5 %", "97.5 %")],
-                    JointAI = as.data.frame(summary(JointAI_survreg)$stat[
-                      names(coef(JointAI_survreg)),
-                      c(1,3,4)])
+res_mice_wb <- summary(pool(mice_wb, dfcom = 99999),
+                       conf.int = TRUE)[, c("term", "estimate", "2.5 %", "97.5 %")]
+
+res_mice_naive_wb <- summary(pool(mice_naive_wb, dfcom = 99999),
+                             conf.int = TRUE)[, c("term", "estimate", "2.5 %", "97.5 %")]
+
+res_mice_naive_cox <- summary(pool(mice_naive_cox, dfcom = 99999),
+                             conf.int = TRUE)[, c("term", "estimate", "2.5 %", "97.5 %")]
+
+
+res_survreg <- list(mice_naive = res_mice_naive_wb,
+                    mice = res_mice_wb,
+                    JointAI = cbind(term = names(coef(JointAI_survreg)), 
+                                    as.data.frame(summary(JointAI_survreg)$stat[
+                                      names(coef(JointAI_survreg)),
+                                      c(1,3,4)]))
 )
 
-res_cox <- list(mice_naive = summary(pool(mice_naive_cox, dfcom = 999999),
-                                     conf.int = TRUE)[, c('estimate', '2.5 %', '97.5 %')],
-                mice = as.data.frame(res_mice_surv)[, c("estimate", "2.5 %", "97.5 %")],
-                JointAI = as.data.frame(summary(JointAI_surv)$stat[names(coef(JointAI_surv)),
-                                                                   c(1,3,4)])
+res_cox <- list(mice_naive = res_mice_naive_cox,
+                mice = res_mice_surv[, c("term", "estimate", "2.5 %", "97.5 %")],
+                JointAI = cbind(term = names(coef(JointAI_cox)),
+                                as.data.frame(summary(JointAI_cox)$stat[
+                                  names(coef(JointAI_cox)),
+                                  c(1,3,4)]))
 )
+
 
 res_survreg <- lapply(res_survreg, function(x) {
-  colnames(x) <- c("coef", "lo", "up")
-  x$var <- rownames(x)
-  x
+  colnames(x) <- gsub("5%", "5 %", colnames(x)) %>%
+    gsub("Mean", "estimate", .)
+  x[x$term %in% names(coef(JointAI_survreg)),]
 })
 
 
 res_cox <- lapply(res_cox, function(x) {
-  colnames(x) <- c("coef", "lo", "up")
-  x$var <- rownames(x)
-  x
+  colnames(x) <- gsub("5%", "5 %", colnames(x)) %>%
+    gsub("Mean", "estimate", .)
+  x[x$term %in% names(coef(JointAI_cox)),]
 })
 
-plot_survreg <- reshape2::melt(res_survreg, id.vars = c("coef", "lo", "up", "var"))
-plot_cox <- reshape2::melt(res_cox, id.vars = c("coef", "lo", "up", "var"))
+plot_survreg <- reshape2::melt(res_survreg, id.vars = names(res_survreg[[1]]))
+plot_cox <- reshape2::melt(res_cox, id.vars = names(res_cox[[1]]))
 
 polyDF_cox <- data.frame(x = rep(c(0.5, length(res_cox) + .5)[c(1,2,2,1)],
                                  length(mod_cox$coef)),
                          y = c(apply(log(summary(mod_cox)$conf.int[, 3:4]), 1, rep,
                                      each = 2)),
-                         var = rep(names(coef(JointAI_surv)), each = 4)
+                         term = rep(names(coef(JointAI_cox)), each = 4)
 )
 
 
@@ -234,17 +245,17 @@ polyDF_survreg <- data.frame(x = rep(c(0.5, length(res_survreg) + .5)[c(1,2,2,1)
                                  length(mod_survreg$coef)),
                              y = c(apply(confint(mod_survreg), 1, rep,
                                      each = 2)),
-                         var = rep(names(coef(JointAI_survreg)), each = 4)
+                         term = rep(names(coef(JointAI_survreg)), each = 4)
 )
 
 
-ggplot(plot_cox, aes(x = L1, y = coef)) +
+ggplot(plot_cox, aes(x = L1, y = estimate)) +
   geom_point(na.rm = T) +
-  geom_errorbar(aes(ymin = lo, ymax = up), width = 0.3, na.rm = T) +
-  facet_wrap("var", scales = 'free', nrow = 1) +
+  geom_errorbar(aes(ymin = `2.5 %`, ymax = `97.5 %`), width = 0.3, na.rm = T) +
+  facet_wrap("term", scales = 'free', nrow = 1) +
   geom_polygon(data = polyDF_cox, aes(x = x, y = y), fill = 'blue', alpha = 0.2) +
   geom_hline(data = data.frame(betas = coef(mod_cox),
-                               var = names(coef(JointAI_surv))),
+                               term = names(coef(mod_cox))),
              aes(yintercept = betas), lty = 2) +
   ylab("coefficient") +
   xlab("") +
@@ -253,47 +264,29 @@ ggplot(plot_cox, aes(x = L1, y = coef)) +
                    labels = c("mice\nnaive", "mice", "JointAI"))
 
 
+# 
+# ggplot(plot_survreg, aes(x = L1, y = estimate)) +
+#   geom_point(na.rm = T) +
+#   geom_errorbar(aes(ymin = `2.5 %`, ymax = `97.5 %`), width = 0.3, na.rm = T) +
+#   facet_wrap("term", scales = 'free', nrow = 1) +
+#   geom_polygon(data = polyDF_survreg, aes(x = x, y = y), fill = 'blue', alpha = 0.2) +
+#   geom_hline(data = data.frame(betas = coef(mod_survreg),
+#                                term = names(coef(mod_survreg))),
+#              aes(yintercept = betas), lty = 2) +
+#   ylab("coefficient") +
+#   xlab("") +
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+#   scale_x_discrete(limits = c("mice_naive", "mice", "JointAI"),
+#                    labels = c("mice\nnaive", "mice", "JointAI"))
+
 ```
 
 \normalsize
-The naive mice approach, and mice using the Nelson-Aalen estimator give very
-biased results for the effects of $x1$ and $x2$, but performed acceptably well
-for $x3$.
-
-\bigskip
 
 Note that the \blue{true effects} (log HR) of $x1$ and $x2$ are \blue{very large}
 (-2 and 2.5, respectively),
 and represent the setting where the approximation by the Nelson-Aalen estimate
 is \blue{expected to be biased}.
 
-
-## Comparison of the Results
-```{r, echo = FALSE, fig.width = 6, fig.height = 2.5, size = 'small', eval = FALSE}
-ggplot(plot_survreg, aes(x = L1, y = coef)) +
-  geom_point(na.rm = T) +
-  geom_errorbar(aes(ymin = lo, ymax = up), width = 0.3, na.rm = T) +
-  facet_wrap("var", scales = 'free', nrow = 1) +
-  geom_polygon(data = polyDF_survreg, aes(x = x, y = y), fill = 'blue', alpha = 0.2) +
-  geom_hline(data = data.frame(betas = coef(mod_survreg),
-                               var = names(coef(JointAI_survreg))),
-             aes(yintercept = betas), lty = 2) +
-  ylab("coefficient") +
-  xlab("") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  scale_x_discrete(limits = c("mice_naive", "mice", "JointAI"),
-                   labels = c("mice\nnaive", "mice", "JointAI"))
-```
-
-## Your Turn!
-\begin{center}
-\begin{columns}
-\begin{column}{0.60\linewidth}
-\begin{block}{Practical}
-Imputation of Survival Data \button{https://nerler.github.io/EP16_Multiple_Imputation/practical/misurv/EP16_MIsurv.html}{html}
-\end{block}
-\end{column}
-\end{columns}
-\end{center}
 
 ## References
