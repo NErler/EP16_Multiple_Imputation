@@ -1,0 +1,421 @@
+---
+title: "Imputation of Survival Data"
+output:
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+    number_sections: false
+    theme: spacelab
+    highlight: tango
+    includes:
+      after_body: style/footer.html
+    css: style/style.css
+---
+
+
+```{r, include = FALSE}
+projdir <- gsub("/Practicals", "", getwd())
+
+runimps <- FALSE
+
+hint <- function(text) {
+  id <- paste0('hint_', sample.int(1e10, size = 1))
+    cat(
+    paste0('\n',
+      '<button type="button" class="btn btn-info btn-sm" data-toggle="collapse" ',
+      'data-target="#', id, '">Hint</button>',
+      '<div id = "', id, '" class="collapse" style="border:1px; ',
+      'border-style:solid; padding: 1em; border-color:#1F78B4">',
+      text, '</div>')
+  )
+}
+
+options(width = 100, digits = 5)
+
+set.seed(2020)
+
+library(kableExtra)
+library(knitr)
+library(mice)
+library(ggplot2)
+library(JointAI)
+library(survival)
+
+load(file.path(projdir, "Practicals/data/EP16dat3.RData"))
+load(file.path(projdir, "Practicals/workspaces/survimps.RData"))
+# source(file.path(projdir, "Slides/Rfcts/propplot.R"))
+```
+
+
+## Preface
+### R packages
+
+In this practical, a number of R packages are used.
+If any of them are not installed you may be able to follow the practical
+but will not be able to run all of the code. The packages used (with versions
+that were used to generate the solutions) are:
+
+* `r R.version.string`
+* `mice` (version: `r packageVersion("mice")`)
+* `survival` (version: `r packageVersion("survival")`
+* `JointAI` (version: `r packageVersion("JointAI")`)
+* `ggplot2` (version: `r packageVersion("ggplot2")`)
+
+
+### Help files
+You can find help files for any function by adding a `?` before the name of the 
+function.
+
+Alternatively, you can look up the help pages online at 
+[https://www.rdocumentation.org/](https://www.rdocumentation.org/)
+or find the whole manual for a package at
+[https://cran.r-project.org/web/packages/available_packages_by_name.html](https://cran.r-project.org/web/packages/available_packages_by_name.html)
+
+
+
+
+### Data & Model of interest
+For this practical, we will use the **EP16dat3** dataset, which is a 
+subset of the PBC (Primary Biliary Cirrhosis) data.
+
+To get the **EP16dat3** dataset, load the file `EP16dat3.RData`.
+You can download it [here](https://nerler.github.io/EP16_Multiple_Imputation/practical/data/index.html).
+
+To load this dataset into R, you can use the command `file.choose()` which opens the
+explorer and allows you to navigate to the location of the file on your computer.
+
+If you know the path to the file, you can also use `load("<path>/EP16dat3.RData")`.
+
+
+The variables contained in this subset (`EP16dat3`) are:
+```{r, echo = FALSE}
+pbctab <- rbind(
+  c("time", "number of years between inclusion and death, transplantion, or 
+    end of follow-up"),
+  c("status", "status at `time` (censored, transplant, dead)"),
+  c("age", "patient's  age at intake"),
+  c("sex", "patient's sex"),
+  c("platelet", "platelet count"),
+  c("chol", "serum cholesterol"),
+  c("stage", "histologic stage of disease")
+) %>% as.data.frame
+
+names(pbctab) <- c("", "")
+
+pbctab %>% kable(format = 'html') %>%
+  kable_styling()
+```
+
+
+The variables in `EP16dat3` dataset have the following distributions:
+```{r, echo = FALSE, fig.width = 9, fig.height = 5.5}
+par(mgp = c(2, 0.6, 0), mar = c(3, 3, 2.5, 1))
+JointAI::plot_all(EP16dat3, breaks = 50)
+```
+
+The missing data pattern is
+
+```{r, echo = FALSE, fig.align = 'center'}
+par(mar = c(4, 1, 1, 3), mgp = c(2, 0.6, 0))
+JointAI::md_pattern(EP16dat3, yaxis_pars = list(yaxt = 'n'))
+```
+
+
+
+We are interested to determine predictor variables for patient survival, using
+the following Cox proportional hazards model:
+```{r, eval = FALSE}
+coxph(Surv(time, status %in% c('transplant', 'dead') ~ platelet + age + sex + chol + stage)
+```
+
+
+## Imputation with **mice** {.tabset .tabset-fade .tabset-pills}
+As we have seen in the lecture, the **mice** package provides the function 
+`nelsonaalen()` that calculates the Nelson-Aalen estimator with which the
+cumulative Hazard can be approximated.
+
+
+### Task 1
+:::{.task}
+
+* Calculate the Nelson-Aalen estimate for patient survival in the EP16dat3 data and
+* perform the usual setup steps for imputation using `mice()`.
+
+:::{.notebox}
+
+[Note:]{.Note}
+
+`nelsonaalen()` does not accept the `%in% c('transplant', 'dead')` specification of the
+event, hence, we need to create a new event indicator `event`.
+:::
+:::
+
+
+### Solution 1
+
+We first creat the event variable, and calculate the Nelson-Aalen estimator:
+```{r}
+library("mice")
+library("survival")
+
+EP16dat3$event <- EP16dat3$status %in% c('transplant', 'dead')
+EP16dat3$na <- nelsonaalen(data = EP16dat3, timevar = "time",  statusvar = "event")
+```
+
+Then we can continue as usual, by doing the set-up run and adpating the arguments
+`method` and `predictorMatrix`:
+```{r}
+micesurv0 <- mice(EP16dat3, maxit = 0)
+micesurvmeth <- micesurv0$meth
+micesurvpred <- micesurv0$pred
+```
+
+We can set the imputation for `platelet` to `"norm"`, since this variable has
+a relatively symmetric distribution, and exclude `time` as predictor from
+the imputation models:
+```{r micesurvprep-solution}
+micesurvmeth[c("platelet")] <- "norm"
+micesurvpred[, "time"] <- 0
+```
+
+We can now check our settings:
+```{r}
+# check the method and predictorMatrix
+micesurvmeth
+micesurvpred
+```
+
+
+### Task 2
+:::{.task}
+Run the imputation and analyse the imputed data.
+:::
+
+### Solution 2
+Run the imputation:
+```{r, eval = runimps}
+micesurv <- mice(EP16dat3, predictorMatrix = micesurvpred, maxit = 10, m = 5,
+                 printFlag = FALSE, seed = 2020)
+```
+
+Fit the model and pool the results:
+```{r}
+micesurv_mira <- with(micesurv, coxph(Surv(time = time, event) ~ platelet +
+                                        age + sex + chol + stage))
+
+summary(pool(micesurv_mira), conf.int = TRUE)
+```
+
+
+:::{.notebox}
+[Note:]{.Note}
+
+When we do the pooling, we get two warning messages.
+
+The function `pool()` has an argument `dfcom`, refering to the degrees of freedom
+from the complete data analysis, which is `NULL` by default.
+In that case, mice will try to extract them from the first analysis. But this 
+fails for a Cox PH model.
+
+The first warning message (about the unknown column `df.residual`) can just be ignored.
+
+The second warning means that, because the degrees of freedom could not be extracted
+from the model, it will be assumed that this number is very large (i.e., that
+the data is really large compared to the number of parameters that are estimated).
+
+You can prevent these warning messages by specifying the argument `dfcom` in the
+function `pool()`.
+:::
+
+### About Contrasts
+In the summary of the pooled results we see that orthogonal polynomial coding
+for the ordered factor `stage` was used. Hence, we cannot interpret the 
+coefficients from this variable the way we would interpret dummy variables.
+
+For some model types we can overwrite the default contrasts (i.e., how
+categorical variables are handled) using an argument `contrasts`.
+In a linear or logistic regression model, for example we could specify
+`contrasts = list(stage = 'contr.treatment')`.
+
+Unfortunately, this is not possible for `coxph()`. Here we need to change the
+global option how contrasts can be set.
+
+The global option for contrasts looks like this:
+```{r}
+options("contrasts")
+```
+
+`contr.treatment` refers to dummy coding and `contr.poly` to orthogonal polynomials.
+We would like to also use `contr.treatment` for ordered factors.
+
+To be able to change the setting back, we first save the current options:
+```{r}
+op <- options()
+```
+
+Then we can overwrite the options for the contrasts:
+```{r}
+options(contrasts = rep('contr.treatment', 2))
+options("contrasts")
+```
+
+If we now repeat our analysis, we will get dummy-coded effects for `stage`:
+```{r}
+micesurv_mira2 <- with(micesurv, coxph(Surv(time = time, event) ~ platelet +
+                                        age + sex + chol + stage))
+
+summary(pool(micesurv_mira), conf.int = TRUE)
+```
+
+Afterwards, we change the settings back:
+```{r}
+options(op)
+options("contrasts")
+```
+
+
+
+## Imputation with **JointAI** {.tabset .tabset-fade .tabset-pills}
+
+Analysis of a Cox proportional hazards model using **JointAI** works analogous
+to the function `coxph()` from packages survival.
+
+### Task 1
+:::{.task}
+
+* Fit the Cox model given above using the function `coxph_imp()` (and 500 iterations).
+* Check the traceplot to confirm convergence.
+
+:::
+
+
+### Solution 1
+```{r coxph_imp-solution, eval = runimps}
+library("JointAI")
+JointAIcox <- coxph_imp(Surv(time = time, event) ~ platelet + age + sex + chol + stage,
+                        data = EP16dat3, n.iter = 1500, seed = 2020)
+```
+
+```{r, fig.width = 8, fig.height = 5}
+traceplot(JointAIcox, use_ggplot = TRUE) + 
+  theme(legend.position = 'none')
+```
+
+
+The mixing of the parameters for `stage` is not great. We would have to increase
+the number of iterations and/or the number of chains to get better results.
+
+### Task 2
+When the groups of a categorical variable are unbalanced, convergence is usually
+better when the largest group (or a relatively large group) is used as the
+reference category. 
+
+We can try this by specifying that we would like to use 
+```{r, eval = runimps}
+JointAIcox2 <- coxph_imp(Surv(time = time, event) ~ platelet + age + sex + chol + stage,
+                         data = EP16dat3, n.iter = 500, seed = 2020,
+                         refcats = list(stage = 4))
+```
+
+```{r, fig.width = 8, fig.height = 5}
+traceplot(JointAIcox2, use_ggplot = TRUE) + 
+  theme(legend.position = 'none')
+```
+
+
+## Additional excercise JointAI {.tabset .tabset-fade .tabset-pills}
+
+For larger datasets with many different event times the Cox model implemented 
+in **JointAI** can become quite slow.
+This is because it has to use the counting process notation which requires
+a loop over all event times in each iteration of the MCMC sampler.
+
+A parametric survival model, e.g. assuming a Weibull distribution
+(see Section 4.2 of the [slides of EP03: Biostatistical Methods II: Survival Analysis](http://www.drizopoulos.com/courses/EMC/EP03.pdf)),
+is often faster.
+This is implemented in the function `survreg_imp()`.
+
+### Task 1
+:::{.task}
+
+* Fit a Weibull survival model using the model structure of the Cox model.
+* Investigate convergence using the `traceplot()` and the Gelman-Rubin criterion (`GR_crit()`).
+
+:::
+
+
+### Solution 1
+```{r survregimp-solution, eval = runimps}
+JointAIsurv <- survreg_imp(Surv(time = time, event) ~ platelet + 
+                             age + sex + chol + stage, data = EP16dat3,
+                           n.iter = 1500, seed = 2020)
+```
+
+```{r, fig.width = 8, fig.height = 5}
+traceplot(JointAIsurv, use_ggplot = TRUE)
+```
+```{r, fig.width = 8, fig.height = 5, out.width = "80%"}
+GR_crit(JointAIsurv, autoburnin = FALSE)
+```
+
+Both the traceplot and the Gelman-Rubin criterion show that the parameters for
+`stage` don't converge well. There are clear patterns visible in the plots and
+the upper limit of the confidence intverval of the Gelman-Rubin criterion
+is much larger than one.
+
+### Task 2
+In some cases, convergence of coefficients for categorical variables can be 
+improved by changing the reference category. Especially when the categories
+are very unbalanced, convergence it better when the largest (or a large)
+category is chosen as the reference.
+
+The plot of the distribution of the variables in the `EP16dat3` data at the beginning
+of this practical shows that there are few patients with stage 1.
+
+:::{.task}
+
+* Re-run the Weibull survival model with the most frequent category of `stage` as
+reference (using the argument `refcats`).
+
+Check out the [help file](https://nerler.github.io/JointAI/reference/model_imp.html) 
+and the vignette on [Model Specification](https://nerler.github.io/JointAI/articles/ModelSpecification.html#reference-values-for-categorical-covariates) for more details on how to use the argument
+`refcats`.
+
+* Then look at the `traceplot()` and `GR_crit()` to see if the change in reference
+category improved convergence.
+
+:::
+
+
+### Solution 2
+```{r survreg2-solution, eval = runimps}
+JointAIsurv2 <- survreg_imp(Surv(time = time, event) ~ platelet + 
+                              age + sex + chol + stage, data = EP16dat3,
+                            n.iter = 1000, seed = 2020, refcats = 'largest')
+```
+
+```{r, fig.width = 8, fig.height = 5}
+traceplot(JointAIsurv2, use_ggplot = TRUE)
+GR_crit(JointAIsurv2, autoburnin = FALSE)
+```
+
+The traceplots look a lot better and the Gelman-Rubin criterion has improved.
+Nevertheless, more iterations or chaines would be necessary to obtain more
+reliable results.
+
+```{r}
+summary(JointAIsurv2, start = 250)
+```
+
+
+```{r, echo = FALSE, eval = runimps}
+save(micesurv,
+     JointAIcox,
+     JointAIcox2,
+     JointAIsurv,
+     JointAIsurv2,
+     file = file.path(projdir, "Practicals/workspaces/survimps.RData")
+)
+```
+
