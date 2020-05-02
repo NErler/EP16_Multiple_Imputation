@@ -261,8 +261,8 @@ subset(wideDF1, subset = id < 5, select = c('id', grep('\\.', names(wideDF1), va
   cbind(., '\\ldots' = c(rep("\\ldots", 4), "$\\ddots$")) %>%
   kable(format = 'latex', row.names = FALSE, booktabs = T, escape = F, digits = 1)
 ```
-\normalsize
 \end{center}
+\normalsize
 
 \bigskip
 
