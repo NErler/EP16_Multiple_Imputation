@@ -2164,44 +2164,44 @@ You can get an imputed datasets from a mids object using the function <code>comp
 <span id="cb13-6"><a href="#cb13-6"></a></span>
 <span id="cb13-7"><a href="#cb13-7"></a><span class="kw">cbind</span>(<span class="dt">naiveBMI =</span> naiveDF1<span class="op">$</span>BMI, naivecalcBMI,</span>
 <span id="cb13-8"><a href="#cb13-8"></a>      <span class="dt">impBMI =</span> impDF1<span class="op">$</span>BMI, impcalcBMI)[<span class="kw">which</span>(<span class="kw">is.na</span>(EP16dat1<span class="op">$</span>BMI)), ]</span></code></pre></div>
-<pre class="scroll-400"><code>##       naiveBMI naivecalcBMI   impBMI impcalcBMI
-##  [1,] 30.03837     30.23143 31.59528   31.59528
-##  [2,] 53.08893     51.46453 29.45214   29.45214
-##  [3,] 41.53878     41.62795 27.40350   27.40350
-##  [4,] 27.46366     27.34159 24.28936   24.28936
-##  [5,] 26.62512     28.31808 28.44071   28.44071
-##  [6,] 45.61438     44.30180 19.10116   19.10116
-##  [7,] 30.17858     29.88673 35.14725   35.14725
-##  [8,] 27.14630     26.25655 23.31143   23.31143
-##  [9,] 27.97930     27.87846 36.79455   36.79455
-## [10,] 37.12259     34.92238 42.34448   42.34448
-## [11,] 26.96213     26.52057 38.64299   38.64299
-## [12,] 24.96105     24.46183 25.00108   25.00108
-## [13,] 24.14089     24.58942 33.97773   33.97773
-## [14,] 29.41414     29.75956 28.86115   28.86115
-## [15,] 24.43280     24.12902 34.35816   34.35816
-## [16,] 35.89982     37.10645 30.60011   30.60011
-## [17,] 23.29698     23.41127 21.95128   21.95128
-## [18,] 23.73402     22.70998 34.91831   34.91831
-## [19,] 23.57047     23.87152 22.44984   22.44984
-## [20,] 27.46366     27.01934 28.64045   28.64045
-## [21,] 20.40621     19.56785 19.46103   19.46103
-## [22,] 25.24027     25.05929 27.76066   27.76066
-## [23,] 28.48083     28.21474 20.17378   20.17378
-## [24,] 26.45250     24.18514 22.37966   22.37966
-## [25,] 31.23991     32.31575 29.96672   29.96672
-## [26,] 41.76816     43.94185 41.33099   41.33099
-## [27,] 34.17021     35.23962 29.33416   29.33416
-## [28,] 22.86256     22.86256 23.11435   23.11435
-## [29,] 23.40337     22.96417 34.61051   34.61051
-## [30,] 25.38862     25.60607 26.18192   26.18192
-## [31,] 25.80200     24.69157 27.50485   27.50485
-## [32,] 19.76623     20.80512 27.89241   27.89241
-## [33,] 32.95639     35.33298 31.16409   31.16409
-## [34,] 28.24545     28.71985 30.83400   30.83400
-## [35,] 24.66134     24.12902 25.87566   25.87566
-## [36,] 41.76816     42.51366 38.29445   38.29445
-## [37,] 36.79979     34.75110 33.99644   33.99644</code></pre>
+<pre class="scroll-400"><code>##       naiveBMI naivecalcBMI impBMI impcalcBMI
+##  [1,]   30.038       30.231 31.595     31.595
+##  [2,]   53.089       51.465 29.452     29.452
+##  [3,]   41.539       41.628 27.404     27.404
+##  [4,]   27.464       27.342 24.289     24.289
+##  [5,]   26.625       28.318 28.441     28.441
+##  [6,]   45.614       44.302 19.101     19.101
+##  [7,]   30.179       29.887 35.147     35.147
+##  [8,]   27.146       26.257 23.311     23.311
+##  [9,]   27.979       27.878 36.795     36.795
+## [10,]   37.123       34.922 42.344     42.344
+## [11,]   26.962       26.521 38.643     38.643
+## [12,]   24.961       24.462 25.001     25.001
+## [13,]   24.141       24.589 33.978     33.978
+## [14,]   29.414       29.760 28.861     28.861
+## [15,]   24.433       24.129 34.358     34.358
+## [16,]   35.900       37.106 30.600     30.600
+## [17,]   23.297       23.411 21.951     21.951
+## [18,]   23.734       22.710 34.918     34.918
+## [19,]   23.570       23.872 22.450     22.450
+## [20,]   27.464       27.019 28.640     28.640
+## [21,]   20.406       19.568 19.461     19.461
+## [22,]   25.240       25.059 27.761     27.761
+## [23,]   28.481       28.215 20.174     20.174
+## [24,]   26.452       24.185 22.380     22.380
+## [25,]   31.240       32.316 29.967     29.967
+## [26,]   41.768       43.942 41.331     41.331
+## [27,]   34.170       35.240 29.334     29.334
+## [28,]   22.863       22.863 23.114     23.114
+## [29,]   23.403       22.964 34.611     34.611
+## [30,]   25.389       25.606 26.182     26.182
+## [31,]   25.802       24.692 27.505     27.505
+## [32,]   19.766       20.805 27.892     27.892
+## [33,]   32.956       35.333 31.164     31.164
+## [34,]   28.245       28.720 30.834     30.834
+## [35,]   24.661       24.129 25.876     25.876
+## [36,]   41.768       42.514 38.294     38.294
+## [37,]   36.800       34.751 33.996     33.996</code></pre>
 <p>When we compare the imputed and calculated values of <code>BMI</code> from <code>impnaive</code> we can see that the imputed <code>hgt</code> and <code>wgt</code> give a different <code>BMI</code> than is imputed. This is because <code>BMI</code> is imputed before <code>wgt</code>, which means that the most recent imputed value of <code>wgt</code> is from the previous iteration.</p>
 <p>Changing the <code>visitSequence</code> in <code>imp</code> prevented this inconsistency.</p>
 </div>
@@ -2277,11 +2277,11 @@ To check all imputed values you can either get a summary of the <code>imp</code>
 <span id="cb20-4"><a href="#cb20-4"></a>)</span></code></pre></div>
 <pre class="scroll-400"><code>## $HDL
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##  0.2091  1.1378  1.3707  1.3781  1.6409  2.8902 
+##   0.209   1.138   1.371   1.378   1.641   2.890 
 ## 
 ## $DBP
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   36.75   63.11   70.46   70.86   79.31  105.83 
+##    36.8    63.1    70.5    70.9    79.3   105.8 
 ## 
 ## $bili
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
@@ -2293,11 +2293,11 @@ To check all imputed values you can either get a summary of the <code>imp</code>
 ## 
 ## $WC
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   64.43   88.02   96.62   99.34  109.92  158.26 
+##    64.4    88.0    96.6    99.3   109.9   158.3 
 ## 
 ## $chol
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   1.769   4.100   4.837   4.949   5.728   8.281 
+##    1.77    4.10    4.84    4.95    5.73    8.28 
 ## 
 ## $HyperMed
 ##    Mode    NA&#39;s 
@@ -2309,11 +2309,11 @@ To check all imputed values you can either get a summary of the <code>imp</code>
 ## 
 ## $SBP
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   87.56  110.78  121.94  123.81  137.95  186.81 
+##    87.6   110.8   121.9   123.8   137.9   186.8 
 ## 
 ## $wgt
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   40.52   67.21   79.30   79.12   92.02  123.64 
+##    40.5    67.2    79.3    79.1    92.0   123.6 
 ## 
 ## $hypten
 ##  no yes 
@@ -2331,19 +2331,19 @@ To check all imputed values you can either get a summary of the <code>imp</code>
 ## 
 ## $albu
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   3.167   4.050   4.300   4.286   4.536   5.193 
+##    3.17    4.05    4.30    4.29    4.54    5.19 
 ## 
 ## $creat
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##  0.4400  0.7100  0.8300  0.8634  0.9700  7.4600 
+##   0.440   0.710   0.830   0.863   0.970   7.460 
 ## 
 ## $uricacid
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   1.642   4.488   5.355   5.381   6.298   9.206 
+##    1.64    4.49    5.35    5.38    6.30    9.21 
 ## 
 ## $BMI
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   16.84   24.59   28.06   28.89   33.23   48.29 
+##    16.8    24.6    28.1    28.9    33.2    48.3 
 ## 
 ## $hypchol
 ##  no yes 
@@ -2351,7 +2351,7 @@ To check all imputed values you can either get a summary of the <code>imp</code>
 ## 
 ## $hgt
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   1.430   1.557   1.633   1.633   1.704   1.961</code></pre>
+##    1.43    1.56    1.63    1.63    1.70    1.96</code></pre>
 <p>Unfortunately, we have some negative imputed values for <code>bili</code>. Often, this would not result in bias in the analysis, but may be difficult to explain when providing a summary of the imputed data in a publication. In the present example we can see that the observed values have a slightly right-skewed distribution compared to the imputed values. Re-doing the imputation with <code>pmm</code> instead of <code>norm</code> for <code>bili</code> should fix this. (However, since the imputations seem fine overall, and there is little knowledge gain in re-doing the previous steps, we will skip this repetition in this practical.)</p>
 <p>The distributions of the imputed values for <code>hgt</code> and <code>SBP</code> differ a bit from the distributions of the observed data.</p>
 <p>We also imputed a larger proportion than might have been expected in the highest category of <code>alc</code>, and the distribution of values for <code>smoke</code> looks a bit weird (but <code>smoke</code> only has one missing value, which makes it difficult to judge the distribution of the imputed values).</p>

@@ -50,11 +50,15 @@
   </url>
   
   <url>
-    <loc>https://nerler.github.io/EP16_Multiple_Imputation/practical/05_imputation_of_data_with_non-linear_associations/</loc>
+    <loc>https://nerler.github.io/EP16_Multiple_Imputation/slide/05_know_your_data/</loc>
   </url>
   
   <url>
-    <loc>https://nerler.github.io/EP16_Multiple_Imputation/slide/05_know_your_data/</loc>
+    <loc>https://nerler.github.io/EP16_Multiple_Imputation/practical/05_working_with_imputed_data_in_different_formats/</loc>
+  </url>
+  
+  <url>
+    <loc>https://nerler.github.io/EP16_Multiple_Imputation/practical/06_imputation_of_data_with_non-linear_associations/</loc>
   </url>
   
   <url>
@@ -67,6 +71,14 @@
   
   <url>
     <loc>https://nerler.github.io/EP16_Multiple_Imputation/slide/08_analysis_and_pooling/</loc>
+  </url>
+  
+  <url>
+    <loc>https://nerler.github.io/EP16_Multiple_Imputation/practical/08_imputation_of_survival_data/</loc>
+  </url>
+  
+  <url>
+    <loc>https://nerler.github.io/EP16_Multiple_Imputation/slide/09_imputation_in_complex_settings/</loc>
   </url>
   
   <url>

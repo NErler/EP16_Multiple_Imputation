@@ -48,11 +48,29 @@
     </item>
     
     <item>
-      <title>05 Imputation of Data with Non-linear Associations</title>
-      <link>https://nerler.github.io/EP16_Multiple_Imputation/practical/05_imputation_of_data_with_non-linear_associations/</link>
+      <title>05 Working with Imputed Data in Different Formats</title>
+      <link>https://nerler.github.io/EP16_Multiple_Imputation/practical/05_working_with_imputed_data_in_different_formats/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://nerler.github.io/EP16_Multiple_Imputation/practical/05_imputation_of_data_with_non-linear_associations/</guid>
+      <guid>https://nerler.github.io/EP16_Multiple_Imputation/practical/05_working_with_imputed_data_in_different_formats/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>06 Imputation of Data with Non-linear Associations</title>
+      <link>https://nerler.github.io/EP16_Multiple_Imputation/practical/06_imputation_of_data_with_non-linear_associations/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://nerler.github.io/EP16_Multiple_Imputation/practical/06_imputation_of_data_with_non-linear_associations/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>08 Imputation of Survival Data</title>
+      <link>https://nerler.github.io/EP16_Multiple_Imputation/practical/08_imputation_of_survival_data/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://nerler.github.io/EP16_Multiple_Imputation/practical/08_imputation_of_survival_data/</guid>
       <description></description>
     </item>
     

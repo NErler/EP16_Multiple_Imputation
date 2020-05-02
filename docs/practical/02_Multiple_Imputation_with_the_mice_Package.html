@@ -1930,58 +1930,6 @@ For passive imputation, you need to specify the formula used to calculate BMI in
 <h4>Solution</h4>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>imp &lt;-<span class="st"> </span><span class="kw">mice</span>(EP16dat1, <span class="dt">method =</span> meth, <span class="dt">predictorMatrix =</span> pred, <span class="dt">visitSequence =</span> visSeq,</span>
 <span id="cb12-2"><a href="#cb12-2"></a>            <span class="dt">maxit =</span> <span class="dv">10</span>, <span class="dt">m =</span> <span class="dv">5</span>, <span class="dt">seed =</span> <span class="dv">2020</span>)</span></code></pre></div>
-<pre><code>## 
-##  iter imp variable
-##   1   1  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   1   2  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   1   3  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   1   4  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   1   5  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   2   1  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   2   2  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   2   3  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   2   4  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   2   5  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   3   1  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   3   2  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   3   3  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   3   4  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   3   5  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   4   1  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   4   2  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   4   3  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   4   4  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   4   5  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   5   1  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   5   2  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   5   3  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   5   4  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   5   5  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   6   1  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   6   2  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   6   3  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   6   4  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   6   5  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   7   1  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   7   2  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   7   3  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   7   4  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   7   5  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   8   1  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   8   2  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   8   3  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   8   4  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   8   5  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   9   1  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   9   2  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   9   3  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   9   4  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   9   5  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   10   1  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   10   2  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   10   3  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   10   4  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI
-##   10   5  HDL  DBP  bili  smoke  WC  chol  alc  SBP  wgt  hypten  occup  educ  albu  creat  uricacid  hypchol  hgt  BMI</code></pre>
 <p><code>mice()</code> prints the name of the variable being imputed for each iteration and imputation. If you run <code>mice()</code> on your own computer the output will show up continuously. There, you may notice that imputation is slowest for categorical variables, especially when they have many categories.</p>
 <p>You can hide the lengthy output by specifying <code>printFlag = FALSE</code>.</p>
 </div>
@@ -1996,7 +1944,7 @@ For passive imputation, you need to specify the formula used to calculate BMI in
 </div>
 <div id="solution-5" class="section level4">
 <h4>Solution</h4>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="kw">class</span>(imp)</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="kw">class</span>(imp)</span></code></pre></div>
 <pre><code>## [1] &quot;mids&quot;</code></pre>
 <p>We see that <code>imp</code> is an object of class <code>mids</code>.</p>
 <p>The <a href="https://www.rdocumentation.org/packages/mice/versions/2.46.0/topics/mids-class">help file</a> tells us that a <code>mids</code> object is a list with several elements:</p>
