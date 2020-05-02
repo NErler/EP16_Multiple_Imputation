@@ -173,7 +173,8 @@ To pool test statistics when no variance-covariance matrix is available:
 
 \bigskip\vfill
 
-For details, see @Buuren2012, [Section 5.3](https://stefvanbuuren.name/fimd/sec-multiparameter.html#sec:wald).
+For details, see @Buuren2012, [Section 5.3](https://stefvanbuuren.name/fimd/sec-multiparameter.html#sec:wald)
+and @Schafer1997.
 
 
 
@@ -186,8 +187,8 @@ compare the two models:
 ```{r poolcompare, size = 'small'}
 mod3 <- with(imp4, glm(DM ~ age + gender + hypchol + BMI + alc,
                        family = "binomial"))
-# Wald test
-D1(mod1, mod3)
+# likelihood ratio test
+D3(mod1, mod3)
 ```
 \normalsize
 
@@ -202,10 +203,12 @@ following functionality:
 \bigskip
 
 \blue{Combine $\chi^2$ or F statistics from multiply imputed data:}
+\small
 ```{r miceaddsfcts, eval = FALSE, size = 'small'}
 miceadds::micombine.chisquare(dk, df, ...)
 miceadds::micombine.F(values, df1, ...)
 ```
+\normalsize
 
 \bigskip\pause
 
@@ -222,13 +225,17 @@ miceadds::micombine.cov(mi.res, ...)
 ```{r}
 # fit chi-square test on each imputed dataset
 chisq_mira <- with(imp4, chisq.test(table(educ, smoke)))
-
+```
+\pause
+```{r}
 # extract degrees of freedom
 dfs <- chisq_mira$analyses[[1]]$parameter
 
 # extract test statistic
 stat <- sapply(chisq_mira$analyses, "[[",  'statistic')
-
+```
+\pause
+```{r}
 # pool the tests
 miceadds::micombine.chisquare(dk = stat, df = dfs)
 ```

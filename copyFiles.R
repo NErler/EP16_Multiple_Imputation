@@ -37,17 +37,17 @@ write_Slides_md <- function(x) {
 
 
 
-################################################################################
-## Practicals
-################################################################################
+## Practicals ------------------------------------------------------------------
+
 # Render all .Rmd files in Practicals to html
 Rmd_files <- grep('.Rmd$', dir('Practicals', recursive = FALSE, full.names = TRUE), value = TRUE)
-html_files <- grep('.html$', dir('Practicals', recursive = FALSE, full.names = TRUE), value = TRUE)
 
 # file.remove(html_files)
 # for (k in Rmd_files) {
 #   rmarkdown::render(k)
 # }
+
+html_files <- grep('.html$', dir('Practicals', recursive = FALSE, full.names = TRUE), value = TRUE)
 
 # remove content of website/content/practical and website/static/practical
 unlink('website/content/practical/*')
@@ -70,7 +70,7 @@ for (x in html_files) {
   # the following gives an error/message but works anyway
   
   webshot::webshot(x, paste0('website/static/practical/', img),
-                   vwidth = 800, vheight = 450,
+                   vwidth = 800, vheight = 450, delay = 2,
                    cliprect = 'viewport', zoom = 2)
 }
 
@@ -135,9 +135,7 @@ border: 1px solid #485167;
 
 
 
-################################################################################
-## Slides
-################################################################################
+## Slides ---------------------------------------------------------------------
 
 # compile all slides
 Rmdfiles <- grep('.Rmd$', dir('Slides', full.names = TRUE), value = TRUE)
@@ -173,16 +171,17 @@ for (x in pdfs) {
 }
 
 
-file.rename(from = grep(".pdf$|.png$", dir('website/static/slide', full.names = TRUE), value = TRUE),
-            to = tolower(grep(".pdf$|.png$", dir('website/static/slide', full.names = TRUE), value = TRUE))
+file.rename(from = grep(".pdf$|.png$", dir('website/static/slide',
+                                           full.names = TRUE), value = TRUE),
+            to = tolower(grep(".pdf$|.png$", dir('website/static/slide',
+                                                 full.names = TRUE), value = TRUE))
 )
 
 
-################################################################################
-## make the .zip files
-################################################################################
+## .zip files ------------------------------------------------------------------
 
-practicals <- grep('.html$', dir('Practicals', recursive = FALSE, full.names = TRUE), value = TRUE)
+practicals <- grep('.html$', dir('Practicals', recursive = FALSE, full.names = TRUE),
+                   value = TRUE)
 data <- dir('Practicals/data', full.names = TRUE)
 slides <- grep("[[:digit:]]{2}[[:print:]]+.pdf$", 
                dir('Slides', recursive = FALSE, full.names = TRUE), value = TRUE)
@@ -206,9 +205,9 @@ zip(zipfile = file.path(wd, 'website/static/practical/EP16_MultipleImputation_20
 
 setwd(wd)
 
-################################################################################
-## update website
-################################################################################
+
+## update website---------------------------------------------------------------
+
 # remove docs folder
 unlink("docs", recursive = TRUE)
 
