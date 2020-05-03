@@ -38,10 +38,10 @@ write_Slides_md <- function(x) {
 
 
 ## Practicals ------------------------------------------------------------------
+Rmd_files <- grep('.Rmd$', dir('Practicals', recursive = FALSE, full.names = TRUE), value = TRUE)
+html_files <- grep('.html$', dir('Practicals', recursive = FALSE, full.names = TRUE), value = TRUE)
 
 # Render all .Rmd files in Practicals to html
-Rmd_files <- grep('.Rmd$', dir('Practicals', recursive = FALSE, full.names = TRUE), value = TRUE)
-
 # file.remove(html_files)
 # for (k in Rmd_files) {
 #   rmarkdown::render(k)
@@ -75,13 +75,6 @@ for (x in html_files) {
 }
 
 
-
-# file.copy(dir('Practicals/data', full.names = TRUE),
-#           paste0('website/static/practical/data', dir('Practicals/data')),
-#           overwrite = TRUE)
-# file.copy(dir('Practicals/workspaces', full.names = TRUE),
-#           paste0('website/static/practical/data', dir('Practicals/workspaces/')),
-#           overwrite = TRUE)
 
 file.copy('Practicals/style/image.jpg',
           'website/static/practical/image.jpg',
@@ -183,13 +176,14 @@ file.rename(from = grep(".pdf$|.png$", dir('website/static/slide',
 practicals <- grep('.html$', dir('Practicals', recursive = FALSE, full.names = TRUE),
                    value = TRUE)
 data <- dir('Practicals/data', full.names = TRUE)
+imps <- dir('Practicals/workspaces', full.names = TRUE)
 slides <- grep("[[:digit:]]{2}[[:print:]]+.pdf$", 
                dir('Slides', recursive = FALSE, full.names = TRUE), value = TRUE)
 
 
 # create a .zip
 zip(zipfile = 'website/static/slide/EP16_MultipleImputation_2020',
-    files = unlist(c(practicals, slides, data)))
+    files = unlist(c(practicals, slides, data, imps)))
 
 
 
