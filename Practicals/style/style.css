@@ -24,7 +24,8 @@ h2, .h2 {
 .notebox {
   border:2px;
   border-style:solid;
-  padding: 1em;
+  padding: 1em 1em 0.3em 1em;
+  margin-bottom: 15px;
   border-color:#009B8F
 }
 

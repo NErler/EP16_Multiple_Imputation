@@ -1,0 +1,755 @@
+---
+title: "Imputation of Longitudinal or Multi-level Data"
+output:
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+    number_sections: false
+    theme: spacelab
+    highlight: tango
+    includes:
+      after_body: style/footer.html
+    css: style/style.css
+bibliography: ../Slides/references.bib
+csl: ../Slides/taylor-and-francis-apa.csl
+---
+
+
+```{r, include = FALSE}
+projdir <- gsub("/Practicals", "", getwd())
+
+runimps <- FALSE
+
+knitr::opts_chunk$set(fig.width = 8, out.width = "100%", fig.height = 6)
+
+
+hint <- function(text, margin = 0) {
+  id <- paste0('hint_', sample.int(1e10, size = 1))
+    cat(
+    paste0('\n',
+      '<button type="button" class="btn btn-info btn-sm" data-toggle="collapse" ',
+      'data-target="#', id, '" style="margin-left:', margin, 'px">Hint</button>',
+      '<div id = "', id, '" class="collapse" style="border:1px; ',
+      'border-style:solid; padding: 1em; border-color:#1F78B4">',
+      text, '</div>')
+  )
+}
+
+options(width = 100, digits = 5)
+
+set.seed(2020)
+
+library(kableExtra)
+library(knitr)
+library(mice)
+library(miceadds)
+
+library(ggplot2)
+library(JointAI)
+library(lme4)
+library(nlme)
+
+load(file.path(projdir, "Practicals/data/EP16dat4.RData"))
+load(file.path(projdir, "Practicals/workspaces/longimps.RData"))
+# source(file.path(projdir, "Slides/Rfcts/propplot.R"))
+```
+
+
+## Preface
+### R packages
+
+In this practical, a number of R packages are used.
+If any of them are not installed you may be able to follow the practical
+but will not be able to run all of the code. The packages used (with versions
+that were used to generate the solutions) are:
+
+* `r R.version.string`
+* `mice` (version: `r packageVersion("mice")`)
+* `miceadds` (version: `r packageVersion("miceadds")`)
+* `lme4` (version: `r packageVersion("nlme")`)
+* `JointAI` (version: `r packageVersion("JointAI")`)
+* `splines` (version: `r packageVersion("splines")`)
+* `ggplot2` (version: `r packageVersion("ggplot2")`)
+
+
+### Help files
+You can find help files for any function by adding a `?` before the name of the 
+function.
+
+Alternatively, you can look up the help pages online at 
+[https://www.rdocumentation.org/](https://www.rdocumentation.org/)
+or find the whole manual for a package at
+[https://cran.r-project.org/web/packages/available_packages_by_name.html](https://cran.r-project.org/web/packages/available_packages_by_name.html)
+
+
+
+### Aim
+The focus of this practical is the imputation of data that has features
+that require special attention.
+
+In the interest of time, we will focus on these features and **abbreviate steps
+that are the same as in any imputation setting** (e.g., getting to know 
+the data or checking that imputed values are realistic).
+**Nevertheless, these steps are of course required when analysing data in 
+practice.**
+
+
+
+
+### Data & Model of interest
+For this practical, we will use the **EP16dat4** dataset, which is a 
+subset of data from a trial on primary biliary cirrhosis (PBC) of the liver.
+
+To get the **EP16dat4** dataset, load the file `EP16dat4.RData`.
+You can download it [here](https://nerler.github.io/EP16_Multiple_Imputation/practical/data/index.html).
+
+To load this dataset into R, you can use the command `file.choose()` which opens the
+explorer and allows you to navigate to the location of the file on your computer.
+
+If you know the path to the file, you can also use `load("<path>/EP16dat4.RData")`.
+
+The variables contained in the dataset `EP16dat4` are:
+
+```{r EP16dat4vars, echo = FALSE}
+EP16dat4vars <- rbind(
+  c("`id`", "patient identifier"),
+  c("`day`", "continuously measured day of follow-up time (the time variable)"),
+  c("`sex`", "patients' sex (f: female, m: male)"),
+  c("`trt`", "treatment group (0: D-penicillmain, 1: placebo)"),
+  c("`age`", "patients' age at intake"),
+  c("`ascites`", "presence of ascites at baseline (0:no, 1:yes)"),
+  c("`hepato`", "presence of hepatomegaly or enlarged liver"),
+  c("`bili`", "serum bilirubin level at baseline"),
+  c("`copper`", "urine copper (ug/day)"),
+  # c("`chol`", "serum cholesterol level at baseline"),
+  c("`albumin`", "serum albumin level at follow-up (time-varying)")
+) %>% as.data.frame
+
+names(EP16dat4vars) <- c("", "")
+
+EP16dat4vars %>% kable(format = 'html') %>%
+  kable_styling()
+```
+
+The variables have the following distributions and proportions of missing values:
+```{r, echo = FALSE, fig.width = 8, fig.height = 5, out.width = "100%"}
+par(mgp = c(2,0.6, 0), mar = c(3,3,2.5,1))
+JointAI::plot_all(EP16dat4, ncol = 4, use_level = TRUE, idvar = 'id')
+```
+
+`albumin`, `bili` and `hepato` were measured repeatedly, `day` is the day of 
+that measurement, and the other variables were only measured once, at baseline.
+
+The missing data pattern is:
+
+```{r mdpatlong, echo = FALSE, fig.align = "center", fig.width = 6, fig.height = 4}
+JointAI::md_pattern(EP16dat4)
+```
+
+<br>
+
+The longitudinal outcome `albumin` shows relatively linear trajectories over time:
+```{r trajectoryplot, echo = FALSE, fig.width = 8, fig.height = 4.5}
+ggplot(EP16dat4, aes(x = day, y = albumin, color = id, group = id)) +
+  geom_line(na.rm = TRUE) +
+  theme(legend.position = 'none',
+        panel.background = element_rect(fill = grey(0.95), color = grey(0.85)),
+        panel.grid = element_blank())
+```
+
+To analyse the trajectories of `albumin` we want to use the following linear
+mixed effects model with random intercept and slope
+(either using `lme`  from the package **nlme** or using `lmer` from the 
+package **lme4**; and only AFTER we have imputed the data):
+
+```{r longmodels, eval = FALSE, echo = TRUE}
+# using package nlme
+lme(albumin ~ day + sex + trt + age + ascites + log(bili) + copper, random = ~day|id)
+
+
+# using package lme4
+lmer(albumin ~ day + sex + trt + age + ascites + log(bili) + copper + (day|id))
+```
+
+
+## Imputation using  **mice** {.tabset .tabset-fade .tabset-pills}
+
+With the current data, the approach to impute the data in wide format is not
+feasible, since the data are unbalanced, i.e., the measurements do 
+not follow a pre-specified pattern, but different patients have
+different numbers of measurements and are measured at different time-points.
+
+
+Theoretically, there is some functionality in **mice** for handling longitudinal
+data, using special imputation methods like `"2l.norm"`, `"2lonly.norm"` or 
+`"2lonly.pmm"`, which take into account the multi-level structure of the data.
+
+The package has undergone some recent updates with the result that we are unable
+to replicate the results we obtained before - data that was imputed now results
+in warning messages, and values are not being imptued.
+This may be a user error, due to changes in functionality, or it may be an issue
+with the functions itself.
+
+
+Going forward we will perform imputation in this setting using an alternative 
+approach.
+
+The idea is to find a summary of the longitudinal variables that will capture
+the relevant characteristics of the longitudinal profiles so that as little
+information as possible is lost.
+This summary also has to be represented in the same number of valus for each 
+subject, and these values need to have the same interpretation for all subjects.
+
+
+One option that fulfils these requirements is to fit mixed models to the
+longitudinal variables, and to represent the trajectories by the estimated
+random effects in the imputation [@Erler2016].
+This approach, however, does not work for imputation of missing values in
+longitudinal variables. Hence, we will not consider the variable `hepato` here.
+
+To get a good representation, the model needs to be flexible enough to fit the
+data sufficiently well.
+
+We already saw how the traces for `albumin` look like, here is the corresponding
+plot for `log(bili)`:
+```{r, echo = FALSE, fig.height = 4.5}
+ggplot(EP16dat4, aes(x = day, y = log(bili), color = id, group = id)) +
+  geom_line(na.rm = TRUE) +
+  theme(legend.position = 'none',
+        panel.background = element_rect(fill = grey(0.95), color = grey(0.85)),
+        panel.grid = element_blank())
+```
+
+
+### Task 1
+Our model of interest involves the longitudinal variables `albumin` and `bili`,
+which are both completely observed.
+
+:::{.task}
+* Fit linear mixed models for `albumin` and for `log(bili)`.
+```{r,  results = 'asis', echo = FALSE}
+hint('The function `lmer()` from the package **lme4** is faster than `lme()` from
+     **nlme**.', margin = 40)
+hint('To solve convergence issues in the function `lmer()`, you can set the
+     argument `control = lmerControl(optimizer = "bobyqa")`.')
+```
+
+* Use a natural cubic spline with 2 degrees of freedom for the time variable `day`
+  and also include this spline specification in the random effects.
+* Extract the random effects from these models.
+```{r,  results = 'asis', echo = FALSE}
+hint('Random effects can be extracted from the model using the function `ranef()`.',
+     margin = 40)
+```
+:::
+
+
+### Solution 1
+```{r}
+library("splines")
+library("lme4")
+
+# model for albumin
+mod_albu0 <- lmer(albumin ~ age + sex + ns(day, df = 2) + (ns(day, df = 2) | id),
+                  data = EP16dat4)
+
+# model for log(bili)
+mod_bili0 <- lmer(log(bili) ~ ns(day, df = 2) + (ns(day, df = 2) | id),
+                  data = EP16dat4,
+                  control = lmerControl(optimizer = "bobyqa"))
+
+# extract the random effects
+b_albu <- ranef(mod_albu0)$id
+b_bili <- ranef(mod_bili0)$id
+```
+
+```{r}
+head(b_albu)
+head(b_bili)
+```
+
+To be able to distinguish between the random effects from the two models, we
+should give them different names:
+
+```{r}
+names(b_albu) <- paste0("b_albu", 0:2)
+names(b_bili) <- paste0("b_bili", 0:2)
+```
+
+
+To check that our model fits the data suitably well, we can look at the observed
+and fitted values for a few cases:
+
+```{r, warning = FALSE, message = FALSE}
+
+# Combine the original data with the fitted values
+plotDF <- cbind(EP16dat4,
+                fit_albu = fitted(mod_albu0),
+                fit_bili = fitted(mod_bili0)
+)
+
+# make a subset of 24 randomly chosen subjects
+plotDF_sub <- subset(plotDF, id %in% sample(unique(EP16dat4$id), size = 30))
+
+
+# For albumin:
+ggplot(plotDF_sub, aes(x = day, y = albumin, group = id)) +
+  geom_point(alpha = 0.5, size = 1) +
+  geom_line(aes(y = fit_albu), color = 'blue') +
+  geom_point(aes(y = fit_albu), color = 'blue', alpha = 0.3) +
+  facet_wrap('id', ncol = 6) +
+  theme(panel.grid = element_blank())
+
+
+# For log(bili):
+ggplot(plotDF_sub, aes(x = day, y = log(bili), group = id)) +
+  geom_point(alpha = 0.5, size = 1) +
+  geom_line(aes(y = fit_bili), color = 'blue') +
+  geom_point(aes(y = fit_bili), color = 'blue', alpha = 0.3) +
+  facet_wrap('id', ncol = 6) +
+  theme(panel.grid = element_blank())
+```
+
+
+### Task 2
+The next step is to get a wide-format version of our data. We do not need to 
+worry about the longitudinal variables, instead we need to include the random
+effects as columns in this wide-format data.
+
+:::{.task}
+* Get the baseline observations from all subjects as basis for the wide-format
+  data. You can use `match(unique(EP16dat4$id), EP16dat4$id)` to select the
+  first row for each subject.
+* Add the random effects as columns to this data.
+```{r, echo = FALSE, results = 'asis'}
+hint("You can use `cbind()` to add columns to a `data.frame`.", margin = 40)
+```
+:::
+
+
+### Solution 2
+```{r}
+# combine the first row of each subject with the random effects
+EP16dat_wide <- cbind(EP16dat4[match(unique(EP16dat4$id), EP16dat4$id), ],
+                      b_albu, b_bili)
+
+head(EP16dat_wide)
+```
+
+
+### Task 3 
+With these extra columns in the data, we can run the imputation using `mice()`.
+
+:::{.task}
+Perform the necessary steps to impute the data. Make sure you exclude unnecessary
+columns/variables from the imputation.
+
+```{r, echo = FALSE, results = 'asis'}
+hint("The longitudinal variables are now represented by their random effects.
+     This means, we do not need to include them any more in the imputation.")
+```
+:::
+
+### Solution 3
+```{r}
+library("mice")
+imp0 <- mice(EP16dat_wide, maxit = 0)
+```
+
+There is one logged event. This is only the set-up run, so it is not a problem,
+but we should be interested in what the problem might be to fix this in the 
+actual imputation.
+```{r}
+imp0$loggedEvents
+```
+The variable `day` is constant (because we used the first row for everyone, and
+the first measurement was taken on day 0 for all patients).
+We would exclude this variable from the imputation anyway since it is a 
+longitudinal variable.
+
+```{r}
+meth <- imp0$method
+meth
+```
+We do not need to change anything in the imputation method if we think that
+using `pmm` for `copper` is a good choice.
+
+
+```{r}
+pred <- imp0$predictorMatrix
+pred[, c('day', 'hepato', 'albumin', 'bili', 'id')] <- 0 # mice already set day to 0
+```
+
+```{r, eval = runimps}
+imp_mice <- mice(EP16dat_wide, method = meth, predictorMatrix = pred,
+                 maxit = 20, seed = 2020, printFlag = FALSE)
+```
+
+
+### Task 4
+We now need to combine the imputed basline data with the longitudinal variables
+in order to do our analysis.
+
+:::{.task}
+* Extract the imputed data from the `mids` object in long format and do not include the original data.
+* Split the data by imputation number into a list of dataframes<br>
+```{r, echo = FALSE, results = 'asis'}
+hint("You can split the data into a list with the help of the function `split`.",
+     margin = 40)
+hint("The variable `.imp` refers to the imputation number.")
+```
+* Merge each of the `data.frame`s in the list with the longitudinal variables
+```{r, echo = FALSE, results='asis'}
+hint("When merging the data, the imputed data should only include the baseline covariates,
+      id variable, and columns that were added by **mice**. The longitudinal data
+     should only include the time-varying variables (including `day`) and the `id` variable.",
+     margin = 40)
+```
+* Convert the list of merged data.frames to a `mids` object with the help of 
+  the function `datalist2mids` from the package **miceadds**.
+:::
+
+
+### Solution 4
+We first extract the data from the `mids` object. Here we use the option
+`include = FALSE` because we will later use the function `datalist2mids()`.
+If we would use `as.mids()` we would need to include the original data.
+```{r}
+impdat <- complete(imp_mice, action = 'long', include = FALSE)
+```
+
+
+We then split the data by imputation number. Then we merge each part of the data.
+We can conveniently wrap this into `lapply()`, because we want to apply the same
+function to each element of a list.
+
+```{r}
+imp_list <- lapply(split(impdat, impdat$.imp), function(x) {
+  merge(subset(x, select = c(.imp, .id, id, trt, age, sex, ascites, copper)),
+        subset(EP16dat4, select = c(id, day, hepato, bili, albumin)),
+        all = TRUE)
+})
+```
+
+
+When converting the resulting list of longitudinal datasets to a `mids` object
+we would have (at least) two options: the function `as.mids()` and the function
+`datalist2mids`.
+
+`as.mids()` does not work well with longitudinal data. It gives an error about
+duplicate row names. For that reason, we use `datalist2mids`.
+```{r}
+mids_long <- miceadds::datalist2mids(imp_list)
+```
+
+### Task 5
+:::{.task}
+Fit the mixed model of interest (as specified above) and obtain the pooled 
+results.
+```{r, echo = FALSE, results = 'asis'}
+hint("The model of interst is
+      `lmer(albumin ~ ns(day, df = 2) + sex + trt + age + ascites +
+                        log(bili) + copper + (ns(day, df = 2)|id)`")
+```
+:::
+
+### Solution 5
+```{r}
+mod_mice <- with(mids_long,
+                 lmer(albumin ~ ns(day, df = 2) + sex + trt + age + ascites +
+                        log(bili) + copper + (ns(day, df = 2)|id),
+                      control = lmerControl(optimizer = "bobyqa")))
+```
+
+```{r}
+summary(pool(mod_mice), conf.int = TRUE)
+```
+
+
+
+## Imputation using **JointAI** {.tabset .tabset-fade .tabset-pills}
+
+To analyse incomplete longitudinal data using a linear mixed model the R package
+**JointAI** provides the function `lme_imp()`. 
+The specification of the main model components is analogous to the function
+`lme()` from the **nlme** package.
+
+:::{.notebox}
+[Note:]{.Note}
+
+After the next major update of **JointAI** it will also be possible to use the
+type of specification used in **lme4**.
+:::
+
+
+**Specification of longitudinal models:**<br>
+When imputing variables in a longitudinal (or other multi-level) model and there
+are missing values in baseline (level-2) covariates, models need to be specified
+for all longitudinal covariates, even if they do not have missing values.
+Specifying no model would imply that the incomplete baseline covariates are 
+independent of the complete longitudinal variable (see also [here](https://nerler.github.io/JointAI/articles/ModelSpecification.html#why-do-we-need-models-for-completely-observed-longitudinal-covariates)).
+Therefore, **JointAI** automatically specifies models for all longitudinal covariates in such a setting.
+
+
+An exception may be the time variable: it is often reasonable to assume that
+the baseline covariates are independent of the measurement times of the outcome
+and longitudinal covariates.
+To tell **JointAI** not to specify a model for the time variable, the argument
+`no_model` can be used.
+
+
+**Model types for longitudinal covariates:**<br>
+For longitudinal covariates the following model types are implemented:
+```{r, echo = FALSE}
+tab <- rbind(lmm = c("linear mixed model", "continuous variables"),
+             glmm_lognorm = c("log-normal mixed model", "skewed continuous variables"),
+             glmm_logit = c("logistic mixed model", "factors with two levels"),
+             glmm_gamma = c("gamma mixed model (with log-link)", "skewed continuous variables"),
+             glmm_poisson = c("poisson mixed model", "count variables"),
+             clmm = c("cumulative logit mixed model", "ordered factors with >2 levels")
+)
+
+tab <- cbind(paste0("`", rownames(tab), "`"), tab)
+colnames(tab) <- c('name', 'model', 'variable type')
+
+knitr::kable(tab, row.names = FALSE, format = 'html') %>%
+  kable_styling(full_width = FALSE)
+```
+
+:::{.notebox}
+[Note:]{.Note}
+
+After the next major update of **JointAI** it will also be possible to use 
+mixed models with a beta distribution for continuous covariates with values
+between 0 and 1.
+:::
+
+**More info:**<br>
+For the specification of the other arguments of `lme_imp()`, refer to 
+
+* the [help page](https://nerler.github.io/JointAI/reference/model_imp.html),
+* the vignette on 
+[Model Specification](https://nerler.github.io/JointAI/articles/ModelSpecification.html#MultiLevelStructure), or
+* the details given in the practical on
+[Imputation with Non-linear Associations](https://nerler.github.io/EP16_Multiple_Imputation/practical/minonlin/MInonlin.html)
+
+
+### Task 1
+
+:::{.task}
+Run the imputation (start with `n.iter = 500`; this will take a few seconds).
+
+* Remember to specify appropriate models for the incomplete covariates and longitudinal variables.
+```{r, results = 'asis', echo = FALSE}
+hint("To see what the defaults are, you can run `lme_imp()` with `n.adapt = 0`
+     and `n.iter = 0`, and extract the vector of model types using 
+     `<mymodel>$models`, where `<mymodel>` is the name you gave the model.",
+     margin = 40)
+```
+* Prevent specification of a model for `day`.
+* Check convergence using a `traceplot()`.
+```{r, results = 'asis', echo = FALSE}
+hint("If you use **JointAI** version 0.6.1 and R version 4.0.0 you need to set
+the option `use_ggplot = TRUE` in `tracepot()`.",
+     margin = 40)
+```
+:::
+
+### Solution 1
+```{r runJoitAIlong-solution, eval = runimps, fig.width = 9, fig.height = 5, message = FALSE}
+library("JointAI")
+JointAIlong <- lme_imp(albumin ~ ns(day, df = 2) + sex + trt + age + ascites + 
+                         bili + copper, random = ~ns(day, df = 2)|id,
+                       models = c(copper = 'lognorm', bili = 'glmm_lognorm'),
+                       no_model = 'day', data = EP16dat4, n.iter = 500, seed = 2020)
+```
+
+```{r, fig.width = 8, fig.height = 6}
+traceplot(JointAIlong, use_ggplot = TRUE) +
+  theme(legend.position = 'none',
+        panel.grid = element_blank())
+```
+
+
+
+### Task 2
+The traceplot shows that there is some autocorrelation (i.e., values are very
+similar to the previous value) in some of the chains (for example, `ns(day, df = 2)2`).
+
+To continue the sampling in order to run the model for longer, we can use the
+function `add_samples()`. The number of additional iterations can be specified
+using the argument `n.iter`.
+
+:::{.task}
+* Add another 1000 samples to the model and check the `traceplot()` again.
+* Also evaluate convergence using the Gelman-Rubin criterion (`GR_crit()`)
+* Evaluate the Monte Carlo error (`MC_error()`).
+:::
+
+### Solution 2
+```{r, eval = runimps}
+JointAIlong_extra <- add_samples(JointAIlong, n.iter = 1000)
+```
+
+```{r}
+traceplot(JointAIlong_extra, use_ggplot = TRUE) +
+  theme(legend.position = 'none',
+        panel.grid = element_blank())
+```
+
+The traceplots now look a bit better.
+
+By setting the argument `autoburnin = FALSE` in `GR_crit()` we select to 
+use the full MCMC chains. By default (`autoburnin = TRUE`) the function automatically
+discards the first half of the iterations and only uses the second half to evaluate
+convergence.
+```{r}
+GR_crit(JointAIlong_extra, autoburnin = FALSE)
+```
+For some parameters, the criterion is still too large. The traceplot indicates
+that this is not really an issue of convergence, but slow mixing:
+because of the high correlation between subsequent samples, the chain only 
+moves very slowly. As a result, there is more variation between the chains that
+within one chain.
+
+We would have to run the model even longer to give the chains the "time" to fully
+explore the full range of the posterior distribution.
+
+```{r}
+MC_error(JointAIlong_extra)
+```
+The Monte Carlo error is also still larger then we would want it to be.
+
+
+Based on the Gelman-Rubin criterion and the Monte Carlo error we need more
+MCMC samples to get precise results. We can either run the MCMC chains for longer,
+but since the issue is not that the chains do not have converged, we could also
+get more samples by increasing the number of MCMC chains. 
+
+Using more MCMC chains has the advantage that different chains are independent
+and that they can be run in parallel.
+
+:::{.notebox}
+[Note:]{.Note}
+On computers with multiple CPUs it is possible to run the different MCMC chains
+of a model in parallel to save some time.
+The argument `parallel = TRUE` has to be set. By default, **JointAI** will use
+all but two of the available cores (but never more than the number of MCMC chains).
+How many cores to use can be controlled with the argument `n.cores`.
+:::
+
+
+
+## Additional exercise JointAI {.tabset .tabset-fade .tabset-pills}
+We want to fit a logistic mixed model for the variable `hepato` and explore
+if the association is non-linear over time.
+
+### Task 1
+:::{.task}
+* Fit a logistic mixed model using the function `glme_imp` using the same covariates as before.
+* Specify a natural cubic spline with 3 degrees of freedom for `day`.
+* Check convergence using a `traceplot()`.
+
+```{r, results = 'asis', echo = FALSE}
+hint('When specifying a generalized (mixed) model remember to specify the model family and link function.')
+
+hint('To use natural cubic splines use the function `ns()` from the package **splines**, 
+i.e., `ns(day, df = 3)`.')
+```
+:::
+
+
+### Solution 1
+```{r JointAIlong2-solution, eval = runimps}
+library("splines")
+JointAIlong2 <- glme_imp(hepato ~ ns(day, df = 3) + sex + trt + age + ascites +
+                           bili + copper, random = ~1|id, family = binomial(),
+                         models = c(copper = 'lognorm', bili = 'glmm_gamma'),
+                         no_model = 'day', data = EP16dat4, n.iter = 1000,
+                         seed = 2020)
+```
+
+
+```{r, fig.width = 8, fig.height = 6}
+traceplot(JointAIlong2, use_ggplot = TRUE) +
+  theme(legend.position = 'none',
+        panel.grid = element_blank())
+```
+
+
+### Task 2
+
+When the model has converged, we want to visualize the potentially non-linear
+association of `day`. To do that, we can create a new dataset containing information
+on an "average" subject, with different values for `day`.
+
+The function `predDF()` creates such a dataset from an object of class `JointAI`.
+It sets reference values (i.e., the median for continuous variables and the 
+reference category for categorical variables) for all variables other than the
+one specified in the argument `var`. The variable given in `var` will range 
+across the range of values of that variable encountered in the data.
+
+:::{.task}
+Use `predDF()` to create a dataset that allows visualization of the effect of
+`day`.
+:::
+
+
+### Solution 2
+```{r newdf-solution}
+newdf <- predDF(JointAIlong2, var = 'day')
+
+head(newdf)
+```
+
+
+### Task 3
+We can now predict the outcome of our model for our "average" subject using the
+function `predict()`. It takes a `JointAI` object and a `data.frame` containing
+the data to predict from as arguments. The argument `quantiles` can be used to
+specify which quantiles of the distribution of each fitted value are returned
+(default is `2.5%` and `97.5%`).
+
+`predict()` returns a list with the following elements
+
+* `dat`: the `data.frame` provided by the user extended with the fitted values
+  and 2.5% and 97.5% quantiles that form the credible interval for the fitted values
+* `fit`: a vector containing the fitted values (the mean of the distribution of the fitted value)
+* `quantiles`: a matrix containing the credible interval for each fitted value
+
+:::{.task}
+* Use `predict()` to obtain the fitted values and corresponding intervals
+* Visualize the result by plotting fitted values and quantiles (y-axis) over time (`day`; x-axis)
+:::
+
+### Solution 3
+```{r makepred-solution, fig.width = 8, fig.height = 5}
+pred <- predict(JointAIlong2, newdata = newdf)
+
+ggplot(pred$dat, aes(x = day, y = fit)) +
+  geom_ribbon(aes(ymin = `2.5%`, ymax = `97.5%`), alpha = 0.3) +
+  geom_line() +
+  theme(panel.grid = element_blank())
+```
+
+
+:::{.notebox}
+[Note:]{.Note}
+The fitted values and quantiles are on the scale of the linear predictor,
+i.e., obtained by multiplying the data in `newdf` ($\mathbf x$) with the samples
+of the posterior distribution of the parameters ($\boldsymbol \beta$).
+
+For a logistic model it is more intuitive to present the fitted values on the
+probability scale.
+This functionality will be included in the next major update for **JointAI**.
+:::
+
+
+```{r, eval = runimps, echo = FALSE}
+save(imp_mice, JointAIlong, JointAIlong_extra, JointAIlong2, 
+     file = file.path(projdir, "Practicals/workspaces/longimps.RData"))
+```
+
+
+## References

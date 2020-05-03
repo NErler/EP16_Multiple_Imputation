@@ -73,6 +73,16 @@ or find the whole manual for a package at
 [https://cran.r-project.org/web/packages/available_packages_by_name.html](https://cran.r-project.org/web/packages/available_packages_by_name.html)
 
 
+### Aim
+The focus of this practical is the imputation of data that has features
+that require special attention.
+
+In the interest of time, we will focus on these features and **abbreviate steps
+that are the same as in any imputation setting** (e.g., getting to know 
+the data or checking that imputed values are realistic).
+**Nevertheless, these steps are of course required when analysing data in 
+practice.**
+
 
 
 ### Data & Model of interest
