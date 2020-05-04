@@ -14,6 +14,8 @@ output:
     incremental: false
 classoption: [aspectratio=169]
 bibliography: references.bib
+nocite: | 
+  @Siddique2008, @Morris2014
 csl: taylor-and-francis-apa.csl
 ---
 
@@ -344,7 +346,7 @@ hist(x, breaks = 100, xlab = "", main = "", xaxt = 'n', yaxt = 'n',
 
 \bigskip
 
-To find similar cases, the predicted values of complete and incomplete cases
+To find similar cases, the predicted values of observed and unobserved cases
 are compared.
 
 
@@ -377,7 +379,8 @@ Several \blue{criteria to select donors} (donor candidates) have been proposed:
     The donor is selected randomly from the candidates.
 > - Select candidates like in 2. or 3., but select the donor from the
     candidates with probability that depends on 
-    $\left|\hat y_{mis,i} - \hat y_{obs, j}\right|$.[@Siddique2008]
+    $\left|\hat y_{mis,i} - \hat y_{obs, j}\right|$.
+    
 
 
 ## Semi-parametric Imputation
@@ -388,12 +391,12 @@ Several \blue{criteria to select donors} (donor candidates) have been proposed:
           $d$ are 3, 5 or 10.
 > - If the same donor is chosen in many/all imputations (e.g., because
     only a few similar observed cases are available), the
-    blue{uncertainty about the missing values will be underestimated}.
+    \blue{uncertainty about the missing values will be underestimated}.
 > - \blue{\ding{225}} PMM may be \blue{problematic} when
 >     - the \blue{dataset is very small},
 >     - the \blue{proportion of missing values is large}, or
 >     - \blue{predictor variables} are strongly \blue{related to the missingness}.
-> - Therefore, using $d = 1$ (selection criterion 1.) is not a
+> - Using $d = 1$ (selection criterion 1.) is not a
     good idea. On the other hand, using too many candidates can lead to bad matches.
 > - @Schenker1996 proposed an adaptive procedure
     to select $d$, but it is not used much in practice.
@@ -411,7 +414,7 @@ Type-0 & $\hat\beta_{LS/ML}$ (least squares or maximum likelihood) are used in
           both prediction models\\[2ex]
 Type-I & $\hat\beta_{LS/ML}$ to predict $\hat y_{obs}$;
           $\tilde\beta_{B/BS}$ (Bayesian or bootstrapped) to predict $\hat y_{mis}$\\[2ex]
-Type-II & $\tilde\beta$ to predict $\hat y_{obs}$ as well as $\hat y_{mis}$\\[2ex]
+Type-II & $\tilde\beta_{B/BS}$ to predict $\hat y_{obs}$ as well as $\hat y_{mis}$\\[2ex]
 Type-III & different draws $\tilde\beta^{(1)}_{B/BS}$ and $\tilde\beta^{(2)}_{B/BS}$
            to predict $\hat y_{obs}$ and $\hat y_{mis}$, respectively
 \end{tabular}
@@ -447,26 +450,4 @@ Alternatives:
 \end{itemize}
 
 
-## What is Implemented in Software?
-\blue{mice (in R):}
-\begin{itemize}
-\item \blue{PMM} via \Rfct{mice.impute.pmm}
-      \begin{itemize}
-      \item specification of number of donors $d$ (same for all variables)
-      \item Type-0, Type-I, Type-II matching
-      \end{itemize}
-\item \blue{PMM} via \Rfct{mice.impute.midastouch}
-      \begin{itemize}
-      \item allows leave-one-out estimation of the parameters
-      \item distance based donor selection
-      \item Type-0, Type-I, Type-II matching
-      \end{itemize}
-\item \blue{bootstrap} linear regression via \Rfct{mice.impute.norm.boot}
-\item \blue{bootstrap} logistic regression via \Rfct{mice.impute.logreg.boot}
-\item \blue{Bayesian} linear regression via \Rfct{mice.impute.norm}
-\item \ldots
-\end{itemize}
-
-
-
-## References
+## References {.allowframebreaks}
