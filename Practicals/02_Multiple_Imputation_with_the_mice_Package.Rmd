@@ -295,13 +295,6 @@ imp <- mice(EP16dat1, method = meth, predictorMatrix = pred, visitSequence = vis
             maxit = 10, m = 5, seed = 2020)
 ```
 
-```{r saveimp, include = FALSE, eval = runimp}
-imp30 <- update(imp, maxit = 30)
-impnaive <- mice(EP16dat1, maxit = 30, m = 5, seed = 2020)
-
-save(imp, imp30, impnaive, 
-     file = file.path(projdir, "Practicals/workspaces/imps.RData"))
-```
 
 `mice()` prints the name of the variable being imputed for each
 iteration and imputation. If you run `mice()` on your own computer the output
@@ -412,3 +405,45 @@ rbind(
 ```
 
 
+## A Note on Imputation Methods
+In Section 4 of the lectures, we have seen different methods to obtain imputed 
+values: Bayesian imputation, bootstrap imputation and predictive mean matching.
+
+The imputation methods implemented in the **mice** that we talked about in 
+Section 6 of the lectures and here of course fall into these categories.
+
+`norm` and `logreg` perform Bayesian linear and logistic regression, respectively.
+There are bootstrap alternatives available: `norm.boot` and `logreg.boot`.
+
+The default method `pmm` performs predictive mean matching using, by default,
+5 donors and type-1 matching.
+
+The number of donors can be changed using the argument `donors`. A selection
+between type-0, type-1 and type-2 matching is possible via the argument `matchtype`.
+
+For example, we could adjust the syntax from above:
+```{r, eval = FALSE}
+mice(data = EP16dat1, m = 5, method = meth, predictorMatrix = pred, 
+     visitSequence = visSeq, maxit = 10, seed = 2020,
+     donors = 5, matchtype = 2L)
+```
+
+Both arguments can be passed to `mice()` and will apply to all imputation models
+that use `pmm`.
+
+
+An alternative implementation of predictive mean matching is the imputation method
+`midastouch`. It uses type-2 matching with a leave-one-out approach,
+where parameter estimates are obtained using bootstrap.
+Donors are selected from all cases for which the variable that is to be imputed
+is observed, with probability depending on the distance of the predicted values.
+
+
+
+```{r saveimp, include = FALSE, eval = runimp}
+imp30 <- update(imp, maxit = 30)
+impnaive <- mice(EP16dat1, maxit = 30, m = 5, seed = 2020)
+
+save(imp, imp30, impnaive, 
+     file = file.path(projdir, "Practicals/workspaces/imps.RData"))
+```

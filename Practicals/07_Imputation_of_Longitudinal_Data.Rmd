@@ -187,7 +187,7 @@ data, using special imputation methods like `"2l.norm"`, `"2lonly.norm"` or
 
 The package has undergone some recent updates with the result that we are unable
 to replicate the results we obtained before - data that was imputed now results
-in warning messages, and values are not being imptued.
+in warning messages, and values are not being imputed.
 This may be a user error, due to changes in functionality, or it may be an issue
 with the functions itself.
 
@@ -198,7 +198,7 @@ approach.
 The idea is to find a summary of the longitudinal variables that will capture
 the relevant characteristics of the longitudinal profiles so that as little
 information as possible is lost.
-This summary also has to be represented in the same number of valus for each 
+This summary also has to be represented in the same number of values for each 
 subject, and these values need to have the same interpretation for all subjects.
 
 
@@ -388,12 +388,12 @@ imp_mice <- mice(EP16dat_wide, method = meth, predictorMatrix = pred,
 
 
 ### Task 4
-We now need to combine the imputed basline data with the longitudinal variables
+We now need to combine the imputed baseline data with the longitudinal variables
 in order to do our analysis.
 
 :::{.task}
 * Extract the imputed data from the `mids` object in long format and do not include the original data.
-* Split the data by imputation number into a list of dataframes<br>
+* Split the data by imputation number into a list of data frames<br>
 ```{r, echo = FALSE, results = 'asis'}
 hint("You can split the data into a list with the help of the function `split`.",
      margin = 40)
@@ -448,7 +448,7 @@ mids_long <- miceadds::datalist2mids(imp_list)
 Fit the mixed model of interest (as specified above) and obtain the pooled 
 results.
 ```{r, echo = FALSE, results = 'asis'}
-hint("The model of interst is
+hint("The model of interest is
       `lmer(albumin ~ ns(day, df = 2) + sex + trt + age + ascites +
                         log(bili) + copper + (ns(day, df = 2)|id)`")
 ```
@@ -551,7 +551,7 @@ hint("To see what the defaults are, you can run `lme_imp()` with `n.adapt = 0`
 * Check convergence using a `traceplot()`.
 ```{r, results = 'asis', echo = FALSE}
 hint("If you use **JointAI** version 0.6.1 and R version 4.0.0 you need to set
-the option `use_ggplot = TRUE` in `tracepot()`.",
+the option `use_ggplot = TRUE` in `traceplot()`.",
      margin = 40)
 ```
 :::
