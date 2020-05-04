@@ -2184,6 +2184,20 @@ character vector with names of altered/removed predictors
 </div>
 </div>
 </div>
+<div id="a-note-on-imputation-methods" class="section level2">
+<h2>A Note on Imputation Methods</h2>
+<p>In Section 4 of the lectures, we have seen different methods to obtain imputed values: Bayesian imputation, bootstrap imputation and predictive mean matching.</p>
+<p>The imputation methods implemented in the <strong>mice</strong> that we talked about in Section 6 of the lectures and here of course fall into these categories.</p>
+<p><code>norm</code> and <code>logreg</code> perform Bayesian linear and logistic regression, respectively. There are bootstrap alternatives available: <code>norm.boot</code> and <code>logreg.boot</code>.</p>
+<p>The default method <code>pmm</code> performs predictive mean matching using, by default, 5 donors and type-1 matching.</p>
+<p>The number of donors can be changed using the argument <code>donors</code>. A selection between type-0, type-1 and type-2 matching is possible via the argument <code>matchtype</code>.</p>
+<p>For example, we could adjust the syntax from above:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a><span class="kw">mice</span>(<span class="dt">data =</span> EP16dat1, <span class="dt">m =</span> <span class="dv">5</span>, <span class="dt">method =</span> meth, <span class="dt">predictorMatrix =</span> pred, </span>
+<span id="cb15-2"><a href="#cb15-2"></a>     <span class="dt">visitSequence =</span> visSeq, <span class="dt">maxit =</span> <span class="dv">10</span>, <span class="dt">seed =</span> <span class="dv">2020</span>,</span>
+<span id="cb15-3"><a href="#cb15-3"></a>     <span class="dt">donors =</span> <span class="dv">5</span>, <span class="dt">matchtype =</span> 2L)</span></code></pre></div>
+<p>Both arguments can be passed to <code>mice()</code> and will apply to all imputation models that use <code>pmm</code>.</p>
+<p>An alternative implementation of predictive mean matching is the imputation method <code>midastouch</code>. It uses type-2 matching with a leave-one-out approach, where parameter estimates are obtained using bootstrap. Donors are selected from all cases for which the variable that is to be imputed is observed, with probability depending on the distance of the predicted values.</p>
+</div>
 
  
 <hr>
