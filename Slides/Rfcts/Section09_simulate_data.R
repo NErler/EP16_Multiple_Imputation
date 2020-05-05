@@ -115,7 +115,7 @@ longDF2$x2[longDF2$id %in% c(sample.int(N, size = 0.3 * N))] <- NA
 longDF2$x3[longDF2$id %in% c(sample.int(N, size = 0.3 * N))] <- NA
 longDF2$x4[longDF2$id %in% c(sample.int(N, size = 0.3 * N))] <- NA
 
-save(longDF2,file = file.path(projdir, "Slides/workspaces/longDF2.RData"))
+save(longDF2, longDF2_orig, file = file.path(projdir, "Slides/workspaces/longDF2.RData"))
 
 # DFexlong2_sub <- DFexlong2[DFexlong2$id %in% c(1, 2, 6, 15, 16), ]
 

@@ -489,6 +489,85 @@ ggsave(plong2_3, file = file.path(projdir, 'Slides/graphics/Section09/plong2_3.p
 
 
 
+lm4 <- lm(y ~ time, data = subset(longDF2_sub, id == 4))
+lm14 <- lm(y ~ time, data = subset(longDF2_sub, id == 14))
+
+lm4_ns <- lm(y ~ ns(time, df = 2), data = subset(longDF2_sub, id == 4))
+lm14_ns <- lm(y ~ ns(time, df = 2), data = subset(longDF2_sub, id == 14))
+
+
+coefdat <- as.data.frame(rbind(
+  c(id = 4, coef(lm4)),
+  c(id = 14, coef(lm14))
+))
+
+
+
+rdi_ns <- data.frame(id = c(4, 14),
+           x = -6, 
+           y = c(predict(lm4_ns, newdata = data.frame(time = -6)),
+                 predict(lm14_ns, newdata = data.frame(time = -6))
+           )
+)
+
+
+
+slopedat <- data.frame(x = c(-6, -2, -2),
+                       y = c(coef(lm14)[1] + c(-6, -6, -2) * coef(lm14)[2]),
+                       id = 14)
+
+
+
+
+plong2_4 <- plong2_0 +
+  geom_point(data = coefdat,
+             aes(x = -6, y = `(Intercept)` - 6 * time), alpha = 0.7,
+             size = 8, shape = 21, color = 'darkblue', fill = 'darkblue') +
+  geom_line(lwd = 1, color = 'darkblue', aes(group = factor(id),
+                                             alpha = id %in% c(4, 14))) +
+  geom_smooth(data = subset(longDF2_sub, id %in% c(4, 14)), fullrange = TRUE,
+              method = 'lm', formula = y ~ x, se = FALSE,
+              aes(alpha = factor(id)), color = 'darkblue', lty = 2) +
+  geom_point(lwd = 2, color = 'darkblue', aes(alpha = id %in% c(4, 14))) +
+  geom_line(data = slopedat, aes(x = x, y = y), color = 'darkblue',
+            size = 2, alpha = 0.5) +
+  theme(axis.title = element_text(size = 16)) +
+  scale_alpha_manual(limits = c(TRUE, FALSE), values = c(0.6, 0.1))
+
+
+ggsave(plong2_4, file = file.path(projdir, 'Slides/graphics/Section09/plong2_4.pdf'),
+       width = 5.5, height = 4)
+
+
+
+plong2_5 <- plong2_0 +
+  geom_point(data = rdi_ns,
+             aes(x = x, y = y), alpha = 0.7,
+             size = 8, shape = 21, color = 'darkblue', fill = 'darkblue') +
+  geom_line(lwd = 1, color = 'darkblue', aes(group = factor(id),
+                                             alpha = id %in% c(4, 14))) +
+  geom_smooth(data = subset(longDF2_sub, id %in% c(4, 14)), fullrange = TRUE,
+              method = 'lm', formula = y ~ ns(x, df = 2), se = FALSE,
+              aes(alpha = factor(id)), color = 'darkblue', lty = 2) +
+  geom_point(lwd = 2, color = 'darkblue', aes(alpha = id %in% c(4, 14))) +
+  theme(axis.title = element_text(size = 16)) +
+  geom_curve(aes(x = 3.5, y = 22.45, xend = 9, yend = 23.1), 
+             curvature = 0.15, lwd = 2, alpha = 0.2, color = 'darkblue',
+             arrow = arrow(length = unit(0.03, "npc"))) +
+  geom_curve(aes(x = -1, y = 21, xend = 4.5, yend = 21), 
+             curvature = 0.25, lwd = 2, alpha = 0.2, color = 'darkblue',
+             arrow = arrow(length = unit(0.03, "npc"))) +
+  scale_alpha_manual(limits = c(TRUE, FALSE), values = c(0.6, 0.1)) +
+  coord_cartesian(ylim = c(20.7, 24.5))
+
+
+ggsave(plong2_5, file = file.path(projdir, 'Slides/graphics/Section09/plong2_5.pdf'),
+       width = 5.5, height = 4)
+
+
+
+
+
 # survival example -------------------------------------------------------------
 library(survival)
 imp00 <- mice(survdat, maxit = 0)

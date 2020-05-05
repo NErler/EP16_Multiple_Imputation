@@ -1,6 +1,6 @@
 ---
 title: "EP16: Missing Values in Clinical Research: Multiple Imputation"
-subtitle: "11. Imputation with Non-linear Functional Forms"
+subtitle: "11. Imputation with Longitudinal Data"
 author: "Nicole Erler"
 institute: "Department of Biostatistics, Erasmus Medical Center"
 date: ""
@@ -19,7 +19,7 @@ bibliography: references.bib
 ```{r setup, include = FALSE}
 projdir <- gsub("/Slides", "", getwd())
 
-runimps <- TRUE
+runimps <- FALSE
   
 knitr::knit_hooks$set(
   nospace = function(before, options, envir) {
@@ -39,13 +39,37 @@ suppressPackageStartupMessages(library("mice"))
 
 library(kableExtra)
 library(ggplot2)
+library(lme4)
 
 load(file.path(projdir, "Slides/workspaces", "longDF2.RData"))
-knitr::read_chunk(file.path(projdir, "Slides/Rfcts/Section12_Imputations.R"))
+# knitr::read_chunk(file.path(projdir, "Slides/Rfcts/Section12_Imputations.R"))
+
+load(file.path(projdir, "Slides/workspaces/mice_long.RData"))
+load(file.path(projdir, "Slides/workspaces/JointAI_long.RData"))
 ```
 
+## The Challenge with Longitudinal Data
+In \blue{long format}:\vspace*{-1ex}
 
-## R package mice
+* (potential) correlation between repeated measurements ignored
+* inconsistent imputation of baseline covariates
+
+\medskip\pause
+
+In \blue{wide format}:\vspace*{-1ex}
+
+* for \blue{unbalanced} data: direct wide format may not be possible
+* for relatively \blue{balanced} data: inefficient
+
+\medskip\pause
+
+\blue{Simple summaries} to allow wide format:\vspace*{-1ex}
+
+* loss of information
+* potential MNAR
+* \blue{bias}
+
+## Imputation with mice
 \textbf{mice} has functions to allow imputation of longitudinal (2-level) data:
 \begin{itemize}
 \item \blue{Level 1:}\\
@@ -56,7 +80,7 @@ time-constant/baseline covariates, between subjects effects, variables on the gr
 
 \bigskip
 
-\begin{columns}[onlytextwidth]
+\begin{columns}[onlytextwidth, T]
 \begin{column}{0.5\textwidth}
 Imputation methods for \blue{level-1} variables:
 \begin{itemize}
@@ -76,15 +100,33 @@ Imputation methods for \blue{level-2} variables:
 \end{column}
 \end{columns}
 
-## R package mice
-\Rstring{2l.pan} uses a linear two-level model with \blue{homogeneous
-within group variances} using Gibbs sampling \cite{Schafer2002}.
-It needs the package \textbf{pan} to be installed.
+## Imputation with mice
+* \Rstring{2l.pan}: linear two-level model with \blue{homogeneous 
+  within group variances} [@Schafer2002]
+* \Rstring{2l.norm}: (Bayesian) linear two-level model with
+  \blue{heterogenous} group variances
 
-\bigskip
+\pause
 
-\Rstring{2l.pan} allows for different roles of predictor variables, that
-can be specified as different values in the \Rarg{predictorMatrix}:
+* \Rstring{2l.lmer}/\Rstring{2l.bin}: univariate systematically and sporadically
+missing data using a two-level normal/logistic model using \Rfct{lmer}/\Rfct{glmer} from package
+\textbf{lme4}.
+
+\pause
+
+* \Rstring{2lonly.norm} and \Rstring{2lonly.pmm}: 
+  to impute level-2 variables
+
+\pause 
+
+* \Rstring{2lonly.mean}: imputes values with the mean of the observed values per
+  class (only to be used in special cases!)
+
+
+
+## Imputation with mice
+
+The \Rarg{predictorMatrix} contains extra info for multi-level imputation:
 \begin{itemize}
 \item grouping/ID variable: -2
 \item random effects (also included as fixed effects): 2
@@ -92,156 +134,94 @@ can be specified as different values in the \Rarg{predictorMatrix}:
 \item fixed effects of group means \& random effects: 4
 \end{itemize}
 
-\small
-``` {r micelong_ex1_cont3_, eval = FALSE}
-# random effects of x in model for y
-pred["y","x"] <- 2
-# fixed effects of x and group mean of x
-pred["y","x"] <- 3
-# random effects of x and group mean of x
-pred["y","x"] <- 4
-```
-
-
-## R package mice
-\Rstring{2l.norm} implements a (Bayesian) linear two-level model with
-\blue{heterogenous} group variances.
-
-In the current implementation all predictors should be specified as random
-effects (set to 2 in the \Rarg{predictorMatrix}, because the algorithm does not
-handle predictors that are specified as fixed effects).
-
-\bigskip
-
-\pause
-\Rstring{2l.lmer}/\Rstring{2l.bin} imputes univariate systematically and sporadically
-missing data using a two-level normal/logistic model using \Rfct{lmer}/\Rfct{glmer} from package
-\textbf{lme4}.
-
-\bigskip
-
-\pause
-\Rstring{2lonly.norm} and \Rstring{2lonly.pmm} can be used
-to impute level-2 variables (in combination with \Rstring{2l.pan} for
-level-1 variables).
-
 \bigskip
 
 In all cases, the group identifier ("id" variable) needs to be set to -2 in
 the \Rarg{predictorMatrix}.
 
 
-## R package mice
-\Rstring{2lonly.mean} imputes values with the mean of the observed values per
-class. This method should only be used to fill in values that are known to be
-constant per class and have some values observed in each class.
+## Imputation with mice
+\blue{Alternative approach:} [@Erler2016]\
+Get a \blue{better summary} of the longitudinal variables!\pause
 
-\bigskip
+\includegraphics[width = 0.48\linewidth]{graphics/Section09/plong2_4.pdf}\pause
+\includegraphics[width = 0.48\linewidth]{graphics/Section09/plong2_5.pdf}\pause
 
-\textbf{Example:}
-In a multi-center trial the type of some medical equipment is known to be
-the same for all patients treated in the same hospital, but not filled in for
-some patients.
+\blue{Approximate trajectories using random effects!}
 
 
+## Imputation with mice
+> - Fit a flexible mixed model for outcome and other longitudinal variables\
+    \blue{\ding{225}} extract the random effects
 
-## R package mice
-As an example, we will impute the second (unbalanced) longitudinal
-data example from above. The data contain
+> - reduce data to a "baseline" version & add random effects as columns
+
+> - impute with **mice**
+
+> - extract imputed data & merge with long. variables  
+   
+> - convert back to `mids` object & analyse
+
+\pause\bigskip
+
+\blue{Drawback:} cannot handle \blue{incomplete longitudinal variables}.
+
+
+```{r, eval = runimps, include = FALSE}
+mod <- lmer(y ~ ns(time, df = 2) + (ns(time, df = 2) | id), data = longDF2)
+
+bs <- ranef(mod)$id
+names(bs) <- paste0('b', 0:2)
+
+basedat <- cbind(longDF2[match(unique(longDF2$id), longDF2$id), ], bs)
+                 
+imp0 <- mice(basedat, maxit = 0)
+
+meth <- imp0$method
+pred <- imp0$predictorMatrix
+pred[, c('id', 'time', 'ti', 'y')] <- 0
+
+implong <- mice(basedat, meth = meth, predictorMatrix = pred, maxit = 20)
+
+long <- complete(implong, 'long', include = FALSE)
+
+datlist <- lapply(split(long, long$.imp), function(x) {
+       merge(subset(x, select = c(.id, .imp, id, x1, x2, x3, x4)),
+             subset(longDF2, select = c(id, time, y)), all = TRUE)
+})
+
+newmids <- miceadds::datalist2mids(datlist)
+
+
+impnaive <- mice(longDF2, maxit = 10)
+
+
+save(newmids, impnaive, file = file.path(projdir, 'Slides/workspaces/mice_long.RData'))
+
+```
+
+
+
+## Imputation with JointAI
+Example data:
 \begin{itemize}
 \item $x1$ (complete)
-\item $x2$ (binary, 30\% missing values)
-\item $x3$ (3 categories, 30\% missing values)
-\item $x4$ (continuous/normal, 30\% missing values)
+\item $x2$ (binary, 30\% NA)
+\item $x3$ (3 categories, 30\% NA)
+\item $x4$ (continuous/normal, 30\% NA)
 \item $y$ (longitudinal outcome)
 \item $time$ (time variable with quadratic effect)
 \item $id$ (id variable)
 \end{itemize}
 
-\bigskip
 
-Since there is no 2-level method for categorical data, we use \Rstring{2lonly.pmm}
-to impute $x2$ and $x3$.
-
-
-## R package mice
-As usual, we start with the set-up run of \Rfct{mice}
-\small
-```{r miceimp_longDF2}
-imp0 <- mice(longDF2, maxit = 0)
-meth <- imp0$method
-pred <- imp0$predictorMatrix
-```
-
-and adjust the imputation \Rarg{method} and \Rarg{predictorMatrix}
-\small
-```{r miceimp_longDF2_02}
-meth[c("x2", "x3")] <- "2lonly.pmm"
-meth[c("x4")] <- "2lonly.norm"
-
-pred[, "id"] <- -2  # identify id variable
-pred[, "ti"] <- 0 # don't use time-point indicator
-```
-
-We can then perform the imputation.
-\small
-```{r miceimp_longDF2_03}
-imp <- mice(longDF2, maxit = 10, method = meth,
-            predictorMatrix = pred, printFlag = FALSE)
-```
-
-
-## R package mice
-The imputed data can be analysed using either \Rfct{lmer} from the package
-\textbf{lme4}, or \Rfct{lme} from \textbf{nlme}. Here we use the former.
-\small
-```{r miceimp_longDF2_04}
-library(lme4)
-models <- with(imp, lmer(y ~ x1 + x2 + x3 + x4 + time + I(time^2) +
-                           (time|id),
-                         control = lmerControl(optimizer = "Nelder_Mead")
-))
-mice_longimp <- summary(pool(models), conf.int = TRUE)
-```
-
-
-```{r miceimp_longDF2_naive, echo = F}
-pred[, c("id", "ti")] <- 0
-impnaive <- mice(longDF2, predictorMatrix = pred, maxit = 10)
-models2 <- with(impnaive,
-                lmer(y ~ x1 + x2 + x3 + x4 + time + I(time^2) + (time|id)))
-
-mice_longimp_naive <- summary(pool(models2), conf.int = TRUE)
-```
-
-% ## R package mice
-% Currently, there is only limited documentation and examples available that show how to
-% use these functions in \textbf{mice}.
-%
-% Technical details can be obtained from the methodological references given in the
-% help files of the R functions.
-%
-% \bigskip
-%
-% A
-% \href{https://gerkovink.github.io/miceVignettes/Multi_level/Multi_level_data.html}{vignette}
-% on multi-level imputation with \textbf{mice} is available.
-% It gives a more elaborate example of how to analyse such data.
-% %\textcolor{red}{[which did not run when I tried on march 29, 2018]}
-
-
-
-## R Package JointAI
-Linear mixed models with incomplete covariates can also be
-analysed using the package \textbf{JointAI}.
-
-\bigskip
-
-The syntax is analogous the syntax used in \Rfct{lme} of the package \textbf{nlme}.
+## Imputation with JointAI
+The syntax for analysing mixed models in **JointAI** is analogous the syntax
+used in \Rfct{lme} of the package \textbf{nlme}.
 
 \small
-```{r JointAI_long, eval = FALSE}
-library(JointAI)
+```{r JointAI_long, eval = runimps}
+library("JointAI")
 JointAI_long <- lme_imp(y ~ x1 + x2 + x3 + x4 + time + I(time^2),
                         random = ~time|id, data = longDF2,
                         n.iter = 5000)
@@ -250,102 +230,104 @@ JointAI_long <- lme_imp(y ~ x1 + x2 + x3 + x4 + time + I(time^2),
 
 \pause
 
-Again, convergence of the Gibbs sampler should be checked, e.g., using \Rfct{traceplot}
-before obtaining the results.
-
-
-```{r JointAI_long_run, eval = F, echo = F}
-library(JointAI)
-JointAI_long <- lme_imp(y ~ x1 + x3 + x2 + x4 + time + I(time^2),
-                        random = ~time|id, data = longDF2,
-                        n.iter = 5000)
-
-save(JointAI_long, file = "Slides/workspaces/JointAI_long.RData")
-```
-
-```{r JointAI_long_get, echo = F, fig.width = 8, fig.height = 4, message = F}
-load(file.path(projdir, "Slides/workspaces/JointAI_long.RData"))
-res_JointAI_long <- summary(JointAI_long)
-```
-
+Again, convergence of the Gibbs sampler needs to be checked before obtaining the results.
 
 Contrary to the two-level imputation of \textbf{mice}, non-linear associations
 are appropriately handled.
 
 
+```{r JointAI_long_run, eval = runimps, echo = FALSE}
+save(JointAI_long, file = "Slides/workspaces/JointAI_long.RData")
+```
+
+```{r JointAI_long_get, echo = FALSE, fig.width = 8, fig.height = 4, message = FALSE}
+res_JointAI_long <- summary(JointAI_long)
+```
+
+
 ## Comparison of Results
-\only<1>{
-```{r echo = F, figwidth = 6, fig.height = 4.5}
-mod_long2 <- with(longDF2,
-                  lmer(y ~ x1 + x2 + x3 + x4 + time + I(time^2) + (time|id)))
 
-res_long2 <- list(JointAI = as.data.frame(res_JointAI_long$stat[names(coef(JointAI_long)),
-                                                                c(1,3,4)]),
-                  mice_long = as.data.frame(mice_longimp)[, c("estimate", "2.5 %", "97.5 %")],
-                  mice_naive = as.data.frame(mice_longimp_naive)[, c("estimate", "2.5 %", "97.5 %")]
-                  # mice_wide = as.data.frame(mice_wideimp)[, c("est", "lo 95", "hi 95")]
+```{r echo = F, fig.width = 6.5, fig.height = 3.7}
+mod_true <- with(longDF2_orig,
+                 lmer(y ~ x1 + x2 + x3 + x4 + time + I(time^2) + (time|id)))
+
+micelong <- with(newmids, lmer(y ~ x1 + x2 + x3 + x4 + time + I(time^2) + (time|id)))
+res_micelong <- summary(pool(micelong), conf.int = TRUE)
+
+micelong_naive <- with(impnaive,
+                       lmer(y ~ x1 + x2 + x3 + x4 + time + I(time^2) + 
+                              (time|id), 
+                            control = lmerControl(optimizer = 'bobyqa')))
+res_micelong_naive <- summary(pool(micelong_naive), conf.int = TRUE)
+
+res_JointAI <- cbind(term = names(coef(JointAI_long)),
+                     as.data.frame(res_JointAI_long$stat[names(coef(JointAI_long)),
+                                                         c(1,3,4)]))
+
+names(res_JointAI) <- gsub('Mean', 'estimate', names(res_JointAI)) %>%
+  gsub('5%', '5 %', .)
+
+res_long2 <- list(JointAI = res_JointAI,
+                  mice_long = res_micelong[, c('term', "estimate", "2.5 %", "97.5 %")],
+                  mice_naive = res_micelong_naive[, c('term', "estimate", "2.5 %", "97.5 %")]
 )
 
-res_long2 <- lapply(res_long2, function(x) {
-  colnames(x) <- c("coef", "lo", "up")
-  x$var <- rownames(x)
-  x$var <- gsub("x22", "x21", rownames(x))
-  x
-})
 
-plot_long <- reshape2::melt(res_long2, id.vars = c("coef", "lo", "up", "var"))
+plot_long <- reshape2::melt(res_long2, id.vars = names(res_long2[[1]]))
 
-polyDF <- data.frame(x = rep(c(0.5, length(res_long2) + .5)[c(1,2,2,1)], 8),
-                     y = c(apply(confint(mod_long2,
+polyDF <- data.frame(x = rep(c(0.5, length(res_long2) + 0.5)[c(1,2,2,1)], 8),
+                     y = c(apply(confint(mod_true,
                                          method = "Wald",
-                           parm = names(fixef(mod_long2))), 1, rep,
+                           parm = names(fixef(mod_true))), 1, rep,
                            each = 2)),
-                     var = rep(names(fixef(mod_long2)), each = 4)
+                     term = rep(names(fixef(mod_true)), each = 4)
 )
 
-ggplot(plot_long[plot_long$L1 != "mice_naive", ], aes(x = L1, y = coef)) +
+ggplot(plot_long, aes(x = L1, y = estimate)) +
   geom_point(na.rm = T) +
-  geom_errorbar(aes(ymin = lo, ymax = up), width = 0.3, na.rm = T) +
-  facet_wrap("var", scales = 'free', ncol = 4 ) +
+  geom_errorbar(aes(ymin = `2.5 %`, ymax = `97.5 %`), width = 0.3, na.rm = T) +
+  facet_wrap("term", scales = 'free', ncol = 4 ) +
   geom_polygon(data = polyDF, aes(x = pmin(x, 2.5), y = y), fill = 'blue', alpha = 0.2) +
-  geom_hline(data = data.frame(betas = fixef(mod_long2),
-                               var = names(fixef(mod_long2))),
+  geom_hline(data = data.frame(betas = fixef(mod_true),
+                               term = names(fixef(mod_true))),
              aes(yintercept = betas), lty = 2) +
   ylab("coefficient") +
   xlab("") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+   theme(panel.background = element_rect(fill = grey(0.98), color = grey(0.85)),
+          panel.grid = element_blank(),
+          legend.position = 'none',
+          legend.key.width = unit(10, "mm"),
+          legend.key.height = unit(10, "mm"),
+         axis.text.x = element_text(angle = 45, hjust = 1)) +
   scale_x_discrete(limits = c("mice_long", "JointAI"),
                    labels = c("mice", "JointAI"))
+  
 ```
-}
-\only<2>{
-```{r echo = F, figwidth = 6, fig.height = 4.5, size = 'small'}
-ggplot(plot_long, aes(x = L1, y = coef)) +
+\vspace*{-3ex}
+
+## Comparison of Results
+
+```{r echo = F, fig.width = 6.5, fig.height = 3.7}
+ggplot(plot_long, aes(x = L1, y = estimate)) +
   geom_point(na.rm = T) +
-  geom_errorbar(aes(ymin = lo, ymax = up), width = 0.3, na.rm = T) +
-  facet_wrap("var", scales = 'free', ncol = 4) +
+  geom_errorbar(aes(ymin = `2.5 %`, ymax = `97.5 %`), width = 0.3, na.rm = T) +
+  facet_wrap("term", scales = 'free', ncol = 4 ) +
   geom_polygon(data = polyDF, aes(x = x, y = y), fill = 'blue', alpha = 0.2) +
-  geom_hline(data = data.frame(betas = fixef(mod_long2),
-                               var = names(fixef(mod_long2))),
+  geom_hline(data = data.frame(betas = fixef(mod_true),
+                               term = names(fixef(mod_true))),
              aes(yintercept = betas), lty = 2) +
-  xlab("") +
   ylab("coefficient") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  scale_x_discrete(limits = c("mice_long", "JointAI", "mice_naive"),
-                   labels = c("mice", "JointAI", "mice\nnaive"))
+  xlab("") +
+   theme(panel.background = element_rect(fill = grey(0.98), color = grey(0.85)),
+          panel.grid = element_blank(),
+          legend.position = 'none',
+          legend.key.width = unit(10, "mm"),
+          legend.key.height = unit(10, "mm"),
+         axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_x_discrete(limits = c("mice_naive", "mice_long", "JointAI"),
+                   labels = c("naive", "mice", "JointAI"))
 ``` 
-}
+\vspace*{-3ex}
 
-
-## Your Turn!
-\begin{center}
-\begin{columns}
-\begin{column}{0.55\linewidth}
-\begin{block}{Practical}
-Imputation with non-linear associations \button{https://nerler.github.io/EP16_Multiple_Imputation/practical/milong/EP16_MIlong.html}{html}
-\end{block}
-\end{column}
-\end{columns}
-\end{center}
 
 ## References
