@@ -1,6 +1,6 @@
 ---
 title: "EP16: Missing Values in Clinical Research: Multiple Imputation"
-subtitle: "11. Imputation with Longitudinal Data"
+subtitle: "12. Imputation with Longitudinal Data"
 author: "Nicole Erler"
 institute: "Department of Biostatistics, Erasmus Medical Center"
 date: ""
