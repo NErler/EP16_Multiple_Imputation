@@ -67,8 +67,9 @@ A \blue{rule of thumb} [@White2011]:
 \blue{The number of imputed datasets} should be similar to the 
 \blue{percentage of incomplete cases}.
 
-Alternative:\
-The percentage of complete cases depends on the size of the dataset
+
+\blue{Alternative:}\
+The percentage of complete cases depends on the size of the dataset\
 \blue{\ding{225} average percentage of missing values} per
 variable [@Buuren2012]
 
