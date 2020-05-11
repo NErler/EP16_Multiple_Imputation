@@ -1,16 +1,16 @@
 ---
 title: "EP16: Missing Values in Clinical Research: Multiple Imputation"
-subtitle: "Summary Part II (Sections 6 -- 9)"
+subtitle: "Summary I"
 author: "Nicole Erler"
 institute: "Department of Biostatistics, Erasmus Medical Center"
 date: ""
 email: "n.erler@erasmusmc.nl"
 output:
   beamer_presentation:
-    keep_tex: true
+    keep_tex: false
     template: mytemplate.latex
     includes:
-      in_header: SlideTemplate.tex
+      in_header: [SlideTemplate.tex, defs.tex]
     incremental: false
 classoption: [aspectratio=169]
 bibliography: references.bib
@@ -34,9 +34,8 @@ knitr::opts_chunk$set(echo = TRUE, nospace = TRUE, nospaceafter = TRUE,
 ```
 
 
-
-## Summary Part I
-\blue{1. What is Multiple Imputation?}\\
+## Summary
+\blue{1. What is Multiple Imputation?}\
 \begin{itemize}
 \item Rubin's \blue{idea}:
       \begin{itemize}
@@ -46,15 +45,14 @@ knitr::opts_chunk$set(echo = TRUE, nospace = TRUE, nospaceafter = TRUE,
 \item Imputed values are obtained from the \blue{predictive distribution} of the missing data,
 given the observed data.
 \item Multiple completed datasets are created from the multiple imputed values.
-\item Multiple imputation has \blue{three steps: imputation, analysis, pooling}
+\item Multiple imputation has \blue{three steps:}\
+      \blue{imputation, analysis, pooling}
 \end{itemize}
 
-\framebreak
--------------------------------------------------------------------
-
+## Summary
 \blue{2. Imputation step}
 \begin{itemize}
-\item Two \blue{sources of variation} need to be taken into account
+\item Two \blue{sources of variation}:
       \begin{itemize}
       \item \blue{parameter uncertainty}
       \item \blue{random variation}
@@ -71,9 +69,8 @@ given the observed data.
 \item The \blue{convergence of the chains} needs to be checked.
 \end{itemize}
 
-\framebreak
--------------------------------------------------------------
 
+## Summary
 \blue{3. Analysis step}
 \begin{itemize}
 \item Analyse each imputed dataset the way you would analyse a complete dataset
@@ -92,9 +89,8 @@ given the observed data.
       \end{itemize}
 \end{itemize}
 
-\framebreak
--------------------------------------------------
 
+## Summary
 \blue{5. A closer look at the imputation step}
 \begin{itemize}
 \item Two \blue{parametric approaches} for imputation:
@@ -115,8 +111,7 @@ given the observed data.
 \end{itemize}
 
 
-
-## Summary of Part II
+## Summary
 \blue{6. Know your data}\
 Check the
 \begin{itemize}
@@ -133,7 +128,6 @@ Check the
 \end{itemize}
 
 \framebreak
-
 ----------------------------------------
 
 \blue{7. Imputation with mice}\
@@ -165,11 +159,11 @@ Further tailoring of the imputation using
 
 \blue{9. Analysis \& pooling}
 \begin{itemize}
-\item \textbf{mice} functions \Rfct{with} and \Rfct{pool}
+\item \textbf{mice} functions `with()`{.R} and `pool()`{.R}
 \item alternative pooling using \textbf{mitools}
-\item additional functions in \textbf{mice}: \Rfct{pool.r.squared}, \Rfct{pool.compare}
-\item additional functions in other packages: \Rfct{miceadds::micombine.chisquare},
-\Rfct{miceadds::micombine.F}
+\item additional functions in \textbf{mice}: `pool.r.squared()`{.R}, `pool.compare()`{.R}
+\item additional functions in other packages: `miceadds::micombine.chisquare()`{.R},
+`miceadds::micombine.F()`{.R}
 \end{itemize}
 
 ----------------------------------------
@@ -177,7 +171,63 @@ Further tailoring of the imputation using
 
 \blue{10. Additional functions in mice}
 \begin{itemize}
-\item \Rfct{complete}, \Rfct{mids2spss}
-\item \Rfct{ibind}, \Rfct{cbind.mids}
+\item `complete()`{.R}, `mids2spss()`{.R}
+\item `ibind()`{.R}, `cbind.mids()`{.R}
+\end{itemize}
+
+
+----------------------------------------
+\framebreak
+\begin{itemize}
+\item MICE requires \blue{congenial \& compatible imputation models} to work well.
+\item When this is not the case, (naive) use of MICE can lead to \blue{biased results}.
+\item Common settings that require special attention are
+      \begin{itemize}
+      \item \blue{non-linear functional forms \& interaction terms}
+      \item \blue{longitudinal data}
+      \item \blue{survival data}
+      \end{itemize}
+\end{itemize}
+
+----------------------------------------
+\framebreak
+
+\begin{itemize}
+\item When using the package \textbf{mice}, there are choices that can \blue{reduce bias}
+      \begin{itemize}
+      \item %\Rarg{pmm} tends to be less biased than \Rarg{norm} for interactions or non-linear associations
+      \item JAV approach reduces bias in settings with interactions or non-linear associations
+      \item \blue{special 2-level imputation methods} are available for longitudinal data
+      \item The \blue{Nelson-Aalen estimator} can be used instead of the time variable
+            for imputing survival data when effects are not too large.
+      \end{itemize}
+\item Generally, \blue{problems} are more severe when
+      \begin{itemize}
+      \item \blue{proportions of missing values are large},
+      \item effect sizes are large,
+      \item little other \blue{covariate information} is available.
+      \end{itemize}
+      (Note that in the examples we had all of the above.)
+\end{itemize}
+
+----------------------------------------
+\framebreak
+
+\begin{itemize}
+\item In settings where MICE may not provide valid imputations,
+      \blue{alternative approaches} are available and should be considered.
+\item R packages that provide such alternative approaches are for example:
+      \begin{itemize}
+      \item \blue{JointAI} (non-linear, longitudinal \& survival)
+      \item \blue{smcfcs} (non-linear \& survival)
+      \item \blue{jomo} (non-linear, longitudinal \& survival)
+      \end{itemize}
+\item These packages are very young.
+      \begin{itemize}
+      \item Hence, they may still have some problems.\\
+            \blue{\ding{225}} \blue{Use them carefully!} (and email the maintainer about problems)
+      \item They are under \blue{active development}, so resolutions of bugs and
+      features are frequently added.
+      \end{itemize}
 \end{itemize}
 
