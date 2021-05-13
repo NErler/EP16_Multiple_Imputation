@@ -312,8 +312,11 @@ standard functions to fit regression models with complete data.
 For univariate outcomes the following functions are available:
 
 * `lm_imp()`: for linear regression
+* `lognorm_imp()`: for regression using a log-normal distribution
+* `betareg_imp()`: for continuous outcomes in the interval $[0, 1]$
 * `glm_imp()`: for generalized linear regression (e.g., logistic, gamma or Poisson)
 * `clm_imp()`: for ordinal (cumulative logit) regression
+* `mlogit_imp()`: for multinomial logit models
 
 :::{.notebox}
 [Note:]{.Note}
@@ -415,10 +418,10 @@ Like in **mice** default imputation models are chosen based on the `class` of
 each of the incomplete variables.
 The default choices for baseline (not time-varying) covariates are
 ```{r, echo = FALSE}
-tab <- rbind(norm = c("linear regression", "continuous variables"),
-             logit = c("logistic regression", "factors with two levels"),
-             multilogit = c("multinomial logit model", "unordered factors with >2 levels"),
-             cumlogit = c("cumulative logit model", "ordered factors with >2 levels")
+tab <- rbind(lm = c("linear regression", "continuous variables"),
+             glm_logit = c("logistic regression", "factors with two levels"),
+             mlogit = c("multinomial logit model", "unordered factors with >2 levels"),
+             clm = c("cumulative logit model", "ordered factors with >2 levels")
 )
 
 tab <- cbind(paste0("`", rownames(tab), "`"), tab)
@@ -432,8 +435,12 @@ Alternative imputation methods are available for continuous baseline covariates:
 ```{r, echo = FALSE}
 tab = rbind(lognorm = c("normal regression of the log-transformed variable",
                         "right-skewed variables >0"),
-            gamma = c("Gamma regression (with log-link)",
-                        "right-skewed variables >0"),
+            glm_gamma_inverse = c("Gamma regression (with inverse-link)",
+                              "right-skewed variables >0"),
+            glm_gamma_identity = c("Gamma regression (with identity-link)",
+                              "right-skewed variables >0"),
+            glm_gamma_log = c("Gamma regression (with log-link)",
+                              "right-skewed variables >0"),
             beta = c("beta regression (with logit-link)",
                      "continuous variables with values in [0, 1]")
 )

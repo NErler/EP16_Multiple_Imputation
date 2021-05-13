@@ -17,7 +17,7 @@ output:
 ```{r, include = FALSE}
 projdir <- gsub("/Practicals", "", getwd())
 
-runimps <- FALSE
+runimps <- TRUE
 
 hint <- function(text) {
   id <- paste0('hint_', sample.int(1e10, size = 1))
@@ -136,7 +136,7 @@ JointAI::md_pattern(EP16dat3, yaxis_pars = list(yaxt = 'n'))
 We are interested to determine predictor variables for patient survival, using
 the following Cox proportional hazards model:
 ```{r, eval = FALSE}
-coxph(Surv(time, status %in% c('transplant', 'dead') ~ platelet + age + sex + chol + stage)
+coxph(Surv(time, status %in% c('transplant', 'dead')) ~ platelet + age + sex + chol + stage)
 ```
 
 
@@ -164,7 +164,7 @@ event, hence, we need to create a new event indicator `event`.
 
 ### Solution 1
 
-We first creat the event variable, and calculate the Nelson-Aalen estimator:
+We first create the event variable, and calculate the Nelson-Aalen estimator:
 ```{r}
 library("mice")
 library("survival")
@@ -173,7 +173,7 @@ EP16dat3$event <- EP16dat3$status %in% c('transplant', 'dead')
 EP16dat3$na <- nelsonaalen(data = EP16dat3, timevar = "time",  statusvar = "event")
 ```
 
-Then we can continue as usual, by doing the set-up run and adpating the arguments
+Then we can continue as usual, by doing the set-up run and adapting the arguments
 `method` and `predictorMatrix`:
 ```{r}
 micesurv0 <- mice(EP16dat3, maxit = 0)
@@ -186,7 +186,7 @@ a relatively symmetric distribution, and exclude `time` as predictor from
 the imputation models:
 ```{r micesurvprep-solution}
 micesurvmeth[c("platelet")] <- "norm"
-micesurvpred[, "time"] <- 0
+micesurvpred[, c("time", "status")] <- 0
 ```
 
 We can now check our settings:
@@ -221,22 +221,32 @@ summary(pool(micesurv_mira), conf.int = TRUE)
 :::{.notebox}
 [Note:]{.Note}
 
-When we do the pooling, we get two warning messages.
+For older versions of the **mice** package there were two warning messages:
 
-The function `pool()` has an argument `dfcom`, refering to the degrees of freedom
-from the complete data analysis, which is `NULL` by default.
-In that case, mice will try to extract them from the first analysis. But this 
-fails for a Cox PH model.
+```{r}
+## Warning: Unknown or uninitialised column: `df.residual`.
+```
+```{r}
+## Warning in pool.fitlist(getfit(object), dfcom = dfcom): Large sample assumed.
+```
 
-The first warning message (about the unknown column `df.residual`) can just be ignored.
 
-The second warning means that, because the degrees of freedom could not be extracted
-from the model, it will be assumed that this number is very large (i.e., that
-the data is really large compared to the number of parameters that are estimated).
+The function `pool()` has an argument `dfcom`, referring to the degrees of
+freedom from the complete data analysis, which is `NULL` by default. In that
+case, mice will try to extract them from the first analysis. But this failed for
+a Cox PH model.
+
+The warning message (about the unknown column `df.residual`) can just be ignored.
+
+The second warning means that, because the degrees of freedom could not be
+extracted from the model, it will be assumed that this number is very large
+(i.e., that the data is really large compared to the number of parameters that
+are estimated).
 
 You can prevent these warning messages by specifying the argument `dfcom` in the
 function `pool()`.
 :::
+
 
 ### About Contrasts
 In the summary of the pooled results we see that orthogonal polynomial coding
@@ -303,7 +313,7 @@ to the function `coxph()` from packages survival.
 ### Solution 1
 ```{r coxph_imp-solution, eval = runimps}
 library("JointAI")
-JointAIcox <- coxph_imp(Surv(time = time, event) ~ platelet + age + sex + chol + stage,
+JointAIcox <- coxph_imp(Surv(time, event) ~ platelet + age + sex + chol + stage,
                         data = EP16dat3, n.iter = 1500, seed = 2020)
 ```
 
@@ -323,7 +333,7 @@ reference category.
 
 We can try this by specifying that we would like to use 
 ```{r, eval = runimps}
-JointAIcox2 <- coxph_imp(Surv(time = time, event) ~ platelet + age + sex + chol + stage,
+JointAIcox2 <- coxph_imp(Surv(time, event) ~ platelet + age + sex + chol + stage,
                          data = EP16dat3, n.iter = 500, seed = 2020,
                          refcats = list(stage = 4))
 ```
@@ -357,7 +367,7 @@ This is implemented in the function `survreg_imp()`.
 
 ### Solution 1
 ```{r survregimp-solution, eval = runimps}
-JointAIsurv <- survreg_imp(Surv(time = time, event) ~ platelet + 
+JointAIsurv <- survreg_imp(Surv(time, event) ~ platelet + 
                              age + sex + chol + stage, data = EP16dat3,
                            n.iter = 1500, seed = 2020)
 ```
@@ -371,7 +381,7 @@ GR_crit(JointAIsurv, autoburnin = FALSE)
 
 Both the traceplot and the Gelman-Rubin criterion show that the parameters for
 `stage` don't converge well. There are clear patterns visible in the plots and
-the upper limit of the confidence intverval of the Gelman-Rubin criterion
+the upper limit of the confidence interval of the Gelman-Rubin criterion
 is much larger than one.
 
 ### Task 2
@@ -400,7 +410,7 @@ category improved convergence.
 
 ### Solution 2
 ```{r survreg2-solution, eval = runimps}
-JointAIsurv2 <- survreg_imp(Surv(time = time, event) ~ platelet + 
+JointAIsurv2 <- survreg_imp(Surv(time, event) ~ platelet + 
                               age + sex + chol + stage, data = EP16dat3,
                             n.iter = 1000, seed = 2020, refcats = 'largest')
 ```

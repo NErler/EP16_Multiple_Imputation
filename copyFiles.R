@@ -145,8 +145,9 @@ unlink('website/static/slide/*')
 
 
 # Copy all .pdf files in folder Slides to the corresponding folders in website/static/slide
-pdfs <- grep("[[:digit:]]{2}[[:print:]]+.pdf$", dir('Slides', recursive = FALSE,
-                                                    full.names = TRUE), value = TRUE)
+pdfs <- grep("[[:digit:]]{2}[[:print:]]+.pdf$",
+             dir('Slides', recursive = FALSE,
+                 full.names = TRUE), value = TRUE)
 file.copy(from = pdfs,
           to = file.path('website/static/slide'),
           overwrite = TRUE)
@@ -182,19 +183,19 @@ slides <- grep("[[:digit:]]{2}[[:print:]]+.pdf$",
 
 
 # create a .zip
-zip(zipfile = 'website/static/slide/EP16_MultipleImputation_2020',
+zip(zipfile = 'website/static/slide/EP16_MultipleImputation_2021',
     files = unlist(c(practicals, slides, data, imps)))
 
 
 
 wd <- getwd()
 setwd('Practicals/data')
-zip(zipfile = file.path(wd, 'website/static/practical/EP16_MultipleImputation_2020_data'),
+zip(zipfile = file.path(wd, 'website/static/practical/EP16_MultipleImputation_2021_data'),
     files = list.files(full.names = TRUE))
 setwd(wd)
 
 setwd('Practicals/workspaces/')
-zip(zipfile = file.path(wd, 'website/static/practical/EP16_MultipleImputation_2020_imps'),
+zip(zipfile = file.path(wd, 'website/static/practical/EP16_MultipleImputation_2021_imps'),
     files = list.files(full.names = TRUE))
 
 setwd(wd)

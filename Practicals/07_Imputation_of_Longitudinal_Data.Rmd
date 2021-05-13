@@ -447,6 +447,10 @@ mids_long <- miceadds::datalist2mids(imp_list)
 :::{.task}
 Fit the mixed model of interest (as specified above) and obtain the pooled 
 results.
+
+You need to load the **broom.mixed** package (i.e., `library("broom.mixed")`)
+before pooling results from a mixed model.
+
 ```{r, echo = FALSE, results = 'asis'}
 hint("The model of interest is
       `lmer(albumin ~ ns(day, df = 2) + sex + trt + age + ascites +
@@ -463,6 +467,7 @@ mod_mice <- with(mids_long,
 ```
 
 ```{r}
+library("broom.mixed")
 summary(pool(mod_mice), conf.int = TRUE)
 ```
 
@@ -471,16 +476,9 @@ summary(pool(mod_mice), conf.int = TRUE)
 ## Imputation using **JointAI** {.tabset .tabset-fade .tabset-pills}
 
 To analyse incomplete longitudinal data using a linear mixed model the R package
-**JointAI** provides the function `lme_imp()`. 
+**JointAI** provides the functions `lme_imp()` and `lmer_imp()`. 
 The specification of the main model components is analogous to the function
-`lme()` from the **nlme** package.
-
-:::{.notebox}
-[Note:]{.Note}
-
-After the next major update of **JointAI** it will also be possible to use the
-type of specification used in **lme4**.
-:::
+`lme()` from the **nlme** package or `lmer()` from the **lme4** package.
 
 
 **Specification of longitudinal models:**<br>
@@ -504,10 +502,16 @@ For longitudinal covariates the following model types are implemented:
 ```{r, echo = FALSE}
 tab <- rbind(lmm = c("linear mixed model", "continuous variables"),
              glmm_lognorm = c("log-normal mixed model", "skewed continuous variables"),
+             glmm_beta = c("beta mixed model", "continuous variables in [0, 1]"),
              glmm_logit = c("logistic mixed model", "factors with two levels"),
-             glmm_gamma = c("gamma mixed model (with log-link)", "skewed continuous variables"),
-             glmm_poisson = c("poisson mixed model", "count variables"),
-             clmm = c("cumulative logit mixed model", "ordered factors with >2 levels")
+             glmm_probit = c("probit mixed model", "factors with two levels"),
+             glmm_gamma_inverse = c("gamma mixed model (with inverse link)", "skewed continuous variables"),
+             glmm_gamma_identity = c("gamma mixed model (with identity link)", "skewed continuous variables"),
+             glmm_gamma_log = c("gamma mixed model (with log link)", "skewed continuous variables"),
+             glmm_poisson_log = c("poisson mixed model (with log link)", "count variables"),
+             glmm_poisson_identity = c("poisson mixed model (with identity link)", "count variables"),
+             clmm = c("cumulative logit mixed model", "ordered factors with >2 levels"),
+             mlogitmm = c("multinomial logit mixed model", "unordered factors with >2 levels")
 )
 
 tab <- cbind(paste0("`", rownames(tab), "`"), tab)
@@ -517,13 +521,6 @@ knitr::kable(tab, row.names = FALSE, format = 'html') %>%
   kable_styling(full_width = FALSE)
 ```
 
-:::{.notebox}
-[Note:]{.Note}
-
-After the next major update of **JointAI** it will also be possible to use 
-mixed models with a beta distribution for continuous covariates with values
-between 0 and 1.
-:::
 
 **More info:**<br>
 For the specification of the other arguments of `lme_imp()`, refer to 
@@ -634,9 +631,9 @@ and that they can be run in parallel.
 [Note:]{.Note}
 On computers with multiple CPUs it is possible to run the different MCMC chains
 of a model in parallel to save some time.
-The argument `parallel = TRUE` has to be set. By default, **JointAI** will use
-all but two of the available cores (but never more than the number of MCMC chains).
-How many cores to use can be controlled with the argument `n.cores`.
+
+This can be achieved using the **doFuture** package. For details see the
+[vignette on MCMC settings](https://nerler.github.io/JointAI/articles/MCMCsettings.html#parallel-sampling-1).
 :::
 
 
@@ -665,7 +662,7 @@ i.e., `ns(day, df = 3)`.')
 library("splines")
 JointAIlong2 <- glme_imp(hepato ~ ns(day, df = 3) + sex + trt + age + ascites +
                            bili + copper, random = ~1|id, family = binomial(),
-                         models = c(copper = 'lognorm', bili = 'glmm_gamma'),
+                         models = c(copper = 'lognorm', bili = 'glmm_gamma_log'),
                          no_model = 'day', data = EP16dat4, n.iter = 1000,
                          seed = 2020)
 ```
@@ -681,14 +678,15 @@ traceplot(JointAIlong2, use_ggplot = TRUE) +
 ### Task 2
 
 When the model has converged, we want to visualize the potentially non-linear
-association of `day`. To do that, we can create a new dataset containing information
-on an "average" subject, with different values for `day`.
+association of `day`. To do that, we can create a new dataset containing
+information on an "average" subject, with different values for `day`.
 
 The function `predDF()` creates such a dataset from an object of class `JointAI`.
-It sets reference values (i.e., the median for continuous variables and the 
+It sets reference values (i.e., the median for continuous variables and the
 reference category for categorical variables) for all variables other than the
-one specified in the argument `var`. The variable given in `var` will range 
-across the range of values of that variable encountered in the data.
+ones specified in the argument `var` (a one-sided formula). The variables given
+in `var` will range across the range of values of that variable encountered in
+the data.
 
 :::{.task}
 Use `predDF()` to create a dataset that allows visualization of the effect of
@@ -698,7 +696,7 @@ Use `predDF()` to create a dataset that allows visualization of the effect of
 
 ### Solution 2
 ```{r newdf-solution}
-newdf <- predDF(JointAIlong2, var = 'day')
+newdf <- predDF(JointAIlong2, var = ~day)
 
 head(newdf)
 ```
@@ -725,25 +723,15 @@ specify which quantiles of the distribution of each fitted value are returned
 
 ### Solution 3
 ```{r makepred-solution, fig.width = 8, fig.height = 5}
-pred <- predict(JointAIlong2, newdata = newdf)
+pred <- predict(JointAIlong2, newdata = newdf, type = "response")
 
-ggplot(pred$dat, aes(x = day, y = fit)) +
+ggplot(pred$newdata, aes(x = day, y = fit)) +
   geom_ribbon(aes(ymin = `2.5%`, ymax = `97.5%`), alpha = 0.3) +
   geom_line() +
-  theme(panel.grid = element_blank())
+  theme(panel.grid = element_blank()) +
+  ylab("expected probability")
 ```
 
-
-:::{.notebox}
-[Note:]{.Note}
-The fitted values and quantiles are on the scale of the linear predictor,
-i.e., obtained by multiplying the data in `newdf` ($\mathbf x$) with the samples
-of the posterior distribution of the parameters ($\boldsymbol \beta$).
-
-For a logistic model it is more intuitive to present the fitted values on the
-probability scale.
-This functionality will be included in the next major update for **JointAI**.
-:::
 
 
 ```{r, eval = runimps, echo = FALSE}
