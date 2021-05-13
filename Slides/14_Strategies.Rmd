@@ -271,13 +271,17 @@ types of data, but there are many more methods implemented.
 Imputation methods implemented in the \textbf{mice} package:\vspace*{-1ex}
 \footnotesize
 ```{r getmicemeths, echo = FALSE, warning = FALSE, results = 'asis'}
+
+options(knitr.kable.NA = '')
+
 used <- paste0("mice.impute.",
                c("norm", "pmm", "midastouch", "logreg", "polyreg", "polr",
                  "2lonly.norm", "2lonly.pmm", "quadratic")
 )
 
 mentioned <- paste0("mice.impute.",
-                    c("2l.lmer", "2l.bin", "2l.norm", "2l.pan", "2lonly.mean", "passive",
+                    c("2l.lmer", "2l.bin", "2l.norm", "2l.pan", "2lonly.mean",
+                      "passive",
                       "logreg.boot", "norm.boot", "norm.predict")
 )
 
@@ -304,13 +308,14 @@ not mean you need to / should use it.}
 Imputation methods implemented in the \textbf{miceadds} package:
 \footnotesize
 ```{r getmiceaddsmeths, echo = FALSE, warning = FALSE}
-miceaddsmeth <- sort(grep("mice.impute", getNamespaceExports("miceadds"), value = TRUE))
-methtab2 <- matrix(data = c(miceaddsmeth, rep(NA, length(miceaddsmeth) %% 2)),
-                   ncol = 2)
+miceaddsmeth <- sort(grep("mice.impute", getNamespaceExports("miceadds"),
+                          value = TRUE))
+methtab2 <- matrix(data = c(miceaddsmeth, rep(NA, length(miceaddsmeth) %% 3)),
+                   ncol = 3)
 
 methtab2 %>%
   kable(format = "latex", booktabs = TRUE, linesep = "", escape = T) %>%
-  kable_styling(position = "center")
+  kable_styling(position = "center", font_size = 7.5)
 ```
 
 
@@ -318,7 +323,8 @@ methtab2 %>%
 ## Imputation Methods
 Imputation methods implemented in the \textbf{micemd} package:
 ```{r getmicemdmeths, echo = FALSE, warning = FALSE}
-micemdmeth <- sort(grep("mice.impute", getNamespaceExports("micemd"), value = TRUE))
+micemdmeth <- sort(grep("mice.impute", getNamespaceExports("micemd"), 
+                        value = TRUE))
 methtab2 <- matrix(data = c(micemdmeth, rep(NA, length(micemdmeth) %% 2)),
                    ncol = 2)
 
