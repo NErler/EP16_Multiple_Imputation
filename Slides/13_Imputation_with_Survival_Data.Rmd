@@ -161,7 +161,7 @@ Two options:
 
 * `coxph_imp()`{.R}\
    proportional hazards model with flexible baseline hazard
-* `survreg_imp()`{.R}]\
+* `survreg_imp()`{.R}\
    parametric (Weibull) model (AFT model)
    
 \pause\bigskip
@@ -202,32 +202,33 @@ res_mice_naive_cox <- summary(pool(mice_naive_cox, dfcom = 99999),
 
 res_survreg <- list(mice_naive = res_mice_naive_wb,
                     mice = res_mice_wb,
-                    JointAI = cbind(term = names(coef(JointAI_survreg)), 
-                                    as.data.frame(summary(JointAI_survreg)$stat[
-                                      names(coef(JointAI_survreg)),
-                                      c(1,3,4)]))
+                    JointAI = cbind(
+                      term = c("(Intercept)", "x1", "x21", "x3"), 
+                      as.data.frame(
+                        summary(JointAI_survreg)$res[[1]]$regcoef[
+                        c("(Intercept)", "x1", "x21", "x3"), c(1,3,4)]))
 )
 
 res_cox <- list(mice_naive = res_mice_naive_cox,
                 mice = res_mice_surv[, c("term", "estimate", "2.5 %", "97.5 %")],
-                JointAI = cbind(term = names(coef(JointAI_cox)),
-                                as.data.frame(summary(JointAI_cox)$stat[
-                                  names(coef(JointAI_cox)),
-                                  c(1,3,4)]))
+                JointAI = cbind(
+                  term = c("x1", "x21", "x3"),
+                  as.data.frame(summary(JointAI_cox)$res[[1]]$regcoef[
+                    c("x1", "x21", "x3"), c(1,3,4)]))
 )
 
 
 res_survreg <- lapply(res_survreg, function(x) {
   colnames(x) <- gsub("5%", "5 %", colnames(x)) %>%
     gsub("Mean", "estimate", .)
-  x[x$term %in% names(coef(JointAI_survreg)),]
+  x#[x$term %in% names(coef(JointAI_survreg)),]
 })
 
 
 res_cox <- lapply(res_cox, function(x) {
   colnames(x) <- gsub("5%", "5 %", colnames(x)) %>%
     gsub("Mean", "estimate", .)
-  x[x$term %in% names(coef(JointAI_cox)),]
+  x#[x$term %in% names(coef(JointAI_cox)),]
 })
 
 plot_survreg <- reshape2::melt(res_survreg, id.vars = names(res_survreg[[1]]))
@@ -237,7 +238,7 @@ polyDF_cox <- data.frame(x = rep(c(0.5, length(res_cox) + .5)[c(1,2,2,1)],
                                  length(mod_cox$coef)),
                          y = c(apply(log(summary(mod_cox)$conf.int[, 3:4]), 1, rep,
                                      each = 2)),
-                         term = rep(names(coef(JointAI_cox)), each = 4)
+                         term = rep(c("x1", "x21", "x3"), each = 4)
 )
 
 
@@ -245,7 +246,7 @@ polyDF_survreg <- data.frame(x = rep(c(0.5, length(res_survreg) + .5)[c(1,2,2,1)
                                  length(mod_survreg$coef)),
                              y = c(apply(confint(mod_survreg), 1, rep,
                                      each = 2)),
-                         term = rep(names(coef(JointAI_survreg)), each = 4)
+                         term = rep(c("(Intercept)", "X1", "X21","X3"), each = 4)
 )
 
 
