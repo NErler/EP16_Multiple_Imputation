@@ -84,8 +84,8 @@ install.packages("corrplot")
 For the packages **mice** and **JointAI** it is important that you have 
 recent versions installed.
 
-* **mice** version 3.8.0 or later
-* **JointAI** version 0.6.1
+* **mice** version 3.13.0 or later
+* **JointAI** version 1.0.2
 
 To check which version of a package you have installed, you can use the function
 `packageVersion()`, for example
