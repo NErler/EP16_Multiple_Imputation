@@ -408,11 +408,13 @@ obtained directly
 
 
 ## R package smcfcs
+
 \href{https://cran.r-project.org/package=smcfcs}{\blue{Substantive Model Compatible Fully Conditional Specification}},\
 a hybrid approach between FCS and sequential factorization [@Bartlett2015]
 
+
 \bigskip
-\textbf{smcfcs} (version 1.4.0) can impute incomplete covariates in
+\textbf{smcfcs} (version 1.5.0) can impute incomplete covariates in
 \begin{columns}
 \begin{column}{0.4\linewidth}
 \begin{itemize}
@@ -448,7 +450,7 @@ with \blue{extensions to assure compatibility} between analysis and imputation m
 
 \bigskip
 
-\textbf{jomo} (version 2.6-10) can handle
+\textbf{jomo} (version 2.7-2) can handle
 \begin{itemize}
 \item linear regression
 \item generalized linear regression
@@ -463,7 +465,6 @@ For more info see the \href{https://cran.r-project.org/package=jomo}{help file}.
 
 
 
-
 ## R Package JointAI
 
 \href{https://cran.r-project.org/package=JointAI}{\blue{Joint Analysis and Imputation}}, \
@@ -472,7 +473,7 @@ simultaneous analysis and imputation. [@Erler2016; @Erler2017]
 
 \bigskip
 
-\textbf{JointAI} (version 0.6.1) can analyse incomplete data using
+\textbf{JointAI} (version 1.0.2) can analyse incomplete data using
 
 \begin{columns}
 \begin{column}{0.4\linewidth}
