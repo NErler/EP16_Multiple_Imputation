@@ -213,7 +213,7 @@ The outcome and incomplete variables follow a \blue{joint multivariate normal
 distribution}, conditional on the completely observed covariates $\mathbf X_c$,
 parameters $\boldsymbol\theta$ and, possibly, random effects, $\mathbf b$:
 $$ p(\mathbf y, \mathbf x_1,\ldots, \mathbf x_p \mid \mathbf X_c, \boldsymbol\theta,
-     \mathbf b) \sim N(\mathbf \mu, \boldsymbol\Sigma)$$
+     \mathbf b) \sim N(\boldsymbol \mu, \boldsymbol\Upsigma)$$
 
 \bigskip
 
