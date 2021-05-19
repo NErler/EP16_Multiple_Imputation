@@ -1,5 +1,5 @@
 ---
-date: 2020-04-24
+date: 2021-05-17
 title: "EP16: Missing Values in Clinical Research"
 description: Multiple Imputation
 markup: blackFriday
@@ -32,7 +32,7 @@ This website contains materials for the NIHES course [Missing Values in Clinical
 * lecture slides
 * practicals
 
-Download a .zip file with all materials: <a href="/slide/EP16_MultipleImputation_2020.zip">
+Download a .zip file with all materials: <a href="/slide/EP16_MultipleImputation_2021.zip">
 <button class="btn"><i class="fa fa-download"></i></button>
 </a>
 
