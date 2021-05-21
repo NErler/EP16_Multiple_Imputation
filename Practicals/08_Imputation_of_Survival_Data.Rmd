@@ -17,7 +17,7 @@ output:
 ```{r, include = FALSE}
 projdir <- gsub("/Practicals", "", getwd())
 
-runimps <- TRUE
+runimps <- FALSE
 
 hint <- function(text) {
   id <- paste0('hint_', sample.int(1e10, size = 1))
@@ -205,8 +205,8 @@ Run the imputation and analyse the imputed data.
 ### Solution 2
 Run the imputation:
 ```{r, eval = runimps}
-micesurv <- mice(EP16dat3, predictorMatrix = micesurvpred, maxit = 10, m = 5,
-                 printFlag = FALSE, seed = 2020)
+micesurv <- mice(EP16dat3, method = micesurvmeth, predictorMatrix = micesurvpred,
+                 maxit = 10, m = 5, printFlag = FALSE, seed = 2020)
 ```
 
 Fit the model and pool the results:

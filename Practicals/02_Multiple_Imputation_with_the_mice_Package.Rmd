@@ -212,7 +212,8 @@ cases where only one of these two variables is missing, we want to impute
 
 To avoid multicollinearity (which may lead to problems during imputation),
 imputation models should not include all three variables as predictor variables.
-In this example, we will use `BMI` to impute the other variables.
+In this example, we will use `BMI` to impute the other incomplete variables in
+the data.
 
 Moreover, we need to exclude `WC` from the imputation model for `wgt` because
 the high correlation between `WC`, `BMI` and `wgt` would otherwise lead to problems
