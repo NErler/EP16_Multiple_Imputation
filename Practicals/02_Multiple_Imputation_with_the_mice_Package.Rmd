@@ -113,7 +113,7 @@ imp0 <- mice(EP16dat1, maxit = 0)
 ### Imputation method {.tabset .tabset-fade .tabset-pills}
 There are many imputation methods available in **mice**. You can find the list in
 the help page of the 
-[`mice()` function](https://www.rdocumentation.org/packages/mice/versions/3.3.0/topics/mice).
+[`mice()` function](https://www.rdocumentation.org/packages/mice/versions/3.14.0/topics/mice).
 We will focus here on the following ones:
 
 ```{r, echo = FALSE}
@@ -310,7 +310,7 @@ You can hide the lengthy output by specifying
 :::{.task}
 `mice()` does not return a `data.frame`. 
 Find out the class of the object returned by `mice()` function using the 
-function `class()`, and take a look at the [help file](https://www.rdocumentation.org/packages/mice/versions/2.46.0/topics/mids-class) for this class.
+function `class()`, and take a look at the [help file](https://www.rdocumentation.org/packages/mice/versions/3.14.0/topics/mids-class) for this class.
 :::
 
 
@@ -321,7 +321,7 @@ class(imp)
 
 We see that `imp` is an object of class `mids`.
 
-The [help file](https://www.rdocumentation.org/packages/mice/versions/2.46.0/topics/mids-class) tells us that a `mids` object is a list with several elements:
+The [help file](https://www.rdocumentation.org/packages/mice/versions/3.14.0/topics/mids-class) tells us that a `mids` object is a list with several elements:
 
 ```{r, echo = FALSE}
 midsdf <- rbind(

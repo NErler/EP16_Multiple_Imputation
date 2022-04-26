@@ -291,7 +291,7 @@ We might expect that medication is only prescribed for patients with hypertensio
 
 ```{r, echo = FALSE, results = 'asis'}
 hint("If you use the function `table()`, you need to specify the argument 
-     'exclude = NULL'.")
+     `exclude = NULL`.")
 ```
 :::
 
