@@ -59,7 +59,7 @@ You can download R here:
 * Linux: [https://cran.r-project.org/bin/linux/](https://cran.r-project.org/bin/linux/) 
 
 
-It is strongly recommended to use a recent version of R, i.e., version 4.0.0 or later.
+It is strongly recommended to use a recent version of R, i.e., version 4.1.3.
 
 To check the version number of R, you can use the following syntax (in R):
 ``` r
@@ -69,7 +69,7 @@ R.version.string
 ### JAGS
 To download the latest version of JAGS, go to [https://sourceforge.net/projects/mcmc-jags/files/](https://sourceforge.net/projects/mcmc-jags/files/).
 
-The JAGS version should be 4.2.0 or later.
+The JAGS version should be 4.3.0 or later.
 
 ### R packages
 You will also need the following R packages:
@@ -84,8 +84,8 @@ install.packages("corrplot")
 For the packages **mice** and **JointAI** it is important that you have 
 recent versions installed.
 
-* **mice** version 3.13.0 or later
-* **JointAI** version 1.0.2
+* **mice** version 3.14.0 or later
+* **JointAI** version 1.0.3
 
 To check which version of a package you have installed, you can use the function
 `packageVersion()`, for example
