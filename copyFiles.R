@@ -183,19 +183,19 @@ slides <- grep("[[:digit:]]{2}[[:print:]]+.pdf$",
 
 
 # create a .zip
-zip(zipfile = 'website/static/slide/EP16_MultipleImputation_2021',
+zip(zipfile = 'website/static/slide/EP16_MultipleImputation_2022',
     files = unlist(c(practicals, slides, data, imps)))
 
 
 
 wd <- getwd()
 setwd('Practicals/data')
-zip(zipfile = file.path(wd, 'website/static/practical/EP16_MultipleImputation_2021_data'),
+zip(zipfile = file.path(wd, 'website/static/practical/EP16_MultipleImputation_2022_data'),
     files = list.files(full.names = TRUE))
 setwd(wd)
 
 setwd('Practicals/workspaces/')
-zip(zipfile = file.path(wd, 'website/static/practical/EP16_MultipleImputation_2021_imps'),
+zip(zipfile = file.path(wd, 'website/static/practical/EP16_MultipleImputation_2022_imps'),
     files = list.files(full.names = TRUE))
 
 setwd(wd)

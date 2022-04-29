@@ -32,7 +32,7 @@ border: 1px solid #485167;
 ## Data
 
 Download a .zip file with all datasets for the practcals: 
-         <a href="/practical/EP16_MultipleImputation_2021_data.zip">
+         <a href="/practical/EP16_MultipleImputation_2022_data.zip">
          <button class="btn"><i class="fa fa-download"></i></button>
                 </a>
 
@@ -40,6 +40,6 @@ Download a .zip file with all datasets for the practcals:
 ## Imputed Data Objects
 
 Download a .zip file with all mids objects from the practicals:
-         <a href="/practical/EP16_MultipleImputation_2021_imps.zip">
+         <a href="/practical/EP16_MultipleImputation_2022_imps.zip">
          <button class="btn"><i class="fa fa-download"></i></button>
                 </a>
