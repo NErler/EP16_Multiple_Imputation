@@ -125,6 +125,8 @@ Our aim is to impute data, so that we can later fit the following linear regress
 ```{r NHANESmodel, eval = FALSE}
 mod <- lm(wgt ~ gender + bili + age * (chol + HDL) + hgt)
 ```
+(Note: this line of syntax will not run! This is just to give you the model
+specification.)
 
 We expect that the effects of cholesterol and HDL may differ with age, and, 
 hence, include **interaction terms** between `age` and `chol` and `HDL`,
@@ -270,6 +272,13 @@ hint('For passive imputation, instead of an imputation method you need to specif
 methPAS <- meth
 methPAS[c("agechol", "ageHDL")] <- c("~I(age*chol)", "~I(age*HDL)")
 ```
+
+Note: the visit sequence does not have to be changed here, because the variables
+that are being imputed passively are already last in the visit sequence:
+```{r}
+imp0$visitSequence
+```
+
 
 #### Task 2
 :::{.task}
