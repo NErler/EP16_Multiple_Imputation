@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>EP16: Missing Values in Clinical Research</title>
+    <title>EL009: Missing Values in Clinical Research</title>
     <link>https://nerler.github.io/EP16_Multiple_Imputation/</link>
-    <description>Recent content on EP16: Missing Values in Clinical Research</description>
+    <description>Recent content on EL009: Missing Values in Clinical Research</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-uk</language>
-    <copyright>&amp;copy; 2020. All rights reserved.</copyright><atom:link href="https://nerler.github.io/EP16_Multiple_Imputation/index.xml" rel="self" type="application/rss+xml" />
+    <copyright>&amp;copy; 2023. All rights reserved.</copyright><atom:link href="https://nerler.github.io/EP16_Multiple_Imputation/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>EP16: Missing Values in Clinical Research</title>
+      <title>EL009: Missing Values in Clinical Research</title>
       <link>https://nerler.github.io/EP16_Multiple_Imputation/home/</link>
       <pubDate>Fri, 29 Apr 2022 00:00:00 +0000</pubDate>
       
       <guid>https://nerler.github.io/EP16_Multiple_Imputation/home/</guid>
-      <description>.btn { padding: 2px 10px; cursor: pointer; font-weight: bold; background: #fff; color: #485167; border-radius: 5px; border: 1px solid #485167; font-size: 100%; } /* Darker background on mouse-over */ .btn:hover { color: #fff; background: #485167; border: 1px solid #485167; }  This website contains materials for the NIHES course Missing Values in Clinical Research (EP16):
+      <description>.btn { padding: 2px 10px; cursor: pointer; font-weight: bold; background: #fff; color: #485167; border-radius: 5px; border: 1px solid #485167; font-size: 100%; } /* Darker background on mouse-over */ .btn:hover { color: #fff; background: #485167; border: 1px solid #485167; }  This website contains materials for the NIHES course Missing Values in Clinical Research (EL009):
  lecture slides practicals  Download a .zip file with all materials:</description>
     </item>
     

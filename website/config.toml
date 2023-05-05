@@ -1,9 +1,9 @@
 baseURL = "https://nerler.github.io/EP16_Multiple_Imputation/"
 languageCode = "en-uk"
-title = "EP16: Missing Values in Clinical Research"
+title = "EL009: Missing Values in Clinical Research"
 theme = "EP16webtheme"
 author = "Nicole S. Erler"
-copyright = "&copy; 2020. All rights reserved."
+copyright = "&copy; 2023. All rights reserved."
 canonifyurls = true
 paginate = 10
 ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$", "other"]
@@ -18,7 +18,7 @@ sectionPagesMenu = "main"
 [params]
   # Shown in the home page
   # subtitle = "Multiple Imputation"
-  brand = "EP16"
+  brand = "EL009"
   # googleAnalytics = "127879026"
   # disqus = "Your Disqus shortname"
   # CSS name for highlight.js
@@ -67,7 +67,7 @@ sectionPagesMenu = "main"
 # facebook = "ERandrinopoulou"
 #  instagram = "*"
   github = "NErler/EP16_Multiple_Imputation"
-  nihes = "https://www.nihes.com/course/ep16_missing_values_in_clinical_research/"
+  nihes = "https://www.nihes.com/course/el009_missing_values_in_clinical_research/"
   web = "https://nerler.com/"
 #  stackoverflow = "*"
 #  linkedin = "*"

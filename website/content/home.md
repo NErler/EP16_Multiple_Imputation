@@ -1,6 +1,6 @@
 ---
 date: 2022-04-29
-title: "EP16: Missing Values in Clinical Research"
+title: "EL009: Missing Values in Clinical Research"
 description: Multiple Imputation
 markup: blackFriday
 ---
@@ -27,12 +27,12 @@ border: 1px solid #485167;
 </style>
 
 
-This website contains materials for the NIHES course [Missing Values in Clinical Research (EP16)](https://www.nihes.com/course/ep16_missing_values_in_clinical_research/):
+This website contains materials for the NIHES course [Missing Values in Clinical Research (EL009)](https://www.nihes.com/course/EL009_missing_values_in_clinical_research/):
 
 * lecture slides
 * practicals
 
-Download a .zip file with all materials: <a href="/slide/EP16_MultipleImputation_2022.zip">
+Download a .zip file with all materials: <a href="/slide/EL009_MultipleImputation.zip">
 <button class="btn"><i class="fa fa-download"></i></button>
 </a>
 
@@ -59,7 +59,7 @@ You can download R here:
 * Linux: [https://cran.r-project.org/bin/linux/](https://cran.r-project.org/bin/linux/) 
 
 
-It is strongly recommended to use a recent version of R, i.e., version 4.1.3.
+It is strongly recommended to use a recent version of R, i.e., version 4.3.0
 
 To check the version number of R, you can use the following syntax (in R):
 ``` r
@@ -84,8 +84,8 @@ install.packages("corrplot")
 For the packages **mice** and **JointAI** it is important that you have 
 recent versions installed.
 
-* **mice** version 3.14.0 or later
-* **JointAI** version 1.0.3
+* **mice** version 3.15.0 or later
+* **JointAI** version 1.0.5
 
 To check which version of a package you have installed, you can use the function
 `packageVersion()`, for example
