@@ -69,9 +69,9 @@ for (x in html_files) {
   
   # the following gives an error/message but works anyway
   
-  webshot::webshot(x, paste0('website/static/practical/', img),
-                   vwidth = 800, vheight = 450, delay = 2,
-                   cliprect = 'viewport', zoom = 2)
+  webshot2::webshot(url = x, file = paste0('website/static/practical/', img),
+                    vwidth = 800, vheight = 450, delay = 2,
+                    cliprect = 'viewport', zoom = 2)
 }
 
 
@@ -114,14 +114,14 @@ border: 1px solid #485167;
          
          "## Data\n\n",
          paste0('Download a .zip file with all datasets for the practcals: 
-         <a href="/practical/EP16_MultipleImputation_data.zip">
+         <a href="/practical/EL009_MultipleImputation_data.zip">
          <button class="btn"><i class="fa fa-download"></i></button>
                 </a>'), "\n",
          
          
          "\n\n## Imputed Data Objects\n\n",
          paste0('Download a .zip file with all mids objects from the practicals:
-         <a href="/practical/EP16_MultipleImputation_imps.zip">
+         <a href="/practical/EL009_MultipleImputation_imps.zip">
          <button class="btn"><i class="fa fa-download"></i></button>
                 </a>'), "\n"),
   file = paste0('website/content/practical/data.md'))
@@ -183,19 +183,19 @@ slides <- grep("[[:digit:]]{2}[[:print:]]+.pdf$",
 
 
 # create a .zip
-zip(zipfile = 'website/static/slide/EP16_MultipleImputation',
+zip(zipfile = 'website/static/slide/EL009_MultipleImputation',
     files = unlist(c(practicals, slides, data, imps)))
 
 
 
 wd <- getwd()
 setwd('Practicals/data')
-zip(zipfile = file.path(wd, 'website/static/practical/EP16_MultipleImputation_data'),
+zip(zipfile = file.path(wd, 'website/static/practical/EL009_MultipleImputation_data'),
     files = list.files(full.names = TRUE))
 setwd(wd)
 
 setwd('Practicals/workspaces/')
-zip(zipfile = file.path(wd, 'website/static/practical/EP16_MultipleImputation_imps'),
+zip(zipfile = file.path(wd, 'website/static/practical/EL009_MultipleImputation_imps'),
     files = list.files(full.names = TRUE))
 
 setwd(wd)
